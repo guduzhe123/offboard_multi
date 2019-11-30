@@ -339,6 +339,9 @@ void MultiOffboard::uav_targte_local_pos() {
     }
 
 /*    util_log("target pos = %.2f, %.2f, %.2f", target_pos_.pose.position.x,
+=======
+/*    ROS_INFO("target pos = %.2f, %.2f, %.2f", target_pos_.pose.position.x,
+>>>>>>> create multi offboard control
              target_pos_.pose.position.y, target_pos_.pose.position.z);*/
     uav1_target_pose.pose.position = uav2_target_pose.pose.position;
     uav3_target_pose.pose.position = uav2_target_pose.pose.position;
