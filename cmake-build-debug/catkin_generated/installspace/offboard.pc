@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: offboard
+Description: Description of offboard
+Version: 0.0.0
+Cflags: 
+Libs: -L/usr/local/lib 
+Requires: 

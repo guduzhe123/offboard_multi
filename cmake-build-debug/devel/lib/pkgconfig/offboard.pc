@@ -1,0 +1,8 @@
+prefix=/home/zhouhua/ros_new_mav/src/offboard/cmake-build-debug/devel
+
+Name: offboard
+Description: Description of offboard
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/zhouhua/ros_new_mav/src/offboard/cmake-build-debug/devel/lib 
+Requires: 

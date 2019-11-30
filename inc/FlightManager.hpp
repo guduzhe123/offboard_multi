@@ -1,0 +1,8 @@
+//
+// Created by zhouhua on 19-9-22.
+//
+
+#ifndef OFFBOARD_FLIGHTMANAGER_HPP
+#define OFFBOARD_FLIGHTMANAGER_HPP
+
+#endif //OFFBOARD_FLIGHTMANAGER_HPP

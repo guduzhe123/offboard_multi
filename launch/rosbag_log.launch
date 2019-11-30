@@ -1,0 +1,27 @@
+<launch>
+    <node pkg="rosbag" type="record" name="record_msg_full"
+          args=" --split --size=4096 --duration=2000 -o data_big
+            /uav1/mavros/state
+            /uav1/mavros/vfr_hud
+            /uav1/mavros/global_position/global
+            /uav1/mavros/setpoint_position/local
+            /uav1/mavros/local_position/pose
+
+            /uav2/mavros/state
+            /uav2/mavros/vfr_hud
+            /uav2/mavros/setpoint_position/local
+            /uav2/mavros/local_position/pose
+            /uav2/mavros/setpoint_raw/target_local
+
+            /uav3/mavros/state
+            /uav3/mavros/vfr_hud
+            /uav3/mavros/setpoint_position/local
+            /uav3/mavros/local_position/pose
+
+            /uav4/mavros/state
+            /uav4/mavros/vfr_hud
+            /uav4/mavros/setpoint_position/local
+            /uav4/mavros/local_position/pose
+"
+    />
+</launch>
