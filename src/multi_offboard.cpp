@@ -40,39 +40,66 @@ void MultiOffboard::uav7_state_cb(const mavros_msgs::State::ConstPtr& msg){
 void MultiOffboard::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr& msg){
     current_vfr_hud = *msg;
 //    curr_altitude = current_vfr_hud.altitude;
-//    ROS_INFO("altitude = %d",  current_vfr_hud.altitude);
+//    util_log("altitude = %d",  current_vfr_hud.altitude);
+}
+
+void MultiOffboard::drone_pos_update(const geometry_msgs::PoseStamped::ConstPtr &msg, int drone_id) {
+    FlightManager::M_Drone m_drone;
+    m_drone.local_position = TVec3(msg->pose.position.x,
+                                   msg->pose.position.y,
+                                   msg->pose.position.z);
+    m_drone.quat = TQuat (msg->pose.orientation.w,
+                          msg->pose.orientation.x,
+                          msg->pose.orientation.y,
+                          msg->pose.orientation.z);
+    m_drone.drone_id = drone_id;
+    FlightManager::getInstance()->DoPosUpdate(m_drone, m_drone.drone_id);
 }
 
 void MultiOffboard::uav1_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav1_current_local_pos = *msg;
+    drone_pos_update(msg, 1);
 }
 
 void MultiOffboard::uav2_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav2_current_local_pos = *msg;
+    drone_pos_update(msg, 2);
 }
 
 void MultiOffboard::uav3_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav3_current_local_pos = *msg;
+    drone_pos_update(msg, 3);
 }
 
 void MultiOffboard::uav4_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav4_current_local_pos = *msg;
+    drone_pos_update(msg, 4);
 }
 
 void MultiOffboard::uav5_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav5_current_local_pos = *msg;
+    drone_pos_update(msg, 5);
 }
 
 void MultiOffboard::uav6_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav6_current_local_pos = *msg;
+    drone_pos_update(msg, 6);
 }
 
 void MultiOffboard::uav7_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav7_current_local_pos = *msg;
+    drone_pos_update(msg, 7);
 }
 
 void MultiOffboard::uav2_local_pos_sp_cb(const mavros_msgs::PositionTarget::ConstPtr& msg) {
     uav2_current_local_pos_sp = *msg;
+}
+
+void MultiOffboard::uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
+    mavros_msgs::DebugValue debugValue;
+    debugValue = *msg;
+    util_log("debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
+    MultiFormation::getInstance()->Oninit(debugValue.data[0]);
 }
 
 bool MultiOffboard::pos_reached(geometry_msgs::PoseStamped current_pos, geometry_msgs::PoseStamped target_pos, float err_allow){
@@ -167,31 +194,31 @@ void MultiOffboard::usa_targte_local_pos() {
                     if (pos_reached(uav5_current_local_pos, usv_way_points.back(), 3)) {
                         usv5_reached_ = true;
                         uav5_arming_client.call(arm_cmd);
-                        ROS_INFO("usv5 disarm at one point");
+                        util_log("usv5 disarm at one point");
                     }
                     if (pos_reached(uav6_current_local_pos, usv_way_points.back(), 3)) {
                         usv6_reached_ = true;
                         uav6_arming_client.call(arm_cmd);
-                        ROS_INFO("usv6 disarm at one point");
+                        util_log("usv6 disarm at one point");
                     }
                     if (pos_reached(uav7_current_local_pos, usv_way_points.back(), 3)) {
                         usv7_reached_ = true;
                         uav7_arming_client.call(arm_cmd);
-                        ROS_INFO("usv7 disarm at one point");
+                        util_log("usv7 disarm at one point");
                     }
 
                     if (usv5_reached_ && usv6_reached_ && usv7_reached_) {
-                        ROS_INFO("Finished one way point = (%.2f, %.2f, %.2f)",
+                        util_log("Finished one way point = (%.2f, %.2f, %.2f)",
                                  usv_way_points.back().pose.position.x, usv_way_points.back().pose.position.y,
                                  usv_way_points.back().pose.position.z);
                         usv_way_points.pop_back();
 
                         if (!usv_way_points.empty()) {
-                            ROS_INFO("Goto next way point = (%.2f, %.2f, %.2f)",
+                            util_log("Goto next way point = (%.2f, %.2f, %.2f)",
                                      usv_way_points.back().pose.position.x, usv_way_points.back().pose.position.y,
                                      usv_way_points.back().pose.position.z);
                         } else {
-                            ROS_INFO("Finish all target points!");
+                            util_log("Finish all target points!");
                             uav_state_ = USA_DISARM;
                         }
                         usv5_reached_ = false;
@@ -216,7 +243,7 @@ void MultiOffboard::usa_targte_local_pos() {
                 uav5_arming_client.call(arm_cmd);
                 uav6_arming_client.call(arm_cmd);
                 uav7_arming_client.call(arm_cmd);
-                ROS_INFO("Disarm all usv");
+                util_log("Disarm all usv");
                 break;
         }
     }
@@ -245,7 +272,7 @@ void MultiOffboard::uav_targte_local_pos() {
                 if (pos_reached(uav2_current_local_pos, target_pos_, 0.8)){
                     uav_state_ = WAYPOINT;
                     uav_add_way_points();
-                    ROS_INFO("Finish takeoff");
+                    util_log("Finish takeoff");
                 }
                 break;
 
@@ -254,7 +281,7 @@ void MultiOffboard::uav_targte_local_pos() {
                     target_pos_ = uav_way_points.back();
                     if (pos_reached(uav2_current_local_pos,target_pos_, 0.8)) {
                         uav_way_points.pop_back();
-                        ROS_INFO("Finished one way point = (%.2f, %.2f, %.2f)",
+                        util_log("Finished one way point = (%.2f, %.2f, %.2f)",
                                 target_pos_.pose.position.x, target_pos_.pose.position.y, target_pos_.pose.position.z);
                     }
                 } else {
@@ -271,7 +298,7 @@ void MultiOffboard::uav_targte_local_pos() {
                 is_armed = true;
 
                 if (pos_reached(uav2_current_local_pos,target_pos_, 0.8)) {
-                    ROS_INFO("reached the land");
+                    util_log("reached the land");
                     mavros_msgs::SetMode land_set_mode;
                     land_set_mode.request.custom_mode = "AUTO.LAND";
 
@@ -283,7 +310,7 @@ void MultiOffboard::uav_targte_local_pos() {
                             uav3_set_mode_client.call(land_set_mode);
                             uav4_set_mode_client.call(land_set_mode);
                             // init
-                            ROS_INFO("Land enabled");
+                            util_log("Land enabled");
                         }
                     }
                 }
@@ -306,12 +333,12 @@ void MultiOffboard::uav_targte_local_pos() {
                 uav2_set_mode_client.call(land_set_mode);
                 uav3_set_mode_client.call(land_set_mode);
                 uav4_set_mode_client.call(land_set_mode);
-                ROS_INFO("Land enabled out");
+                util_log("Land enabled out");
             }
         }
     }
 
-/*    ROS_INFO("target pos = %.2f, %.2f, %.2f", target_pos_.pose.position.x,
+/*    util_log("target pos = %.2f, %.2f, %.2f", target_pos_.pose.position.x,
              target_pos_.pose.position.y, target_pos_.pose.position.z);*/
     uav1_target_pose.pose.position = uav2_target_pose.pose.position;
     uav3_target_pose.pose.position = uav2_target_pose.pose.position;
@@ -369,6 +396,8 @@ void MultiOffboard::Oninit() {
             ("uav2/mavros/local_position/pose", 10, &MultiOffboard::uav2_local_pos_cb, this);
     uav2_local_pos_sp_sub = nh.subscribe<mavros_msgs::PositionTarget>
             ("uav2/mavros/setpoint_raw/target_local", 10, &MultiOffboard::uav2_local_pos_sp_cb, this);
+    uav2_multi_formation_sub = nh.subscribe<mavros_msgs::DebugValue>
+            ("uav2/mavros/debug_value/debug_vector", 10, &MultiOffboard::uav2_debug_value_cb, this);
 
     uav3_set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
             ("uav3/mavros/set_mode");
@@ -420,105 +449,3 @@ void MultiOffboard::Oninit() {
     is_armed = false;
 }
 
-int main(int argc, char **argv)
-{
-    ros::init(argc, argv, "offboard");
-    MultiOffboard m_multi;
-
-    m_multi.Oninit();
-
-    ros::Rate rate(10.0);
-
-    while(ros::ok() /*&& !m_multi.uav1_current_state.connected */&& !m_multi.uav5_current_state.connected) {
-        ros::spinOnce();
-        rate.sleep();
-    }
-
-    ROS_INFO("is uav5 connected = %d", m_multi.uav5_current_state.connected);
-    mavros_msgs::SetMode offb_set_mode;
-    offb_set_mode.request.custom_mode = "OFFBOARD";
-
-    mavros_msgs::CommandBool arm_cmd;
-    arm_cmd.request.value = true;
-
-    ros::Time last_request = ros::Time::now();
-    int count = 0;
-
-    while(ros::ok()){
-        if( (m_multi.uav1_current_state.mode != "OFFBOARD" || m_multi.uav3_current_state.mode != "OFFBOARD" ||
-                m_multi.uav4_current_state.mode != "OFFBOARD" ) &&
-            (ros::Time::now() - last_request > ros::Duration(5.0)) && !m_multi.is_offboard){
-            if( m_multi.uav1_set_mode_client.call(offb_set_mode) &&
-                offb_set_mode.response.mode_sent){
-                m_multi.uav2_set_mode_client.call(offb_set_mode);
-                m_multi.uav3_set_mode_client.call(offb_set_mode);
-                m_multi.uav4_set_mode_client.call(offb_set_mode);
-
-                m_multi.uav5_set_mode_client.call(offb_set_mode);
-                m_multi.uav6_set_mode_client.call(offb_set_mode);
-                m_multi.uav7_set_mode_client.call(offb_set_mode);
-//                ROS_INFO("UAS vehicle calling offboard");
-
-                if (m_multi.uav5_current_state.mode == "OFFBOARD") {
-                    ROS_INFO("USA Vehicle offboard");
-                }
-                m_multi.is_offboard = true;
-                ROS_INFO("UAV Offboard enabled");
-
-            }
-
-            last_request = ros::Time::now();
-        } else {
-            if( ! m_multi.uav1_current_state.armed /*&&
-                (ros::Time::now() - last_request > ros::Duration(5.0)) */&& !m_multi.is_armed){
-                if( m_multi.uav1_arming_client.call(arm_cmd) &&
-                    arm_cmd.response.success){
-                    m_multi.uav2_arming_client.call(arm_cmd);
-                    m_multi.uav3_arming_client.call(arm_cmd);
-                    m_multi.uav4_arming_client.call(arm_cmd);
-                    m_multi.uav5_arming_client.call(arm_cmd);
-                    m_multi.uav6_arming_client.call(arm_cmd);
-                    m_multi.uav7_arming_client.call(arm_cmd);
-                    m_multi.is_armed = true;
-                    ROS_INFO("Vehicle armed");
-                }
-                last_request = ros::Time::now();
-            }
-        }
-
-        if ((m_multi.uav5_current_state.mode != "OFFBOARD" || m_multi.uav6_current_state.mode != "OFFBOARD" ||
-            m_multi.uav7_current_state.mode != "OFFBOARD"))  {
-            if (m_multi.uav5_set_mode_client.call(offb_set_mode) &&
-                    offb_set_mode.response.mode_sent) {
-                m_multi.uav6_set_mode_client.call(offb_set_mode);
-                m_multi.uav7_set_mode_client.call(offb_set_mode);
-//                last_request = ros::Time::now();
-                ROS_INFO("UAS vehicle calling offboard");
-
-                if (m_multi.uav5_current_state.mode == "OFFBOARD") {
-                    ROS_INFO("USA Vehicle offboard");
-                }
-            }
-        }
-
-/*        if( ! m_multi.uav5_current_state.armed && !m_multi.usv_armed
-            *//*(ros::Time::now() - last_request > ros::Duration(5.0))*//*){
-            if( m_multi.uav5_arming_client.call(arm_cmd) &&
-                arm_cmd.response.success){
-                m_multi.uav6_arming_client.call(arm_cmd);
-                m_multi.uav7_arming_client.call(arm_cmd);
-                m_multi.usv_armed = true;
-                ROS_INFO("Vehicle armed");
-            }
-            last_request = ros::Time::now();
-        }*/
-
-        m_multi.uav_targte_local_pos();
-        m_multi.usa_targte_local_pos();
-
-        ros::spinOnce();
-        rate.sleep();
-    }
-
-    return 0;
-}

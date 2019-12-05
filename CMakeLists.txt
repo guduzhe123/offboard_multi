@@ -131,7 +131,14 @@ target_link_libraries(offboard ${catkin_LIBRARIES})
 
 add_executable(multi_offboard   src/multi_offboard.cpp
                                 src/PathCreator.cpp
-                                src/FlightManager.cpp )
+                                src/FlightManager.cpp
+                                src/avoidance.cpp
+                                src/Multi_formation.cpp
+                                src/util.cpp
+                                inc/Multi_formation.hpp
+                                inc/Cinc.hpp
+                                inc/util.h
+                                src/main.cpp)
 target_link_libraries(multi_offboard ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the library

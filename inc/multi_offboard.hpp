@@ -12,13 +12,12 @@
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/VFR_HUD.h>
 #include <mavros_msgs/PositionTarget.h>
-#include "math.h"
+#include <mavros_msgs/DebugValue.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <geometry_msgs/TwistStamped.h>
-#include <string.h>
-#include <Eigen/Core>
-#include <vector>       // std::vector
-#include <algorithm>    // std::reverse
+#include "Multi_formation.hpp"
+#include "FlightManager.hpp"
+#include "Cinc.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -36,7 +35,7 @@ public:
         USA_DISARM
     };
 
-    ~MultiOffboard() {};
+    ~MultiOffboard() = default;
     void vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr& msg);
 
     void uav1_state_cb(const mavros_msgs::State::ConstPtr& msg);
@@ -55,6 +54,7 @@ public:
     void uav7_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg);
 
     void uav2_local_pos_sp_cb(const mavros_msgs::PositionTarget::ConstPtr& msg);
+    void uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
 
     bool pos_reached(geometry_msgs::PoseStamped current_pos, geometry_msgs::PoseStamped target_pos, float err_allow);
     void Oninit();
@@ -110,6 +110,7 @@ public:
     ros::ServiceClient uav2_arming_client;
     ros::Publisher uav2_local_pos_pub;
     ros::Subscriber uav2_local_pos_sp_sub;
+    ros::Subscriber uav2_multi_formation_sub;
 
     ros::Subscriber uav3_local_position_sub;
     ros::ServiceClient uav3_set_mode_client;
@@ -141,6 +142,8 @@ public:
     bool usv_armed = false;
     ros::Time last_request_;
 private:
+
+    static void drone_pos_update(const geometry_msgs::PoseStamped::ConstPtr &msg, int drone_id);
 
     float curr_altitude;
     int uav_state_ = TAKEOFF;
