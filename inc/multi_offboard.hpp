@@ -34,6 +34,7 @@ public:
         USA_WAYPOINT,
         USA_DISARM
     };
+    MultiOffboard();
 
     ~MultiOffboard() = default;
     void vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr& msg);
@@ -62,6 +63,8 @@ public:
     void usa_targte_local_pos();
     void uav_add_way_points();
     void usv_add_way_points();
+
+    static  MultiOffboard* getInstance();
 
     mavros_msgs::State uav1_current_state;
     mavros_msgs::State uav2_current_state;
@@ -142,6 +145,7 @@ public:
     bool usv_armed = false;
     ros::Time last_request_;
 private:
+    static MultiOffboard* l_pInst;
 
     static void drone_pos_update(const geometry_msgs::PoseStamped::ConstPtr &msg, int drone_id);
 

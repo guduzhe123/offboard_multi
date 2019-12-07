@@ -7,17 +7,19 @@
 
 #include "Cinc.hpp"
 #include "Multi_formation.hpp"
+//#include "multi_offboard.hpp"
+
 enum {
     UAV1 = 1,
     UAV2,
     UAV3,
     UAV4,
-    UUV1,
-    UUV2,
-    UUV3,
     USV1,
     USV2,
-    USV3
+    USV3,
+    UUV1,
+    UUV2,
+    UUV3
 };
 
 class FlightManager {
@@ -40,21 +42,21 @@ public:
         M_Drone uav2;
         M_Drone uav3;
         M_Drone uav4;
-        M_Drone uuv1;
-        M_Drone uuv2;
-        M_Drone uuv3;
         M_Drone usv1;
         M_Drone usv2;
         M_Drone usv3;
+        M_Drone uuv1;
+        M_Drone uuv2;
+        M_Drone uuv3;
     };
     FlightManager();
     ~FlightManager() = default;
 
+//    void OnInit(const MultiOffboard& msg_manager);
+
     void DoPosUpdate(const M_Drone &mDrone, const int drone_id);
 
     static FlightManager* getInstance();
-
-//    static FlightManager& getInstance();
 
 private:
 

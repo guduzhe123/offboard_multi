@@ -1,6 +1,6 @@
 <launch>
     <node pkg="rosbag" type="record" name="record_msg_full"
-          args=" --split --size=4096 --duration=2000 -o data_big
+          args=" --split --size=4096 --duration=2000 -o multi_data
             /uav1/mavros/state
             /uav1/mavros/vfr_hud
             /uav1/mavros/global_position/global

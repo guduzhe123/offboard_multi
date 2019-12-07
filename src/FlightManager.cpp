@@ -30,18 +30,6 @@ void FlightManager::DoPosUpdate(const M_Drone &mDrone, const int drone_id) {
             multi_vehicle_.uav4 = mDrone;
         }
             break;
-        case UUV1: {
-            multi_vehicle_.uuv1 = mDrone;
-        }
-            break;
-        case UUV2: {
-            multi_vehicle_.uuv2 = mDrone;
-        }
-            break;
-        case UUV3: {
-            multi_vehicle_.uuv3 = mDrone;
-        }
-            break;
         case USV1: {
             multi_vehicle_.usv1 = mDrone;
         }
@@ -52,6 +40,18 @@ void FlightManager::DoPosUpdate(const M_Drone &mDrone, const int drone_id) {
             break;
         case USV3: {
             multi_vehicle_.usv3 = mDrone;
+        }
+            break;
+        case UUV1: {
+            multi_vehicle_.uuv1 = mDrone;
+        }
+            break;
+        case UUV2: {
+            multi_vehicle_.uuv2 = mDrone;
+        }
+            break;
+        case UUV3: {
+            multi_vehicle_.uuv3 = mDrone;
         }
             break;
         default:
@@ -66,4 +66,8 @@ FlightManager* FlightManager::getInstance() {
     }
     return l_pInst;
 }
+
+/*void FlightManager::OnInit(const MultiOffboard &msg_manager) {
+
+}*/
 

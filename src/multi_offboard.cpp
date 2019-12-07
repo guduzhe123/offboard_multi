@@ -8,6 +8,11 @@
 //#include <mavros_msgs/>
 #include "multi_offboard.hpp"
 
+MultiOffboard* MultiOffboard::l_pInst = NULL;
+
+MultiOffboard::MultiOffboard() {
+
+}
 void MultiOffboard::uav1_state_cb(const mavros_msgs::State::ConstPtr& msg){
     uav1_current_state = *msg;
 }
@@ -58,37 +63,37 @@ void MultiOffboard::drone_pos_update(const geometry_msgs::PoseStamped::ConstPtr 
 
 void MultiOffboard::uav1_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav1_current_local_pos = *msg;
-    drone_pos_update(msg, 1);
+    drone_pos_update(msg, UAV1);
 }
 
 void MultiOffboard::uav2_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav2_current_local_pos = *msg;
-    drone_pos_update(msg, 2);
+    drone_pos_update(msg, UAV2);
 }
 
 void MultiOffboard::uav3_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav3_current_local_pos = *msg;
-    drone_pos_update(msg, 3);
+    drone_pos_update(msg, UAV3);
 }
 
 void MultiOffboard::uav4_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav4_current_local_pos = *msg;
-    drone_pos_update(msg, 4);
+    drone_pos_update(msg, UAV4);
 }
 
 void MultiOffboard::uav5_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav5_current_local_pos = *msg;
-    drone_pos_update(msg, 5);
+    drone_pos_update(msg, USV1);
 }
 
 void MultiOffboard::uav6_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav6_current_local_pos = *msg;
-    drone_pos_update(msg, 6);
+    drone_pos_update(msg, USV1);
 }
 
 void MultiOffboard::uav7_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     uav7_current_local_pos = *msg;
-    drone_pos_update(msg, 7);
+    drone_pos_update(msg, USV3);
 }
 
 void MultiOffboard::uav2_local_pos_sp_cb(const mavros_msgs::PositionTarget::ConstPtr& msg) {
@@ -338,11 +343,7 @@ void MultiOffboard::uav_targte_local_pos() {
         }
     }
 
-/*    util_log("target pos = %.2f, %.2f, %.2f", target_pos_.pose.position.x,
-=======
-/*    ROS_INFO("target pos = %.2f, %.2f, %.2f", target_pos_.pose.position.x,
->>>>>>> create multi offboard control
-             target_pos_.pose.position.y, target_pos_.pose.position.z);*/
+//    util_log("target pos = %.2f, %.2f, %.2f", target_pos_.pose.position.x,
     uav1_target_pose.pose.position = uav2_target_pose.pose.position;
     uav3_target_pose.pose.position = uav2_target_pose.pose.position;
     uav4_target_pose.pose.position = uav2_target_pose.pose.position;
@@ -452,3 +453,9 @@ void MultiOffboard::Oninit() {
     is_armed = false;
 }
 
+MultiOffboard* MultiOffboard::getInstance() {
+    if (l_pInst == NULL) {
+        l_pInst = new MultiOffboard();
+    }
+    return l_pInst;
+}
