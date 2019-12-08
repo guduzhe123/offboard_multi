@@ -9,7 +9,7 @@ int main (int argc, char **argv){
 
     MultiOffboard::getInstance()->Oninit();
 
-    util_daemonize();
+//    util_daemonize();
     ros::Rate rate(20.0);
 
     while(ros::ok() && !MultiOffboard::getInstance()->uav5_current_state.connected) {
@@ -72,7 +72,7 @@ int main (int argc, char **argv){
                 offb_set_mode.response.mode_sent) {
                 MultiOffboard::getInstance()->uav6_set_mode_client.call(offb_set_mode);
                 MultiOffboard::getInstance()->uav7_set_mode_client.call(offb_set_mode);
-                util_log("UAS vehicle calling offboard");
+//                util_log("UAS vehicle calling offboard");
 
                 if (MultiOffboard::getInstance()->uav5_current_state.mode == "OFFBOARD") {
                     util_log("USA Vehicle offboard");
@@ -82,7 +82,7 @@ int main (int argc, char **argv){
 
 
         MultiOffboard::getInstance()->uav_targte_local_pos();
-        MultiOffboard::getInstance()->usa_targte_local_pos();
+        MultiOffboard::getInstance()->usv_targte_local_pos();
 
         ros::spinOnce();
         rate.sleep();

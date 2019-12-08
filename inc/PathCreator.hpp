@@ -5,25 +5,35 @@
 #ifndef OFFBOARD_PATHCREATOR_HPP
 #define OFFBOARD_PATHCREATOR_HPP
 
-#include <math.h>
-#include <Eigen/Core>
+#include "Cinc.hpp"
+#include <geometry_msgs/PoseStamped.h>
 
 using namespace Eigen;
+using namespace std;
 
 class PathCreator {
 public:
     struct TPathInfo {
-        int m_path_id;    // 0~3 for tracking blade, -1 for blade root, -2 for blade tip //
+        int m_path_id;
         float target_heading_local;
         float line_angle;
-        Vector3f m_insp_vector;
+        TVec3 m_insp_vector;
     };
 
-    void Init();
+    PathCreator();
 
-    void CreatPath();
+    ~PathCreator() = default;
+
+    void onInit();
+
+    void uav_add_way_points(vector<geometry_msgs::PoseStamped> &uav_way_points);
+
+    void usv_add_way_points(vector<geometry_msgs::PoseStamped> &usv_way_points);
+
+    static PathCreator* geInstance();
 
 private:
+    static PathCreator* l_pInst;
 
 };
 #endif //OFFBOARD_PATHCREATOR_HPP

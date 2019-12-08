@@ -12,6 +12,7 @@
 #include <algorithm>    // std::reverse
 #include <Eigen/Dense>
 #include "util.h"
+#include <ros/ros.h>
 
 typedef Eigen::Vector2f TVec2;
 typedef Eigen::Vector3f TVec3;

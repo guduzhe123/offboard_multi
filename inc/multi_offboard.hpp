@@ -5,7 +5,6 @@
 #ifndef OFFBOARD_MULTI_OFFBOARD_HPP
 #define OFFBOARD_MULTI_OFFBOARD_HPP
 
-#include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/SetMode.h>
@@ -18,6 +17,7 @@
 #include "Multi_formation.hpp"
 #include "FlightManager.hpp"
 #include "Cinc.hpp"
+#include "PathCreator.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -26,7 +26,8 @@ public:
     enum  {
         TAKEOFF,
         WAYPOINT,
-        LAND
+        LAND,
+        FALLOW_USV
     };
 
     enum {
@@ -57,12 +58,10 @@ public:
     void uav2_local_pos_sp_cb(const mavros_msgs::PositionTarget::ConstPtr& msg);
     void uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
 
-    bool pos_reached(geometry_msgs::PoseStamped current_pos, geometry_msgs::PoseStamped target_pos, float err_allow);
+    bool pos_reached(geometry_msgs::PoseStamped &current_pos, geometry_msgs::PoseStamped &target_pos, float err_allow);
     void Oninit();
     void uav_targte_local_pos();
-    void usa_targte_local_pos();
-    void uav_add_way_points();
-    void usv_add_way_points();
+    void usv_targte_local_pos();
 
     static  MultiOffboard* getInstance();
 

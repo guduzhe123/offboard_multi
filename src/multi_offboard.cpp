@@ -107,7 +107,8 @@ void MultiOffboard::uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     MultiFormation::getInstance()->Oninit(debugValue.data[0]);
 }
 
-bool MultiOffboard::pos_reached(geometry_msgs::PoseStamped current_pos, geometry_msgs::PoseStamped target_pos, float err_allow){
+bool MultiOffboard::pos_reached(geometry_msgs::PoseStamped &current_pos, geometry_msgs::PoseStamped &target_pos,
+                                float err_allow){
     float err_px = current_pos.pose.position.x - target_pos.pose.position.x;
     float err_py = current_pos.pose.position.y - target_pos.pose.position.y;
     float err_pz = current_pos.pose.position.z - target_pos.pose.position.z;
@@ -115,74 +116,8 @@ bool MultiOffboard::pos_reached(geometry_msgs::PoseStamped current_pos, geometry
     return sqrt(err_px * err_px + err_py * err_py + err_pz * err_pz) < err_allow;
 }
 
-void MultiOffboard::uav_add_way_points() {
-    geometry_msgs::PoseStamped way_point;
 
-    way_point.pose.position.x = 0;
-    way_point.pose.position.y = 0;
-    way_point.pose.position.z = 15;
-    uav_way_points.push_back(way_point);
-
-    way_point.pose.position.x = 30;
-    way_point.pose.position.y = 40;
-    way_point.pose.position.z = 15;
-    uav_way_points.push_back(way_point);
-
-    way_point.pose.position.x = -30;
-    way_point.pose.position.y = 40;
-    way_point.pose.position.z = 15;
-    uav_way_points.push_back(way_point);
-
-    way_point.pose.position.x = -30;
-    way_point.pose.position.y = -40;
-    way_point.pose.position.z = 15;
-    uav_way_points.push_back(way_point);
-
-    way_point.pose.position.x = 30;
-    way_point.pose.position.y = -40;
-    way_point.pose.position.z = 15;
-    uav_way_points.push_back(way_point);
-
-    way_point.pose.position.x = 0;
-    way_point.pose.position.y = 0;
-    way_point.pose.position.z = 15;
-    uav_way_points.push_back(way_point);
-
-    std::reverse(uav_way_points.begin(), uav_way_points.end());
-}
-
-void MultiOffboard::usv_add_way_points() {
-    geometry_msgs::PoseStamped way_point;
-
-    way_point.pose.position.x = 30;
-    way_point.pose.position.y = 40;
-    way_point.pose.position.z = 0;
-    usv_way_points.push_back(way_point);
-
-    way_point.pose.position.x = -40;
-    way_point.pose.position.y = 40;
-    way_point.pose.position.z = 0;
-    usv_way_points.push_back(way_point);
-
-    way_point.pose.position.x = -30;
-    way_point.pose.position.y = -40;
-    way_point.pose.position.z = 0;
-    usv_way_points.push_back(way_point);
-
-    way_point.pose.position.x = 30;
-    way_point.pose.position.y = -40;
-    way_point.pose.position.z = 0;
-    usv_way_points.push_back(way_point);
-
-    way_point.pose.position.x = 0;
-    way_point.pose.position.y = 0;
-    way_point.pose.position.z = 0;
-    usv_way_points.push_back(way_point);
-
-    std::reverse(usv_way_points.begin(), usv_way_points.end());
-}
-
-void MultiOffboard::usa_targte_local_pos() {
+void MultiOffboard::usv_targte_local_pos() {
     mavros_msgs::CommandBool arm_cmd;
     arm_cmd.request.value = false;
 
@@ -190,7 +125,7 @@ void MultiOffboard::usa_targte_local_pos() {
         switch (usv_state_) {
             case USA_INIT:
                 usv_state_ = USA_WAYPOINT;
-                usv_add_way_points();
+                PathCreator::geInstance()->usv_add_way_points(usv_way_points);
                 break;
 
             case USA_WAYPOINT:
@@ -224,14 +159,14 @@ void MultiOffboard::usa_targte_local_pos() {
                                      usv_way_points.back().pose.position.z);
                         } else {
                             util_log("Finish all target points!");
-                            uav_state_ = USA_DISARM;
+                            usv_state_ = USA_DISARM;
                         }
                         usv5_reached_ = false;
                         usv6_reached_ = false;
                         usv7_reached_ = false;
                     }
 
-                    if ((!usv5_reached_ || !usv6_reached_ || !usv7_reached_) && uav_state_ == USA_WAYPOINT){
+                    if ((!usv5_reached_ || !usv6_reached_ || !usv7_reached_) && usv_state_ == USA_WAYPOINT){
                         arm_cmd.request.value = true;
                         uav5_arming_client.call(arm_cmd);
                         uav6_arming_client.call(arm_cmd);
@@ -239,7 +174,7 @@ void MultiOffboard::usa_targte_local_pos() {
                     }
 
                 } else {
-                    uav_state_ = USA_DISARM;
+                    usv_state_ = USA_DISARM;
                 }
                 break;
 
@@ -249,6 +184,7 @@ void MultiOffboard::usa_targte_local_pos() {
                 uav6_arming_client.call(arm_cmd);
                 uav7_arming_client.call(arm_cmd);
                 util_log("Disarm all usv");
+                uav_state_ = LAND;
                 break;
         }
     }
@@ -256,13 +192,12 @@ void MultiOffboard::usa_targte_local_pos() {
     uav6_target_pose.pose.position = uav5_target_pose.pose.position;
     uav7_target_pose.pose.position = uav5_target_pose.pose.position;
 
-/*    uav6_target_pose.pose.orientation = uav5_current_local_pos.pose.orientation;
-    uav7_target_pose.pose.orientation = uav5_current_local_pos.pose.orientation;*/
 
-
-    uav5_local_pos_pub.publish(uav5_target_pose);
-    uav6_local_pos_pub.publish(uav6_target_pose);
-    uav7_local_pos_pub.publish(uav7_target_pose);
+    if (uav_state_ == FALLOW_USV) {
+        uav5_local_pos_pub.publish(uav5_target_pose);
+        uav6_local_pos_pub.publish(uav6_target_pose);
+        uav7_local_pos_pub.publish(uav7_target_pose);
+    }
 }
 
 void MultiOffboard::uav_targte_local_pos() {
@@ -272,11 +207,14 @@ void MultiOffboard::uav_targte_local_pos() {
             case TAKEOFF:
                 target_pos_.pose.position.x = 0;
                 target_pos_.pose.position.y = 0;
-                target_pos_.pose.position.z = 3;
+                target_pos_.pose.position.z = 15;
 
                 if (pos_reached(uav2_current_local_pos, target_pos_, 0.8)){
-                    uav_state_ = WAYPOINT;
-                    uav_add_way_points();
+//                    uav_state_ = WAYPOINT;
+//                    uav_add_way_points();
+
+                    uav_state_ = FALLOW_USV;
+                    PathCreator::geInstance()->uav_add_way_points(uav_way_points);
                     util_log("Finish takeoff");
                 }
                 break;
@@ -314,12 +252,21 @@ void MultiOffboard::uav_targte_local_pos() {
                             uav2_set_mode_client.call(land_set_mode);
                             uav3_set_mode_client.call(land_set_mode);
                             uav4_set_mode_client.call(land_set_mode);
-                            // init
                             util_log("Land enabled");
                         }
                     }
                 }
 
+                break;
+
+            case FALLOW_USV:
+                if (uav5_current_state.armed) {
+                    target_pos_.pose.position.x = uav5_target_pose.pose.position.x;
+                    target_pos_.pose.position.y = uav5_target_pose.pose.position.y;
+                }
+                break;
+
+            default:
                 break;
         }
 
@@ -343,7 +290,6 @@ void MultiOffboard::uav_targte_local_pos() {
         }
     }
 
-//    util_log("target pos = %.2f, %.2f, %.2f", target_pos_.pose.position.x,
     uav1_target_pose.pose.position = uav2_target_pose.pose.position;
     uav3_target_pose.pose.position = uav2_target_pose.pose.position;
     uav4_target_pose.pose.position = uav2_target_pose.pose.position;

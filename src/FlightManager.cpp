@@ -6,7 +6,9 @@
 
 FlightManager* FlightManager::l_pInst = NULL;
 
-FlightManager::FlightManager() {
+FlightManager::FlightManager():
+                m_drone_{}
+                {
 
 }
 
