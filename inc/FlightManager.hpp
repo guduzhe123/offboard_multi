@@ -7,6 +7,7 @@
 
 #include "Cinc.hpp"
 #include "Multi_formation.hpp"
+#include <geometry_msgs/PoseStamped.h>
 //#include "multi_offboard.hpp"
 
 enum {
@@ -22,19 +23,25 @@ enum {
     UUV3
 };
 
+enum vehicle_formation {
+    VF_SQUARE_SMALL,
+    VF_TRIANGLE_SMALL,
+    VF_SQUARE_LARGE,
+    VF_TRIANGLE_LARGE
+};
+
 class FlightManager {
 public:
     struct M_Drone {
-        TVec3 local_position;
         TVec3 velocity;
         float pitch ;
         float roll ;
         float yaw ;
-        TQuat quat ;
         int drone_id;
         double latitude;
         double longtitude;
         double altitude;
+        geometry_msgs::PoseStamped current_local_pos;
     };
 
     struct multi_vehicle{
@@ -52,9 +59,13 @@ public:
     FlightManager();
     ~FlightManager() = default;
 
-//    void OnInit(const MultiOffboard& msg_manager);
+    void OnInit(const int config);
 
-    void DoPosUpdate(const M_Drone &mDrone, const int drone_id);
+    void DoPosUpdate(const M_Drone &mDrone);
+
+    void ChooseUAVLeader();
+
+    void ChooseUSVLeader();
 
     static FlightManager* getInstance();
 

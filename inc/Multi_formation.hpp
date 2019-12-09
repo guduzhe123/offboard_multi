@@ -7,12 +7,7 @@
 
 #include "Cinc.hpp"
 
-enum vehicle_formation {
-    VF_SQUARE_SMALL,
-    VF_TRIANGLE_SMALL,
-    VF_SQUARE_LARGE,
-    VF_TRIANGLE_LARGE
-};
+
 
 class MultiFormation {
 public:
@@ -20,7 +15,7 @@ public:
 
     ~MultiFormation() = default;
 
-    static void Oninit(const float config);
+    void Oninit(const float config);
 
     static MultiFormation* getInstance();
 

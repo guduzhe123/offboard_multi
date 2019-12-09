@@ -35,10 +35,34 @@ public:
         USA_WAYPOINT,
         USA_DISARM
     };
+
+    struct TVehicleMsg {
+        int drone_id;
+        mavros_msgs::State current_state;
+        geometry_msgs::PoseStamped current_local_pos;
+        geometry_msgs::PoseStamped target_pose;
+        sensor_msgs::NavSatFix current_global_pos;
+
+        ros::Subscriber state_sub;
+        ros::Subscriber local_position_sub;
+        ros::ServiceClient set_mode_client;
+        ros::ServiceClient arming_client;
+        ros::Publisher local_pos_pub;
+        ros::Subscriber global_pos_sub;
+    };
+
     MultiOffboard();
 
     ~MultiOffboard() = default;
     void vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr& msg);
+
+    void uav1_global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg);
+    void uav2_global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg);
+    void uav3_global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg);
+    void uav4_global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg);
+    void uav5_global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg);
+    void uav6_global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg);
+    void uav7_global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg);
 
     void uav1_state_cb(const mavros_msgs::State::ConstPtr& msg);
     void uav2_state_cb(const mavros_msgs::State::ConstPtr& msg);
@@ -62,91 +86,39 @@ public:
     void Oninit();
     void uav_targte_local_pos();
     void usv_targte_local_pos();
+    void drone_pos_update();
 
     static  MultiOffboard* getInstance();
 
-    mavros_msgs::State uav1_current_state;
-    mavros_msgs::State uav2_current_state;
-    mavros_msgs::State uav3_current_state;
-    mavros_msgs::State uav4_current_state;
-    mavros_msgs::State uav5_current_state;
-    mavros_msgs::State uav6_current_state;
-    mavros_msgs::State uav7_current_state;
     mavros_msgs:: VFR_HUD current_vfr_hud;
     mavros_msgs::PositionTarget uav2_current_local_pos_sp;
-    geometry_msgs::PoseStamped uav1_current_local_pos;
-    geometry_msgs::PoseStamped uav2_current_local_pos;
-    geometry_msgs::PoseStamped uav3_current_local_pos;
-    geometry_msgs::PoseStamped uav4_current_local_pos;
-    geometry_msgs::PoseStamped uav5_current_local_pos;
-    geometry_msgs::PoseStamped uav6_current_local_pos;
-    geometry_msgs::PoseStamped uav7_current_local_pos;
 
-    geometry_msgs::PoseStamped uav1_target_pose;
-    geometry_msgs::PoseStamped uav2_target_pose;
-    geometry_msgs::PoseStamped uav3_target_pose;
-    geometry_msgs::PoseStamped uav4_target_pose;
-    geometry_msgs::PoseStamped uav5_target_pose;
-    geometry_msgs::PoseStamped uav6_target_pose;
-    geometry_msgs::PoseStamped uav7_target_pose;
 
     ros::NodeHandle nh;
-    ros::Subscriber uav1_local_position_sub;
-    ros::ServiceClient uav1_set_mode_client;
-    ros::ServiceClient uav1_arming_client;
-    ros::Publisher uav1_local_pos_pub;
-    ros::Subscriber uav1_state_sub;
-    ros::Subscriber uav2_state_sub;
-    ros::Subscriber uav3_state_sub;
-    ros::Subscriber uav4_state_sub;
-    ros::Subscriber uav5_state_sub;
-    ros::Subscriber uav6_state_sub;
-    ros::Subscriber uav7_state_sub;
     ros::Subscriber uav1_vfr_hud_sub;
-    ros::Publisher uav1_gps_global_pos_pub;
-    ros::Publisher uav1_global_pos_pub;
+    ros::Subscriber uav1_global_pos_sub;
     ros::Publisher uav1_g_speed_control_pub;
 
-    ros::Subscriber uav2_local_position_sub;
-    ros::ServiceClient uav2_set_mode_client;
-    ros::ServiceClient uav2_arming_client;
-    ros::Publisher uav2_local_pos_pub;
     ros::Subscriber uav2_local_pos_sp_sub;
     ros::Subscriber uav2_multi_formation_sub;
+    ros::Subscriber uav2_global_pos_sub;
 
-    ros::Subscriber uav3_local_position_sub;
-    ros::ServiceClient uav3_set_mode_client;
-    ros::ServiceClient uav3_arming_client;
-    ros::Publisher uav3_local_pos_pub;
 
-    ros::Subscriber uav4_local_position_sub;
-    ros::ServiceClient uav4_set_mode_client;
-    ros::ServiceClient uav4_arming_client;
-    ros::Publisher uav4_local_pos_pub;
-
-    ros::Subscriber uav5_local_position_sub;
-    ros::ServiceClient uav5_set_mode_client;
-    ros::ServiceClient uav5_arming_client;
-    ros::Publisher uav5_local_pos_pub;
-
-    ros::Subscriber uav6_local_position_sub;
-    ros::ServiceClient uav6_set_mode_client;
-    ros::ServiceClient uav6_arming_client;
-    ros::Publisher uav6_local_pos_pub;
-
-    ros::Subscriber uav7_local_position_sub;
-    ros::ServiceClient uav7_set_mode_client;
-    ros::ServiceClient uav7_arming_client;
-    ros::Publisher uav7_local_pos_pub;
+    TVehicleMsg drone_uav1_;
+    TVehicleMsg drone_uav2_;
+    TVehicleMsg drone_uav3_;
+    TVehicleMsg drone_uav4_;
+    TVehicleMsg drone_uav5_;
+    TVehicleMsg drone_uav6_;
+    TVehicleMsg drone_uav7_;
 
     bool is_offboard = false;
     bool is_armed = false;
     bool usv_armed = false;
     ros::Time last_request_;
+
 private:
     static MultiOffboard* l_pInst;
-
-    static void drone_pos_update(const geometry_msgs::PoseStamped::ConstPtr &msg, int drone_id);
 
     float curr_altitude;
     int uav_state_ = TAKEOFF;
@@ -158,6 +130,14 @@ private:
     bool usv5_reached_ = false;
     bool usv6_reached_ = false;
     bool usv7_reached_ = false;
+
+    FlightManager::M_Drone m_drone_uav1_;
+    FlightManager::M_Drone m_drone_uav2_;
+    FlightManager::M_Drone m_drone_uav3_;
+    FlightManager::M_Drone m_drone_uav4_;
+    FlightManager::M_Drone m_drone_uav5_;
+    FlightManager::M_Drone m_drone_uav6_;
+    FlightManager::M_Drone m_drone_uav7_;
 };
 
 #endif //OFFBOARD_MULTI_OFFBOARD_HPP

@@ -129,17 +129,34 @@ include_directories( "/usr/include/eigen3" )
 add_executable(offboard src/offboard.cpp)
 target_link_libraries(offboard ${catkin_LIBRARIES})
 
-add_executable(multi_offboard   src/multi_offboard.cpp
-                                src/PathCreator.cpp
-                                src/FlightManager.cpp
-                                src/avoidance.cpp
-                                src/Multi_formation.cpp
-                                src/util.cpp
-                                inc/Multi_formation.hpp
-                                inc/Cinc.hpp
-                                inc/util.h
-                                src/main.cpp)
+#[[src/multi_offboard.cpp
+src/PathCreator.cpp
+src/FlightManager.cpp
+src/avoidance.cpp
+src/Multi_formation.cpp
+src/util.cpp
+inc/Multi_formation.hpp
+inc/PathCreator.hpp
+inc/FlightManager.hpp
+inc/Cinc.hpp
+inc/util.h]]
+
+add_executable(multi_offboard  src/main.cpp)
 target_link_libraries(multi_offboard ${catkin_LIBRARIES})
+
+add_library(
+        multi_offboard_lib
+
+        STATIC
+        src/multi_offboard.cpp
+        src/PathCreator.cpp
+        src/FlightManager.cpp
+        src/avoidance.cpp
+        src/Multi_formation.cpp
+        src/util.cpp
+)
+
+target_link_libraries(multi_offboard multi_offboard_lib)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

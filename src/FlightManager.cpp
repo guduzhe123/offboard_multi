@@ -12,11 +12,14 @@ FlightManager::FlightManager():
 
 }
 
-void FlightManager::DoPosUpdate(const M_Drone &mDrone, const int drone_id) {
+void FlightManager::DoPosUpdate(const M_Drone &mDrone) {
 //    util_log("drone_id = %d", drone_id);
-    switch (drone_id) {
+    switch (mDrone.drone_id) {
         case UAV1:{
             multi_vehicle_.uav1 = mDrone;
+/*            util_log("uav1 drone local pos x = %.2f, y = %.2f, z = %.2f", mDrone.current_local_pos.pose.position.x,
+                     mDrone.current_local_pos.pose.position.y, mDrone.current_local_pos.pose.position.z);
+            util_log("uav1 drone gps lat = %.9f, longt = %.9f", mDrone.latitude, mDrone.longtitude);*/
         }
             break;
         case UAV2: {
@@ -69,7 +72,41 @@ FlightManager* FlightManager::getInstance() {
     return l_pInst;
 }
 
-/*void FlightManager::OnInit(const MultiOffboard &msg_manager) {
+void FlightManager::OnInit(const int config) {
+    switch (config) {
+        case VF_SQUARE_SMALL: {
 
-}*/
+        }
+            break;
+
+        case VF_TRIANGLE_SMALL: {
+
+        }
+            break;
+
+        case VF_SQUARE_LARGE: {
+
+        }
+            break;
+
+        case VF_TRIANGLE_LARGE: {
+
+        }
+            break;
+
+        default:
+            break;
+
+    }
+}
+
+void FlightManager::ChooseUAVLeader() {
+
+}
+
+void FlightManager::ChooseUSVLeader() {
+
+}
+
+
 
