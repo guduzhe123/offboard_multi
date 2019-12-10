@@ -24,7 +24,6 @@ void FlightManager::DoPosUpdate(const M_Drone &mDrone) {
             break;
         case UAV2: {
             multi_vehicle_.uav2 = mDrone;
-
         }
             break;
         case UAV3: {
@@ -100,12 +99,52 @@ void FlightManager::OnInit(const int config) {
     }
 }
 
-void FlightManager::ChooseUAVLeader() {
-
+void FlightManager::ChooseUAVLeader(int &leader_uav_id) {
+    if (multi_vehicle_.uav1.current_state.connected &&
+        multi_vehicle_.uav1.current_state.armed &&
+        multi_vehicle_.uav1.current_state.mode == "OFFBOARD") {
+        leader_uav_id = UAV1;
+    } else {
+        if (multi_vehicle_.uav2.current_state.connected &&
+            multi_vehicle_.uav2.current_state.armed &&
+            multi_vehicle_.uav2.current_state.mode == "OFFBOARD") {
+            leader_uav_id = UAV2;
+        } else {
+            if (multi_vehicle_.uav3.current_state.connected &&
+                multi_vehicle_.uav3.current_state.armed &&
+                multi_vehicle_.uav3.current_state.mode == "OFFBOARD") {
+                leader_uav_id = UAV3;
+            } else {
+                if (multi_vehicle_.uav4.current_state.connected &&
+                    multi_vehicle_.uav4.current_state.armed &&
+                    multi_vehicle_.uav4.current_state.mode == "OFFBOARD") {
+                    leader_uav_id = UAV4;
+                }
+            }
+        }
+    }
+    leader_uav_id_ =leader_uav_id;
 }
 
-void FlightManager::ChooseUSVLeader() {
-
+void FlightManager::ChooseUSVLeader(int &leader_usv_id) {
+    if (multi_vehicle_.usv1.current_state.connected &&
+        multi_vehicle_.usv1.current_state.armed &&
+        multi_vehicle_.usv1.current_state.mode == "OFFBOARD") {
+        leader_usv_id = USV1;
+    } else {
+        if (multi_vehicle_.usv2.current_state.connected &&
+            multi_vehicle_.usv2.current_state.armed &&
+            multi_vehicle_.usv2.current_state.mode == "OFFBOARD") {
+            leader_usv_id = USV2;
+        } else {
+            if (multi_vehicle_.usv3.current_state.connected &&
+                multi_vehicle_.usv3.current_state.armed &&
+                multi_vehicle_.usv3.current_state.mode == "OFFBOARD") {
+                leader_usv_id = USV3;
+            }
+        }
+    }
+    leader_usv_id_ = leader_usv_id;
 }
 
 

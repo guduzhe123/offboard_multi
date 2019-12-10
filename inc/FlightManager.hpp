@@ -8,6 +8,7 @@
 #include "Cinc.hpp"
 #include "Multi_formation.hpp"
 #include <geometry_msgs/PoseStamped.h>
+#include <mavros_msgs/State.h>
 //#include "multi_offboard.hpp"
 
 enum {
@@ -33,15 +34,16 @@ enum vehicle_formation {
 class FlightManager {
 public:
     struct M_Drone {
+        int drone_id;
         TVec3 velocity;
         float pitch ;
         float roll ;
         float yaw ;
-        int drone_id;
         double latitude;
         double longtitude;
         double altitude;
         geometry_msgs::PoseStamped current_local_pos;
+        mavros_msgs::State current_state;
     };
 
     struct multi_vehicle{
@@ -63,15 +65,18 @@ public:
 
     void DoPosUpdate(const M_Drone &mDrone);
 
-    void ChooseUAVLeader();
+    void ChooseUAVLeader(int &leader_uav_id);
 
-    void ChooseUSVLeader();
+    void ChooseUSVLeader(int &leader_usv_id);
 
     static FlightManager* getInstance();
 
 private:
 
     M_Drone m_drone_;
+
+    int leader_uav_id_;
+    int leader_usv_id_;
 
     multi_vehicle multi_vehicle_;
     static FlightManager* l_pInst;

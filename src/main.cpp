@@ -27,7 +27,8 @@ int main (int argc, char **argv){
     ros::Time last_request = ros::Time::now();
 
     while(ros::ok()){
-        if( (MultiOffboard::getInstance()->drone_uav1_.current_state.mode != "OFFBOARD" ||
+
+        if( (MultiOffboard::getInstance()->drone_uav2_.current_state.mode != "OFFBOARD" ||
              MultiOffboard::getInstance()->drone_uav3_.current_state.mode != "OFFBOARD" ||
              MultiOffboard::getInstance()->drone_uav4_.current_state.mode != "OFFBOARD") &&
             (ros::Time::now() - last_request > ros::Duration(5.0)) && !MultiOffboard::getInstance()->is_offboard){
@@ -39,7 +40,6 @@ int main (int argc, char **argv){
 
                 MultiOffboard::getInstance()->is_offboard = true;
                 util_log("UAV Offboard enabled");
-
             }
 
             last_request = ros::Time::now();
@@ -83,8 +83,8 @@ int main (int argc, char **argv){
         }
 
 
-        MultiOffboard::getInstance()->uav_targte_local_pos();
         MultiOffboard::getInstance()->usv_targte_local_pos();
+        MultiOffboard::getInstance()->uav_targte_local_pos();
         MultiOffboard::getInstance()->drone_pos_update();
 
         ros::spinOnce();

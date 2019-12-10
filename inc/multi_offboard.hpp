@@ -87,6 +87,11 @@ public:
     void uav_targte_local_pos();
     void usv_targte_local_pos();
     void drone_pos_update();
+    void update_leader_vehicle();
+
+    void ChooseUAVLeader();
+
+    void ChooseUSVLeader();
 
     static  MultiOffboard* getInstance();
 
@@ -111,25 +116,30 @@ public:
     TVehicleMsg drone_uav5_;
     TVehicleMsg drone_uav6_;
     TVehicleMsg drone_uav7_;
+    TVehicleMsg drone_uav_leader_;
+    TVehicleMsg drone_usv_leader_;
 
-    bool is_offboard = false;
-    bool is_armed = false;
-    bool usv_armed = false;
+    bool is_offboard;
+    bool is_armed;
+    bool usv_armed;
     ros::Time last_request_;
 
 private:
     static MultiOffboard* l_pInst;
 
     float curr_altitude;
-    int uav_state_ = TAKEOFF;
-    int usv_state_ = USA_INIT;
+    int uav_state_ ;
+    int usv_state_ ;
+    int leader_uav_id_;
+    int leader_usv_id_;
+
     geometry_msgs::PoseStamped target_pos_;
     vector<geometry_msgs::PoseStamped> uav_way_points;
     vector<geometry_msgs::PoseStamped> usv_way_points;
 
-    bool usv5_reached_ = false;
-    bool usv6_reached_ = false;
-    bool usv7_reached_ = false;
+    bool usv5_reached_;
+    bool usv6_reached_;
+    bool usv7_reached_;
 
     FlightManager::M_Drone m_drone_uav1_;
     FlightManager::M_Drone m_drone_uav2_;
