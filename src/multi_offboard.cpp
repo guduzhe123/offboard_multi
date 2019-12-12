@@ -37,7 +37,11 @@ MultiOffboard::MultiOffboard() :
         leader_usv_id_(USV1),
         usv5_reached_(false),
         usv6_reached_(false),
-        usv7_reached_(false)
+        usv7_reached_(false),
+        follow_uav1_keep_{},
+        follow_uav2_keep_{},
+        follow_uav3_keep_{},
+        follow_uav4_keep_{}
         {
 
 }
@@ -294,6 +298,7 @@ void MultiOffboard::uav_global_pos_sp() {
                                                          m_drone_uav4_.target_local_pos_sp, is_uav_formation_);
         FlightManager::getInstance()->FlightManager::getInstance()->OnCheckFormationArrived();
         if (is_uav_formation_) {
+
             drone_uav1_.local_pos_pub.publish(m_drone_uav1_.current_local_pos);
             drone_uav2_.local_pos_pub.publish(m_drone_uav2_.target_local_pos_sp);
             drone_uav3_.local_pos_pub.publish(m_drone_uav3_.target_local_pos_sp);
@@ -398,6 +403,8 @@ void MultiOffboard::usv_targte_local_pos() {
 
 void MultiOffboard::uav_target_local_pos() {
     uav_global_pos_sp();
+    FlightManager::getInstance()->GetKeepFormation(follow_uav1_keep_, follow_uav2_keep_, follow_uav3_keep_,
+                                                   follow_uav4_keep_);
     if (drone_uav_leader_.current_state.mode == "OFFBOARD") {
         switch (uav_state_) {
             // takeoff
@@ -488,12 +495,27 @@ void MultiOffboard::uav_target_local_pos() {
             }
         }
     }
+    drone_uav1_.target_pose.pose.position.x = drone_uav_leader_.target_pose.pose.position.x + follow_uav1_keep_(0);
+    drone_uav1_.target_pose.pose.position.y = drone_uav_leader_.target_pose.pose.position.y + follow_uav1_keep_(1);
+    drone_uav1_.target_pose.pose.position.z = drone_uav_leader_.target_pose.pose.position.z;
+
+    drone_uav2_.target_pose.pose.position.x = drone_uav_leader_.target_pose.pose.position.x + follow_uav2_keep_(0);
+    drone_uav2_.target_pose.pose.position.y = drone_uav_leader_.target_pose.pose.position.y + follow_uav2_keep_(1);
+    drone_uav2_.target_pose.pose.position.z = drone_uav_leader_.target_pose.pose.position.z;
+
+    drone_uav3_.target_pose.pose.position.x = drone_uav_leader_.target_pose.pose.position.x + follow_uav3_keep_(0);
+    drone_uav3_.target_pose.pose.position.y = drone_uav_leader_.target_pose.pose.position.y + follow_uav3_keep_(1);
+    drone_uav3_.target_pose.pose.position.z = drone_uav_leader_.target_pose.pose.position.z;
+
+    drone_uav4_.target_pose.pose.position.x = drone_uav_leader_.target_pose.pose.position.x + follow_uav4_keep_(0);
+    drone_uav4_.target_pose.pose.position.y = drone_uav_leader_.target_pose.pose.position.y + follow_uav4_keep_(1);
+    drone_uav4_.target_pose.pose.position.z = drone_uav_leader_.target_pose.pose.position.z;
 
     if ( !is_uav_formation_) {
-        drone_uav1_.local_pos_pub.publish(drone_uav_leader_.target_pose);
-        drone_uav2_.local_pos_pub.publish(drone_uav_leader_.target_pose);
-        drone_uav3_.local_pos_pub.publish(drone_uav_leader_.target_pose);
-        drone_uav4_.local_pos_pub.publish(drone_uav_leader_.target_pose);
+        drone_uav1_.local_pos_pub.publish(drone_uav1_.target_pose);
+        drone_uav2_.local_pos_pub.publish(drone_uav2_.target_pose);
+        drone_uav3_.local_pos_pub.publish(drone_uav3_.target_pose);
+        drone_uav4_.local_pos_pub.publish(drone_uav4_.target_pose);
     }
 }
 

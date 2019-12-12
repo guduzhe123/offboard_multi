@@ -49,6 +49,7 @@ public:
         double altitude;
         geometry_msgs::PoseStamped current_local_pos;
         mavros_msgs::State current_state;
+        geometry_msgs::PoseStamped follow_uav_to_leader_pos;
         geometry_msgs::PoseStamped target_local_pos_sp;
     };
 
@@ -80,6 +81,9 @@ public:
                        geometry_msgs::PoseStamped &follow_uav_num2,
                        geometry_msgs::PoseStamped &follow_uav_num3, bool &is_formation);
 
+    void GetKeepFormation(TVec2 &follow_uav1_keep, TVec2 &follow_uav2_keep, TVec2 &follow_uav3_keep,
+                          TVec2 &follow_uav4_keep);
+
     static FlightManager* getInstance();
 
     void OnCheckFormationArrived();
@@ -108,6 +112,12 @@ private:
     TVec3 Drone_uav3_;
     TVec3 Drone_uav4_;
 
+    TVec2 follow_uav1_keep_;
+    TVec2 follow_uav2_keep_;
+    TVec2 follow_uav3_keep_;
+    TVec2 follow_uav4_keep_;
+
+    TVec2 follow_uav1_to_leader_, follow_uav2_to_leader_, follow_uav3_to_leader_;
 
     geometry_msgs::PoseStamped follow_uav1_;
     geometry_msgs::PoseStamped follow_uav2_;
