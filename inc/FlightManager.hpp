@@ -9,7 +9,12 @@
 #include "Multi_formation.hpp"
 #include <geometry_msgs/PoseStamped.h>
 #include <mavros_msgs/State.h>
+#include <sensor_msgs/NavSatFix.h>
+#include <mavros_msgs/GlobalPositionTarget.h>
 //#include "multi_offboard.hpp"
+
+static const bool K_Param_local_global = true;
+static const float K_err_allow = 0.8;
 
 enum {
     UAV1 = 1,
@@ -25,10 +30,10 @@ enum {
 };
 
 enum vehicle_formation {
-    VF_SQUARE_SMALL,
-    VF_TRIANGLE_SMALL,
-    VF_SQUARE_LARGE,
-    VF_TRIANGLE_LARGE
+    VF_SQUARE,
+    VF_TRIANGLE,
+    VF_LINE_HORIZONTAL,
+    VF_LINE_VERTICAL
 };
 
 class FlightManager {
@@ -44,6 +49,7 @@ public:
         double altitude;
         geometry_msgs::PoseStamped current_local_pos;
         mavros_msgs::State current_state;
+        geometry_msgs::PoseStamped target_local_pos_sp;
     };
 
     struct multi_vehicle{
@@ -69,17 +75,45 @@ public:
 
     void ChooseUSVLeader(int &leader_usv_id);
 
+    void
+    GetFormationOutput(geometry_msgs::PoseStamped &follow_uav_num1,
+                       geometry_msgs::PoseStamped &follow_uav_num2,
+                       geometry_msgs::PoseStamped &follow_uav_num3, bool &is_formation);
+
     static FlightManager* getInstance();
+
+    void OnCheckFormationArrived();
 
 private:
 
-    M_Drone m_drone_;
+    void calcFollowUAVPos(const M_Drone &follow_uav1, const M_Drone &follow_uav2, const M_Drone &follow_uav3,
+                          TVec3 &follow_uav1_local_target, TVec3 &follow_uav2_local_target,
+                          TVec3 &follow_uav3_local_target);
+
+
+    bool pos_reached(geometry_msgs::PoseStamped &current_pos, geometry_msgs::PoseStamped &follow_uav_target);
+
+    M_Drone leader_drone_;
 
     int leader_uav_id_;
     int leader_usv_id_;
 
+    bool is_formation_;
+
     multi_vehicle multi_vehicle_;
     static FlightManager* l_pInst;
+
+    TVec3 Drone_uav1_;
+    TVec3 Drone_uav2_;
+    TVec3 Drone_uav3_;
+    TVec3 Drone_uav4_;
+
+
+    geometry_msgs::PoseStamped follow_uav1_;
+    geometry_msgs::PoseStamped follow_uav2_;
+    geometry_msgs::PoseStamped follow_uav3_;
+
+    geometry_msgs::PoseStamped follow_uav1_to_leader, follow_uav2_to_leader, follow_uav3_to_leader;
 };
 
 #endif //OFFBOARD_FLIGHTMANAGER_HPP

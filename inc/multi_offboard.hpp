@@ -11,6 +11,7 @@
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/VFR_HUD.h>
 #include <mavros_msgs/PositionTarget.h>
+#include <mavros_msgs/GlobalPositionTarget.h>
 #include <mavros_msgs/DebugValue.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <geometry_msgs/TwistStamped.h>
@@ -38,6 +39,7 @@ public:
 
     struct TVehicleMsg {
         int drone_id;
+        int debug_received_id;
         mavros_msgs::State current_state;
         geometry_msgs::PoseStamped current_local_pos;
         geometry_msgs::PoseStamped target_pose;
@@ -45,10 +47,14 @@ public:
 
         ros::Subscriber state_sub;
         ros::Subscriber local_position_sub;
+        ros::Subscriber multi_formation_sub;
+        ros::Subscriber global_pos_sub;
+
         ros::ServiceClient set_mode_client;
         ros::ServiceClient arming_client;
+
         ros::Publisher local_pos_pub;
-        ros::Subscriber global_pos_sub;
+        ros::Publisher global_pos_pub;
     };
 
     MultiOffboard();
@@ -80,11 +86,17 @@ public:
     void uav7_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg);
 
     void uav2_local_pos_sp_cb(const mavros_msgs::PositionTarget::ConstPtr& msg);
-    void uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
 
-    bool pos_reached(geometry_msgs::PoseStamped &current_pos, geometry_msgs::PoseStamped &target_pos, float err_allow);
+    void uav1_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
+    void uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
+    void uav3_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
+    void uav4_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
+    void uav5_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
+    void uav6_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
+    void uav7_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
+
     void Oninit();
-    void uav_targte_local_pos();
+    void uav_target_local_pos();
     void usv_targte_local_pos();
     void drone_pos_update();
     void update_leader_vehicle();
@@ -125,6 +137,10 @@ public:
     ros::Time last_request_;
 
 private:
+    bool pos_reached(geometry_msgs::PoseStamped &current_pos, geometry_msgs::PoseStamped &target_pos, float err_allow);
+    void uav_global_pos_sp();
+    void usv_global_pos_sp();
+
     static MultiOffboard* l_pInst;
 
     float curr_altitude;
@@ -140,6 +156,8 @@ private:
     bool usv5_reached_;
     bool usv6_reached_;
     bool usv7_reached_;
+    bool is_uav_formation_;
+    bool is_usv_formation_;
 
     FlightManager::M_Drone m_drone_uav1_;
     FlightManager::M_Drone m_drone_uav2_;

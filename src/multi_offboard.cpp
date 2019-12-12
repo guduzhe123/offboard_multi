@@ -223,10 +223,58 @@ void MultiOffboard::uav2_local_pos_sp_cb(const mavros_msgs::PositionTarget::Cons
     uav2_current_local_pos_sp = *msg;
 }
 
+void MultiOffboard::uav1_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
+    mavros_msgs::DebugValue debugValue;
+    debugValue = *msg;
+    util_log("uav1 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
+    int config = (int)debugValue.data[0];
+    FlightManager::getInstance()->OnInit(config);
+}
+
 void MultiOffboard::uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
     mavros_msgs::DebugValue debugValue;
     debugValue = *msg;
-    util_log("debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
+    util_log("uav2 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
+    int config = (int)debugValue.data[0];
+    FlightManager::getInstance()->OnInit(config);
+}
+
+void MultiOffboard::uav3_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
+    mavros_msgs::DebugValue debugValue;
+    debugValue = *msg;
+    util_log("uav3 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
+    int config = (int)debugValue.data[0];
+    FlightManager::getInstance()->OnInit(config);
+}
+
+void MultiOffboard::uav4_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
+    mavros_msgs::DebugValue debugValue;
+    debugValue = *msg;
+    util_log("uav4 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
+    int config = (int)debugValue.data[0];
+    FlightManager::getInstance()->OnInit(config);
+}
+
+void MultiOffboard::uav5_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
+    mavros_msgs::DebugValue debugValue;
+    debugValue = *msg;
+    util_log("uav5 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
+    int config = (int)debugValue.data[0];
+    FlightManager::getInstance()->OnInit(config);
+}
+
+void MultiOffboard::uav6_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
+    mavros_msgs::DebugValue debugValue;
+    debugValue = *msg;
+    util_log("uav6 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
+    int config = (int)debugValue.data[0];
+    FlightManager::getInstance()->OnInit(config);
+}
+
+void MultiOffboard::uav7_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
+    mavros_msgs::DebugValue debugValue;
+    debugValue = *msg;
+    util_log("uav7 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     FlightManager::getInstance()->OnInit(config);
 }
@@ -240,11 +288,38 @@ bool MultiOffboard::pos_reached(geometry_msgs::PoseStamped &current_pos, geometr
     return sqrt(err_px * err_px + err_py * err_py + err_pz * err_pz) < err_allow;
 }
 
+void MultiOffboard::uav_global_pos_sp() {
+    if (leader_uav_id_ == UAV1) {
+        FlightManager::getInstance()->GetFormationOutput(m_drone_uav2_.target_local_pos_sp, m_drone_uav3_.target_local_pos_sp,
+                                                         m_drone_uav4_.target_local_pos_sp, is_uav_formation_);
+        FlightManager::getInstance()->FlightManager::getInstance()->OnCheckFormationArrived();
+        if (is_uav_formation_) {
+            drone_uav1_.local_pos_pub.publish(m_drone_uav1_.current_local_pos);
+            drone_uav2_.local_pos_pub.publish(m_drone_uav2_.target_local_pos_sp);
+            drone_uav3_.local_pos_pub.publish(m_drone_uav3_.target_local_pos_sp);
+            drone_uav4_.local_pos_pub.publish(m_drone_uav4_.target_local_pos_sp);
+            util_log("m_drone_uav2_ target local pos.x = %.2f, y = %.2f",
+                    m_drone_uav2_.target_local_pos_sp.pose.position.x,
+                    m_drone_uav2_.target_local_pos_sp.pose.position.y);
+            util_log("m_drone_uav2_ current local pos.x = %.2f, y = %.2f",
+                    m_drone_uav2_.current_local_pos.pose.position.x,
+                    m_drone_uav2_.current_local_pos.pose.position.y);
+        }
+    }
+
+}
+
+void MultiOffboard::usv_global_pos_sp() {
+
+}
+
 void MultiOffboard::usv_targte_local_pos() {
     mavros_msgs::CommandBool arm_cmd;
     arm_cmd.request.value = false;
 
+    usv_global_pos_sp();
     if (drone_usv_leader_.current_state.mode == "OFFBOARD") {
+
         switch (usv_state_) {
             case USA_INIT:
                 usv_state_ = USA_WAYPOINT;
@@ -312,16 +387,17 @@ void MultiOffboard::usv_targte_local_pos() {
         }
     }
 
-    if (uav_state_ == FALLOW_USV) {
+    if (uav_state_ == FALLOW_USV ) {
         drone_uav5_.local_pos_pub.publish(drone_usv_leader_.target_pose);
         drone_uav6_.local_pos_pub.publish(drone_usv_leader_.target_pose);
         drone_uav7_.local_pos_pub.publish(drone_usv_leader_.target_pose);
-        util_log("1111 usv leader target pos x = %.2f, y = %.2f, z = %.2f", drone_usv_leader_.target_pose.pose.position.x,
-                 drone_usv_leader_.target_pose.pose.position.y, drone_usv_leader_.target_pose.pose.position.z);
+/*        util_log("1111 usv leader target pos x = %.2f, y = %.2f, z = %.2f", drone_usv_leader_.target_pose.pose.position.x,
+                 drone_usv_leader_.target_pose.pose.position.y, drone_usv_leader_.target_pose.pose.position.z);*/
     }
 }
 
-void MultiOffboard::uav_targte_local_pos() {
+void MultiOffboard::uav_target_local_pos() {
+    uav_global_pos_sp();
     if (drone_uav_leader_.current_state.mode == "OFFBOARD") {
         switch (uav_state_) {
             // takeoff
@@ -382,8 +458,8 @@ void MultiOffboard::uav_targte_local_pos() {
                 if (drone_usv_leader_.current_state.armed) {
                     target_pos_.pose.position.x = drone_usv_leader_.target_pose.pose.position.x;
                     target_pos_.pose.position.y = drone_usv_leader_.target_pose.pose.position.y;
-                    util_log("usv leader target pos x = %.2f, y = %.2f, z = %.2f", drone_usv_leader_.target_pose.pose.position.x,
-                             drone_usv_leader_.target_pose.pose.position.y, drone_usv_leader_.target_pose.pose.position.z);
+/*                    util_log("usv leader target pos x = %.2f, y = %.2f, z = %.2f", drone_usv_leader_.target_pose.pose.position.x,
+                             drone_usv_leader_.target_pose.pose.position.y, drone_usv_leader_.target_pose.pose.position.z);*/
                 }
                 break;
 
@@ -413,10 +489,12 @@ void MultiOffboard::uav_targte_local_pos() {
         }
     }
 
-    drone_uav1_.local_pos_pub.publish(drone_uav_leader_.target_pose);
-    drone_uav2_.local_pos_pub.publish(drone_uav_leader_.target_pose);
-    drone_uav3_.local_pos_pub.publish(drone_uav_leader_.target_pose);
-    drone_uav4_.local_pos_pub.publish(drone_uav_leader_.target_pose);
+    if ( !is_uav_formation_) {
+        drone_uav1_.local_pos_pub.publish(drone_uav_leader_.target_pose);
+        drone_uav2_.local_pos_pub.publish(drone_uav_leader_.target_pose);
+        drone_uav3_.local_pos_pub.publish(drone_uav_leader_.target_pose);
+        drone_uav4_.local_pos_pub.publish(drone_uav_leader_.target_pose);
+    }
 }
 
 
@@ -449,10 +527,12 @@ void MultiOffboard::Oninit() {
             ("uav1/mavros/setpoint_position/local", 5);
     drone_uav1_.local_position_sub = nh.subscribe<geometry_msgs::PoseStamped>
             ("uav1/mavros/local_position/pose", 10, &MultiOffboard::uav1_local_pos_cb, this);
-
-    uav1_global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
+    drone_uav1_.global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
             ("uav1/mavros/global_position/global", 10, &MultiOffboard::uav1_global_pos_cb, this);
-
+    drone_uav1_.global_pos_pub = nh.advertise<mavros_msgs::GlobalPositionTarget>
+            ("uav1/mavros/setpoint_raw/target_global", 10);
+    drone_uav1_.multi_formation_sub = nh.subscribe<mavros_msgs::DebugValue>
+            ("uav1/mavros/debug_value/debug_vector", 10, &MultiOffboard::uav1_debug_value_cb, this);
 
     drone_uav2_.set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
             ("uav2/mavros/set_mode");
@@ -464,10 +544,12 @@ void MultiOffboard::Oninit() {
             ("uav2/mavros/local_position/pose", 10, &MultiOffboard::uav2_local_pos_cb, this);
     uav2_local_pos_sp_sub = nh.subscribe<mavros_msgs::PositionTarget>
             ("uav2/mavros/setpoint_raw/target_local", 10, &MultiOffboard::uav2_local_pos_sp_cb, this);
-    uav2_multi_formation_sub = nh.subscribe<mavros_msgs::DebugValue>
+    drone_uav2_.multi_formation_sub = nh.subscribe<mavros_msgs::DebugValue>
             ("uav2/mavros/debug_value/debug_vector", 10, &MultiOffboard::uav2_debug_value_cb, this);
-    uav2_global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
+    drone_uav2_.global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
             ("uav2/mavros/global_position/global", 10, &MultiOffboard::uav2_global_pos_cb, this);
+    drone_uav2_.global_pos_pub = nh.advertise<mavros_msgs::GlobalPositionTarget>
+            ("uav2/mavros/setpoint_raw/target_global", 10);
 
     drone_uav3_.set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
             ("uav3/mavros/set_mode");
@@ -479,6 +561,10 @@ void MultiOffboard::Oninit() {
             ("uav3/mavros/local_position/pose", 10, &MultiOffboard::uav3_local_pos_cb, this);
     drone_uav3_.global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
             ("uav3/mavros/global_position/global", 10, &MultiOffboard::uav3_global_pos_cb, this);
+    drone_uav3_.global_pos_pub = nh.advertise<mavros_msgs::GlobalPositionTarget>
+            ("uav3/mavros/setpoint_raw/target_global", 10);
+    drone_uav3_.multi_formation_sub = nh.subscribe<mavros_msgs::DebugValue>
+            ("uav3/mavros/debug_value/debug_vector", 10, &MultiOffboard::uav3_debug_value_cb, this);
 
     drone_uav4_.set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
             ("uav4/mavros/set_mode");
@@ -490,6 +576,12 @@ void MultiOffboard::Oninit() {
             ("uav4/mavros/local_position/pose", 10, &MultiOffboard::uav4_local_pos_cb, this);
     drone_uav4_.global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
             ("uav4/mavros/global_position/global", 10, &MultiOffboard::uav4_global_pos_cb, this);
+    drone_uav4_.global_pos_pub = nh.advertise<mavros_msgs::GlobalPositionTarget>
+            ("uav4/mavros/setpoint_raw/target_global", 10);
+    drone_uav4_.multi_formation_sub = nh.subscribe<mavros_msgs::DebugValue>
+            ("uav4/mavros/debug_value/debug_vector", 10, &MultiOffboard::uav4_debug_value_cb, this);
+    drone_uav4_.multi_formation_sub = nh.subscribe<mavros_msgs::DebugValue>
+            ("uav4/mavros/debug_value/debug_vector", 10, &MultiOffboard::uav4_debug_value_cb, this);
 
     drone_uav5_.set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
             ("uav5/mavros/set_mode");
@@ -501,6 +593,10 @@ void MultiOffboard::Oninit() {
             ("uav5/mavros/local_position/pose", 10, &MultiOffboard::uav5_local_pos_cb, this);
     drone_uav5_.global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
             ("uav5/mavros/global_position/global", 10, &MultiOffboard::uav5_global_pos_cb, this);
+    drone_uav5_.global_pos_pub = nh.advertise<mavros_msgs::GlobalPositionTarget>
+            ("uav5/mavros/setpoint_raw/target_global", 10);
+    drone_uav5_.multi_formation_sub = nh.subscribe<mavros_msgs::DebugValue>
+            ("uav5/mavros/debug_value/debug_vector", 10, &MultiOffboard::uav5_debug_value_cb, this);
 
     drone_uav6_.set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
             ("uav6/mavros/set_mode");
@@ -512,6 +608,10 @@ void MultiOffboard::Oninit() {
             ("uav6/mavros/local_position/pose", 10, &MultiOffboard::uav6_local_pos_cb, this);
     drone_uav6_.global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
             ("uav6/mavros/global_position/global", 10, &MultiOffboard::uav6_global_pos_cb, this);
+    drone_uav6_.global_pos_pub = nh.advertise<mavros_msgs::GlobalPositionTarget>
+            ("uav6/mavros/setpoint_raw/target_global", 10);
+    drone_uav6_.multi_formation_sub = nh.subscribe<mavros_msgs::DebugValue>
+            ("uav6/mavros/debug_value/debug_vector", 10, &MultiOffboard::uav6_debug_value_cb, this);
 
     drone_uav7_.set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
             ("uav7/mavros/set_mode");
@@ -523,6 +623,10 @@ void MultiOffboard::Oninit() {
             ("uav7/mavros/local_position/pose", 10, &MultiOffboard::uav7_local_pos_cb, this);
     drone_uav7_.global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
             ("uav7/mavros/global_position/global", 10, &MultiOffboard::uav7_global_pos_cb, this);
+    drone_uav7_.global_pos_pub = nh.advertise<mavros_msgs::GlobalPositionTarget>
+            ("uav7/mavros/setpoint_raw/target_global", 10);
+    drone_uav7_.multi_formation_sub = nh.subscribe<mavros_msgs::DebugValue>
+            ("uav7/mavros/debug_value/debug_vector", 10, &MultiOffboard::uav7_debug_value_cb, this);
 
     uav_state_ = TAKEOFF;
     is_offboard = false;

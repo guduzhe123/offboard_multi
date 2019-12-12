@@ -9,7 +9,7 @@ int main (int argc, char **argv){
 
     MultiOffboard::getInstance()->Oninit();
 
-//    util_daemonize();
+    util_daemonize();
     ros::Rate rate(20.0);
 
     while(ros::ok() && !MultiOffboard::getInstance()->drone_uav5_.current_state.connected) {
@@ -34,6 +34,7 @@ int main (int argc, char **argv){
             (ros::Time::now() - last_request > ros::Duration(5.0)) && !MultiOffboard::getInstance()->is_offboard){
             if( MultiOffboard::getInstance()->drone_uav1_.set_mode_client.call(offb_set_mode) &&
                 offb_set_mode.response.mode_sent){
+                MultiOffboard::getInstance()->drone_uav1_.set_mode_client.call(offb_set_mode);
                 MultiOffboard::getInstance()->drone_uav2_.set_mode_client.call(offb_set_mode);
                 MultiOffboard::getInstance()->drone_uav3_.set_mode_client.call(offb_set_mode);
                 MultiOffboard::getInstance()->drone_uav4_.set_mode_client.call(offb_set_mode);
@@ -47,6 +48,7 @@ int main (int argc, char **argv){
             if( ! MultiOffboard::getInstance()->drone_uav1_.current_state.armed && !MultiOffboard::getInstance()->is_armed){
                 if( MultiOffboard::getInstance()->drone_uav1_.arming_client.call(arm_cmd) &&
                     arm_cmd.response.success){
+                    MultiOffboard::getInstance()->drone_uav1_.arming_client.call(arm_cmd);
                     MultiOffboard::getInstance()->drone_uav2_.arming_client.call(arm_cmd);
                     MultiOffboard::getInstance()->drone_uav3_.arming_client.call(arm_cmd);
                     MultiOffboard::getInstance()->drone_uav4_.arming_client.call(arm_cmd);
@@ -84,7 +86,7 @@ int main (int argc, char **argv){
 
 
         MultiOffboard::getInstance()->usv_targte_local_pos();
-        MultiOffboard::getInstance()->uav_targte_local_pos();
+        MultiOffboard::getInstance()->uav_target_local_pos();
         MultiOffboard::getInstance()->drone_pos_update();
 
         ros::spinOnce();
