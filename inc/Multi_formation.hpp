@@ -6,7 +6,6 @@
 #define OFFBOARD_MULTI_FORMATION_HPP
 
 #include "Cinc.hpp"
-#include <geometry_msgs/PoseStamped.h>
 
 typedef struct GlobalPosition
 {

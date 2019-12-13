@@ -6,7 +6,6 @@
 #define OFFBOARD_PATHCREATOR_HPP
 
 #include "Cinc.hpp"
-#include <geometry_msgs/PoseStamped.h>
 
 using namespace Eigen;
 using namespace std;

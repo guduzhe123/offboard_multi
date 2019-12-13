@@ -162,13 +162,13 @@ private:
 
     TVec2 follow_uav1_keep_, follow_uav2_keep_, follow_uav3_keep_, follow_uav4_keep_;
 
-    FlightManager::M_Drone m_drone_uav1_;
-    FlightManager::M_Drone m_drone_uav2_;
-    FlightManager::M_Drone m_drone_uav3_;
-    FlightManager::M_Drone m_drone_uav4_;
-    FlightManager::M_Drone m_drone_uav5_;
-    FlightManager::M_Drone m_drone_uav6_;
-    FlightManager::M_Drone m_drone_uav7_;
+    M_Drone m_drone_uav1_;
+    M_Drone m_drone_uav2_;
+    M_Drone m_drone_uav3_;
+    M_Drone m_drone_uav4_;
+    M_Drone m_drone_uav5_;
+    M_Drone m_drone_uav6_;
+    M_Drone m_drone_uav7_;
 };
 
 #endif //OFFBOARD_MULTI_OFFBOARD_HPP

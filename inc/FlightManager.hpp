@@ -6,12 +6,9 @@
 #define OFFBOARD_FLIGHTMANAGER_HPP
 
 #include "Cinc.hpp"
+
 #include "Multi_formation.hpp"
-#include <geometry_msgs/PoseStamped.h>
-#include <mavros_msgs/State.h>
-#include <sensor_msgs/NavSatFix.h>
-#include <mavros_msgs/GlobalPositionTarget.h>
-//#include "multi_offboard.hpp"
+#include "avoidance.hpp"
 
 static const bool K_Param_local_global = true;
 static const float K_err_allow = 0.8;
@@ -38,33 +35,7 @@ enum vehicle_formation {
 
 class FlightManager {
 public:
-    struct M_Drone {
-        int drone_id;
-        TVec3 velocity;
-        float pitch ;
-        float roll ;
-        float yaw ;
-        double latitude;
-        double longtitude;
-        double altitude;
-        geometry_msgs::PoseStamped current_local_pos;
-        mavros_msgs::State current_state;
-        geometry_msgs::PoseStamped follow_uav_to_leader_pos;
-        geometry_msgs::PoseStamped target_local_pos_sp;
-    };
 
-    struct multi_vehicle{
-        M_Drone uav1;
-        M_Drone uav2;
-        M_Drone uav3;
-        M_Drone uav4;
-        M_Drone usv1;
-        M_Drone usv2;
-        M_Drone usv3;
-        M_Drone uuv1;
-        M_Drone uuv2;
-        M_Drone uuv3;
-    };
     FlightManager();
     ~FlightManager() = default;
 
@@ -101,6 +72,7 @@ private:
 
     int leader_uav_id_;
     int leader_usv_id_;
+    int uav_formation_time_;
 
     bool is_formation_;
 
@@ -124,6 +96,7 @@ private:
     geometry_msgs::PoseStamped follow_uav3_;
 
     geometry_msgs::PoseStamped follow_uav1_to_leader, follow_uav2_to_leader, follow_uav3_to_leader;
+    geometry_msgs::PoseStamped follow_uav1_to_leader_first, follow_uav2_to_leader_first, follow_uav3_to_leader_first;
 };
 
 #endif //OFFBOARD_FLIGHTMANAGER_HPP

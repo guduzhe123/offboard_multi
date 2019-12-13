@@ -8,6 +8,7 @@ FlightManager* FlightManager::l_pInst = NULL;
 
 FlightManager::FlightManager():
                 leader_drone_{},
+                uav_formation_time_(0),
                 is_formation_(false),
                 follow_uav1_keep_{},
                 follow_uav2_keep_{},
@@ -103,22 +104,29 @@ FlightManager::calcFollowUAVPos(const M_Drone &follow_uav1, const M_Drone &follo
         MultiFormation::getInstance()->GetLocalPos(follow_uav2_global_cur_, target_gps_pos, follow_uav2_to_leader);
         MultiFormation::getInstance()->GetLocalPos(follow_uav3_global_cur_, target_gps_pos, follow_uav3_to_leader);
 
-        follow_uav1_to_leader_(0) = follow_uav1_local_target(0) - follow_uav1_to_leader.pose.position.x;
-        follow_uav1_to_leader_(1) = follow_uav1_local_target(1) - follow_uav1_to_leader.pose.position.y;
-        follow_uav1_.pose.position.x = follow_uav1_to_leader_(0) + follow_uav1.current_local_pos.pose.position.x;
-        follow_uav1_.pose.position.y = follow_uav1_to_leader_(1) + follow_uav1.current_local_pos.pose.position.y;
+        // get the first time data;
+        if (uav_formation_time_ == 1) {
+            follow_uav1_to_leader_first = follow_uav1_to_leader;
+            follow_uav2_to_leader_first = follow_uav2_to_leader;
+            follow_uav3_to_leader_first = follow_uav3_to_leader;
+        }
+
+        follow_uav1_to_leader_(0) = follow_uav1_local_target(0) - follow_uav1_to_leader_first.pose.position.x;
+        follow_uav1_to_leader_(1) = follow_uav1_local_target(1) - follow_uav1_to_leader_first.pose.position.y;
+        follow_uav1_.pose.position.x = follow_uav1_local_target(0) - follow_uav1_to_leader.pose.position.x + follow_uav1.current_local_pos.pose.position.x;
+        follow_uav1_.pose.position.y = follow_uav1_local_target(1) - follow_uav1_to_leader.pose.position.y + follow_uav1.current_local_pos.pose.position.y;
         follow_uav1_.pose.position.z = leader_drone_.current_local_pos.pose.position.z;
 
-        follow_uav2_to_leader_(0) = follow_uav2_local_target(0) - follow_uav2_to_leader.pose.position.x;
-        follow_uav2_to_leader_(1) = follow_uav2_local_target(1) - follow_uav2_to_leader.pose.position.y;
-        follow_uav2_.pose.position.x = follow_uav2_to_leader_(0)  + follow_uav2.current_local_pos.pose.position.x;
-        follow_uav2_.pose.position.y = follow_uav2_to_leader_(1)  + follow_uav2.current_local_pos.pose.position.y;
+        follow_uav2_to_leader_(0) = follow_uav2_local_target(0) - follow_uav2_to_leader_first.pose.position.x;
+        follow_uav2_to_leader_(1) = follow_uav2_local_target(1) - follow_uav2_to_leader_first.pose.position.y;
+        follow_uav2_.pose.position.x = follow_uav2_local_target(0) - follow_uav2_to_leader.pose.position.x  + follow_uav2.current_local_pos.pose.position.x;
+        follow_uav2_.pose.position.y = follow_uav2_local_target(1) - follow_uav2_to_leader.pose.position.y  + follow_uav2.current_local_pos.pose.position.y;
         follow_uav2_.pose.position.z = leader_drone_.current_local_pos.pose.position.z;
 
-        follow_uav3_to_leader_(0) = follow_uav3_local_target(0) - follow_uav3_to_leader.pose.position.x;
-        follow_uav3_to_leader_(1) = follow_uav3_local_target(1) - follow_uav3_to_leader.pose.position.y;
-        follow_uav3_.pose.position.x = follow_uav3_to_leader_(0) + follow_uav3.current_local_pos.pose.position.x;
-        follow_uav3_.pose.position.y = follow_uav3_to_leader_(1) + follow_uav3.current_local_pos.pose.position.y;
+        follow_uav3_to_leader_(0) = follow_uav3_local_target(0) - follow_uav3_to_leader_first.pose.position.x;
+        follow_uav3_to_leader_(1) = follow_uav3_local_target(1) - follow_uav3_to_leader_first.pose.position.y;
+        follow_uav3_.pose.position.x = follow_uav3_local_target(0) - follow_uav3_to_leader.pose.position.x + follow_uav3.current_local_pos.pose.position.x;
+        follow_uav3_.pose.position.y = follow_uav3_local_target(1) - follow_uav3_to_leader.pose.position.y + follow_uav3.current_local_pos.pose.position.y;
         follow_uav3_.pose.position.z = leader_drone_.current_local_pos.pose.position.z;
     } else {
         GlobalPosition uav2_global_sp_, uav3_global_sp_, uav4_global_sp_;
@@ -145,8 +153,8 @@ FlightManager::calcFollowUAVPos(const M_Drone &follow_uav1, const M_Drone &follo
 }
 
 void FlightManager::OnInit(const int config) {
-    GlobalPosition target_gps_pos;
     is_formation_ = true;
+    uav_formation_time_++;
     switch (config) {
         case VF_SQUARE: {
             if (leader_uav_id_ == UAV1) {
@@ -165,6 +173,9 @@ void FlightManager::OnInit(const int config) {
                 util_log("uav2 target local pos x= %.2f, y = %.2f", follow_uav1_.pose.position.x, follow_uav1_.pose.position.y);
                 util_log("uav3 target local pos x= %.2f, y = %.2f", follow_uav2_.pose.position.x, follow_uav2_.pose.position.y);
                 util_log("uav4 target local pos x= %.2f, y = %.2f", follow_uav3_.pose.position.x, follow_uav3_.pose.position.y);
+                util_log("follow uav2 keep pos x = %.2f, y = %.2f", follow_uav2_keep_(0), follow_uav2_keep_(1) );
+                util_log("follow uav3 keep pos x = %.2f, y = %.2f", follow_uav3_keep_(0), follow_uav3_keep_(1) );
+                util_log("follow uav4 keep pos x = %.2f, y = %.2f", follow_uav4_keep_(0), follow_uav4_keep_(1) );
             }
 
             if (leader_uav_id_ == UAV2) {
@@ -210,6 +221,12 @@ void FlightManager::OnInit(const int config) {
                 follow_uav2_keep_ = follow_uav1_to_leader_;
                 follow_uav3_keep_ = follow_uav2_to_leader_;
                 follow_uav4_keep_ = follow_uav3_to_leader_;
+                util_log("uav2 target local pos x= %.2f, y = %.2f", follow_uav1_.pose.position.x, follow_uav1_.pose.position.y);
+                util_log("uav3 target local pos x= %.2f, y = %.2f", follow_uav2_.pose.position.x, follow_uav2_.pose.position.y);
+                util_log("uav4 target local pos x= %.2f, y = %.2f", follow_uav3_.pose.position.x, follow_uav3_.pose.position.y);
+                util_log("follow uav2 keep pos x = %.2f, y = %.2f", follow_uav2_keep_(0), follow_uav2_keep_(1) );
+                util_log("follow uav3 keep pos x = %.2f, y = %.2f", follow_uav3_keep_(0), follow_uav3_keep_(1) );
+                util_log("follow uav4 keep pos x = %.2f, y = %.2f", follow_uav4_keep_(0), follow_uav4_keep_(1) );
             }
 
             if (leader_uav_id_ == UAV2) {
