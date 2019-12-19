@@ -7,10 +7,9 @@
 
 #include "Cinc.hpp"
 #include "Multi_formation.hpp"
-
+static float K_max_avodiance_pos_ = 20;
 class Avoidance {
 public:
-
     Avoidance();
 
     ~Avoidance()= default;
@@ -23,7 +22,9 @@ public:
 
     void get_uav_avo_output(vector<M_Drone_Avoidace> &m_drone_avoidance);
 
-    void checkHorizontalDistance(const M_Drone &vehicle1, const M_Drone &vehicle2);
+    void checkVerticalDistance(const multi_vehicle_vec &vehicles);
+
+    void checkHorizontalArrive(const M_Drone &vehicle, float &avoid_target);
 
     static  Avoidance* getInstance();
 

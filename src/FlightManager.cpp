@@ -159,6 +159,7 @@ void FlightManager::OnInit(const int config) {
     uav_formation_time_++;
     switch (config) {
         case VF_SQUARE: {
+            util_log("Formation call! Square!");
             if (leader_uav_id_ == UAV1) {
                 leader_drone_ = multi_vehicle_.uav1;
                 Drone_uav2_ = TVec3(-5, 0 , multi_vehicle_.uav2.current_local_pos.pose.position.z);
@@ -212,6 +213,7 @@ void FlightManager::OnInit(const int config) {
             break;
 
         case VF_TRIANGLE: {
+            util_log("Formation call! Triangle!");
             if (leader_uav_id_ == UAV1) {
                 leader_drone_ = multi_vehicle_.uav1;
                 Drone_uav2_ = TVec3(-5, -5 , multi_vehicle_.uav2.current_local_pos.pose.position.z);
@@ -262,6 +264,7 @@ void FlightManager::OnInit(const int config) {
 
 
         case VF_LINE_HORIZONTAL : {
+            util_log("Formation call! Line horizontal!");
             if (leader_uav_id_ == UAV1) {
                 leader_drone_ = multi_vehicle_.uav1;
                 Drone_uav2_ = TVec3(0, -5 , multi_vehicle_.uav2.current_local_pos.pose.position.z);
@@ -305,6 +308,7 @@ void FlightManager::OnInit(const int config) {
             break;
 
         case VF_LINE_VERTICAL : {
+            util_log("Formation call! Line Vertical!");
             if (leader_uav_id_ == UAV1) {
                 leader_drone_ = multi_vehicle_.uav1;
                 Drone_uav2_ = TVec3(5, 0 , multi_vehicle_.uav2.current_local_pos.pose.position.z);
