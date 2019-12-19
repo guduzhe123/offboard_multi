@@ -13,18 +13,6 @@
 static const bool K_Param_local_global = true;
 static const float K_err_allow = 0.8;
 
-enum {
-    UAV1 = 1,
-    UAV2,
-    UAV3,
-    UAV4,
-    USV1,
-    USV2,
-    USV3,
-    UUV1,
-    UUV2,
-    UUV3
-};
 
 enum vehicle_formation {
     VF_SQUARE,
@@ -97,6 +85,8 @@ private:
 
     geometry_msgs::PoseStamped follow_uav1_to_leader, follow_uav2_to_leader, follow_uav3_to_leader;
     geometry_msgs::PoseStamped follow_uav1_to_leader_first, follow_uav2_to_leader_first, follow_uav3_to_leader_first;
+
+    vector<M_Drone_Avoidace> drone_avoidance_{};
 };
 
 #endif //OFFBOARD_FLIGHTMANAGER_HPP

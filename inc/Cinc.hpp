@@ -17,6 +17,7 @@
 #include <mavros_msgs/State.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <mavros_msgs/GlobalPositionTarget.h>
+using namespace std;
 
 typedef Eigen::Vector2f TVec2;
 typedef Eigen::Vector3f TVec3;
@@ -53,11 +54,34 @@ struct multi_vehicle{
     M_Drone uuv3;
 };
 
+struct multi_vehicle_vec {
+    vector<M_Drone> uav1_vec;
+    vector<M_Drone> uav2_vec;
+    vector<M_Drone> uav3_vec;
+    vector<M_Drone> uav4_vec;
+    vector<M_Drone> uav5_vec;
+    vector<M_Drone> uav6_vec;
+    vector<M_Drone> uav7_vec;
+};
+
 struct M_Drone_Avoidace{
     int drone_id;
     int avo_mode;
     TVec3 local_target_pos_avo;
     TVec3 local_target_vel_avo;
+};
+
+enum {
+    UAV1 = 1,
+    UAV2,
+    UAV3,
+    UAV4,
+    USV1,
+    USV2,
+    USV3,
+    UUV1,
+    UUV2,
+    UUV3
 };
 
 #endif //OFFBOARD_CINC_HPP

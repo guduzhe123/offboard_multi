@@ -83,29 +83,29 @@ int main(int argc, char **argv)
     geometry_msgs::PoseStamped pose;
     pose.pose.position.x = 10;
     pose.pose.position.y = 10;
-    pose.pose.position.z = 0;
+    pose.pose.position.z = 10;
 
     std::vector<geometry_msgs::PoseStamped> usv_way_points;
     geometry_msgs::PoseStamped way_point;
 
     way_point.pose.position.x = 30;
     way_point.pose.position.y = 40;
-    way_point.pose.position.z = 0;
+    way_point.pose.position.z = 10;
     usv_way_points.push_back(way_point);
 
     way_point.pose.position.x = -30;
     way_point.pose.position.y = 40;
-    way_point.pose.position.z = 0;
+    way_point.pose.position.z = 10;
     usv_way_points.push_back(way_point);
 
     way_point.pose.position.x = -30;
     way_point.pose.position.y = -30;
-    way_point.pose.position.z = 0;
+    way_point.pose.position.z = 10;
     usv_way_points.push_back(way_point);
 
     way_point.pose.position.x = 0;
     way_point.pose.position.y = 0;
-    way_point.pose.position.z = 0;
+    way_point.pose.position.z = 10;
     usv_way_points.push_back(way_point);
 
     std::reverse(usv_way_points.begin(), usv_way_points.end());

@@ -169,6 +169,8 @@ private:
     M_Drone m_drone_uav5_;
     M_Drone m_drone_uav6_;
     M_Drone m_drone_uav7_;
+
+    vector<M_Drone_Avoidace> uav_avoidance_{};
 };
 
 #endif //OFFBOARD_MULTI_OFFBOARD_HPP

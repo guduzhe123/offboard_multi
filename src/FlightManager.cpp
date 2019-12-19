@@ -20,6 +20,7 @@ FlightManager::FlightManager():
 
 void FlightManager::DoPosUpdate(const M_Drone &mDrone) {
 //    util_log("drone_id = %d", drone_id);
+    Avoidance::getInstance()->uav_avoidance(mDrone);
     switch (mDrone.drone_id) {
         case UAV1:{
             multi_vehicle_.uav1 = mDrone;
@@ -100,6 +101,7 @@ FlightManager::calcFollowUAVPos(const M_Drone &follow_uav1, const M_Drone &follo
         MultiFormation::getInstance()->GetLocalPos(target_gps_pos, follow_uav2_global_cur_, follow_uav2_to_leader);
         MultiFormation::getInstance()->GetLocalPos(target_gps_pos, follow_uav3_global_cur_, follow_uav3_to_leader);*/
 
+        // get distance between follow uav to leader.
         MultiFormation::getInstance()->GetLocalPos(follow_uav1_global_cur_, target_gps_pos, follow_uav1_to_leader);
         MultiFormation::getInstance()->GetLocalPos(follow_uav2_global_cur_, target_gps_pos, follow_uav2_to_leader);
         MultiFormation::getInstance()->GetLocalPos(follow_uav3_global_cur_, target_gps_pos, follow_uav3_to_leader);
@@ -355,7 +357,6 @@ void FlightManager::OnInit(const int config) {
 void FlightManager::GetFormationOutput(geometry_msgs::PoseStamped &follow_uav_num1,
                                        geometry_msgs::PoseStamped &follow_uav_num2,
                                        geometry_msgs::PoseStamped &follow_uav_num3, bool &is_formation) {
-
     follow_uav_num1 = follow_uav1_;
     follow_uav_num2 = follow_uav2_;
     follow_uav_num3 = follow_uav3_;

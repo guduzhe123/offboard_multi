@@ -103,6 +103,7 @@ void MultiOffboard::drone_pos_update() {
     FlightManager::getInstance()->ChooseUAVLeader(leader_uav_id_);
     FlightManager::getInstance()->ChooseUSVLeader(leader_usv_id_);
     update_leader_vehicle();
+    Avoidance::getInstance()->get_uav_avo_output(uav_avoidance_);
 }
 
 void MultiOffboard::update_leader_vehicle() {
@@ -296,19 +297,32 @@ void MultiOffboard::uav_global_pos_sp() {
     if (leader_uav_id_ == UAV1) {
         FlightManager::getInstance()->GetFormationOutput(m_drone_uav2_.target_local_pos_sp, m_drone_uav3_.target_local_pos_sp,
                                                          m_drone_uav4_.target_local_pos_sp, is_uav_formation_);
+
         FlightManager::getInstance()->FlightManager::getInstance()->OnCheckFormationArrived();
         if (is_uav_formation_) {
+            m_drone_uav1_.current_local_pos.pose.position.z += uav_avoidance_[0].local_target_pos_avo.z();
+            m_drone_uav2_.target_local_pos_sp.pose.position.z += uav_avoidance_[1].local_target_pos_avo.z();
+            m_drone_uav3_.target_local_pos_sp.pose.position.z += uav_avoidance_[2].local_target_pos_avo.z();
+            m_drone_uav4_.target_local_pos_sp.pose.position.z += uav_avoidance_[3].local_target_pos_avo.z();
 
             drone_uav1_.local_pos_pub.publish(m_drone_uav1_.current_local_pos);
             drone_uav2_.local_pos_pub.publish(m_drone_uav2_.target_local_pos_sp);
             drone_uav3_.local_pos_pub.publish(m_drone_uav3_.target_local_pos_sp);
             drone_uav4_.local_pos_pub.publish(m_drone_uav4_.target_local_pos_sp);
-            util_log("m_drone_uav2_ target local pos.x = %.2f, y = %.2f",
+            util_log("m_drone_uav2_ target local pos.x = %.2f, y = %.2f, z = %.2f",
                     m_drone_uav2_.target_local_pos_sp.pose.position.x,
-                    m_drone_uav2_.target_local_pos_sp.pose.position.y);
-            util_log("m_drone_uav2_ current local pos.x = %.2f, y = %.2f",
-                    m_drone_uav2_.current_local_pos.pose.position.x,
-                    m_drone_uav2_.current_local_pos.pose.position.y);
+                    m_drone_uav2_.target_local_pos_sp.pose.position.y,
+                    m_drone_uav2_.target_local_pos_sp.pose.position.z);
+
+            util_log("m_drone_uav3_ target local pos.x = %.2f, y = %.2f, z = %.2f",
+                     m_drone_uav3_.target_local_pos_sp.pose.position.x,
+                     m_drone_uav3_.target_local_pos_sp.pose.position.y,
+                     m_drone_uav3_.target_local_pos_sp.pose.position.z);
+
+            util_log("m_drone_uav4_ target local pos.x = %.2f, y = %.2f, z = %.2f",
+                     m_drone_uav4_.target_local_pos_sp.pose.position.x,
+                     m_drone_uav4_.target_local_pos_sp.pose.position.y,
+                     m_drone_uav4_.target_local_pos_sp.pose.position.z);
         }
     }
 
@@ -405,7 +419,7 @@ void MultiOffboard::uav_target_local_pos() {
     uav_global_pos_sp();
     FlightManager::getInstance()->GetKeepFormation(follow_uav1_keep_, follow_uav2_keep_, follow_uav3_keep_,
                                                    follow_uav4_keep_);
-    if (drone_uav_leader_.current_state.mode == "OFFBOARD") {
+    if (drone_uav_leader_.current_state.mode == "OFFBOARD" && drone_uav_leader_.current_state.armed) {
         switch (uav_state_) {
             // takeoff
             case TAKEOFF:
@@ -495,6 +509,7 @@ void MultiOffboard::uav_target_local_pos() {
             }
         }
     }
+
     drone_uav1_.target_pose.pose.position.x = drone_uav_leader_.target_pose.pose.position.x + follow_uav1_keep_(0);
     drone_uav1_.target_pose.pose.position.y = drone_uav_leader_.target_pose.pose.position.y + follow_uav1_keep_(1);
     drone_uav1_.target_pose.pose.position.z = drone_uav_leader_.target_pose.pose.position.z;
@@ -510,6 +525,17 @@ void MultiOffboard::uav_target_local_pos() {
     drone_uav4_.target_pose.pose.position.x = drone_uav_leader_.target_pose.pose.position.x + follow_uav4_keep_(0);
     drone_uav4_.target_pose.pose.position.y = drone_uav_leader_.target_pose.pose.position.y + follow_uav4_keep_(1);
     drone_uav4_.target_pose.pose.position.z = drone_uav_leader_.target_pose.pose.position.z;
+
+    if (!uav_avoidance_.empty()) {
+        drone_uav1_.target_pose.pose.position.z += uav_avoidance_[0].local_target_pos_avo.z();
+        drone_uav2_.target_pose.pose.position.z += uav_avoidance_[1].local_target_pos_avo.z();
+        drone_uav3_.target_pose.pose.position.z += uav_avoidance_[2].local_target_pos_avo.z();
+        drone_uav4_.target_pose.pose.position.z += uav_avoidance_[3].local_target_pos_avo.z();
+        util_log("uav avoidance = drone_uav1_ position.z = %.2f", drone_uav1_.target_pose.pose.position.z);
+        util_log("uav avoidance = drone_uav2_ position.z = %.2f", drone_uav2_.target_pose.pose.position.z);
+        util_log("uav avoidance = drone_uav3_ position.z = %.2f", drone_uav3_.target_pose.pose.position.z);
+        util_log("uav avoidance = drone_uav4_ position.z = %.2f", drone_uav4_.target_pose.pose.position.z);
+    }
 
     if ( !is_uav_formation_) {
         drone_uav1_.local_pos_pub.publish(drone_uav1_.target_pose);
