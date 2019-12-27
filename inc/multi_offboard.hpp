@@ -136,6 +136,8 @@ public:
     bool usv_armed;
     ros::Time last_request_;
 
+    int debug_value_;
+
 private:
     bool pos_reached(geometry_msgs::PoseStamped &current_pos, geometry_msgs::PoseStamped &target_pos, float err_allow);
     void uav_global_pos_sp();

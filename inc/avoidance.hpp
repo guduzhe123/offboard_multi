@@ -8,6 +8,7 @@
 #include "Cinc.hpp"
 #include "Multi_formation.hpp"
 static float K_max_avodiance_pos_ = 20;
+static float K_avodiance_safe_pos_ = 2;
 class Avoidance {
 public:
     Avoidance();
@@ -24,7 +25,11 @@ public:
 
     void checkVerticalDistance(const multi_vehicle_vec &vehicles);
 
-    void checkHorizontalArrive(const M_Drone &vehicle, float &avoid_target);
+    void checkHorizontalDistance(const multi_vehicle_vec &vehicles);
+
+    bool checkHorizontalArrive(const M_Drone &vehicle);
+
+    void Getvehicledistance(const M_Drone &vehicle1, const M_Drone &vehicle2, float &distance_h, float &distance_v);
 
     static  Avoidance* getInstance();
 
@@ -36,6 +41,12 @@ private:
     static Avoidance* l_lptr;
 
     bool is_run_avoidance_;
+    float distance_h_12_ = 0;
+    float distance_h_13_ = 0;
+    float distance_h_14_ = 0;
+    float distance_h_23_ = 0;
+    float distance_h_24_ = 0;
+    float distance_h_34_ = 0;
 
     multi_vehicle_vec multi_vehicle_{};
 
