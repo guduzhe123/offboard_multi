@@ -66,19 +66,19 @@ int main (int argc, char **argv){
                 MultiOffboard::getInstance()->drone_uav6_.set_mode_client.call(offb_set_mode);
                 MultiOffboard::getInstance()->drone_uav7_.set_mode_client.call(offb_set_mode);
 //                util_log("UAS vehicle calling offboard");
-                MultiOffboard::getInstance()->is_armed = false;
+//                MultiOffboard::getInstance()->is_armed = false;
                 if (MultiOffboard::getInstance()->drone_uav5_.current_state.mode == "OFFBOARD") {
                     util_log("USA Vehicle offboard");
                 }
             }
         } else /*if (MultiOffboard::getInstance()->debug_value_ == 100)*/{
-            if( ! MultiOffboard::getInstance()->drone_uav5_.current_state.armed && !MultiOffboard::getInstance()->is_armed){
+            if( ! MultiOffboard::getInstance()->drone_uav5_.current_state.armed && !MultiOffboard::getInstance()->usv_armed){
                 if( MultiOffboard::getInstance()->drone_uav5_.arming_client.call(arm_cmd) &&
                     arm_cmd.response.success){
                     MultiOffboard::getInstance()->drone_uav5_.arming_client.call(arm_cmd);
                     MultiOffboard::getInstance()->drone_uav6_.arming_client.call(arm_cmd);
                     MultiOffboard::getInstance()->drone_uav7_.arming_client.call(arm_cmd);
-                    MultiOffboard::getInstance()->is_armed = true;
+                    MultiOffboard::getInstance()->usv_armed = true;
                     util_log("USA Vehicle armed");
                 }
             }

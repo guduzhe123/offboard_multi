@@ -37,11 +37,7 @@ MultiOffboard::MultiOffboard() :
         leader_usv_id_(USV1),
         usv5_reached_(false),
         usv6_reached_(false),
-        usv7_reached_(false),
-        follow_uav1_keep_{},
-        follow_uav2_keep_{},
-        follow_uav3_keep_{},
-        follow_uav4_keep_{}
+        usv7_reached_(false)
         {
 
 }
@@ -426,6 +422,10 @@ void MultiOffboard::uav_target_local_pos() {
     uav_global_pos_sp();
     FlightManager::getInstance()->GetKeepFormation(follow_uav1_keep_, follow_uav2_keep_, follow_uav3_keep_,
                                                    follow_uav4_keep_);
+    util_log("follow_uav1_keep_ = %.2f, %.2f", follow_uav1_keep_(0), follow_uav1_keep_(1));
+    util_log("follow_uav2_keep_ = %.2f, %.2f", follow_uav2_keep_(0), follow_uav2_keep_(1));
+    util_log("follow_uav3_keep_ = %.2f, %.2f", follow_uav3_keep_(0), follow_uav3_keep_(1));
+    util_log("follow_uav4_keep_ = %.2f, %.2f", follow_uav4_keep_(0), follow_uav4_keep_(1));
     if (drone_uav_leader_.current_state.mode == "OFFBOARD" && drone_uav_leader_.current_state.armed) {
         switch (uav_state_) {
             // takeoff

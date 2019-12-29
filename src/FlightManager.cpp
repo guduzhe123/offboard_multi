@@ -9,11 +9,7 @@ FlightManager* FlightManager::l_pInst = NULL;
 FlightManager::FlightManager():
                 leader_drone_{},
                 uav_formation_time_(0),
-                is_formation_(false),
-                follow_uav1_keep_{},
-                follow_uav2_keep_{},
-                follow_uav3_keep_{},
-                follow_uav4_keep_{}
+                is_formation_(false)
                 {
 
 }

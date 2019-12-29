@@ -72,10 +72,10 @@ private:
     TVec3 Drone_uav3_;
     TVec3 Drone_uav4_;
 
-    TVec2 follow_uav1_keep_;
-    TVec2 follow_uav2_keep_;
-    TVec2 follow_uav3_keep_;
-    TVec2 follow_uav4_keep_;
+    TVec2 follow_uav1_keep_ = {0,0};
+    TVec2 follow_uav2_keep_ = {0,0};
+    TVec2 follow_uav3_keep_ = {0,0};
+    TVec2 follow_uav4_keep_ = {0,0};
 
     TVec2 follow_uav1_to_leader_, follow_uav2_to_leader_, follow_uav3_to_leader_;
 
