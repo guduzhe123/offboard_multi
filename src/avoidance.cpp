@@ -30,35 +30,19 @@ void Avoidance::usv_avoidance() {
 
 }
 
-void Avoidance::uav_avoidance(const M_Drone &mDrone) {
-    util_log("avo drone id = %d", mDrone.drone_id);
+void Avoidance::DoPosUpdate() {
+    multi_vehicle m_multi_vehicle;
+    m_multi_vehicle = DataMan::getInstance()->GetData();
 
-    if (mDrone.longtitude > 1 && mDrone.latitude > 1) {
-        switch (mDrone.drone_id) {
-            case UAV1: {
-                multi_vehicle_.uav1_vec.push_back(mDrone);
-/*            util_log("uav1 drone local pos x = %.2f, y = %.2f, z = %.2f", mDrone.current_local_pos.pose.position.x,
-                     mDrone.current_local_pos.pose.position.y, mDrone.current_local_pos.pose.position.z);
-            util_log("uav1 drone gps lat = %.9f, longt = %.9f", mDrone.latitude, mDrone.longtitude);*/
-            }
-                break;
-            case UAV2: {
-                multi_vehicle_.uav2_vec.push_back(mDrone);
-            }
-                break;
-            case UAV3: {
-                multi_vehicle_.uav3_vec.push_back(mDrone);
-            }
-                break;
-            case UAV4: {
-                multi_vehicle_.uav4_vec.push_back(mDrone);
-            }
-                break;
-            default:
-                break;
-        }
-    }
+    multi_vehicle_.uav1_vec.push_back(m_multi_vehicle.uav1);
+    multi_vehicle_.uav2_vec.push_back(m_multi_vehicle.uav2);
+    multi_vehicle_.uav3_vec.push_back(m_multi_vehicle.uav3);
+    multi_vehicle_.uav4_vec.push_back(m_multi_vehicle.uav4);
 
+    uav_avoidance();
+}
+
+void Avoidance::uav_avoidance() {
     if (!multi_vehicle_.uav1_vec.empty() && !multi_vehicle_.uav2_vec.empty() && !multi_vehicle_.uav3_vec.empty() &&
         !multi_vehicle_.uav4_vec.empty()) {
         // TODO need to use map.
@@ -189,15 +173,8 @@ void Avoidance::get_uav_avo_output(vector<M_Drone_Avoidace> &m_drone_avoidance) 
     m_drone_avoidance.push_back(height_avoidance_uav2_);
     m_drone_avoidance.push_back(height_avoidance_uav3_);
     m_drone_avoidance.push_back(height_avoidance_uav4_);
-
-    util_log(
-            "get output height_avoidance_uav1_ = %.2f, height_avoidance_uav2_ = %.2f, height_avoidance_uav3_ = %.2f, height_avoidance_uav4_ = %.2f",
-            height_avoidance_uav1_.local_target_pos_avo.z(), height_avoidance_uav2_.local_target_pos_avo.z(),
-            height_avoidance_uav3_.local_target_pos_avo.z(), height_avoidance_uav4_.local_target_pos_avo.z());
-            util_log("get output height_avoidance_uav1_ = %.2f, height_avoidance_uav2_ = %.2f, height_avoidance_uav3_ = %.2f,"
-                     " height_avoidance_uav4_ = %.2f",
-                     m_drone_avoidance[0].local_target_pos_avo.z(), m_drone_avoidance[1].local_target_pos_avo.z(),
-                     m_drone_avoidance[2].local_target_pos_avo.z(), m_drone_avoidance[3].local_target_pos_avo.z());
+    DataMan::getInstance()->SetAvoidanceData(height_avoidance_uav1_, height_avoidance_uav2_, height_avoidance_uav3_,
+                                             height_avoidance_uav4_);
 
 }
 

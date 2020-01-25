@@ -19,7 +19,9 @@
 #include "FlightManager.hpp"
 #include "Cinc.hpp"
 #include "PathCreator.hpp"
+#include "DataMan.hpp"
 
+static const float usv_position_allow_reached_ = 3;
 using namespace std;
 using namespace Eigen;
 class MultiOffboard {
@@ -136,12 +138,13 @@ public:
     bool usv_armed;
     ros::Time last_request_;
 
-    int debug_value_;
+    int arm_command_;
 
 private:
     bool pos_reached(geometry_msgs::PoseStamped &current_pos, geometry_msgs::PoseStamped &target_pos, float err_allow);
     void uav_global_pos_sp();
     void usv_global_pos_sp();
+    void PrintData();
 
     static MultiOffboard* l_pInst;
 

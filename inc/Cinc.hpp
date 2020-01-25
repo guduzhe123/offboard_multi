@@ -17,6 +17,9 @@
 #include <mavros_msgs/State.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <mavros_msgs/GlobalPositionTarget.h>
+#include <mavros_msgs/DebugValue.h>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
 using namespace std;
 
 typedef Eigen::Vector2f TVec2;
@@ -37,7 +40,8 @@ struct M_Drone {
     double altitude;
     geometry_msgs::PoseStamped current_local_pos;
     mavros_msgs::State current_state;
-    geometry_msgs::PoseStamped follow_uav_to_leader_pos;
+    TVec3 follow_uav_to_leader_pos;
+    TVec3 avoidance_pos;
     geometry_msgs::PoseStamped target_local_pos_sp;
 };
 

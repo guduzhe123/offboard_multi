@@ -7,6 +7,8 @@
 
 #include "Cinc.hpp"
 #include "Multi_formation.hpp"
+#include "DataMan.hpp"
+
 static float K_max_avodiance_pos_ = 20;
 static float K_avodiance_safe_pos_ = 2;
 class Avoidance {
@@ -17,7 +19,9 @@ public:
 
     void Oninit();
 
-    void uav_avoidance(const M_Drone &mDrone);
+    void DoPosUpdate();
+
+    void uav_avoidance();
 
     void usv_avoidance();
 

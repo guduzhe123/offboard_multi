@@ -9,7 +9,6 @@
 #include "multi_offboard.hpp"
 
 MultiOffboard* MultiOffboard::l_pInst = NULL;
-
 MultiOffboard::MultiOffboard() :
         m_drone_uav1_{},
         m_drone_uav2_{},
@@ -89,17 +88,20 @@ void MultiOffboard::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr& msg){
 }
 
 void MultiOffboard::drone_pos_update() {
-    FlightManager::getInstance()->DoPosUpdate(m_drone_uav1_);
-    FlightManager::getInstance()->DoPosUpdate(m_drone_uav2_);
-    FlightManager::getInstance()->DoPosUpdate(m_drone_uav3_);
-    FlightManager::getInstance()->DoPosUpdate(m_drone_uav4_);
-    FlightManager::getInstance()->DoPosUpdate(m_drone_uav5_);
-    FlightManager::getInstance()->DoPosUpdate(m_drone_uav6_);
-    FlightManager::getInstance()->DoPosUpdate(m_drone_uav7_);
+    DataMan::getInstance()->SetDroneData(m_drone_uav1_);
+    DataMan::getInstance()->SetDroneData(m_drone_uav2_);
+    DataMan::getInstance()->SetDroneData(m_drone_uav3_);
+    DataMan::getInstance()->SetDroneData(m_drone_uav4_);
+    DataMan::getInstance()->SetDroneData(m_drone_uav5_);
+    DataMan::getInstance()->SetDroneData(m_drone_uav6_);
+    DataMan::getInstance()->SetDroneData(m_drone_uav7_);
+
+    FlightManager::getInstance()->DoPosUpdate();
     FlightManager::getInstance()->ChooseUAVLeader(leader_uav_id_);
     FlightManager::getInstance()->ChooseUSVLeader(leader_usv_id_);
     update_leader_vehicle();
     Avoidance::getInstance()->get_uav_avo_output(uav_avoidance_);
+    DataMan::getInstance()->PrintData();
 }
 
 void MultiOffboard::update_leader_vehicle() {
@@ -229,7 +231,7 @@ void MultiOffboard::uav1_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     debugValue = *msg;
     util_log("uav1 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
-    debug_value_ = config;
+    arm_command_ = config;
     FlightManager::getInstance()->OnInit(config);
 }
 
@@ -238,7 +240,7 @@ void MultiOffboard::uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     debugValue = *msg;
     util_log("uav2 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
-    debug_value_ = config;
+    arm_command_ = config;
     FlightManager::getInstance()->OnInit(config);
 }
 
@@ -247,7 +249,7 @@ void MultiOffboard::uav3_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     debugValue = *msg;
     util_log("uav3 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
-    debug_value_ = config;
+    arm_command_ = config;
     FlightManager::getInstance()->OnInit(config);
 }
 
@@ -256,7 +258,7 @@ void MultiOffboard::uav4_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     debugValue = *msg;
     util_log("uav4 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
-    debug_value_ = config;
+    arm_command_ = config;
     FlightManager::getInstance()->OnInit(config);
 }
 
@@ -265,7 +267,7 @@ void MultiOffboard::uav5_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     debugValue = *msg;
     util_log("uav5 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
-    debug_value_ = config;
+    arm_command_ = config;
     FlightManager::getInstance()->OnInit(config);
 }
 
@@ -274,7 +276,7 @@ void MultiOffboard::uav6_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     debugValue = *msg;
     util_log("uav6 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
-    debug_value_ = config;
+    arm_command_ = config;
     FlightManager::getInstance()->OnInit(config);
 }
 
@@ -283,7 +285,7 @@ void MultiOffboard::uav7_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     debugValue = *msg;
     util_log("uav7 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
-    debug_value_ = config;
+    arm_command_ = config;
     FlightManager::getInstance()->OnInit(config);
 }
 
@@ -308,21 +310,27 @@ void MultiOffboard::uav_global_pos_sp() {
             m_drone_uav3_.target_local_pos_sp.pose.position.z += uav_avoidance_[2].local_target_pos_avo.z();
             m_drone_uav4_.target_local_pos_sp.pose.position.z += uav_avoidance_[3].local_target_pos_avo.z();
 
-            drone_uav1_.local_pos_pub.publish(m_drone_uav1_.current_local_pos);
+            m_drone_uav1_.target_local_pos_sp = m_drone_uav1_.current_local_pos;
+            drone_uav1_.local_pos_pub.publish(m_drone_uav1_.target_local_pos_sp);
             drone_uav2_.local_pos_pub.publish(m_drone_uav2_.target_local_pos_sp);
             drone_uav3_.local_pos_pub.publish(m_drone_uav3_.target_local_pos_sp);
             drone_uav4_.local_pos_pub.publish(m_drone_uav4_.target_local_pos_sp);
-            util_log("m_drone_uav2_ target local pos.x = %.2f, y = %.2f, z = %.2f",
+            util_log("Formation! m_drone_uav1_ target local pos.x = %.2f, y = %.2f, z = %.2f",
+                     m_drone_uav1_.current_local_pos.pose.position.x,
+                     m_drone_uav1_.current_local_pos.pose.position.y,
+                     m_drone_uav1_.current_local_pos.pose.position.z);
+
+            util_log("Formation! m_drone_uav2_ target local pos.x = %.2f, y = %.2f, z = %.2f",
                     m_drone_uav2_.target_local_pos_sp.pose.position.x,
                     m_drone_uav2_.target_local_pos_sp.pose.position.y,
                     m_drone_uav2_.target_local_pos_sp.pose.position.z);
 
-            util_log("m_drone_uav3_ target local pos.x = %.2f, y = %.2f, z = %.2f",
+            util_log("Formation! m_drone_uav3_ target local pos.x = %.2f, y = %.2f, z = %.2f",
                      m_drone_uav3_.target_local_pos_sp.pose.position.x,
                      m_drone_uav3_.target_local_pos_sp.pose.position.y,
                      m_drone_uav3_.target_local_pos_sp.pose.position.z);
 
-            util_log("m_drone_uav4_ target local pos.x = %.2f, y = %.2f, z = %.2f",
+            util_log("Formation! m_drone_uav4_ target local pos.x = %.2f, y = %.2f, z = %.2f",
                      m_drone_uav4_.target_local_pos_sp.pose.position.x,
                      m_drone_uav4_.target_local_pos_sp.pose.position.y,
                      m_drone_uav4_.target_local_pos_sp.pose.position.z);
@@ -351,17 +359,17 @@ void MultiOffboard::usv_targte_local_pos() {
             case USA_WAYPOINT:
                 if (!usv_way_points.empty()) {
                     drone_usv_leader_.target_pose = usv_way_points.back();
-                    if (pos_reached(drone_uav5_.current_local_pos, usv_way_points.back(), 3)) {
+                    if (pos_reached(drone_uav5_.current_local_pos, usv_way_points.back(), usv_position_allow_reached_)) {
                         usv5_reached_ = true;
                         drone_uav5_.arming_client.call(arm_cmd);
                         util_log("usv5 disarm at one point");
                     }
-                    if (pos_reached(drone_uav6_.current_local_pos, usv_way_points.back(), 3)) {
+                    if (pos_reached(drone_uav6_.current_local_pos, usv_way_points.back(), usv_position_allow_reached_)) {
                         usv6_reached_ = true;
                         drone_uav6_.arming_client.call(arm_cmd);
                         util_log("usv6 disarm at one point");
                     }
-                    if (pos_reached(drone_uav7_.current_local_pos, usv_way_points.back(), 3)) {
+                    if (pos_reached(drone_uav7_.current_local_pos, usv_way_points.back(), usv_position_allow_reached_)) {
                         usv7_reached_ = true;
                         drone_uav7_.arming_client.call(arm_cmd);
                         util_log("usv7 disarm at one point");
@@ -413,6 +421,9 @@ void MultiOffboard::usv_targte_local_pos() {
         drone_uav5_.local_pos_pub.publish(drone_usv_leader_.target_pose);
         drone_uav6_.local_pos_pub.publish(drone_usv_leader_.target_pose);
         drone_uav7_.local_pos_pub.publish(drone_usv_leader_.target_pose);
+        m_drone_uav5_.target_local_pos_sp = drone_usv_leader_.target_pose;
+        m_drone_uav6_.target_local_pos_sp = drone_usv_leader_.target_pose;
+        m_drone_uav7_.target_local_pos_sp = drone_usv_leader_.target_pose;
 /*        util_log("1111 usv leader target pos x = %.2f, y = %.2f, z = %.2f", drone_usv_leader_.target_pose.pose.position.x,
                  drone_usv_leader_.target_pose.pose.position.y, drone_usv_leader_.target_pose.pose.position.z);*/
     }
@@ -543,6 +554,10 @@ void MultiOffboard::uav_target_local_pos() {
         util_log("uav avoidance = drone_uav3_ position.z = %.2f", drone_uav3_.target_pose.pose.position.z);
         util_log("uav avoidance = drone_uav4_ position.z = %.2f", drone_uav4_.target_pose.pose.position.z);
     }
+    m_drone_uav1_.target_local_pos_sp = drone_uav1_.target_pose;
+    m_drone_uav2_.target_local_pos_sp = drone_uav2_.target_pose;
+    m_drone_uav3_.target_local_pos_sp = drone_uav3_.target_pose;
+    m_drone_uav4_.target_local_pos_sp = drone_uav4_.target_pose;
 
     if ( !is_uav_formation_) {
         drone_uav1_.local_pos_pub.publish(drone_uav1_.target_pose);

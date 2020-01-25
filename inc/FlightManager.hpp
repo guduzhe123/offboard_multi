@@ -12,6 +12,7 @@
 
 static const bool K_Param_local_global = true;
 static const float K_err_allow = 0.8;
+static const float K_multi_formation_distance = 5;
 
 
 enum vehicle_formation {
@@ -29,7 +30,7 @@ public:
 
     void OnInit(const int config);
 
-    void DoPosUpdate(const M_Drone &mDrone);
+    void DoPosUpdate();
 
     void ChooseUAVLeader(int &leader_uav_id);
 
@@ -78,6 +79,7 @@ private:
     TVec2 follow_uav4_keep_ = {0,0};
 
     TVec2 follow_uav1_to_leader_, follow_uav2_to_leader_, follow_uav3_to_leader_;
+    TVec3 follow_uav1, follow_uav2, follow_uav3;
 
     geometry_msgs::PoseStamped follow_uav1_;
     geometry_msgs::PoseStamped follow_uav2_;

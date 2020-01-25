@@ -44,7 +44,8 @@ int main (int argc, char **argv){
             }
 
             last_request = ros::Time::now();
-        } else if (MultiOffboard::getInstance()->drone_uav1_.current_state.mode == "OFFBOARD"){
+        } else if (MultiOffboard::getInstance()->drone_uav1_.current_state.mode == "OFFBOARD"
+                    && MultiOffboard::getInstance()->arm_command_ == 100){ // arm command from ground station
             if( ! MultiOffboard::getInstance()->drone_uav1_.current_state.armed && !MultiOffboard::getInstance()->is_armed){
                 if( MultiOffboard::getInstance()->drone_uav1_.arming_client.call(arm_cmd) &&
                     arm_cmd.response.success){
@@ -71,7 +72,7 @@ int main (int argc, char **argv){
                     util_log("USA Vehicle offboard");
                 }
             }
-        } else /*if (MultiOffboard::getInstance()->debug_value_ == 100)*/{
+        } else if (MultiOffboard::getInstance()->arm_command_ == 100){ // arm command from ground station
             if( ! MultiOffboard::getInstance()->drone_uav5_.current_state.armed && !MultiOffboard::getInstance()->usv_armed){
                 if( MultiOffboard::getInstance()->drone_uav5_.arming_client.call(arm_cmd) &&
                     arm_cmd.response.success){

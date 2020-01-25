@@ -118,6 +118,7 @@ catkin_package(
 include_directories(
  include
         inc/
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc/new_struct/
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -154,7 +155,7 @@ add_library(
         src/avoidance.cpp
         src/Multi_formation.cpp
         src/util.cpp
-)
+        src/new_struct/MsgRosManager.cpp src/DataMan.cpp inc/DataMan.hpp)
 
 target_link_libraries(multi_offboard multi_offboard_lib)
 
