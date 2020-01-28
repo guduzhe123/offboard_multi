@@ -6,26 +6,31 @@
 #define OFFBOARD_AVOIDANCE_HPP
 
 #include "Cinc.hpp"
-#include "Multi_formation.hpp"
 #include "DataMan.hpp"
+#include "IControlFunction.hpp"
+#include "Calculate.hpp"
 
 static float K_max_avodiance_pos_ = 20;
 static float K_avodiance_safe_pos_ = 2;
-class Avoidance {
+class Avoidance : public IControlFunction {
 public:
     Avoidance();
 
-    ~Avoidance()= default;
+    ~Avoidance() override ;
 
     void Oninit();
 
-    void DoPosUpdate();
+    void GetData() override ;
+
+    void DoProgress() override ;
+
+    void SetFunctionOutPut() override;
 
     void uav_avoidance();
 
     void usv_avoidance();
 
-    void get_uav_avo_output(vector<M_Drone_Avoidace> &m_drone_avoidance);
+//    void get_uav_avo_output(vector<M_Drone_Avoidace> &m_drone_avoidance);
 
     void checkVerticalDistance(const multi_vehicle_vec &vehicles);
 

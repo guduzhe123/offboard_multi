@@ -2,7 +2,7 @@
 // Created by zhouhua on 19-12-1.
 //
 
-#include "avoidance.hpp"
+#include "Avoidance.hpp"
 
 Avoidance* Avoidance::l_lptr = NULL;
 
@@ -30,7 +30,7 @@ void Avoidance::usv_avoidance() {
 
 }
 
-void Avoidance::DoPosUpdate() {
+void Avoidance::GetData() {
     multi_vehicle m_multi_vehicle;
     m_multi_vehicle = DataMan::getInstance()->GetData();
 
@@ -39,10 +39,10 @@ void Avoidance::DoPosUpdate() {
     multi_vehicle_.uav3_vec.push_back(m_multi_vehicle.uav3);
     multi_vehicle_.uav4_vec.push_back(m_multi_vehicle.uav4);
 
-    uav_avoidance();
+    DoProgress();
 }
 
-void Avoidance::uav_avoidance() {
+void Avoidance::DoProgress() {
     if (!multi_vehicle_.uav1_vec.empty() && !multi_vehicle_.uav2_vec.empty() && !multi_vehicle_.uav3_vec.empty() &&
         !multi_vehicle_.uav4_vec.empty()) {
         // TODO need to use map.
@@ -151,7 +151,7 @@ void Avoidance::checkDistance(const M_Drone &vehicle1, const M_Drone &vehicle2,
 
 
     if (dist < 2 ) {
-        util_log("distance < 2!!! distance = %.2f", dist);
+        util_log("vehlcie %d and %d distance < 2!!! distance = %.2f", vehicle1.drone_id, vehicle2.drone_id, dist);
         // seems to be velocity.
         if (vehicle1.current_local_pos.pose.position.z > vehicle2.current_local_pos.pose.position.z) {
             m_drone_avoidance1 = 3 / dist;
@@ -167,17 +167,6 @@ void Avoidance::checkDistance(const M_Drone &vehicle1, const M_Drone &vehicle2,
 
 }
 
-void Avoidance::get_uav_avo_output(vector<M_Drone_Avoidace> &m_drone_avoidance) {
-    m_drone_avoidance.clear();
-    m_drone_avoidance.push_back(height_avoidance_uav1_);
-    m_drone_avoidance.push_back(height_avoidance_uav2_);
-    m_drone_avoidance.push_back(height_avoidance_uav3_);
-    m_drone_avoidance.push_back(height_avoidance_uav4_);
-    DataMan::getInstance()->SetAvoidanceData(height_avoidance_uav1_, height_avoidance_uav2_, height_avoidance_uav3_,
-                                             height_avoidance_uav4_);
-
-}
-
 bool Avoidance::checkHorizontalArrive(const M_Drone &vehicle) {
     float err_x, err_y;
     err_x = vehicle.target_local_pos_sp.pose.position.x - vehicle.current_local_pos.pose.position.x;
@@ -185,7 +174,7 @@ bool Avoidance::checkHorizontalArrive(const M_Drone &vehicle) {
 
     float err_xy = sqrt(err_x * err_x + err_y * err_y);
     if (err_xy < 0.8) {
-        util_log("vehicle arrived arrived at horizontal target! target_local_pos_sp.z = %.2f, current_local_pos = %.2f",
+        util_log("vehicle%d arrived arrived at horizontal target! target_local_pos_sp.z = %.2f, current_local_pos = %.2f", vehicle.drone_id,
                  vehicle.target_local_pos_sp.pose.position.x, vehicle.current_local_pos.pose.position.x);
         return true;
     }
@@ -238,7 +227,7 @@ void Avoidance::Getvehicledistance(const M_Drone &vehicle1, const M_Drone &vehic
     loc2.latitude = vehicle2.latitude;
     loc2.longitude = vehicle2.longtitude;
 
-    MultiFormation::getInstance()->GetLocalPos(loc1, loc2, two_uav_local_pos);
+    Calculate::getInstance()->GetLocalPos(loc1, loc2, two_uav_local_pos);
 
     float err_px = two_uav_local_pos.pose.position.x;
     float err_py = two_uav_local_pos.pose.position.y;
@@ -252,4 +241,10 @@ void Avoidance::Getvehicledistance(const M_Drone &vehicle1, const M_Drone &vehic
     if (distance > 20) {
         util_log("error!");
     }
+}
+
+void Avoidance::SetFunctionOutPut() {
+    DataMan::getInstance()->SetAvoidanceData(height_avoidance_uav1_, height_avoidance_uav2_, height_avoidance_uav3_,
+                                             height_avoidance_uav4_);
+
 }

@@ -10,6 +10,8 @@ class DataMan {
 public:
     static DataMan* getInstance();
 
+    void OnInit();
+
     void SetDroneData(const M_Drone &mDrone);
 
     void PrinrDorneFlightDate();
@@ -24,14 +26,30 @@ public:
 
     void PrintDroneFormationData();
 
+    void PrintDroneFormationKeep();
+
     void PrintData();
 
     void
     SetFormationData(int leader_uav_id_, const TVec3& follow_uav1, const TVec3& follow_uav2, const TVec3& follow_uav3);
 
+    void
+    SetFormationKeepData(const TVec3& follow_uav1, const TVec3& follow_uav2, const TVec3& follow_uav3, const TVec3& follow_uav4);
+
+
     void SetAvoidanceData(const M_Drone_Avoidace& uav1, const M_Drone_Avoidace& uav2, const M_Drone_Avoidace& uav3, const M_Drone_Avoidace& uav4);
 
+    void SetDroneControlData(const multi_vehicle &m_multi_vehicles);
 
+    void SetBoatControlData(const multi_vehicle &m_multi_vehicles);
+
+    void SetUAVState(mavros_msgs::SetMode &m_mode);
+
+    void SetUSVState(mavros_msgs::CommandBool &arm_command, const int usv_id);
+
+    void SetUAVLeader(M_Drone &leader_uav);
+
+    void SetUSVLeader(M_Drone &leader_usv);
 
     multi_vehicle &GetData();
 

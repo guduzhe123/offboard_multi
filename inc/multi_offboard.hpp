@@ -20,48 +20,20 @@
 #include "Cinc.hpp"
 #include "PathCreator.hpp"
 #include "DataMan.hpp"
+#include "IMsgRosManager.hpp"
 
 static const float usv_position_allow_reached_ = 3;
 using namespace std;
 using namespace Eigen;
-class MultiOffboard {
+
+class MultiOffboard : public IMsgRosManager{
 public:
-    enum  {
-        TAKEOFF,
-        WAYPOINT,
-        LAND,
-        FALLOW_USV
-    };
-
-    enum {
-        USA_INIT,
-        USA_WAYPOINT,
-        USA_DISARM
-    };
-
-    struct TVehicleMsg {
-        int drone_id;
-        int debug_received_id;
-        mavros_msgs::State current_state;
-        geometry_msgs::PoseStamped current_local_pos;
-        geometry_msgs::PoseStamped target_pose;
-        sensor_msgs::NavSatFix current_global_pos;
-
-        ros::Subscriber state_sub;
-        ros::Subscriber local_position_sub;
-        ros::Subscriber multi_formation_sub;
-        ros::Subscriber global_pos_sub;
-
-        ros::ServiceClient set_mode_client;
-        ros::ServiceClient arming_client;
-
-        ros::Publisher local_pos_pub;
-        ros::Publisher global_pos_pub;
-    };
+    ~MultiOffboard() {};
 
     MultiOffboard();
 
-    ~MultiOffboard() = default;
+    void OnInit() override ;
+
     void vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr& msg);
 
     void uav1_global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg);
@@ -87,7 +59,13 @@ public:
     void uav6_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg);
     void uav7_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg);
 
+    void uav1_local_pos_sp_cb(const mavros_msgs::PositionTarget::ConstPtr& msg);
     void uav2_local_pos_sp_cb(const mavros_msgs::PositionTarget::ConstPtr& msg);
+    void uav3_local_pos_sp_cb(const mavros_msgs::PositionTarget::ConstPtr& msg);
+    void uav4_local_pos_sp_cb(const mavros_msgs::PositionTarget::ConstPtr& msg);
+    void uav5_local_pos_sp_cb(const mavros_msgs::PositionTarget::ConstPtr& msg);
+    void uav6_local_pos_sp_cb(const mavros_msgs::PositionTarget::ConstPtr& msg);
+    void uav7_local_pos_sp_cb(const mavros_msgs::PositionTarget::ConstPtr& msg);
 
     void uav1_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
     void uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
@@ -97,15 +75,7 @@ public:
     void uav6_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
     void uav7_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
 
-    void Oninit();
-    void uav_target_local_pos();
-    void usv_targte_local_pos();
     void drone_pos_update();
-    void update_leader_vehicle();
-
-    void ChooseUAVLeader();
-
-    void ChooseUSVLeader();
 
     static  MultiOffboard* getInstance();
 
@@ -118,7 +88,6 @@ public:
     ros::Subscriber uav1_global_pos_sub;
     ros::Publisher uav1_g_speed_control_pub;
 
-    ros::Subscriber uav2_local_pos_sp_sub;
     ros::Subscriber uav2_multi_formation_sub;
     ros::Subscriber uav2_global_pos_sub;
 
@@ -138,14 +107,9 @@ public:
     bool usv_armed;
     ros::Time last_request_;
 
-    int arm_command_;
+    int arm_command_{};
 
 private:
-    bool pos_reached(geometry_msgs::PoseStamped &current_pos, geometry_msgs::PoseStamped &target_pos, float err_allow);
-    void uav_global_pos_sp();
-    void usv_global_pos_sp();
-    void PrintData();
-
     static MultiOffboard* l_pInst;
 
     float curr_altitude;
@@ -158,18 +122,6 @@ private:
     vector<geometry_msgs::PoseStamped> uav_way_points;
     vector<geometry_msgs::PoseStamped> usv_way_points;
 
-    bool usv5_reached_;
-    bool usv6_reached_;
-    bool usv7_reached_;
-    bool is_uav_formation_;
-    bool is_usv_formation_;
-    bool is_uav_formation_add_ = false;
-
-    TVec2 follow_uav1_keep_ = {0,0};
-    TVec2 follow_uav2_keep_ = {0,0};
-    TVec2 follow_uav3_keep_ = {0,0};
-    TVec2 follow_uav4_keep_ = {0,0};
-
     M_Drone m_drone_uav1_;
     M_Drone m_drone_uav2_;
     M_Drone m_drone_uav3_;
@@ -177,8 +129,6 @@ private:
     M_Drone m_drone_uav5_;
     M_Drone m_drone_uav6_;
     M_Drone m_drone_uav7_;
-
-    vector<M_Drone_Avoidace> uav_avoidance_{};
 };
 
 #endif //OFFBOARD_MULTI_OFFBOARD_HPP

@@ -6,47 +6,73 @@
 #define OFFBOARD_MULTI_FORMATION_HPP
 
 #include "Cinc.hpp"
+#include "IControlFunction.hpp"
 
-typedef struct GlobalPosition
-{
-    double latitude;  /*!< unit: rad */
-    double longitude; /*!< unit: rad */
-    double altitude;  /*!< WGS 84 reference ellipsoid */
-    double height;    /*!< relative height to the ground */
-    uint8_t   health;    /*!< scale from 0 - 5 signifying gps signal strength <br>
-                        * greater than 3 for strong signal */
-} GlobalPosition;      // pack(1)
-
-
-class MultiFormation {
+class MultiFormation : public IControlFunction{
 public:
     MultiFormation();
 
-    ~MultiFormation() = default;
+    ~MultiFormation() override ;
 
     void Oninit(const float config);
 
-    void GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &loc2,
-                     geometry_msgs::PoseStamped &follow_uav_local_pos);
+    void GetData() override ;
 
-    void GetGlobalPos(const GlobalPosition &loc1, GlobalPosition &loc2, TVec3 &local_target_pos);
+    void DoProgress() override ;
+
+    void SetFunctionOutPut() override ;
+
+    void
+    GetFormationOutput(geometry_msgs::PoseStamped &follow_uav_num1,
+                       geometry_msgs::PoseStamped &follow_uav_num2,
+                       geometry_msgs::PoseStamped &follow_uav_num3, bool &is_formation);
+
+    void GetKeepFormation(TVec3 &follow_uav1_keep, TVec3 &follow_uav2_keep, TVec3 &follow_uav3_keep,
+                          TVec3 &follow_uav4_keep);
+
 
     static MultiFormation* getInstance();
 
 private:
+    void calcFollowUAVPos(const M_Drone &follow_uav1, const M_Drone &follow_uav2, const M_Drone &follow_uav3,
+                          TVec3 &follow_uav1_local_target, TVec3 &follow_uav2_local_target,
+                          TVec3 &follow_uav3_local_target);
+
+
+    bool pos_reached(geometry_msgs::PoseStamped &current_pos, TVec3 &follow_uav_target);
+
+    void OnCheckFormationArrived();
 
     static MultiFormation* multi_formation;
 
+    multi_vehicle m_multi_vehicle_;
 
-    void setEachLoclation();
+    bool is_formation_;
+    int uav_formation_time_;
+    int leader_uav_id_;
+    vehicle_formation config_;
+    M_Drone leader_drone_;
 
-    double deg2rad(double deg);
+    TVec3 Drone_uav1_;
+    TVec3 Drone_uav2_;
+    TVec3 Drone_uav3_;
+    TVec3 Drone_uav4_;
 
-    double rad2deg(double rad);
+    TVec3 follow_uav1_keep_ = {0,0,0};
+    TVec3 follow_uav2_keep_ = {0,0,0};
+    TVec3 follow_uav3_keep_ = {0,0,0};
+    TVec3 follow_uav4_keep_ = {0,0,0};
 
-    void getMeterScaleHere(double &meterPerLatUnit, double &meterPerLongtUnit, const GlobalPosition &center_pos);
+    TVec2 follow_uav1_to_leader_, follow_uav2_to_leader_, follow_uav3_to_leader_;
+    TVec3 follow_uav1, follow_uav2, follow_uav3;
 
-    double calcDist(const GlobalPosition &loc1, const GlobalPosition &loc2);
+    TVec3 follow_uav1_;
+    TVec3 follow_uav2_;
+    TVec3 follow_uav3_;
 
+    geometry_msgs::PoseStamped follow_uav1_to_leader, follow_uav2_to_leader, follow_uav3_to_leader;
+    geometry_msgs::PoseStamped follow_uav1_to_leader_first, follow_uav2_to_leader_first, follow_uav3_to_leader_first;
+
+    vector<M_Drone_Avoidace> drone_avoidance_{};
 };
 #endif //OFFBOARD_MULTI_FORMATION_HPP

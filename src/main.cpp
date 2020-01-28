@@ -3,11 +3,16 @@
 //
 
 #include "multi_offboard.hpp"
+#include "DataMan.hpp"
+#include "FlightManager.hpp"
 
 int main (int argc, char **argv){
     ros::init(argc, argv, "offboard");
 
-    MultiOffboard::getInstance()->Oninit();
+    auto msg_ros = MultiOffboard::getInstance();
+    msg_ros->OnInit();
+    DataMan::getInstance()->OnInit();
+    FlightManager::getInstance()->OnInitConfig(msg_ros);
 
     util_daemonize();
     ros::Rate rate(20.0);
@@ -86,8 +91,8 @@ int main (int argc, char **argv){
         }
 
 
-        MultiOffboard::getInstance()->usv_targte_local_pos();
-        MultiOffboard::getInstance()->uav_target_local_pos();
+/*        MultiOffboard::getInstance()->usv_target_local_pos();
+        MultiOffboard::getInstance()->uav_target_local_pos();*/
         MultiOffboard::getInstance()->drone_pos_update();
 
         ros::spinOnce();
