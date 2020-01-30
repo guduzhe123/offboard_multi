@@ -1,0 +1,12 @@
+/.rosinstall
+/_setup_util.py
+/env.sh
+/local_setup.bash
+/local_setup.sh
+/local_setup.zsh
+/offboard.pc
+/offboardConfig-version.cmake
+/offboardConfig.cmake
+/setup.bash
+/setup.sh
+/setup.zsh
