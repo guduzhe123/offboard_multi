@@ -121,11 +121,17 @@ void Avoidance::DoProgress() {
                 height_avoidance_uav3_.local_target_pos_avo.z(), height_avoidance_uav4_.local_target_pos_avo.z());
 
     }
+    SetFunctionOutPut();
 
 }
 
 void Avoidance::checkDistance(const M_Drone &vehicle1, const M_Drone &vehicle2,
                               float &m_drone_avoidance1, float &m_drone_avoidance2) {
+
+    if (fabs(vehicle1.latitude) < 0.1 || fabs(vehicle2.latitude) < 0.1) {
+        return;
+    }
+
     float  dist, distance_h;
     Getvehicledistance(vehicle1, vehicle2, distance_h, dist);
     if (vehicle1.drone_id == UAV1) {
@@ -238,7 +244,7 @@ void Avoidance::Getvehicledistance(const M_Drone &vehicle1, const M_Drone &vehic
 
     distance = sqrt(err_px * err_px + err_py * err_py + err_pz * err_pz);
     distance_h = sqrt(err_px * err_px + err_py * err_py);
-    if (distance > 20) {
+    if (fabs(distance) > 1000) {
         util_log("error!");
     }
 }

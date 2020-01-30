@@ -6,11 +6,12 @@
 #define OFFBOARD_DATAMAN_HPP
 
 #include "Cinc.hpp"
+#include "IMsgRosManager.hpp"
 class DataMan {
 public:
     static DataMan* getInstance();
 
-    void OnInit();
+    void OnInit(IMsgRosManager *msg_ros);
 
     void SetDroneData(const M_Drone &mDrone);
 
@@ -45,11 +46,15 @@ public:
 
     void SetUAVState(mavros_msgs::SetMode &m_mode);
 
-    void SetUSVState(mavros_msgs::CommandBool &arm_command, const int usv_id);
+    void SetUSVState(mavros_msgs::CommandBool &arm_command);
 
     void SetUAVLeader(M_Drone &leader_uav);
 
     void SetUSVLeader(M_Drone &leader_usv);
+
+    void SetUserCommand(const int value);
+
+    int GetUserCommand();
 
     multi_vehicle &GetData();
 
@@ -61,6 +66,8 @@ private:
     boost::mutex m_mutex;
 
     int leader_uav_ = 0;
+    int user_command_value_ ;
+    IMsgRosManager * msg_config_;
 };
 
 

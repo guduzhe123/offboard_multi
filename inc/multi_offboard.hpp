@@ -16,13 +16,12 @@
 #include <sensor_msgs/NavSatFix.h>
 #include <geometry_msgs/TwistStamped.h>
 #include "Multi_formation.hpp"
-#include "FlightManager.hpp"
 #include "Cinc.hpp"
 #include "PathCreator.hpp"
 #include "DataMan.hpp"
 #include "IMsgRosManager.hpp"
 
-static const float usv_position_allow_reached_ = 3;
+//static const float usv_position_allow_reached_ = 3;
 using namespace std;
 using namespace Eigen;
 
@@ -76,6 +75,10 @@ public:
     void uav7_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
 
     void drone_pos_update();
+    void PublishDronePosControl(const multi_vehicle &multi_vehicles) override;
+    void PublishBoatPosControl(const multi_vehicle &multi_vehicles) override;
+    void SetUAVState(mavros_msgs::SetMode &m_mode) override ;
+    void SetUSVState(mavros_msgs::CommandBool &arm_command) override;
 
     static  MultiOffboard* getInstance();
 
@@ -102,9 +105,9 @@ public:
     TVehicleMsg drone_uav_leader_;
     TVehicleMsg drone_usv_leader_;
 
-    bool is_offboard;
-    bool is_armed;
-    bool usv_armed;
+    bool is_offboard = false;
+    bool is_armed = false;
+    bool usv_armed = false;
     ros::Time last_request_;
 
     int arm_command_{};

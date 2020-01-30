@@ -206,7 +206,7 @@ void MultiOffboard::uav1_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav1 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    FlightManager::getInstance()->OnInit(config);
+    DataMan::getInstance()->SetUserCommand(config);
 }
 
 void MultiOffboard::uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
@@ -215,7 +215,7 @@ void MultiOffboard::uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav2 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    FlightManager::getInstance()->OnInit(config);
+    DataMan::getInstance()->SetUserCommand(config);
 }
 
 void MultiOffboard::uav3_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
@@ -224,7 +224,7 @@ void MultiOffboard::uav3_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav3 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    FlightManager::getInstance()->OnInit(config);
+    DataMan::getInstance()->SetUserCommand(config);
 }
 
 void MultiOffboard::uav4_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
@@ -233,7 +233,7 @@ void MultiOffboard::uav4_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav4 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    FlightManager::getInstance()->OnInit(config);
+    DataMan::getInstance()->SetUserCommand(config);
 }
 
 void MultiOffboard::uav5_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
@@ -242,7 +242,7 @@ void MultiOffboard::uav5_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav5 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    FlightManager::getInstance()->OnInit(config);
+    DataMan::getInstance()->SetUserCommand(config);
 }
 
 void MultiOffboard::uav6_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
@@ -251,7 +251,7 @@ void MultiOffboard::uav6_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav6 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    FlightManager::getInstance()->OnInit(config);
+    DataMan::getInstance()->SetUserCommand(config);
 }
 
 void MultiOffboard::uav7_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
@@ -260,7 +260,7 @@ void MultiOffboard::uav7_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav7 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    FlightManager::getInstance()->OnInit(config);
+    DataMan::getInstance()->SetUserCommand(config);
 }
 
 void MultiOffboard::OnInit() {
@@ -421,7 +421,30 @@ void MultiOffboard::drone_pos_update() {
     DataMan::getInstance()->SetDroneData(m_drone_uav5_);
     DataMan::getInstance()->SetDroneData(m_drone_uav6_);
     DataMan::getInstance()->SetDroneData(m_drone_uav7_);
+}
 
-    FlightManager::getInstance()->DoPosUpdate();
-//    DataMan::getInstance()->PrintData();
+void MultiOffboard::PublishDronePosControl(const multi_vehicle &multi_vehicles) {
+    drone_uav1_.local_pos_pub.publish(multi_vehicles.uav1.target_local_pos_sp);
+    drone_uav2_.local_pos_pub.publish(multi_vehicles.uav2.target_local_pos_sp);
+    drone_uav3_.local_pos_pub.publish(multi_vehicles.uav3.target_local_pos_sp);
+    drone_uav4_.local_pos_pub.publish(multi_vehicles.uav4.target_local_pos_sp);
+}
+
+void MultiOffboard::PublishBoatPosControl(const multi_vehicle &multi_vehicles) {
+    drone_uav5_.local_pos_pub.publish(multi_vehicles.usv1.target_local_pos_sp);
+    drone_uav6_.local_pos_pub.publish(multi_vehicles.usv2.target_local_pos_sp);
+    drone_uav7_.local_pos_pub.publish(multi_vehicles.usv3.target_local_pos_sp);
+}
+
+void MultiOffboard::SetUAVState(mavros_msgs::SetMode &m_mode) {
+    drone_uav1_.set_mode_client.call(m_mode);
+    drone_uav2_.set_mode_client.call(m_mode);
+    drone_uav3_.set_mode_client.call(m_mode);
+    drone_uav4_.set_mode_client.call(m_mode);
+}
+
+void MultiOffboard::SetUSVState(mavros_msgs::CommandBool &arm_command) {
+    drone_uav5_.arming_client.call(arm_command);
+    drone_uav6_.arming_client.call(arm_command);
+    drone_uav7_.arming_client.call(arm_command);
 }

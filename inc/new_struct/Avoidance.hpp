@@ -16,7 +16,7 @@ class Avoidance : public IControlFunction {
 public:
     Avoidance();
 
-    ~Avoidance() override ;
+    ~Avoidance() {};
 
     void Oninit();
 
@@ -64,6 +64,15 @@ private:
     M_Drone_Avoidace height_avoidance_uav3_;
     M_Drone_Avoidace height_avoidance_uav4_;
 
+};
+
+class AvoidanceFactory : public IFunctionFactory {
+public:
+    ~AvoidanceFactory() {};
+
+    IControlFunction* FunctionCreator()  {
+        return new Avoidance();
+    } ;
 
 };
 

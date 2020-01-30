@@ -13,7 +13,7 @@ class MultiDroneControl : public IVehicleControl {
 public:
     MultiDroneControl();
 
-    ~MultiDroneControl();
+    ~MultiDroneControl() {};
 
     void onInit(vector<geometry_msgs::PoseStamped> way_points) override ;
 
@@ -25,11 +25,16 @@ public:
 
     void setVehicleCtrlData() override ;
 
+    static MultiDroneControl* getInstance();
 
 private:
     bool pos_reached(geometry_msgs::PoseStamped &current_pos, geometry_msgs::PoseStamped &target_pos, float err_allow);
 
     void droneManualControl();
+
+    geometry_msgs::PoseStamped CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, TVec3 &formation_target);
+
+    static MultiDroneControl* l_lint;
 
     int uav_state_;
     multi_vehicle m_multi_vehicle_;
@@ -41,6 +46,16 @@ private:
     TVec3 follow_uav2_keep_ = {0,0,0};
     TVec3 follow_uav3_keep_ = {0,0,0};
     TVec3 follow_uav4_keep_ = {0,0,0};
+};
+
+class MultiDroneControlFactory : public IVehicleControlFactory {
+public:
+    ~MultiDroneControlFactory() {};
+
+    IVehicleControl* VehicleControlCreator() override {
+        util_log("vehicle factory~");
+        return MultiDroneControl::getInstance();
+    }
 };
 
 #endif //OFFBOARD_MULTDRONECONTROL_HPP

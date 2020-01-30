@@ -98,6 +98,8 @@ MultiFormation::pos_reached(geometry_msgs::PoseStamped &current_pos, TVec3 &foll
 void MultiFormation::DoProgress() {
     is_formation_ = true;
     uav_formation_time_++;
+    config_ = DataMan::getInstance()->GetUserCommand();
+    util_log("formation config = %d", config_ );
     switch (config_) {
         case VF_SQUARE: {
             util_log("Formation call! Square!");
@@ -112,9 +114,6 @@ void MultiFormation::DoProgress() {
             util_log("uav2 target local pos x= %.2f, y = %.2f", follow_uav1_.x(), follow_uav1_.y());
             util_log("uav3 target local pos x= %.2f, y = %.2f", follow_uav2_.x(), follow_uav2_.y());
             util_log("uav4 target local pos x= %.2f, y = %.2f", follow_uav3_.x(), follow_uav3_.y());
-            util_log("follow uav2 keep pos x = %.2f, y = %.2f", follow_uav2_keep_(0), follow_uav2_keep_(1) );
-            util_log("follow uav3 keep pos x = %.2f, y = %.2f", follow_uav3_keep_(0), follow_uav3_keep_(1) );
-            util_log("follow uav4 keep pos x = %.2f, y = %.2f", follow_uav4_keep_(0), follow_uav4_keep_(1) );
         }
             break;
 
@@ -139,7 +138,6 @@ void MultiFormation::DoProgress() {
             Drone_uav4_ = TVec3(0, -3 * K_multi_formation_distance , m_multi_vehicle_.uav4.current_local_pos.pose.position.z);
             calcFollowUAVPos(m_multi_vehicle_.uav2, m_multi_vehicle_.uav3, m_multi_vehicle_.uav4, Drone_uav2_,
                              Drone_uav3_, Drone_uav4_);
-            follow_uav1_keep_ = {0,0};
 
         }
             break;
@@ -152,7 +150,6 @@ void MultiFormation::DoProgress() {
             Drone_uav4_ = TVec3(3 * K_multi_formation_distance, 0 , m_multi_vehicle_.uav4.current_local_pos.pose.position.z);
             calcFollowUAVPos(m_multi_vehicle_.uav2, m_multi_vehicle_.uav3, m_multi_vehicle_.uav4, Drone_uav2_,
                              Drone_uav3_, Drone_uav4_);
-            follow_uav1_keep_ = {0,0};
 
         }
             break;
@@ -161,8 +158,10 @@ void MultiFormation::DoProgress() {
             break;
 
     }
+    SetFunctionOutPut();
 }
 
 void MultiFormation::SetFunctionOutPut() {
+    leader_uav_id_ = m_multi_vehicle_.leader_uav.drone_id;
     DataMan::getInstance()->SetFormationData(leader_uav_id_, follow_uav1_, follow_uav2_, follow_uav3_);
 }

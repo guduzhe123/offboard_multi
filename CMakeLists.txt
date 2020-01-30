@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.4.1)
 project(offboard)
-
+SET(CMAKE_CXX_STANDARD 14)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -40,8 +40,8 @@ add_library(
         src/multi_offboard.cpp
         src/PathCreator.cpp
         src/FlightManager.cpp
-        src/Avoidance.cpp
-        src/Multi_formation.cpp
+        src/new_struct/Avoidance.cpp
+        src/new_struct/Multi_formation.cpp
         src/util.cpp
         src/new_struct/IMsgRosManager.cpp
         src/DataMan.cpp inc/DataMan.hpp

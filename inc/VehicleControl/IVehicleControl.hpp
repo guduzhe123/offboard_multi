@@ -9,7 +9,7 @@
 
 class IVehicleControl {
 public:
-        virtual ~IVehicleControl() = 0;
+        virtual ~IVehicleControl() {};
 
         virtual void onInit(vector<geometry_msgs::PoseStamped> way_points) = 0;
 
@@ -20,5 +20,12 @@ public:
         virtual void getData() = 0;
 
         virtual void setVehicleCtrlData() = 0;
+};
+
+class IVehicleControlFactory {
+public:
+    virtual ~IVehicleControlFactory() {};
+
+    virtual IVehicleControl* VehicleControlCreator() = 0;
 };
 #endif //OFFBOARD_IVEHICLECONTROL_HPP

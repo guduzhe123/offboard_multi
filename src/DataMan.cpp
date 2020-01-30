@@ -14,8 +14,8 @@ DataMan* DataMan::getInstance() {
 }
 
 // initialize config parameters.
-void DataMan::OnInit() {
-
+void DataMan::OnInit(IMsgRosManager *msg_ros) {
+    msg_config_ = msg_ros;
 }
 
 void DataMan::SetDroneData(const M_Drone &mDrone) {
@@ -136,16 +136,15 @@ void DataMan::SetFormationKeepData(const TVec3 &follow_uav1, const TVec3 &follow
         multi_vehicle_.uav3.follow_uav_keep_pos = follow_uav3;
         multi_vehicle_.uav4.follow_uav_keep_pos = follow_uav4;
     }
-    PrintData();
 }
 
 
 void DataMan::SetUAVState(mavros_msgs::SetMode &m_mode) {
-
+    msg_config_->SetUAVState(m_mode);
 }
 
-void DataMan::SetUSVState(mavros_msgs::CommandBool &arm_command, const int usv_id) {
-
+void DataMan::SetUSVState(mavros_msgs::CommandBool &arm_command) {
+    msg_config_->SetUSVState(arm_command);
 }
 
 void DataMan::SetDroneControlData(const multi_vehicle &m_multi_vehicles) {
@@ -154,13 +153,19 @@ void DataMan::SetDroneControlData(const multi_vehicle &m_multi_vehicles) {
     multi_vehicle_.uav2.target_local_pos_sp = m_multi_vehicles.uav2.target_local_pos_sp;
     multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicles.uav3.target_local_pos_sp;
     multi_vehicle_.uav4.target_local_pos_sp = m_multi_vehicles.uav4.target_local_pos_sp;
+    multi_vehicle_.leader_uav = m_multi_vehicles.leader_uav;
+    msg_config_-> PublishDronePosControl(m_multi_vehicles);
 }
 
 void DataMan::SetBoatControlData(const multi_vehicle &m_multi_vehicles) {
-    boost::unique_lock<boost::mutex> lock(m_mutex);
-    multi_vehicle_.usv1.target_local_pos_sp = m_multi_vehicles.usv1.target_local_pos_sp;
-    multi_vehicle_.usv2.target_local_pos_sp = m_multi_vehicles.usv2.target_local_pos_sp;
-    multi_vehicle_.usv3.target_local_pos_sp = m_multi_vehicles.usv3.target_local_pos_sp;
+    {
+        boost::unique_lock<boost::mutex> lock(m_mutex);
+        multi_vehicle_.usv1.target_local_pos_sp = m_multi_vehicles.usv1.target_local_pos_sp;
+        multi_vehicle_.usv2.target_local_pos_sp = m_multi_vehicles.usv2.target_local_pos_sp;
+        multi_vehicle_.usv3.target_local_pos_sp = m_multi_vehicles.usv3.target_local_pos_sp;
+        multi_vehicle_.leader_usv = m_multi_vehicles.leader_usv;
+        msg_config_->PublishBoatPosControl(m_multi_vehicles);
+    }
 }
 
 void DataMan::SetUAVLeader(M_Drone &leader_uav) {
@@ -171,6 +176,15 @@ void DataMan::SetUAVLeader(M_Drone &leader_uav) {
 void DataMan::SetUSVLeader(M_Drone &leader_usv) {
     boost::unique_lock<boost::mutex> lock(m_mutex);
     multi_vehicle_.leader_usv = leader_usv;
+
+}
+
+void DataMan::SetUserCommand(const int value) {
+    user_command_value_ = value;
+}
+
+int DataMan::GetUserCommand() {
+    return user_command_value_;
 }
 
 void DataMan::PrinrDorneFlightDate() {
@@ -255,7 +269,7 @@ void DataMan::PrintData() {
     PrintBoatTargetPosData();
     if (leader_uav_) {
         PrintDroneFormationData();
-        PrintDroneFormationKeep();
+//        PrintDroneFormationKeep();
     }
     util_log("---------------data end-----------------");
 }

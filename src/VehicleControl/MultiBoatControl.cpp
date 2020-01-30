@@ -3,13 +3,24 @@
 //
 
 #include "VehicleControl/MultBoatControl.hpp"
+MultiBoatControl* MultiBoatControl:: l_lint = NULL;
 
 MultiBoatControl::MultiBoatControl() :
         usv_state_(USA_INIT){
 
 }
+
+MultiBoatControl* MultiBoatControl::getInstance() {
+    if (l_lint == NULL) {
+        l_lint = new MultiBoatControl();
+    }
+    return l_lint;
+}
+
 void MultiBoatControl::onInit(vector<geometry_msgs::PoseStamped> way_points) {
+    util_log("boat control start! sizeof usv waypoints = %d", way_points.size());
     usv_way_points_ = way_points;
+
 }
 
 void MultiBoatControl::getData() {
@@ -17,7 +28,7 @@ void MultiBoatControl::getData() {
 }
 
 void MultiBoatControl::DoProgress() {
-    if (m_multi_vehicle_.leader_usv.current_state.mode == "OFFBOARD") {
+    if (m_multi_vehicle_.leader_usv.current_state.mode == "OFFBOARD" && m_multi_vehicle_.leader_uav.movement_state == FALLOW_USV) {
         mavros_msgs::CommandBool arm_cmd;
         switch (usv_state_) {
             case USA_INIT:
@@ -29,20 +40,20 @@ void MultiBoatControl::DoProgress() {
                     m_multi_vehicle_.leader_usv.target_local_pos_sp = usv_way_points_.back();
                     if (pos_reached(m_multi_vehicle_.usv1.current_local_pos, usv_way_points_.back(), usv_position_allow_reached_)) {
                         usv5_reached_ = true;
-                        arm_cmd.request.value = false;                        
-                        DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv1.drone_id);
+                        arm_cmd.request.value = false;
+                        DataMan::getInstance()->SetUSVState(arm_cmd);
                         util_log("usv5 disarm at one point");
                     }
                     if (pos_reached(m_multi_vehicle_.usv2.current_local_pos, usv_way_points_.back(), usv_position_allow_reached_)) {
                         usv6_reached_ = true;
                         arm_cmd.request.value = false;
-                        DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv2.drone_id);
+                        DataMan::getInstance()->SetUSVState(arm_cmd);
                         util_log("usv6 disarm at one point");
                     }
                     if (pos_reached(m_multi_vehicle_.usv3.current_local_pos, usv_way_points_.back(), usv_position_allow_reached_)) {
                         usv7_reached_ = true;
                         arm_cmd.request.value = false;
-                        DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv3.drone_id);
+                        DataMan::getInstance()->SetUSVState(arm_cmd);
                         util_log("usv7 disarm at one point");
                     }
 
@@ -67,9 +78,7 @@ void MultiBoatControl::DoProgress() {
 
                     if ((!usv5_reached_ || !usv6_reached_ || !usv7_reached_) && usv_state_ == USA_WAYPOINT){
                         arm_cmd.request.value = true;
-                        DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv1.drone_id);
-                        DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv2.drone_id);
-                        DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv3.drone_id);
+                        DataMan::getInstance()->SetUSVState(arm_cmd);
                     }
 
                 } else {
@@ -79,13 +88,8 @@ void MultiBoatControl::DoProgress() {
 
             case USA_DISARM:
                 arm_cmd.request.value = false;
-                DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv1.drone_id);
-                DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv2.drone_id);
-                DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv3.drone_id);
+                DataMan::getInstance()->SetUSVState(arm_cmd);
                 util_log("Disarm all usv");
-                mavros_msgs::SetMode uav_state;
-                uav_state.request.custom_mode = "AUTO.LAND";
-                DataMan::getInstance()->SetUAVState(uav_state);
                 break;
         }
     }
@@ -111,13 +115,14 @@ void MultiBoatControl::chooseLeader() {
             }
         }
     }
+    m_multi_vehicle_.leader_usv.movement_state = usv_state_;
     DataMan::getInstance()->SetUSVLeader(m_multi_vehicle_.leader_usv);
 }
 
 void MultiBoatControl::setVehicleCtrlData() {
     m_multi_vehicle_.usv1.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
-    m_multi_vehicle_.usv1.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
-    m_multi_vehicle_.usv1.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
+    m_multi_vehicle_.usv2.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
+    m_multi_vehicle_.usv3.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
     DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);
 }
 

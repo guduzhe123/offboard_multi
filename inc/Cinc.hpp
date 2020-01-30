@@ -39,6 +39,7 @@ static const float K_multi_formation_distance = 5;
 
 struct M_Drone {
     int drone_id;
+    int movement_state;
     TVec3 velocity;
     float pitch ;
     float roll ;
@@ -113,8 +114,8 @@ enum {
     USA_DISARM
 };
 
-enum vehicle_formation {
-    VF_SQUARE,
+enum  {
+    VF_SQUARE = 1,
     VF_TRIANGLE,
     VF_LINE_HORIZONTAL,
     VF_LINE_VERTICAL

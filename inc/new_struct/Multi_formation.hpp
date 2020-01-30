@@ -12,7 +12,7 @@ class MultiFormation : public IControlFunction{
 public:
     MultiFormation();
 
-    ~MultiFormation() override ;
+    ~MultiFormation() {};
 
     void Oninit(const float config);
 
@@ -21,15 +21,6 @@ public:
     void DoProgress() override ;
 
     void SetFunctionOutPut() override ;
-
-    void
-    GetFormationOutput(geometry_msgs::PoseStamped &follow_uav_num1,
-                       geometry_msgs::PoseStamped &follow_uav_num2,
-                       geometry_msgs::PoseStamped &follow_uav_num3, bool &is_formation);
-
-    void GetKeepFormation(TVec3 &follow_uav1_keep, TVec3 &follow_uav2_keep, TVec3 &follow_uav3_keep,
-                          TVec3 &follow_uav4_keep);
-
 
     static MultiFormation* getInstance();
 
@@ -50,7 +41,7 @@ private:
     bool is_formation_;
     int uav_formation_time_;
     int leader_uav_id_;
-    vehicle_formation config_;
+    int config_;
     M_Drone leader_drone_;
 
     TVec3 Drone_uav1_;
@@ -74,5 +65,14 @@ private:
     geometry_msgs::PoseStamped follow_uav1_to_leader_first, follow_uav2_to_leader_first, follow_uav3_to_leader_first;
 
     vector<M_Drone_Avoidace> drone_avoidance_{};
+};
+
+class MultiFormationFactory : public IFunctionFactory {
+public:
+    ~MultiFormationFactory() {};
+
+    IControlFunction* FunctionCreator()  {
+        return new MultiFormation();
+    }
 };
 #endif //OFFBOARD_MULTI_FORMATION_HPP

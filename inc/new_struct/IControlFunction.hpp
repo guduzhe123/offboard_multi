@@ -9,13 +9,21 @@
 
 class IControlFunction {
 public:
-    virtual ~IControlFunction() = 0;
+    virtual ~IControlFunction() {};
 
     virtual void GetData() = 0;
 
     virtual void DoProgress() = 0;
 
     virtual void SetFunctionOutPut() = 0;
+};
+
+
+class IFunctionFactory {
+public:
+    virtual ~IFunctionFactory() {};
+
+    virtual IControlFunction* FunctionCreator() = 0;
 };
 
 #endif //OFFBOARD_ICONTROLFUNCTION_HPP

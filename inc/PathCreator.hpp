@@ -6,28 +6,34 @@
 #define OFFBOARD_PATHCREATOR_HPP
 
 #include "Cinc.hpp"
+#include "FlightManager.hpp"
+#include "IControlFunction.hpp"
+#include "IMsgRosManager.hpp"
+#include "Multi_formation.hpp"
+#include "Avoidance.hpp"
+#include "IVehicleControl.hpp"
+#include "MultDroneControl.hpp"
+#include "MultBoatControl.hpp"
 
 using namespace Eigen;
 using namespace std;
 
 class PathCreator {
 public:
-    struct TPathInfo {
-        int m_path_id;
-        float target_heading_local;
-        float line_angle;
-        TVec3 m_insp_vector;
-    };
 
     PathCreator();
 
     ~PathCreator() = default;
 
-    void onInit();
+    void onInit(IMsgRosManager *msg_manager);
 
     void uav_add_way_points(vector<geometry_msgs::PoseStamped> &uav_way_points);
 
     void usv_add_way_points(vector<geometry_msgs::PoseStamped> &usv_way_points);
+
+    void CreatFunction();
+
+    void CreatVehicle();
 
     static PathCreator* geInstance();
 
