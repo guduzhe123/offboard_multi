@@ -37,6 +37,14 @@ static const bool K_Param_local_global = true;
 static const float K_err_allow = 0.5;
 static const float K_multi_formation_distance = 5;
 
+typedef struct GlobalPosition
+{
+    double latitude;  /*!< unit: rad */
+    double longitude; /*!< unit: rad */
+    uint8_t   health;    /*!< scale from 0 - 5 signifying gps signal strength <br>
+                        * greater than 3 for strong signal */
+} GlobalPosition;      // pack(1)
+
 struct M_Drone {
     int drone_id;
     int movement_state;
@@ -122,15 +130,6 @@ enum  {
     VF_LINE_VERTICAL
 };
 
-typedef struct GlobalPosition
-{
-    double latitude;  /*!< unit: rad */
-    double longitude; /*!< unit: rad */
-    double altitude;  /*!< WGS 84 reference ellipsoid */
-    double height;    /*!< relative height to the ground */
-    uint8_t   health;    /*!< scale from 0 - 5 signifying gps signal strength <br>
-                        * greater than 3 for strong signal */
-} GlobalPosition;      // pack(1)
 
 struct TVehicleMsg {
     int drone_id;

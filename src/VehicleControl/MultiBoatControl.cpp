@@ -28,10 +28,18 @@ void MultiBoatControl::getData() {
 }
 
 void MultiBoatControl::DoProgress() {
+    util_log("leader uav movement_state = %d", m_multi_vehicle_.leader_uav.movement_state);
     if (m_multi_vehicle_.leader_usv.current_state.mode == "OFFBOARD" && m_multi_vehicle_.leader_uav.movement_state == FALLOW_USV) {
         mavros_msgs::CommandBool arm_cmd;
         switch (usv_state_) {
             case USA_INIT:
+                util_log("leader usv armed = %d", m_multi_vehicle_.leader_usv.current_state.armed);
+                if (!m_multi_vehicle_.leader_usv.current_state.armed) {
+                    arm_cmd.request.value = true;
+                    DataMan::getInstance()->SetUSVState(arm_cmd);
+                    setVehicleCtrlData(); // keep leader usv offboard
+                    return;
+                }
                 usv_state_ = USA_WAYPOINT;
                 break;
 
@@ -99,17 +107,17 @@ void MultiBoatControl::DoProgress() {
 
 void MultiBoatControl::chooseLeader() {
     if (m_multi_vehicle_.usv1.current_state.connected &&
-        m_multi_vehicle_.usv1.current_state.armed &&
+        /*m_multi_vehicle_.usv1.current_state.armed &&*/
         m_multi_vehicle_.usv1.current_state.mode == "OFFBOARD") {
         m_multi_vehicle_.leader_usv = m_multi_vehicle_.usv1;
     } else {
         if (m_multi_vehicle_.usv2.current_state.connected &&
-            m_multi_vehicle_.usv2.current_state.armed &&
+           /* m_multi_vehicle_.usv2.current_state.armed &&*/
             m_multi_vehicle_.usv2.current_state.mode == "OFFBOARD") {
             m_multi_vehicle_.leader_usv = m_multi_vehicle_.usv2;
         } else {
             if (m_multi_vehicle_.usv3.current_state.connected &&
-                m_multi_vehicle_.usv3.current_state.armed &&
+                /*m_multi_vehicle_.usv3.current_state.armed &&*/
                 m_multi_vehicle_.usv3.current_state.mode == "OFFBOARD") {
                 m_multi_vehicle_.leader_usv = m_multi_vehicle_.usv3;
             }

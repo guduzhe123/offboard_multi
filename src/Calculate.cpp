@@ -6,7 +6,7 @@
 Calculate* Calculate::l_pInst = NULL;
 
 void Calculate::GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &loc2,
-                                 geometry_msgs::PoseStamped &follow_uav_local_pos) {
+                            TVec3 &follow_uav_local_pos) {
     GlobalPosition center_pos;
     double meterPerLat, meterPerLongt;
     center_pos.latitude = 0;
@@ -17,11 +17,11 @@ void Calculate::GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &lo
     double dLat = loc1.latitude - loc2.latitude;
 
     float  k = 2.0f/3.0f; // TODO PX4 x axis data is large 1.5
-    follow_uav_local_pos.pose.position.x = k * dLongt * meterPerLongt;
-    follow_uav_local_pos.pose.position.y = dLat * meterPerLat;
+    follow_uav_local_pos.x() = k * dLongt * meterPerLongt;
+    follow_uav_local_pos.y() = dLat * meterPerLat;
 }
 
-void Calculate::GetGlobalPos(const GlobalPosition &loc1, GlobalPosition &loc2, TVec3 &local_target_pos) {
+void Calculate::GetGlobalPos(const GlobalPosition &loc1, GlobalPosition &loc2, TVec2 &local_target_pos) {
     GlobalPosition center_pos;
     double meterPerLat, meterPerLongt;
     double x,y;
@@ -33,11 +33,12 @@ void Calculate::GetGlobalPos(const GlobalPosition &loc1, GlobalPosition &loc2, T
     getMeterScaleHere(meterPerLat, meterPerLongt, center_pos);
 
     double dLongt, dLat;
+    float  k = 2.0f/3.0f; // TODO PX4 x axis data is large 1.5
     dLat = y / meterPerLat;
-    dLongt = x / meterPerLongt; // ?
+    dLongt = x /(meterPerLongt * k); // ?
 
-    loc2.longitude = loc1.longitude - dLongt;
-    loc2.latitude = loc1.latitude - dLat;
+    loc2.longitude = loc1.longitude + dLongt;
+    loc2.latitude = loc1.latitude + dLat;
 }
 
 double Calculate::calcDist(const GlobalPosition &loc1, const GlobalPosition &loc2)

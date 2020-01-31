@@ -79,17 +79,6 @@ int main (int argc, char **argv){
                     util_log("USA Vehicle offboard");
                 }
             }
-        } else if (msg_ros->arm_command_ == 100){ // arm command from ground station
-            if( ! msg_ros->drone_uav5_.current_state.armed && !msg_ros->usv_armed){
-                if( msg_ros->drone_uav5_.arming_client.call(arm_cmd) &&
-                    arm_cmd.response.success){
-                    msg_ros->drone_uav5_.arming_client.call(arm_cmd);
-                    msg_ros->drone_uav6_.arming_client.call(arm_cmd);
-                    msg_ros->drone_uav7_.arming_client.call(arm_cmd);
-                    msg_ros->usv_armed = true;
-                    util_log("USA Vehicle armed");
-                }
-            }
         }
 
         util_log("55555");

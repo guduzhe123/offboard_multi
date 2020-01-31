@@ -24,7 +24,7 @@ void PathCreator::uav_add_way_points(vector<geometry_msgs::PoseStamped> &uav_way
     way_point.pose.position.z = 15;
     uav_way_points.push_back(way_point);
 
-    way_point.pose.position.x = 30;
+    way_point.pose.position.x = 40;
     way_point.pose.position.y = 40;
     way_point.pose.position.z = 15;
     uav_way_points.push_back(way_point);
@@ -55,7 +55,7 @@ void PathCreator::uav_add_way_points(vector<geometry_msgs::PoseStamped> &uav_way
 void PathCreator::usv_add_way_points(vector<geometry_msgs::PoseStamped> &usv_way_points) {
     geometry_msgs::PoseStamped way_point;
 
-    way_point.pose.position.x = 30;
+    way_point.pose.position.x = 40;
     way_point.pose.position.y = 40;
     way_point.pose.position.z = 0;
     usv_way_points.push_back(way_point);

@@ -227,7 +227,7 @@ void Avoidance::checkHorizontalDistance(const multi_vehicle_vec &vehicles) {
 
 void Avoidance::Getvehicledistance(const M_Drone &vehicle1, const M_Drone &vehicle2, float &distance_h, float &distance) {
     GlobalPosition loc1,loc2;
-    geometry_msgs::PoseStamped two_uav_local_pos;
+    TVec3 two_uav_local_pos;
     loc1.latitude = vehicle1.latitude;
     loc1.longitude = vehicle1.longtitude;
     loc2.latitude = vehicle2.latitude;
@@ -235,8 +235,8 @@ void Avoidance::Getvehicledistance(const M_Drone &vehicle1, const M_Drone &vehic
 
     Calculate::getInstance()->GetLocalPos(loc1, loc2, two_uav_local_pos);
 
-    float err_px = two_uav_local_pos.pose.position.x;
-    float err_py = two_uav_local_pos.pose.position.y;
+    float err_px = two_uav_local_pos.x();
+    float err_py = two_uav_local_pos.y();
     float err_pz = vehicle1.current_local_pos.pose.position.z - vehicle2.current_local_pos.pose.position.z;
     util_log("vehicle %d %d between length = %.2f, %.2f, %.2f, length = %.2f", vehicle1.drone_id, vehicle2.drone_id,
             err_px, err_py, err_pz, sqrt(err_px * err_px + err_py * err_py + err_pz * err_pz));

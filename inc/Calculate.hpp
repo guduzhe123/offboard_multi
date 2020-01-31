@@ -10,9 +10,9 @@
 class Calculate {
 public:
     void GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &loc2,
-                     geometry_msgs::PoseStamped &follow_uav_local_pos);
+                     TVec3 &follow_uav_local_pos);
 
-    void GetGlobalPos(const GlobalPosition &loc1, GlobalPosition &loc2, TVec3 &local_target_pos);
+    void GetGlobalPos(const GlobalPosition &loc1, GlobalPosition &loc2, TVec2 &local_target_pos);
 
     void setEachLoclation();
 
