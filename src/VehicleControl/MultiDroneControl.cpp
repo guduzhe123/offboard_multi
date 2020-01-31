@@ -23,7 +23,8 @@ void MultiDroneControl::onInit(vector<geometry_msgs::PoseStamped> way_points) {
 }
 
 void MultiDroneControl::DoProgress() {
-    if (m_multi_vehicle_.leader_uav.is_formation) {
+    util_log("drone is formation = %d", is_formation_);
+    if (is_formation_) {
         return;
     }
 //    uav_global_pos_sp();
@@ -124,15 +125,13 @@ void MultiDroneControl::chooseLeader() {
     }
     drone_uav_leader_ = m_multi_vehicle_.leader_uav;
     m_multi_vehicle_.leader_uav.movement_state = uav_state_;
-
-    if (m_multi_vehicle_.leader_uav.is_formation) {
-        return;
-    }
+    m_multi_vehicle_.leader_uav.is_formation = is_formation_;
     DataMan::getInstance()->SetUAVLeader(m_multi_vehicle_.leader_uav);
 }
 
 void MultiDroneControl::getData() {
     m_multi_vehicle_ = DataMan::getInstance()->GetData();
+    is_formation_ = m_multi_vehicle_.leader_uav.is_formation;
 }
 
 geometry_msgs::PoseStamped MultiDroneControl::CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, TVec3 &formation_target) {
@@ -145,10 +144,12 @@ geometry_msgs::PoseStamped MultiDroneControl::CalculateTargetPos(geometry_msgs::
 }
 
 void MultiDroneControl::setVehicleCtrlData() {
+    util_log("set vehicle control !!!!!");
     m_multi_vehicle_.uav1.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav1.follow_uav_to_leader_pos);
     m_multi_vehicle_.uav2.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav2.follow_uav_to_leader_pos);
     m_multi_vehicle_.uav3.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav3.follow_uav_to_leader_pos);
     m_multi_vehicle_.uav4.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav4.follow_uav_to_leader_pos);
+    m_multi_vehicle_.leader_uav.target_local_pos_sp = drone_uav_leader_.target_local_pos_sp;
 
     if (!isnan(m_multi_vehicle_.uav1.avoidance_pos.z()) && isnan(m_multi_vehicle_.uav2.avoidance_pos.z()) &&
         !isnan(m_multi_vehicle_.uav3.avoidance_pos.z()) && isnan(m_multi_vehicle_.uav4.avoidance_pos.z())) {

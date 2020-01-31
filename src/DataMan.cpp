@@ -87,7 +87,9 @@ DataMan::SetFormationData(bool is_formation, int leader_uav_id_, const TVec3 &fo
     {
         boost::unique_lock<boost::mutex> lock(m_mutex);
         multi_vehicle_.leader_uav.is_formation = is_formation;
-        util_log("!!!!!!!----- formation = %d", is_formation);
+        if (is_formation) {
+            util_log("111111");
+        }
         leader_uav_ = leader_uav_id_;
         switch (leader_uav_id_) {
             case UAV1: {

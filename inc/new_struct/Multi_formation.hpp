@@ -14,7 +14,7 @@ public:
 
     ~MultiFormation() {};
 
-    void Oninit(const float config);
+    void Oninit(const int config) override ;
 
     void GetData() override ;
 
@@ -74,7 +74,7 @@ public:
     ~MultiFormationFactory() {};
 
     IControlFunction* FunctionCreator()  {
-        return new MultiFormation();
+        return MultiFormation::getInstance();
     }
 };
 #endif //OFFBOARD_MULTI_FORMATION_HPP

@@ -68,6 +68,7 @@ private:
 
     int leader_uav_ = 0;
     int user_command_value_ ;
+    bool is_formation_ = false;
     IMsgRosManager * msg_config_;
 };
 

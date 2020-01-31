@@ -89,7 +89,6 @@ void PathCreator::CreatFunction() {
 
     FlightManager::getInstance()->AddFunctionProgress(&FormationFactory);
     FlightManager::getInstance()->AddFunctionProgress(&avoidanceFactory);
-
 }
 
 void PathCreator::CreatVehicle() {
@@ -106,6 +105,13 @@ void PathCreator::CreatVehicle() {
 
     FlightManager::getInstance()->AddVehicleControlProgress(&m_boat_control);
     FlightManager::getInstance()->AddVehicleControlProgress(&m_drone_control);
+}
+
+void PathCreator::CreateFormationInit(const int config) {
+    util_log("3333333");
+    MultiFormationFactory FormationFactory;
+    IControlFunction* m_func = FormationFactory.FunctionCreator();
+    m_func->Oninit(config);
 }
 
 PathCreator* PathCreator::geInstance() {

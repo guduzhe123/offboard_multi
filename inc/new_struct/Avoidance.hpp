@@ -18,7 +18,7 @@ public:
 
     ~Avoidance() {};
 
-    void Oninit();
+    void Oninit(const int config) override;
 
     void GetData() override ;
 
@@ -71,7 +71,7 @@ public:
     ~AvoidanceFactory() {};
 
     IControlFunction* FunctionCreator()  {
-        return new Avoidance();
+        return Avoidance::getInstance();
     } ;
 
 };

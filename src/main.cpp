@@ -21,6 +21,7 @@ int main (int argc, char **argv){
     }
 
     util_log("is uav5 connected = %d", msg_ros->drone_uav5_.current_state.connected);
+
     mavros_msgs::SetMode offb_set_mode;
     offb_set_mode.request.custom_mode = "OFFBOARD";
 
@@ -91,6 +92,7 @@ int main (int argc, char **argv){
             }
         }
 
+        util_log("55555");
         DataMan::getInstance()->PrintData();
         ros::spinOnce();
         rate.sleep();

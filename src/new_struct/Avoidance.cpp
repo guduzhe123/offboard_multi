@@ -15,7 +15,7 @@ Avoidance::Avoidance() :
 
 }
 
-void Avoidance::Oninit() {
+void Avoidance::Oninit(const int config) {
 
 }
 

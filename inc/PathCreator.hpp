@@ -9,9 +9,9 @@
 #include "FlightManager.hpp"
 #include "IControlFunction.hpp"
 #include "IMsgRosManager.hpp"
+#include "IVehicleControl.hpp"
 #include "Multi_formation.hpp"
 #include "Avoidance.hpp"
-#include "IVehicleControl.hpp"
 #include "MultDroneControl.hpp"
 #include "MultBoatControl.hpp"
 
@@ -34,6 +34,8 @@ public:
     void CreatFunction();
 
     void CreatVehicle();
+
+    void CreateFormationInit(const int config);
 
     static PathCreator* geInstance();
 

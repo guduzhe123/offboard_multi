@@ -37,15 +37,12 @@ private:
     static MultiDroneControl* l_lint;
 
     int uav_state_;
+    bool is_formation_;
     multi_vehicle m_multi_vehicle_;
     M_Drone drone_uav_leader_;
     geometry_msgs::PoseStamped target_pos_;
     vector<geometry_msgs::PoseStamped> uav_way_points_;
 
-    TVec3 follow_uav1_keep_ = {0,0,0};
-    TVec3 follow_uav2_keep_ = {0,0,0};
-    TVec3 follow_uav3_keep_ = {0,0,0};
-    TVec3 follow_uav4_keep_ = {0,0,0};
 };
 
 class MultiDroneControlFactory : public IVehicleControlFactory {

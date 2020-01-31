@@ -11,6 +11,8 @@ class IControlFunction {
 public:
     virtual ~IControlFunction() {};
 
+    virtual void Oninit(const int config) = 0;
+
     virtual void GetData() = 0;
 
     virtual void DoProgress() = 0;
