@@ -30,6 +30,8 @@ private:
                           TVec3 &follow_uav3_local_target);
 
 
+    geometry_msgs::PoseStamped CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, Eigen::Matrix<float, 3, 1> formation_target);
+
     bool pos_reached(geometry_msgs::PoseStamped &current_pos, TVec3 &follow_uav_target);
 
     void OnCheckFormationArrived();

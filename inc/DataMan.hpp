@@ -32,7 +32,8 @@ public:
     void PrintData();
 
     void
-    SetFormationData(int leader_uav_id_, const TVec3& follow_uav1, const TVec3& follow_uav2, const TVec3& follow_uav3);
+    SetFormationData(bool is_formation, int leader_uav_id_, const TVec3 &follow_uav1, const TVec3 &follow_uav2,
+                     const TVec3 &follow_uav3);
 
     void
     SetFormationKeepData(const TVec3& follow_uav1, const TVec3& follow_uav2, const TVec3& follow_uav3, const TVec3& follow_uav4);

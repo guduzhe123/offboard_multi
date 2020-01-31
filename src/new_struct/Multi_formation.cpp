@@ -83,6 +83,7 @@ void MultiFormation::OnCheckFormationArrived() {
         pos_reached(m_multi_vehicle_.uav3.current_local_pos, follow_uav2_) &&
         pos_reached(m_multi_vehicle_.uav4.current_local_pos, follow_uav3_)) {
         is_formation_ = false;
+        config_ = 0;
     }
 }
 
@@ -96,12 +97,12 @@ MultiFormation::pos_reached(geometry_msgs::PoseStamped &current_pos, TVec3 &foll
 }
 
 void MultiFormation::DoProgress() {
-    is_formation_ = true;
     uav_formation_time_++;
     config_ = DataMan::getInstance()->GetUserCommand();
     util_log("formation config = %d", config_ );
     switch (config_) {
         case VF_SQUARE: {
+            is_formation_ = true;
             util_log("Formation call! Square!");
             leader_drone_ = m_multi_vehicle_.uav1;
             Drone_uav2_ = TVec3(-K_multi_formation_distance, 0 , m_multi_vehicle_.uav2.current_local_pos.pose.position.z);
@@ -118,6 +119,7 @@ void MultiFormation::DoProgress() {
             break;
 
         case VF_TRIANGLE: {
+            is_formation_ = true;
             util_log("Formation call! Triangle!");
             leader_drone_ = m_multi_vehicle_.uav1;
             Drone_uav2_ = TVec3(-K_multi_formation_distance, -K_multi_formation_distance , m_multi_vehicle_.uav2.current_local_pos.pose.position.z);
@@ -131,6 +133,7 @@ void MultiFormation::DoProgress() {
 
 
         case VF_LINE_HORIZONTAL : {
+            is_formation_ = true;
             util_log("Formation call! Line horizontal!");
             leader_drone_ = m_multi_vehicle_.uav1;
             Drone_uav2_ = TVec3(0, -K_multi_formation_distance , m_multi_vehicle_.uav2.current_local_pos.pose.position.z);
@@ -143,6 +146,7 @@ void MultiFormation::DoProgress() {
             break;
 
         case VF_LINE_VERTICAL : {
+            is_formation_ = true;
             util_log("Formation call! Line Vertical!");
             leader_drone_ = m_multi_vehicle_.uav1;
             Drone_uav2_ = TVec3(K_multi_formation_distance, 0 , m_multi_vehicle_.uav2.current_local_pos.pose.position.z);
@@ -158,10 +162,32 @@ void MultiFormation::DoProgress() {
             break;
 
     }
+    OnCheckFormationArrived();
     SetFunctionOutPut();
+}
+geometry_msgs::PoseStamped MultiFormation::CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, Eigen::Matrix<float, 3, 1> formation_target) {
+    geometry_msgs::PoseStamped target_local_pos_sp;
+    util_log("formation_target (%.2f, %.2f, %.2f)", formation_target(0), formation_target(1));
+    target_local_pos_sp.pose.position.x = target_local_pos.pose.position.x + formation_target(0);
+    target_local_pos_sp.pose.position.y = target_local_pos.pose.position.y + formation_target(1);
+    target_local_pos_sp.pose.position.z = target_local_pos.pose.position.z;
+    return target_local_pos_sp;
 }
 
 void MultiFormation::SetFunctionOutPut() {
     leader_uav_id_ = m_multi_vehicle_.leader_uav.drone_id;
-    DataMan::getInstance()->SetFormationData(leader_uav_id_, follow_uav1_, follow_uav2_, follow_uav3_);
+    DataMan::getInstance()->SetFormationData(is_formation_, leader_uav_id_, follow_uav1_,
+            follow_uav2_, follow_uav3_);
+
+    if (is_formation_) {
+        util_log("formation drone output!!!!!");
+        geometry_msgs::PoseStamped leader_curr{};
+        leader_curr.pose.position.z = m_multi_vehicle_.leader_uav.current_local_pos.pose.position.z;
+
+        m_multi_vehicle_.uav1.target_local_pos_sp = CalculateTargetPos(leader_curr , TVec3(0,0,0)) ;
+        m_multi_vehicle_.uav2.target_local_pos_sp = CalculateTargetPos(leader_curr , follow_uav1_) ;
+        m_multi_vehicle_.uav3.target_local_pos_sp = CalculateTargetPos(leader_curr , follow_uav2_) ;
+        m_multi_vehicle_.uav4.target_local_pos_sp = CalculateTargetPos(leader_curr , follow_uav3_) ;
+        DataMan::getInstance()->SetDroneControlData(m_multi_vehicle_);
+    }
 }

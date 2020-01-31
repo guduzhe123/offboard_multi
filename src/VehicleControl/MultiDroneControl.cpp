@@ -23,6 +23,9 @@ void MultiDroneControl::onInit(vector<geometry_msgs::PoseStamped> way_points) {
 }
 
 void MultiDroneControl::DoProgress() {
+    if (m_multi_vehicle_.leader_uav.is_formation) {
+        return;
+    }
 //    uav_global_pos_sp();
     if (drone_uav_leader_.current_state.mode == "OFFBOARD"  /*&& drone_uav_leader_.current_state.armed*/) {
         util_log("uav state = %d", uav_state_);
@@ -121,6 +124,10 @@ void MultiDroneControl::chooseLeader() {
     }
     drone_uav_leader_ = m_multi_vehicle_.leader_uav;
     m_multi_vehicle_.leader_uav.movement_state = uav_state_;
+
+    if (m_multi_vehicle_.leader_uav.is_formation) {
+        return;
+    }
     DataMan::getInstance()->SetUAVLeader(m_multi_vehicle_.leader_uav);
 }
 

@@ -34,13 +34,13 @@ typedef Eigen::Matrix4f TMat4;
 typedef Eigen::Quaternionf TQuat;
 
 static const bool K_Param_local_global = true;
-static const float K_err_allow = 0.8;
+static const float K_err_allow = 0.5;
 static const float K_multi_formation_distance = 5;
 
 struct M_Drone {
     int drone_id;
     int movement_state;
-    TVec3 velocity;
+    bool is_formation;
     float pitch ;
     float roll ;
     float yaw ;
@@ -52,6 +52,7 @@ struct M_Drone {
     TVec3 follow_uav_to_leader_pos;
     TVec3 follow_uav_keep_pos;
     TVec3 avoidance_pos;
+    TVec3 velocity;
     geometry_msgs::PoseStamped target_local_pos_sp;
     mavros_msgs::PositionTarget current_local_pos_sp;
 };

@@ -81,10 +81,13 @@ DataMan::SetAvoidanceData(const M_Drone_Avoidace& uav1, const M_Drone_Avoidace& 
     }
 }
 
-void DataMan::SetFormationData(int leader_uav_id_, const TVec3& follow_uav1, const TVec3& follow_uav2,
-                               const TVec3& follow_uav3) {
+void
+DataMan::SetFormationData(bool is_formation, int leader_uav_id_, const TVec3 &follow_uav1, const TVec3 &follow_uav2,
+                          const TVec3 &follow_uav3) {
     {
         boost::unique_lock<boost::mutex> lock(m_mutex);
+        multi_vehicle_.leader_uav.is_formation = is_formation;
+        util_log("!!!!!!!----- formation = %d", is_formation);
         leader_uav_ = leader_uav_id_;
         switch (leader_uav_id_) {
             case UAV1: {
@@ -153,7 +156,7 @@ void DataMan::SetDroneControlData(const multi_vehicle &m_multi_vehicles) {
     multi_vehicle_.uav2.target_local_pos_sp = m_multi_vehicles.uav2.target_local_pos_sp;
     multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicles.uav3.target_local_pos_sp;
     multi_vehicle_.uav4.target_local_pos_sp = m_multi_vehicles.uav4.target_local_pos_sp;
-    multi_vehicle_.leader_uav = m_multi_vehicles.leader_uav;
+    multi_vehicle_.leader_uav.target_local_pos_sp = m_multi_vehicles.leader_uav.target_local_pos_sp;
     msg_config_-> PublishDronePosControl(m_multi_vehicles);
 }
 
@@ -163,7 +166,7 @@ void DataMan::SetBoatControlData(const multi_vehicle &m_multi_vehicles) {
         multi_vehicle_.usv1.target_local_pos_sp = m_multi_vehicles.usv1.target_local_pos_sp;
         multi_vehicle_.usv2.target_local_pos_sp = m_multi_vehicles.usv2.target_local_pos_sp;
         multi_vehicle_.usv3.target_local_pos_sp = m_multi_vehicles.usv3.target_local_pos_sp;
-        multi_vehicle_.leader_usv = m_multi_vehicles.leader_usv;
+        multi_vehicle_.leader_usv.target_local_pos_sp = m_multi_vehicles.leader_usv.target_local_pos_sp;
         msg_config_->PublishBoatPosControl(m_multi_vehicles);
     }
 }
@@ -236,6 +239,7 @@ void DataMan::PrintAvoidanceData() {
 }
 
 void DataMan::PrintDroneFormationData() {
+    util_log("is formation = %d", multi_vehicle_.leader_uav.is_formation);
     util_log("Formation leader = %d, uav1 follow to leader = (%.2f, %.2f, %.2f) ",leader_uav_, multi_vehicle_.uav1.follow_uav_to_leader_pos(0),
              multi_vehicle_.uav1.follow_uav_to_leader_pos(1),multi_vehicle_.uav1.follow_uav_to_leader_pos(2));
     util_log("Formation leader = %d, uav2 follow to leader = (%.2f, %.2f, %.2f) ", leader_uav_,multi_vehicle_.uav2.follow_uav_to_leader_pos(0),
