@@ -38,6 +38,11 @@
             /uav7/mavros/vfr_hud
             /uav7/mavros/setpoint_position/local
             /uav7/mavros/local_position/pose
+
+            /uav1/mavros/debug_value/debug_vector
+            /uav2/mavros/debug_value/debug_vector
+            /uav3/mavros/debug_value/debug_vector
+            /uav4/mavros/debug_value/debug_vector
 "
     />
 </launch>

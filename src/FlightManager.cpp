@@ -20,6 +20,7 @@ FlightManager* FlightManager::getInstance() {
 
 void FlightManager::OnInitConfig(IMsgRosManager *msg_manager) {
     msg_manager_ = msg_manager;
+    DataMan::getInstance()->SetCallBack(this);
 }
 
 void FlightManager::GetData() {
@@ -62,6 +63,41 @@ void FlightManager::AddFunctionProgress(IFunctionFactory *factory) {
     IControlFunction* m_func;
     m_func = factory->FunctionCreator();
     m_control_function_vector_.push_back(m_func);
+}
+
+void FlightManager::FunctionStateUpdate(IFunctionFactory *factory) {
+    m_func_ = factory->FunctionCreator();
+}
+
+void FlightManager::OnFlightDataUpdate(FDATA_TYPE data_type) {
+    if (data_type == FDATA_DRONE_TARGTE) {
+        if (drone_avodiance_update_) {
+            GetData();
+            util_log("uav targte .z = %.2f", m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z);
+            util_log(
+                    "height_avoidance_uav1_ = %.2f, height_avoidance_uav2_ = %.2f, height_avoidance_uav3_ = %.2f, height_avoidance_uav4_ = %.2f",
+                    m_multi_vehicle_.uav1.avoidance_pos.z(), m_multi_vehicle_.uav2.avoidance_pos.z(),
+                    m_multi_vehicle_.uav3.avoidance_pos.z(), m_multi_vehicle_.uav4.avoidance_pos.z());
+
+            if (!isnan(m_multi_vehicle_.uav1.avoidance_pos.z()) && !isnan(m_multi_vehicle_.uav2.avoidance_pos.z()) &&
+                !isnan(m_multi_vehicle_.uav3.avoidance_pos.z()) && !isnan(m_multi_vehicle_.uav4.avoidance_pos.z())) {
+                m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z += m_multi_vehicle_.uav1.avoidance_pos.z();
+                m_multi_vehicle_.uav2.target_local_pos_sp.pose.position.z += m_multi_vehicle_.uav2.avoidance_pos.z();
+                m_multi_vehicle_.uav3.target_local_pos_sp.pose.position.z += m_multi_vehicle_.uav3.avoidance_pos.z();
+                m_multi_vehicle_.uav4.target_local_pos_sp.pose.position.z += m_multi_vehicle_.uav4.avoidance_pos.z();
+            }
+        }
+        DataMan::getInstance()->PublishDroneControlData(m_multi_vehicle_); // pulish at last
+    }
+
+    if (data_type == FDATA_AVOIDANCE) {
+        drone_avodiance_update_ = true;
+    }
+
+    if (data_type == FDATA_MANUAL_COMMAND) {
+        util_log("get user command = %d", m_multi_vehicle_.user_command);
+        m_func_->Oninit(m_multi_vehicle_.user_command);
+    }
 }
 
 

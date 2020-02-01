@@ -79,6 +79,10 @@ DataMan::SetAvoidanceData(const M_Drone_Avoidace& uav1, const M_Drone_Avoidace& 
         multi_vehicle_.uav3.avoidance_pos = uav3.local_target_pos_avo;
         multi_vehicle_.uav4.avoidance_pos = uav4.local_target_pos_avo;
     }
+    if (callback_) {
+        util_log("11111111%%%%%");
+        callback_->OnFlightDataUpdate(FDATA_AVOIDANCE);
+    }
 }
 
 void
@@ -87,9 +91,6 @@ DataMan::SetFormationData(bool is_formation, int leader_uav_id_, const TVec3 &fo
     {
         boost::unique_lock<boost::mutex> lock(m_mutex);
         multi_vehicle_.leader_uav.is_formation = is_formation;
-        if (is_formation) {
-            util_log("111111");
-        }
         leader_uav_ = leader_uav_id_;
         switch (leader_uav_id_) {
             case UAV1: {
@@ -153,12 +154,29 @@ void DataMan::SetUSVState(mavros_msgs::CommandBool &arm_command) {
 }
 
 void DataMan::SetDroneControlData(const multi_vehicle &m_multi_vehicles) {
-    boost::unique_lock<boost::mutex> lock(m_mutex);
-    multi_vehicle_.uav1.target_local_pos_sp = m_multi_vehicles.uav1.target_local_pos_sp;
-    multi_vehicle_.uav2.target_local_pos_sp = m_multi_vehicles.uav2.target_local_pos_sp;
-    multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicles.uav3.target_local_pos_sp;
-    multi_vehicle_.uav4.target_local_pos_sp = m_multi_vehicles.uav4.target_local_pos_sp;
-    multi_vehicle_.leader_uav.target_local_pos_sp = m_multi_vehicles.leader_uav.target_local_pos_sp;
+    {
+        boost::unique_lock<boost::mutex> lock(m_mutex);
+        multi_vehicle_.uav1.target_local_pos_sp = m_multi_vehicles.uav1.target_local_pos_sp;
+        multi_vehicle_.uav2.target_local_pos_sp = m_multi_vehicles.uav2.target_local_pos_sp;
+        multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicles.uav3.target_local_pos_sp;
+        multi_vehicle_.uav4.target_local_pos_sp = m_multi_vehicles.uav4.target_local_pos_sp;
+        multi_vehicle_.leader_uav.target_local_pos_sp = m_multi_vehicles.leader_uav.target_local_pos_sp;
+    }
+
+    if(callback_) {
+        callback_->OnFlightDataUpdate(FDATA_DRONE_TARGTE);
+    }
+}
+
+void DataMan::PublishDroneControlData(const multi_vehicle &m_multi_vehicles) {
+    {
+        boost::unique_lock<boost::mutex> lock(m_mutex);
+        multi_vehicle_.uav1.target_local_pos_sp = m_multi_vehicles.uav1.target_local_pos_sp;
+        multi_vehicle_.uav2.target_local_pos_sp = m_multi_vehicles.uav2.target_local_pos_sp;
+        multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicles.uav3.target_local_pos_sp;
+        multi_vehicle_.uav4.target_local_pos_sp = m_multi_vehicles.uav4.target_local_pos_sp;
+        multi_vehicle_.leader_uav.target_local_pos_sp = m_multi_vehicles.leader_uav.target_local_pos_sp;
+    }
     msg_config_-> PublishDronePosControl(m_multi_vehicles);
 }
 
@@ -169,8 +187,8 @@ void DataMan::SetBoatControlData(const multi_vehicle &m_multi_vehicles) {
         multi_vehicle_.usv2.target_local_pos_sp = m_multi_vehicles.usv2.target_local_pos_sp;
         multi_vehicle_.usv3.target_local_pos_sp = m_multi_vehicles.usv3.target_local_pos_sp;
         multi_vehicle_.leader_usv.target_local_pos_sp = m_multi_vehicles.leader_usv.target_local_pos_sp;
-        msg_config_->PublishBoatPosControl(m_multi_vehicles);
     }
+    msg_config_->PublishBoatPosControl(m_multi_vehicles);
 }
 
 void DataMan::SetUAVLeader(M_Drone &leader_uav) {
@@ -185,11 +203,14 @@ void DataMan::SetUSVLeader(M_Drone &leader_usv) {
 }
 
 void DataMan::SetUserCommand(const int value) {
-    user_command_value_ = value;
-}
+//    boost::unique_lock<boost::mutex> lock(m_mutex);
+//    {
+        multi_vehicle_.user_command = value;
+//    }
 
-int DataMan::GetUserCommand() {
-    return user_command_value_;
+/*    if(callback_) {
+        callback_->OnFlightDataUpdate(FDATA_MANUAL_COMMAND);
+    }*/
 }
 
 void DataMan::PrinrDorneFlightDate() {
@@ -236,8 +257,8 @@ void DataMan::PrintBoatTargetPosData() {
 void DataMan::PrintAvoidanceData() {
     util_log("get output height_avoidance_uav1_ = %.2f, height_avoidance_uav2_ = %.2f, "
              "height_avoidance_uav3_ = %.2f, height_avoidance_uav4_ = %.2f",
-             multi_vehicle_.uav1.avoidance_pos.z(), multi_vehicle_.uav1.avoidance_pos.z(),
-             multi_vehicle_.uav1.avoidance_pos.z(), multi_vehicle_.uav1.avoidance_pos.z());
+             multi_vehicle_.uav1.avoidance_pos.z(), multi_vehicle_.uav2.avoidance_pos.z(),
+             multi_vehicle_.uav3.avoidance_pos.z(), multi_vehicle_.uav4.avoidance_pos.z());
 }
 
 void DataMan::PrintDroneFormationData() {
@@ -275,13 +296,17 @@ void DataMan::PrintData() {
     PrintBoatTargetPosData();
     if (leader_uav_) {
         PrintDroneFormationData();
-//        PrintDroneFormationKeep();
+        PrintDroneFormationKeep();
     }
     util_log("---------------data end-----------------");
 }
 
 multi_vehicle &DataMan::GetData() {
     return multi_vehicle_;
+}
+
+void DataMan::SetCallBack(IFlightDataCallback *dataCallback) {
+    callback_ = dataCallback;
 }
 
 

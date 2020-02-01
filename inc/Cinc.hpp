@@ -78,6 +78,7 @@ struct multi_vehicle{
     M_Drone uuv3;
     M_Drone leader_uav;
     M_Drone leader_usv;
+    int user_command;
 };
 
 struct multi_vehicle_vec {
@@ -150,6 +151,15 @@ struct TVehicleMsg {
 
     ros::Publisher local_pos_pub;
     ros::Publisher global_pos_pub;
+};
+
+enum FDATA_TYPE {
+    FDATA_DRONE = 0,
+    FDATA_DRONE_TARGTE,
+    FDATA_AVOIDANCE,
+    FDATA_BOAT,
+    FDATA_BOAT_TARGET,
+    FDATA_MANUAL_COMMAND
 };
 
 #endif //OFFBOARD_CINC_HPP

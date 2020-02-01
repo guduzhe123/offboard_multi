@@ -81,7 +81,6 @@ int main (int argc, char **argv){
             }
         }
 
-        util_log("55555");
         DataMan::getInstance()->PrintData();
         ros::spinOnce();
         rate.sleep();

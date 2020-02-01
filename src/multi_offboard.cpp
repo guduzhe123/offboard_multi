@@ -217,7 +217,6 @@ void MultiOffboard::uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     int config = (int)debugValue.data[0];
     arm_command_ = config;
     DataMan::getInstance()->SetUserCommand(config);
-    util_log("4444444");
     PathCreator::geInstance()->CreateFormationInit(config);
 }
 

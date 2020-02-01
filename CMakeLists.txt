@@ -43,7 +43,6 @@ add_library(
         src/new_struct/Avoidance.cpp
         src/new_struct/Multi_formation.cpp
         src/util.cpp
-        src/new_struct/IMsgRosManager.cpp
         src/DataMan.cpp inc/DataMan.hpp
         src/VehicleControl/MultiBoatControl.cpp
         src/VehicleControl/MultiDroneControl.cpp src/Calculate.cpp)

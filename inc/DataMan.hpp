@@ -7,6 +7,12 @@
 
 #include "Cinc.hpp"
 #include "IMsgRosManager.hpp"
+
+class IFlightDataCallback {
+public:
+    virtual void OnFlightDataUpdate(FDATA_TYPE data_type) = 0;
+};
+
 class DataMan {
 public:
     static DataMan* getInstance();
@@ -43,6 +49,8 @@ public:
 
     void SetDroneControlData(const multi_vehicle &m_multi_vehicles);
 
+    void PublishDroneControlData(const multi_vehicle &m_multi_vehicles);
+
     void SetBoatControlData(const multi_vehicle &m_multi_vehicles);
 
     void SetUAVState(mavros_msgs::SetMode &m_mode);
@@ -55,7 +63,7 @@ public:
 
     void SetUserCommand(const int value);
 
-    int GetUserCommand();
+    void SetCallBack(IFlightDataCallback *dataCallback);
 
     multi_vehicle &GetData();
 
@@ -63,13 +71,11 @@ private:
     static DataMan* l_singleton;
 
     multi_vehicle multi_vehicle_;
-    vector<M_Drone> multi_drone_;
     boost::mutex m_mutex;
 
     int leader_uav_ = 0;
-    int user_command_value_ ;
-    bool is_formation_ = false;
     IMsgRosManager * msg_config_;
+    IFlightDataCallback *callback_;
 };
 
 

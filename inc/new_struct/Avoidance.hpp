@@ -64,6 +64,8 @@ private:
     M_Drone_Avoidace height_avoidance_uav3_;
     M_Drone_Avoidace height_avoidance_uav4_;
 
+    int config_;
+
 };
 
 class AvoidanceFactory : public IFunctionFactory {

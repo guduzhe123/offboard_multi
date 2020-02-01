@@ -40,7 +40,6 @@ private:
     multi_vehicle m_multi_vehicle_;
 
     bool is_formation_;
-    int uav_formation_time_;
     bool is_get_takeoff_pos_;
     int leader_uav_id_;
     M_Drone leader_drone_;
@@ -56,6 +55,7 @@ private:
 
     TVec3 follow_uav1_to_leader, follow_uav2_to_leader, follow_uav3_to_leader;
     TVec3 follow_uav1_first_local_, follow_uav2_first_local_, follow_uav3_first_local_;
+    TVec3 follow_uav1_keep_local_, follow_uav2_keep_local_, follow_uav3_keep_local_;
 
     GlobalPosition uav1_takeoff_gps_pos_, uav2_takeoff_gps_pos_, uav3_takeoff_gps_pos_, uav4_takeoff_gps_pos_;
 

@@ -87,8 +87,9 @@ void PathCreator::CreatFunction() {
     MultiFormationFactory FormationFactory;
     AvoidanceFactory avoidanceFactory;
 
-    FlightManager::getInstance()->AddFunctionProgress(&FormationFactory);
     FlightManager::getInstance()->AddFunctionProgress(&avoidanceFactory);
+    FlightManager::getInstance()->AddFunctionProgress(&FormationFactory);
+    FlightManager::getInstance()->FunctionStateUpdate(&FormationFactory);// update avoidance function state.
 }
 
 void PathCreator::CreatVehicle() {
@@ -108,7 +109,6 @@ void PathCreator::CreatVehicle() {
 }
 
 void PathCreator::CreateFormationInit(const int config) {
-    util_log("3333333");
     MultiFormationFactory FormationFactory;
     IControlFunction* m_func = FormationFactory.FunctionCreator();
     m_func->Oninit(config);

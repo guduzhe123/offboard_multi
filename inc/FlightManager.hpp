@@ -14,7 +14,7 @@
 //#include "PathCreator.hpp"
 #include <stack>
 
-class FlightManager {
+class FlightManager : public IFlightDataCallback{
 public:
 
     FlightManager();
@@ -32,16 +32,23 @@ public:
 
     void AddFunctionProgress(IFunctionFactory *factory);
 
+    void FunctionStateUpdate(IFunctionFactory *factory);
+
+    void OnFlightDataUpdate(FDATA_TYPE data_type) override ;
+
 private:
 
     static FlightManager* l_pInst;
     int factory_size_ = 0;
+
+    bool drone_avodiance_update_ = false;
 
     IMsgRosManager* msg_manager_;
 
     list<IVehicleControl*>  m_vehicle_control_list_{};
     vector<IControlFunction*> m_control_function_vector_;
 
+    IControlFunction* m_func_;
     IVehicleControl* cur_f;
     multi_vehicle m_multi_vehicle_;
 };

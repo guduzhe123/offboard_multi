@@ -145,24 +145,12 @@ geometry_msgs::PoseStamped MultiDroneControl::CalculateTargetPos(geometry_msgs::
 
 void MultiDroneControl::setVehicleCtrlData() {
     util_log("set vehicle control !!!!!");
-    m_multi_vehicle_.uav1.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav1.follow_uav_to_leader_pos);
-    m_multi_vehicle_.uav2.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav2.follow_uav_to_leader_pos);
-    m_multi_vehicle_.uav3.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav3.follow_uav_to_leader_pos);
-    m_multi_vehicle_.uav4.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav4.follow_uav_to_leader_pos);
+    m_multi_vehicle_.uav1.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav1.follow_uav_keep_pos);
+    m_multi_vehicle_.uav2.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav2.follow_uav_keep_pos);
+    m_multi_vehicle_.uav3.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav3.follow_uav_keep_pos);
+    m_multi_vehicle_.uav4.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav4.follow_uav_keep_pos);
     m_multi_vehicle_.leader_uav.target_local_pos_sp = drone_uav_leader_.target_local_pos_sp;
 
-    if (!isnan(m_multi_vehicle_.uav1.avoidance_pos.z()) && isnan(m_multi_vehicle_.uav2.avoidance_pos.z()) &&
-        !isnan(m_multi_vehicle_.uav3.avoidance_pos.z()) && isnan(m_multi_vehicle_.uav4.avoidance_pos.z())) {
-        m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z += m_multi_vehicle_.uav1.avoidance_pos.z();
-        m_multi_vehicle_.uav2.target_local_pos_sp.pose.position.z += m_multi_vehicle_.uav2.avoidance_pos.z();
-        m_multi_vehicle_.uav3.target_local_pos_sp.pose.position.z += m_multi_vehicle_.uav3.avoidance_pos.z();
-        m_multi_vehicle_.uav4.target_local_pos_sp.pose.position.z += m_multi_vehicle_.uav4.avoidance_pos.z();
-
-        util_log("uav avoidance = m_multi_vehicle_.uav1 position.z = %.2f", m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z);
-        util_log("uav avoidance = m_multi_vehicle_.uav2 position.z = %.2f", m_multi_vehicle_.uav2.target_local_pos_sp.pose.position.z);
-        util_log("uav avoidance = m_multi_vehicle_.uav3 position.z = %.2f", m_multi_vehicle_.uav3.target_local_pos_sp.pose.position.z);
-        util_log("uav avoidance = m_multi_vehicle_.uav4 position.z = %.2f", m_multi_vehicle_.uav4.target_local_pos_sp.pose.position.z);
-    }
     util_log("!!!!!!drone control output = (%.2f, %.2f, %.2f)", m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.x,
              m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.y, m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z);
 
@@ -179,21 +167,6 @@ bool MultiDroneControl::pos_reached(geometry_msgs::PoseStamped &current_pos, geo
 }
 
 void MultiDroneControl::droneManualControl() {
-    /*mavros_msgs::SetMode land_set_mode;
-    land_set_mode.request.custom_mode = "AUTO.LAND";
-
-    if ((m_multi_vehicle_.uav1.current_state.mode != "AUTO.LAND" || m_multi_vehicle_.uav3.current_state.mode != "AUTO.LAND" ||
-         m_multi_vehicle_.uav4.current_state.mode != "AUTO.LAND" || m_multi_vehicle_.uav2.current_state.mode == "AUTO.LAND") &&
-        drone_uav_leader_.current_state.mode == "AUTO.LAND" && is_armed) {
-        if( drone_uav_leader_.set_mode_client.call(land_set_mode) &&
-            land_set_mode.response.mode_sent){
-            drone_uav1_.set_mode_client.call(land_set_mode);
-            m_multi_vehicle_.uav2.set_mode_client.call(land_set_mode);
-            m_multi_vehicle_.uav3.set_mode_client.call(land_set_mode);
-            m_multi_vehicle_.uav4.set_mode_client.call(land_set_mode);
-            util_log("Land enabled out");
-        }
-    }*/
     m_multi_vehicle_.uav1.target_local_pos_sp = m_multi_vehicle_.leader_uav.target_local_pos_sp;
     m_multi_vehicle_.uav2.target_local_pos_sp = m_multi_vehicle_.leader_uav.target_local_pos_sp;
     m_multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicle_.leader_uav.target_local_pos_sp;
