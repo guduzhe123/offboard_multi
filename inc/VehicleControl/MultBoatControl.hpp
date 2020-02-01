@@ -8,7 +8,6 @@
 #include "Cinc.hpp"
 #include "IVehicleControl.hpp"
 #include "DataMan.hpp"
-static const float usv_position_allow_reached_ = 3;
 
 class MultiBoatControl : public IVehicleControl {
 public:
@@ -31,6 +30,8 @@ public:
 private:
     bool pos_reached(geometry_msgs::PoseStamped &current_pos, geometry_msgs::PoseStamped &target_pos, float err_allow);
 
+    geometry_msgs::PoseStamped CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, TVec3 &formation_target);
+
     static MultiBoatControl* l_lint;
 
     multi_vehicle m_multi_vehicle_;
@@ -40,6 +41,7 @@ private:
     bool usv5_reached_;
     bool usv6_reached_;
     bool usv7_reached_;
+    bool is_formation_;
 };
 
 class MultiBoatControlFactory : public IVehicleControlFactory {

@@ -15,7 +15,7 @@
 #include <mavros_msgs/DebugValue.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <geometry_msgs/TwistStamped.h>
-#include "Multi_formation.hpp"
+#include "Multi_UAV_formation.hpp"
 #include "Cinc.hpp"
 #include "PathCreator.hpp"
 #include "DataMan.hpp"
@@ -78,7 +78,7 @@ public:
     void PublishDronePosControl(const multi_vehicle &multi_vehicles) override;
     void PublishBoatPosControl(const multi_vehicle &multi_vehicles) override;
     void SetUAVState(mavros_msgs::SetMode &m_mode) override ;
-    void SetUSVState(mavros_msgs::CommandBool &arm_command) override;
+    void SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) override;
 
     static  MultiOffboard* getInstance();
 

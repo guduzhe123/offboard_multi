@@ -80,50 +80,44 @@ DataMan::SetAvoidanceData(const M_Drone_Avoidace& uav1, const M_Drone_Avoidace& 
         multi_vehicle_.uav4.avoidance_pos = uav4.local_target_pos_avo;
     }
     if (callback_) {
-        util_log("11111111%%%%%");
         callback_->OnFlightDataUpdate(FDATA_AVOIDANCE);
     }
 }
 
 void
-DataMan::SetFormationData(bool is_formation, int leader_uav_id_, const TVec3 &follow_uav1, const TVec3 &follow_uav2,
-                          const TVec3 &follow_uav3) {
+DataMan::SetUAVFormationData(bool is_formation, int leader_uav_id_, const TVec3 &follow_uav1, const TVec3 &follow_uav2,
+                             const TVec3 &follow_uav3) {
     {
         boost::unique_lock<boost::mutex> lock(m_mutex);
         multi_vehicle_.leader_uav.is_formation = is_formation;
         leader_uav_ = leader_uav_id_;
         switch (leader_uav_id_) {
             case UAV1: {
-                multi_vehicle_.uav1.follow_uav_to_leader_pos = {0, 0, 0};
-                multi_vehicle_.uav2.follow_uav_to_leader_pos = follow_uav1;
-                multi_vehicle_.uav3.follow_uav_to_leader_pos = follow_uav2;
-                multi_vehicle_.uav4.follow_uav_to_leader_pos = follow_uav3;
-                util_log("-------Follow %.2f, %.2f, %.2f", multi_vehicle_.uav2.follow_uav_to_leader_pos.x(),
-                         multi_vehicle_.uav2.follow_uav_to_leader_pos.y(),
-                         multi_vehicle_.uav2.follow_uav_to_leader_pos.z());
-                util_log("!!!!!uva current pos %.2f, %.2f, %.2f", multi_vehicle_.uav2.current_local_pos.pose.position.x,
-                         multi_vehicle_.uav2.current_local_pos.pose.position.y,multi_vehicle_.uav2.current_local_pos.pose.position.z);
+                multi_vehicle_.uav1.follower_to_leader_pos = {0, 0, 0};
+                multi_vehicle_.uav2.follower_to_leader_pos = follow_uav1;
+                multi_vehicle_.uav3.follower_to_leader_pos = follow_uav2;
+                multi_vehicle_.uav4.follower_to_leader_pos = follow_uav3;
                 break;
             }
             case UAV2: {
-                multi_vehicle_.uav1.follow_uav_to_leader_pos = follow_uav1;
-                multi_vehicle_.uav2.follow_uav_to_leader_pos = {0, 0, 0};
-                multi_vehicle_.uav3.follow_uav_to_leader_pos = follow_uav2;
-                multi_vehicle_.uav4.follow_uav_to_leader_pos = follow_uav3;
+                multi_vehicle_.uav1.follower_to_leader_pos = follow_uav1;
+                multi_vehicle_.uav2.follower_to_leader_pos = {0, 0, 0};
+                multi_vehicle_.uav3.follower_to_leader_pos = follow_uav2;
+                multi_vehicle_.uav4.follower_to_leader_pos = follow_uav3;
                 break;
             }
             case UAV3: {
-                multi_vehicle_.uav1.follow_uav_to_leader_pos = follow_uav1;
-                multi_vehicle_.uav2.follow_uav_to_leader_pos = follow_uav2;
-                multi_vehicle_.uav3.follow_uav_to_leader_pos = {0, 0, 0};
-                multi_vehicle_.uav4.follow_uav_to_leader_pos = follow_uav3;
+                multi_vehicle_.uav1.follower_to_leader_pos = follow_uav1;
+                multi_vehicle_.uav2.follower_to_leader_pos = follow_uav2;
+                multi_vehicle_.uav3.follower_to_leader_pos = {0, 0, 0};
+                multi_vehicle_.uav4.follower_to_leader_pos = follow_uav3;
                 break;
             }
             case UAV4: {
-                multi_vehicle_.uav1.follow_uav_to_leader_pos = follow_uav1;
-                multi_vehicle_.uav2.follow_uav_to_leader_pos = follow_uav2;
-                multi_vehicle_.uav3.follow_uav_to_leader_pos = follow_uav3;
-                multi_vehicle_.uav4.follow_uav_to_leader_pos = {0, 0, 0};
+                multi_vehicle_.uav1.follower_to_leader_pos = follow_uav1;
+                multi_vehicle_.uav2.follower_to_leader_pos = follow_uav2;
+                multi_vehicle_.uav3.follower_to_leader_pos = follow_uav3;
+                multi_vehicle_.uav4.follower_to_leader_pos = {0, 0, 0};
                 break;
             }
             default:
@@ -133,14 +127,29 @@ DataMan::SetFormationData(bool is_formation, int leader_uav_id_, const TVec3 &fo
 
 }
 
-void DataMan::SetFormationKeepData(const TVec3 &follow_uav1, const TVec3 &follow_uav2, const TVec3 &follow_uav3,
-                                   const TVec3 &follow_uav4) {
+void DataMan::SetUAVFormationKeepData(const TVec3 &follow_uav1, const TVec3 &follow_uav2, const TVec3 &follow_uav3,
+                                      const TVec3 &follow_uav4) {
     {
         boost::unique_lock<boost::mutex> lock(m_mutex);
-        multi_vehicle_.uav1.follow_uav_keep_pos = follow_uav1;
-        multi_vehicle_.uav2.follow_uav_keep_pos = follow_uav2;
-        multi_vehicle_.uav3.follow_uav_keep_pos = follow_uav3;
-        multi_vehicle_.uav4.follow_uav_keep_pos = follow_uav4;
+        multi_vehicle_.uav1.follower_keep_pos = follow_uav1;
+        multi_vehicle_.uav2.follower_keep_pos = follow_uav2;
+        multi_vehicle_.uav3.follower_keep_pos = follow_uav3;
+        multi_vehicle_.uav4.follower_keep_pos = follow_uav4;
+    }
+}
+
+void DataMan::SetUSVFormationData(const multi_vehicle &m_multi_vehicles, bool is_formation) {
+    {
+        boost::unique_lock<boost::mutex> lock(m_mutex);
+        multi_vehicle_.usv1.follower_to_leader_pos = m_multi_vehicles.usv1.follower_to_leader_pos;
+        multi_vehicle_.usv2.follower_to_leader_pos = m_multi_vehicles.usv2.follower_to_leader_pos;
+        multi_vehicle_.usv3.follower_to_leader_pos = m_multi_vehicles.usv3.follower_to_leader_pos;
+
+
+        multi_vehicle_.usv1.follower_keep_pos = m_multi_vehicles.usv1.follower_keep_pos;
+        multi_vehicle_.usv2.follower_keep_pos = m_multi_vehicles.usv2.follower_keep_pos;
+        multi_vehicle_.usv3.follower_keep_pos = m_multi_vehicles.usv3.follower_keep_pos;
+        multi_vehicle_.leader_usv.is_formation = is_formation;
     }
 }
 
@@ -149,8 +158,8 @@ void DataMan::SetUAVState(mavros_msgs::SetMode &m_mode) {
     msg_config_->SetUAVState(m_mode);
 }
 
-void DataMan::SetUSVState(mavros_msgs::CommandBool &arm_command) {
-    msg_config_->SetUSVState(arm_command);
+void DataMan::SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) {
+    msg_config_->SetUSVState(arm_command, usv_id);
 }
 
 void DataMan::SetDroneControlData(const multi_vehicle &m_multi_vehicles) {
@@ -226,7 +235,7 @@ void DataMan::PrinrDorneFlightDate() {
 }
 
 void DataMan::PrintBoatData() {
-    util_log("uav5 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.uuv1.current_local_pos.pose.position.x,
+    util_log("uav5 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv1.current_local_pos.pose.position.x,
              multi_vehicle_.usv1.current_local_pos.pose.position.y, multi_vehicle_.usv1.current_local_pos.pose.position.z);
     util_log("uav6 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv2.current_local_pos.pose.position.x,
              multi_vehicle_.usv2.current_local_pos.pose.position.y, multi_vehicle_.usv2.current_local_pos.pose.position.z);
@@ -262,27 +271,37 @@ void DataMan::PrintAvoidanceData() {
 }
 
 void DataMan::PrintDroneFormationData() {
-    util_log("is formation = %d", multi_vehicle_.leader_uav.is_formation);
-    util_log("Formation leader = %d, uav1 follow to leader = (%.2f, %.2f, %.2f) ",leader_uav_, multi_vehicle_.uav1.follow_uav_to_leader_pos(0),
-             multi_vehicle_.uav1.follow_uav_to_leader_pos(1),multi_vehicle_.uav1.follow_uav_to_leader_pos(2));
-    util_log("Formation leader = %d, uav2 follow to leader = (%.2f, %.2f, %.2f) ", leader_uav_,multi_vehicle_.uav2.follow_uav_to_leader_pos(0),
-             multi_vehicle_.uav2.follow_uav_to_leader_pos(1),multi_vehicle_.uav2.follow_uav_to_leader_pos(2));
-    util_log("Formation leader = %d, uav3 follow to leader = (%.2f, %.2f, %.2f) ", leader_uav_,multi_vehicle_.uav3.follow_uav_to_leader_pos(0),
-             multi_vehicle_.uav3.follow_uav_to_leader_pos(1),multi_vehicle_.uav3.follow_uav_to_leader_pos(2));
-    util_log("Formation leader = %d, uav4 follow to leader = (%.2f, %.2f, %.2f) ", leader_uav_, multi_vehicle_.uav4.follow_uav_to_leader_pos(0),
-             multi_vehicle_.uav4.follow_uav_to_leader_pos(1),multi_vehicle_.uav4.follow_uav_to_leader_pos(2));
+    util_log("is uav formation = %d, uav formation leader = %d", multi_vehicle_.leader_uav.is_formation, leader_uav_);
+    util_log("uav1 follow to leader = (%.2f, %.2f, %.2f) ",multi_vehicle_.uav1.follower_to_leader_pos(0),
+             multi_vehicle_.uav1.follower_to_leader_pos(1), multi_vehicle_.uav1.follower_to_leader_pos(2));
+    util_log("uav2 follow to leader = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav2.follower_to_leader_pos(0),
+             multi_vehicle_.uav2.follower_to_leader_pos(1), multi_vehicle_.uav2.follower_to_leader_pos(2));
+    util_log("uav3 follow to leader = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav3.follower_to_leader_pos(0),
+             multi_vehicle_.uav3.follower_to_leader_pos(1), multi_vehicle_.uav3.follower_to_leader_pos(2));
+    util_log("uav4 follow to leader = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav4.follower_to_leader_pos(0),
+             multi_vehicle_.uav4.follower_to_leader_pos(1), multi_vehicle_.uav4.follower_to_leader_pos(2));
 
 }
 
 void DataMan::PrintDroneFormationKeep() {
-    util_log("Formation leader = %d, uav1 formation keep local pos = (%.2f, %.2f, %.2f) ",leader_uav_, multi_vehicle_.uav1.follow_uav_keep_pos(0),
-             multi_vehicle_.uav1.follow_uav_keep_pos(1),multi_vehicle_.uav1.follow_uav_keep_pos(2));
-    util_log("Formation leader = %d, uav2 formation keep local pos  = (%.2f, %.2f, %.2f) ", leader_uav_, multi_vehicle_.uav2.follow_uav_keep_pos(0),
-             multi_vehicle_.uav2.follow_uav_keep_pos(1),multi_vehicle_.uav2.follow_uav_keep_pos(2));
-    util_log("Formation leader = %d, uav3 formation keep local pos  = (%.2f, %.2f, %.2f) ", leader_uav_, multi_vehicle_.uav3.follow_uav_keep_pos(0),
-             multi_vehicle_.uav3.follow_uav_keep_pos(1),multi_vehicle_.uav3.follow_uav_keep_pos(2));
-    util_log("Formation leader = %d, uav4 formation keep local pos  = (%.2f, %.2f, %.2f) ", leader_uav_, multi_vehicle_.uav4.follow_uav_keep_pos(0),
-             multi_vehicle_.uav4.follow_uav_keep_pos(1),multi_vehicle_.uav4.follow_uav_keep_pos(2));
+    util_log("uav1 formation keep local pos = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav1.follower_keep_pos(0),
+             multi_vehicle_.uav1.follower_keep_pos(1), multi_vehicle_.uav1.follower_keep_pos(2));
+    util_log("uav2 formation keep local pos  = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav2.follower_keep_pos(0),
+             multi_vehicle_.uav2.follower_keep_pos(1), multi_vehicle_.uav2.follower_keep_pos(2));
+    util_log("uav3 formation keep local pos  = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav3.follower_keep_pos(0),
+             multi_vehicle_.uav3.follower_keep_pos(1), multi_vehicle_.uav3.follower_keep_pos(2));
+    util_log("uav4 formation keep local pos  = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav4.follower_keep_pos(0),
+             multi_vehicle_.uav4.follower_keep_pos(1), multi_vehicle_.uav4.follower_keep_pos(2));
+}
+
+void DataMan::PrintUSVFormationData() {
+    util_log("is usv formation = %d, usv formation leader = %d,", multi_vehicle_.leader_usv.is_formation, multi_vehicle_.leader_usv.drone_id);
+    util_log("uav1 follow to leader = (%.2f, %.2f, %.2f) ", multi_vehicle_.usv1.follower_to_leader_pos(0),
+            multi_vehicle_.usv1.follower_to_leader_pos(1), multi_vehicle_.usv1.follower_to_leader_pos(2));
+    util_log("uav2 follow to leader = (%.2f, %.2f, %.2f) ",  multi_vehicle_.usv2.follower_to_leader_pos(0),
+             multi_vehicle_.usv2.follower_to_leader_pos(1), multi_vehicle_.usv2.follower_to_leader_pos(2));
+    util_log("uav3 follow to leader = (%.2f, %.2f, %.2f) ",  multi_vehicle_.usv3.follower_to_leader_pos(0),
+             multi_vehicle_.usv3.follower_to_leader_pos(1), multi_vehicle_.usv3.follower_to_leader_pos(2));
 }
 
 void DataMan::PrintData() {
@@ -298,6 +317,7 @@ void DataMan::PrintData() {
         PrintDroneFormationData();
         PrintDroneFormationKeep();
     }
+    PrintUSVFormationData();
     util_log("---------------data end-----------------");
 }
 

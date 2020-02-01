@@ -43,6 +43,9 @@
             /uav2/mavros/debug_value/debug_vector
             /uav3/mavros/debug_value/debug_vector
             /uav4/mavros/debug_value/debug_vector
+            /uav5/mavros/debug_value/debug_vector
+            /uav6/mavros/debug_value/debug_vector
+            /uav7/mavros/debug_value/debug_vector
 "
     />
 </launch>

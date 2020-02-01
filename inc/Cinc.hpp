@@ -36,6 +36,8 @@ typedef Eigen::Quaternionf TQuat;
 static const bool K_Param_local_global = true;
 static const float K_err_allow = 0.5;
 static const float K_multi_formation_distance = 5;
+static const float K_multi_usv_formation_distance = 15;
+static const float usv_position_allow_reached_ = 3;
 
 typedef struct GlobalPosition
 {
@@ -57,8 +59,8 @@ struct M_Drone {
     double altitude;
     geometry_msgs::PoseStamped current_local_pos;
     mavros_msgs::State current_state;
-    TVec3 follow_uav_to_leader_pos;
-    TVec3 follow_uav_keep_pos;
+    TVec3 follower_to_leader_pos;
+    TVec3 follower_keep_pos;
     TVec3 avoidance_pos;
     TVec3 velocity;
     geometry_msgs::PoseStamped target_local_pos_sp;
@@ -125,10 +127,13 @@ enum {
 };
 
 enum  {
-    VF_SQUARE = 1,
-    VF_TRIANGLE,
-    VF_LINE_HORIZONTAL,
-    VF_LINE_VERTICAL
+    VF_UAV_SQUARE = 1,
+    VF_UAV_TRIANGLE,
+    VF_UAV_LINE_HORIZONTAL,
+    VF_UAV_LINE_VERTICAL,
+    VF_USV_TRIANGLE,
+    VF_USV_LINE_HORIZONTAL,
+    VF_USV_LINE_VERTICAL
 };
 
 

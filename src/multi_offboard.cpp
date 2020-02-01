@@ -450,8 +450,19 @@ void MultiOffboard::SetUAVState(mavros_msgs::SetMode &m_mode) {
     drone_uav4_.set_mode_client.call(m_mode);
 }
 
-void MultiOffboard::SetUSVState(mavros_msgs::CommandBool &arm_command) {
-    drone_uav5_.arming_client.call(arm_command);
-    drone_uav6_.arming_client.call(arm_command);
-    drone_uav7_.arming_client.call(arm_command);
+void MultiOffboard::SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) {
+    if (usv_id == 0) {
+        drone_uav5_.arming_client.call(arm_command);
+        drone_uav6_.arming_client.call(arm_command);
+        drone_uav7_.arming_client.call(arm_command);
+    }
+    if (usv_id == USV1) {
+        drone_uav5_.arming_client.call(arm_command);
+    }
+    if (usv_id == USV2) {
+        drone_uav6_.arming_client.call(arm_command);
+    }
+    if (usv_id == USV3) {
+        drone_uav7_.arming_client.call(arm_command);
+    }
 }

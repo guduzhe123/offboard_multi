@@ -84,12 +84,15 @@ void PathCreator::usv_add_way_points(vector<geometry_msgs::PoseStamped> &usv_way
 }
 
 void PathCreator::CreatFunction() {
-    MultiFormationFactory FormationFactory;
+    MultiUAVFormationFactory UAVFormationFactory;
+    MultiUSVFormationFactory USVFormationFactory;
     AvoidanceFactory avoidanceFactory;
 
     FlightManager::getInstance()->AddFunctionProgress(&avoidanceFactory);
-    FlightManager::getInstance()->AddFunctionProgress(&FormationFactory);
-    FlightManager::getInstance()->FunctionStateUpdate(&FormationFactory);// update avoidance function state.
+    FlightManager::getInstance()->AddFunctionProgress(&UAVFormationFactory);
+    FlightManager::getInstance()->AddFunctionProgress(&USVFormationFactory);
+
+    FlightManager::getInstance()->FunctionStateUpdate(&UAVFormationFactory);// update avoidance function state.
 }
 
 void PathCreator::CreatVehicle() {
@@ -109,9 +112,13 @@ void PathCreator::CreatVehicle() {
 }
 
 void PathCreator::CreateFormationInit(const int config) {
-    MultiFormationFactory FormationFactory;
+    MultiUAVFormationFactory FormationFactory;
     IControlFunction* m_func = FormationFactory.FunctionCreator();
     m_func->Oninit(config);
+
+    MultiUSVFormationFactory USVFormationFactory;
+    IControlFunction* usv_func = USVFormationFactory.FunctionCreator();
+    usv_func->Oninit(config);
 }
 
 PathCreator* PathCreator::geInstance() {

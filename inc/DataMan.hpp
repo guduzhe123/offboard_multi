@@ -38,12 +38,13 @@ public:
     void PrintData();
 
     void
-    SetFormationData(bool is_formation, int leader_uav_id_, const TVec3 &follow_uav1, const TVec3 &follow_uav2,
-                     const TVec3 &follow_uav3);
+    SetUAVFormationData(bool is_formation, int leader_uav_id_, const TVec3 &follow_uav1, const TVec3 &follow_uav2,
+                        const TVec3 &follow_uav3);
 
     void
-    SetFormationKeepData(const TVec3& follow_uav1, const TVec3& follow_uav2, const TVec3& follow_uav3, const TVec3& follow_uav4);
+    SetUAVFormationKeepData(const TVec3& follow_uav1, const TVec3& follow_uav2, const TVec3& follow_uav3, const TVec3& follow_uav4);
 
+    void SetUSVFormationData(const multi_vehicle &m_multi_vehicles, bool is_formation);
 
     void SetAvoidanceData(const M_Drone_Avoidace& uav1, const M_Drone_Avoidace& uav2, const M_Drone_Avoidace& uav3, const M_Drone_Avoidace& uav4);
 
@@ -55,7 +56,7 @@ public:
 
     void SetUAVState(mavros_msgs::SetMode &m_mode);
 
-    void SetUSVState(mavros_msgs::CommandBool &arm_command);
+    void SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id);
 
     void SetUAVLeader(M_Drone &leader_uav);
 
@@ -68,6 +69,8 @@ public:
     multi_vehicle &GetData();
 
 private:
+    void PrintUSVFormationData();
+
     static DataMan* l_singleton;
 
     multi_vehicle multi_vehicle_;
