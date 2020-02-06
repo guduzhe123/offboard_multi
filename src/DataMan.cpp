@@ -72,7 +72,7 @@ void
 DataMan::SetAvoidanceData(const M_Drone_Avoidace& uav1, const M_Drone_Avoidace& uav2,
         const M_Drone_Avoidace& uav3, const M_Drone_Avoidace& uav4) {
     {
-        boost::unique_lock<boost::mutex> lock(m_mutex);
+//        boost::unique_lock<boost::mutex> lock(m_mutex);
 
         multi_vehicle_.uav1.avoidance_pos = uav1.local_target_pos_avo;
         multi_vehicle_.uav2.avoidance_pos = uav2.local_target_pos_avo;
@@ -88,7 +88,7 @@ void
 DataMan::SetUAVFormationData(bool is_formation, int leader_uav_id_, const TVec3 &follow_uav1, const TVec3 &follow_uav2,
                              const TVec3 &follow_uav3) {
     {
-        boost::unique_lock<boost::mutex> lock(m_mutex);
+//        boost::unique_lock<boost::mutex> lock(m_mutex);
         multi_vehicle_.leader_uav.is_formation = is_formation;
         leader_uav_ = leader_uav_id_;
         switch (leader_uav_id_) {
@@ -130,7 +130,7 @@ DataMan::SetUAVFormationData(bool is_formation, int leader_uav_id_, const TVec3 
 void DataMan::SetUAVFormationKeepData(const TVec3 &follow_uav1, const TVec3 &follow_uav2, const TVec3 &follow_uav3,
                                       const TVec3 &follow_uav4) {
     {
-        boost::unique_lock<boost::mutex> lock(m_mutex);
+//        boost::unique_lock<boost::mutex> lock(m_mutex);
         multi_vehicle_.uav1.follower_keep_pos = follow_uav1;
         multi_vehicle_.uav2.follower_keep_pos = follow_uav2;
         multi_vehicle_.uav3.follower_keep_pos = follow_uav3;
@@ -140,7 +140,7 @@ void DataMan::SetUAVFormationKeepData(const TVec3 &follow_uav1, const TVec3 &fol
 
 void DataMan::SetUSVFormationData(const multi_vehicle &m_multi_vehicles, bool is_formation) {
     {
-        boost::unique_lock<boost::mutex> lock(m_mutex);
+//        boost::unique_lock<boost::mutex> lock(m_mutex);
         multi_vehicle_.usv1.follower_to_leader_pos = m_multi_vehicles.usv1.follower_to_leader_pos;
         multi_vehicle_.usv2.follower_to_leader_pos = m_multi_vehicles.usv2.follower_to_leader_pos;
         multi_vehicle_.usv3.follower_to_leader_pos = m_multi_vehicles.usv3.follower_to_leader_pos;
@@ -164,7 +164,7 @@ void DataMan::SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) {
 
 void DataMan::SetDroneControlData(const multi_vehicle &m_multi_vehicles) {
     {
-        boost::unique_lock<boost::mutex> lock(m_mutex);
+//        boost::unique_lock<boost::mutex> lock(m_mutex);
         multi_vehicle_.uav1.target_local_pos_sp = m_multi_vehicles.uav1.target_local_pos_sp;
         multi_vehicle_.uav2.target_local_pos_sp = m_multi_vehicles.uav2.target_local_pos_sp;
         multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicles.uav3.target_local_pos_sp;
@@ -179,7 +179,7 @@ void DataMan::SetDroneControlData(const multi_vehicle &m_multi_vehicles) {
 
 void DataMan::PublishDroneControlData(const multi_vehicle &m_multi_vehicles) {
     {
-        boost::unique_lock<boost::mutex> lock(m_mutex);
+//        boost::unique_lock<boost::mutex> lock(m_mutex);
         multi_vehicle_.uav1.target_local_pos_sp = m_multi_vehicles.uav1.target_local_pos_sp;
         multi_vehicle_.uav2.target_local_pos_sp = m_multi_vehicles.uav2.target_local_pos_sp;
         multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicles.uav3.target_local_pos_sp;

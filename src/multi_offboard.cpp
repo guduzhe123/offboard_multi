@@ -206,7 +206,7 @@ void MultiOffboard::uav1_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav1 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    DataMan::getInstance()->SetUserCommand(config);
+//    DataMan::getInstance()->SetUserCommand(config);
     PathCreator::geInstance()->CreateFormationInit(config);
 }
 
@@ -216,7 +216,7 @@ void MultiOffboard::uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav2 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    DataMan::getInstance()->SetUserCommand(config);
+//    DataMan::getInstance()->SetUserCommand(config);
     PathCreator::geInstance()->CreateFormationInit(config);
 }
 
@@ -226,7 +226,7 @@ void MultiOffboard::uav3_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav3 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    DataMan::getInstance()->SetUserCommand(config);
+//    DataMan::getInstance()->SetUserCommand(config);
     PathCreator::geInstance()->CreateFormationInit(config);
 }
 
@@ -236,7 +236,7 @@ void MultiOffboard::uav4_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav4 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    DataMan::getInstance()->SetUserCommand(config);
+//    DataMan::getInstance()->SetUserCommand(config);
     PathCreator::geInstance()->CreateFormationInit(config);
 }
 
@@ -246,7 +246,7 @@ void MultiOffboard::uav5_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav5 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    DataMan::getInstance()->SetUserCommand(config);
+//    DataMan::getInstance()->SetUserCommand(config);
     PathCreator::geInstance()->CreateFormationInit(config);
 }
 
@@ -256,7 +256,7 @@ void MultiOffboard::uav6_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav6 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    DataMan::getInstance()->SetUserCommand(config);
+//    DataMan::getInstance()->SetUserCommand(config);
     PathCreator::geInstance()->CreateFormationInit(config);
 }
 
@@ -266,7 +266,7 @@ void MultiOffboard::uav7_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     util_log("uav7 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
-    DataMan::getInstance()->SetUserCommand(config);
+//    DataMan::getInstance()->SetUserCommand(config);
     PathCreator::geInstance()->CreateFormationInit(config);
 }
 
