@@ -22,6 +22,13 @@ void state_cb(const mavros_msgs::State::ConstPtr& msg){
 //    ROS_INFO("state: %d",current_state.armed);
 }
 
+mavros_msgs::State current_state_uav;
+void state_cb_uav(const mavros_msgs::State::ConstPtr& msg){
+    current_state_uav = *msg;
+//    ROS_INFO("state: %d",current_state.armed);
+}
+
+
 mavros_msgs:: VFR_HUD current_vfr_hud;
 float curr_altitude;
 
@@ -54,6 +61,13 @@ int main(int argc, char **argv)
 
     ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
             ("mavros/state", 10, state_cb);
+
+    ros::Subscriber state_sub_uav = nh.subscribe<mavros_msgs::State>
+            ("uav/mavros/state", 10, state_cb_uav);
+
+    ros::Publisher test = nh.advertise<mavros_msgs::State>
+            ("uav/mavros/state", 10);
+
     ros::Publisher local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
             ("mavros/setpoint_position/local", 5);
     ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>
@@ -173,6 +187,7 @@ int main(int argc, char **argv)
                 }
             }
         }
+        test.publish(current_state);
         local_pos_pub.publish(way_point);
         ros::spinOnce();
         rate.sleep();
