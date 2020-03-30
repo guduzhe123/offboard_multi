@@ -5,6 +5,9 @@
 #include "multi_offboard.hpp"
 #include "DataMan.hpp"
 
+//test
+
+
 int main (int argc, char **argv){
     ros::init(argc, argv, "offboard");
     util_daemonize();
@@ -86,6 +89,4 @@ int main (int argc, char **argv){
         rate.sleep();
     }
 
-    return 0;
-}
-
+    retur
