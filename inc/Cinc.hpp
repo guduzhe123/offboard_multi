@@ -155,6 +155,7 @@ struct TVehicleMsg {
     ros::ServiceClient arming_client;
 
     ros::Publisher local_pos_pub;
+    ros::Publisher re_local_pos_pub;
     ros::Publisher global_pos_pub;
 };
 
