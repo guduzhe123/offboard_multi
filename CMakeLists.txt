@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 3.4.1)
 project(offboard)
 SET(CMAKE_CXX_STANDARD 14)
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rospy
-  std_msgs
+        roscpp
+        rospy
+        serial
+        std_msgs
 )
 
 catkin_package(
@@ -15,11 +16,12 @@ catkin_package(
 )
 
 include_directories(
- include
+        include
         inc/
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/new_struct/
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/VehicleControl/
-  ${catkin_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc/serial/
+        ${catkin_INCLUDE_DIRS}
 )
 
 include_directories( "/usr/include/eigen3" )
@@ -30,7 +32,12 @@ include_directories( "/usr/include/eigen3" )
 add_executable(offboard src/offboard.cpp)
 target_link_libraries(offboard ${catkin_LIBRARIES})
 
-add_executable(multi_offboard  src/main.cpp inc/new_struct/IControlFunction.hpp inc/Calculate.hpp)
+add_executable(mserial src/serial/serialConnection.cpp)
+target_link_libraries(mserial
+        ${catkin_LIBRARIES})
+add_dependencies(mserial ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_executable(multi_offboard  src/main.cpp )
 target_link_libraries(multi_offboard ${catkin_LIBRARIES})
 
 add_library(
@@ -46,7 +53,9 @@ add_library(
         src/util.cpp
         src/DataMan.cpp inc/DataMan.hpp
         src/VehicleControl/MultiBoatControl.cpp
-        src/VehicleControl/MultiDroneControl.cpp src/Calculate.cpp)
+        src/VehicleControl/MultiDroneControl.cpp
+        src/Calculate.cpp
+        #[[src/serial/serialConnection.cpp]])
 
 target_link_libraries(multi_offboard multi_offboard_lib)
 
