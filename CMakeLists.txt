@@ -37,6 +37,11 @@ target_link_libraries(mserial
         ${catkin_LIBRARIES})
 add_dependencies(mserial ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_executable(master_serial src/serial/MasterDroneConnection.cpp)
+target_link_libraries(master_serial
+        ${catkin_LIBRARIES})
+add_dependencies(master_serial ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 add_executable(multi_offboard  src/main.cpp )
 target_link_libraries(multi_offboard ${catkin_LIBRARIES})
 

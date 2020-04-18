@@ -20,7 +20,7 @@ int main(int argc, char **argv){
     serial::Serial serial_port_ACM;
     serial::Serial serial_port_ACM1;
     //创建timeout
-    serial::Timeout serial_time = serial::Timeout::simpleTimeout(1000);
+    serial::Timeout serial_time = serial::Timeout::simpleTimeout(10000000);
     //设置要打开的串口名称
     serial_port_USB.setPort(serial_port);
     //设置串口通信的波特率
@@ -44,6 +44,8 @@ int main(int argc, char **argv){
         return -1;
     }
 
+    sleep(10); // waiting for px4 weak up.
+
     try
     {
         //打开串口
@@ -51,8 +53,16 @@ int main(int argc, char **argv){
     }
     catch(serial::IOException& e)
     {
-        ROS_ERROR_STREAM("Unable ACM0 open port.");
-//        return -1;
+        ROS_ERROR_STREAM("Waiting for ACM0 port.");
+    }
+
+    //判断串口是否打开成功
+    if(serial_port_ACM.isOpen())
+    {
+        ROS_INFO_STREAM("/dev/ttyACM0 is opened" );
+        use_acm0 = true;
+    } else {
+        use_acm0 = false;
     }
 
     //判断串口是否打开成功
@@ -65,18 +75,7 @@ int main(int argc, char **argv){
         return -1;
     }
 
-    //判断串口是否打开成功
-    if(serial_port_ACM.isOpen())
-    {
-        ROS_INFO_STREAM("/dev/ttyACM0 is opened.");
-        use_acm0 = true;
-    } else {
-        use_acm0 = false;
-//        return -1;
-    }
-
-
-    ros::Rate loop_rate(10000);
+    ros::Rate loop_rate(1000);
 
     uint8_t buffer_USB[10000];
     uint8_t buffer_ACM[10000];
@@ -88,6 +87,14 @@ int main(int argc, char **argv){
             size_t ACM_port = serial_port_ACM.available();
             if (ACM_port != 0) {
                 ACM_port = serial_port_ACM.read(buffer_ACM, ACM_port);
+/*//                cout << hex <<buffer_ACM << endl;
+                for(int i=0; i<ACM_port; i++)
+                {
+                    //16进制的方式打印到屏幕
+                    std::cout << std::hex << (buffer_ACM[i] & 0xff) << " ";
+                }
+                std::cout << std::endl;
+//                std::cout << hex <<buffer_ACM << std::endl;*/
                 serial_port_USB.write(buffer_ACM, ACM_port);
             }
 

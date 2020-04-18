@@ -1,0 +1,9 @@
+<launch>
+    <arg name="serial_port" default="/dev/ttyUSB0" />
+    <arg name="acm_port" default="/dev/ttyACM0" />
+
+    <arg name="serial_baund" default="921600" />
+    <arg name="acm_baund" default="57600" />
+
+    <node pkg = "offboard" name = "offboard" type="mserial" output="screen"/>
+</launch>
