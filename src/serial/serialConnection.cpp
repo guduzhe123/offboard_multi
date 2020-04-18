@@ -7,7 +7,7 @@
 int main(int argc, char **argv){
     ros::init(argc, argv, "mserial");
     //创建句柄（虽然后面没用到这个句柄，但如果不创建，运行时进程会出错）
-    ros::NodeHandle nh;
+    ros::NodeHandle nh("~");
 
     std::string serial_port, acm_port;
     double serial_baund, acm_baund;
@@ -40,7 +40,7 @@ int main(int argc, char **argv){
     }
     catch(serial::IOException& e)
     {
-        ROS_ERROR_STREAM("Unable serial_time open port.");
+        ROS_ERROR_STREAM("Unable serial_time open port." << serial_port) ;
         return -1;
     }
 
@@ -53,13 +53,13 @@ int main(int argc, char **argv){
     }
     catch(serial::IOException& e)
     {
-        ROS_ERROR_STREAM("Waiting for ACM0 port.");
+        ROS_ERROR_STREAM("Waiting for .." << acm_port);
     }
 
     //判断串口是否打开成功
     if(serial_port_ACM.isOpen())
     {
-        ROS_INFO_STREAM("/dev/ttyACM0 is opened" );
+        ROS_INFO_STREAM("opened. " << acm_port );
         use_acm0 = true;
     } else {
         use_acm0 = false;
@@ -68,7 +68,7 @@ int main(int argc, char **argv){
     //判断串口是否打开成功
     if(serial_port_USB.isOpen())
     {
-        ROS_INFO_STREAM("/dev/ttyUSB0 is opened.");
+        ROS_INFO_STREAM("opened." << serial_port);
     }
     else
     {
