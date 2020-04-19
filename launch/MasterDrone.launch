@@ -26,7 +26,7 @@
         </include>
     </group>
 
-   <!-- <group ns="uav2">
+    <group ns="uav2">
         <arg name="fcu_url" default="/dev/NoopS0:921600"/>
         <arg name="gcs_url" value=""/>
         <arg name="tgt_system" value="2"/>
@@ -47,7 +47,7 @@
             <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
             <arg name="respawn_mavros" default="$(arg respawn_mavros)" />
         </include>
-    </group>-->
+    </group>
 
     <group ns="uav3">
         <arg name="fcu_url" default="/dev/NoopS1:921600"/>
@@ -72,7 +72,7 @@
         </include>
     </group>
 
-    <!--<group ns="uav4">
+    <group ns="uav4">
         <arg name="fcu_url" default="/dev/NoopS2:921600"/>
         <arg name="gcs_url" value=""/>
         <arg name="tgt_system" value="4"/>
@@ -93,14 +93,14 @@
             <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
             <arg name="respawn_mavros" default="$(arg respawn_mavros)" />
         </include>
-    </group>-->
+    </group>
 
 
-<!--    <arg name="master_port" default="/dev/ttyACM0:57600" />
+    <arg name="master_port" default="/dev/ttyACM0:57600" />
     <arg name="slave1_port" default="/dev/NoopS0" />
     <arg name="slave2_port" default="/dev/NoopS1" />
     <arg name="slave3_port" default="/dev/NoopS2" />
     <arg name="slave_baund" default="921600" />
     <arg name="master_baund" default="57600" />
-    <node pkg = "offboard" name = "offboard" type="master_serial" output="screen"/>-->
+    <node pkg = "offboard" name = "offboard" type="master_serial" output="screen"/>
 </launch>

@@ -32,13 +32,14 @@ void MasterConnection::init() {
     nh.param<double>("master_baund", master_baund, 57600);
 //    telem_port = "/dev/NoopS3";
     telem_port = "/dev/NoopS2";
+    sleep(10); // waiting for px4 weak up.
+
     initSerial(slave1_serial_, slave1_port, slave_baund, serial_time);
     initSerial(slave2_serial_, slave2_port, slave_baund, serial_time);
     initSerial(slave3_serial_, slave3_port, slave_baund, serial_time);
     initSerial(telem_serial_, telem_port, slave_baund, serial_time);
     initSerial(master_serial_, master_port, master_baund, serial_time);
 
-    sleep(10); // waiting for px4 weak up.
 
     master_ready = openSerial(master_serial_, master_port);
     slave1_ready = openSerial(slave1_serial_, slave1_port);
