@@ -5,5 +5,10 @@
     <arg name="serial_baund" default="921600" />
     <arg name="acm_baund" default="57600" />
 
-    <node pkg = "offboard" name = "offboard" type="mserial" output="screen"/>
+    <node pkg = "offboard" name = "offboard" type="mserial" output="screen">
+        <param name="serial_port" value="$(arg serial_port)" />
+        <param name="acm_port" value="$(arg acm_port)" />
+        <param name="serial_baund" value="$(arg serial_baund)" />
+        <param name="acm_baund" value="$(arg acm_baund)" />
+    </node>
 </launch>

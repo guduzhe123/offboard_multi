@@ -7,7 +7,8 @@
 int main(int argc, char **argv){
     ros::init(argc, argv, "master_serial");
     //创建句柄（虽然后面没用到这个句柄，但如果不创建，运行时进程会出错）
-    ROS_INFO("------> init!");
+    util_log("------> init!");
+    sleep(10); // waiting for px4 weak up.
     MasterConnection mConnection;
     mConnection.init();
 }
@@ -22,49 +23,24 @@ MasterConnection::~MasterConnection() {
 }
 
 void MasterConnection::init() {
-    ros::NodeHandle nh;
-    nh.param<std::string>("slave1_port", slave1_port, "/dev/NoopS0");
-    nh.param<std::string>("slave2_port", slave2_port, "/dev/NoopS1");
+    ros::NodeHandle nh("~");
+    nh.param<std::string>("slave0_port", slave0_port, "/dev/NoopS0");
+    nh.param<std::string>("slave1_port", slave1_port, "/dev/NoopS1");
 //    nh.param<std::string>("slave3_port", slave3_port, "/dev/NoopS2");
-    nh.param<std::string>("slave3_port", slave3_port, "/dev/NoopS3");
+    nh.param<std::string>("slave2_port", slave2_port, "/dev/NoopS3");
     nh.param<std::string>("master_port", master_port, "/dev/ttyACM0");
     nh.param<double>("slave_baund", slave_baund, 921600);
     nh.param<double>("master_baund", master_baund, 57600);
 //    telem_port = "/dev/NoopS3";
     telem_port = "/dev/NoopS2";
-    sleep(10); // waiting for px4 weak up.
 
-    initSerial(slave1_serial_, slave1_port, slave_baund, serial_time);
-    initSerial(slave2_serial_, slave2_port, slave_baund, serial_time);
-    initSerial(slave3_serial_, slave3_port, slave_baund, serial_time);
     initSerial(telem_serial_, telem_port, slave_baund, serial_time);
-    initSerial(master_serial_, master_port, master_baund, serial_time);
-
-
-    master_ready = openSerial(master_serial_, master_port);
-    slave1_ready = openSerial(slave1_serial_, slave1_port);
-    slave2_ready = openSerial(slave2_serial_, slave2_port);
-    slave3_ready = openSerial(slave3_serial_, slave3_port);
     telem_ready = openSerial(telem_serial_, telem_port);
+    auto __p0 = std::async(std::launch::async, &MasterConnection::threadSerial0, this);
+    auto __p1 = std::async(std::launch::async, &MasterConnection::threadSerial1, this);
+    auto __p2 = std::async(std::launch::async, &MasterConnection::threadSerial2, this);
+    auto __p3 = std::async(std::launch::async, &MasterConnection::threadMaster, this);
 
-    ros::Rate loop_rate(1000);
-
-    while(ros::ok())
-    {
-        readSerial(master_serial_, telem_serial_, master_ready, telem_ready);
-        readSerial(slave1_serial_, telem_serial_, slave1_ready, telem_ready);
-        readSerial(slave2_serial_, telem_serial_, slave2_ready, telem_ready);
-        readSerial(slave3_serial_, telem_serial_, slave3_ready, telem_ready);
-        ros::spinOnce();
-        loop_rate.sleep();
-    }
-
-    //关闭串口
-    master_serial_.close();
-    slave1_serial_.close();
-    slave2_serial_.close();
-    slave3_serial_.close();
-    telem_serial_.close();
 }
 
 
@@ -106,8 +82,11 @@ bool MasterConnection::readSerial(serial::Serial &serial_in, serial::Serial &ser
         size_t port = serial_in.available();
         size_t serial_back = serial_out.available();
         if (port != 0) {
+            cout <<"slave111" << endl;
             port = serial_in.read(buffer_in, port);
+            cout <<"slave222" << endl;
             serial_out.write(buffer_in, port);
+            cout <<"slave333" << endl;
 
 /*            for(int i=0; i<port; i++)
             {
@@ -118,10 +97,93 @@ bool MasterConnection::readSerial(serial::Serial &serial_in, serial::Serial &ser
         }
 
         if (serial_back != 0) {
+            cout <<"teml11" << endl;
             serial_back = serial_out.read(buffer_back, serial_back);
+            cout <<"teml22" << endl;
             serial_in.write(buffer_back, serial_back);
+            cout <<"teml33" << endl;
         }
         return true;
     }
     return false;
+}
+
+void MasterConnection::threadSerial0() {
+    cout << "new 0000" << endl;
+    initSerial(slave0_serial_, slave0_port, slave_baund, serial_time);
+    slave0_ready = openSerial(slave0_serial_, slave0_port);
+    if (!slave0_ready) {
+        cout << "slave 0 not ready" << endl;
+        return;
+    }
+
+    ros::Rate loop_rate(1000);
+    while(ros::ok())
+    {
+        readSerial(slave0_serial_, telem_serial_, slave0_ready, telem_ready);
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
+    cout << "new 00000----" << endl;
+    slave0_serial_.close();
+    telem_serial_.close();
+}
+
+void MasterConnection::threadSerial1() {
+    cout << "new 1111" << endl;
+    initSerial(slave1_serial_, slave1_port, slave_baund, serial_time);
+    slave1_ready = openSerial(slave1_serial_, slave1_port);
+    if (!slave1_ready) {
+        cout << "slave 1 not ready" << endl;
+        return;
+    }
+
+    ros::Rate loop_rate(1000);
+    while(ros::ok()) {
+//        cout << "1111" << endl;
+        readSerial(slave1_serial_, telem_serial_, slave1_ready, telem_ready);
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
+    cout << "new 111---" << endl;
+    slave1_serial_.close();
+    telem_serial_.close();
+}
+
+void MasterConnection::threadSerial2() {
+    cout << "new 2222" << endl;
+    initSerial(slave2_serial_, slave2_port, slave_baund, serial_time);
+    slave2_ready = openSerial(slave2_serial_, slave2_port);
+    if (!slave2_ready) {
+        cout << "slave 2 not ready" << endl;
+        return;
+    }
+    ros::Rate loop_rate(1000);
+    while(ros::ok()) {
+        readSerial(slave2_serial_, telem_serial_, slave2_ready, telem_ready);
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
+    cout << "new 222---" << endl;
+    slave2_serial_.close();
+    telem_serial_.close();
+}
+
+void MasterConnection::threadMaster() {
+    cout << "new 77" << endl;
+    initSerial(master_serial_, master_port, master_baund, serial_time);
+    master_ready = openSerial(master_serial_, master_port);
+    if (!master_ready) {
+        cout << "master not ready" << endl;
+        return;
+    }
+    ros::Rate loop_rate(1000);
+    while (ros::ok()) {
+        readSerial(master_serial_, telem_serial_, master_ready, telem_ready);
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
+    cout << "new 88" << endl;
+    master_serial_.close();
+    telem_serial_.close();
 }

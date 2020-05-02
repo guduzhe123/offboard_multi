@@ -33,6 +33,7 @@
 #include <syslog.h>
 #include <errno.h>
 #include <ctype.h>
+#include <iostream>
 
 #include "util.h"
 
@@ -123,7 +124,8 @@ void util_daemonize ()
 	if (strftime(time_str, sizeof(time_str), "%Y-%m-%d_%H-%M-%S", tmp) == 0) 
 		return;
 	printf("time_str=%s\n", time_str);
-	sprintf(file, "/home/zhouhua/ros_new_mav/log/log_%s", time_str);
+    auto homedir = std::string(getenv("HOME"));
+    sprintf(file, (homedir + "/.ros/log_%s").c_str(), time_str);
     int ret = mkdir(file,  S_IRWXU | S_IRWXG | S_IRWXO);
 
     sprintf(logfile, "%s/log_%s.txt", file, time_str);

@@ -51,35 +51,16 @@
         </include>
     </group>
 
-    <!-- UAV3 iris_2 -->
-    <group ns="uav3">
-        <arg name="fcu_url" default="/dev/NoopS0:921600"/>
-        <arg name="gcs_url" value=""/>
-        <arg name="tgt_system" value="2"/>
-        <arg name="tgt_component" value="1"/>
-        <arg name="log_output" default="screen" />
-        <arg name="fcu_protocol" default="v2.0" />
-        <arg name="respawn_mavros" default="false" />
-
-        <include file="$(find mavros)/launch/node.launch">
-            <arg name="pluginlists_yaml" value="$(arg pluginlists_yaml)" />
-            <arg name="config_yaml" value="$(arg config_yaml)" />
-
-            <arg name="fcu_url" value="$(arg fcu_url)" />
-            <arg name="gcs_url" value="$(arg gcs_url)" />
-            <arg name="tgt_system" value="$(arg tgt_system)" />
-            <arg name="tgt_component" value="$(arg tgt_component)" />
-            <arg name="log_output" value="$(arg log_output)" />
-            <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
-            <arg name="respawn_mavros" default="$(arg respawn_mavros)" />
-        </include>
-    </group>
-
-<!--    <arg name="master_port" default="/dev/ttyACM0" />-->
-<!--    <arg name="slave1_port" default="/dev/NoopS1" />
-    <arg name="slave2_port" default="/dev/NoopS0" />
+    <arg name="master_port" default="/dev/MasterUAV" />
+    <arg name="slave1_port" default="/dev/NoopS1" />
     <arg name="slave_baund" default="921600" />
-    <arg name="master_baund" default="57600" />
-    <node pkg = "offboard" name = "offboard" type="master_serial" output="screen"/>-->
+    <arg name="master_baund" default="921600" />
+
+    <node pkg = "offboard" name = "offboard" type="master_serial" output="screen">
+        <param name="master_port" value="$(arg master_port)" />
+        <param name="slave1_port" value="$(arg slave1_port)" />
+        <param name="slave_baund" value="$(arg slave_baund)" />
+        <param name="master_baund" value="$(arg master_baund)" />
+    </node>
 
 </launch>
