@@ -16,6 +16,8 @@
 //#include <mavros_msgs/>
 
 mavros_msgs::State current_state;
+std::vector<geometry_msgs::PoseStamped> usv_way_points;
+geometry_msgs::PoseStamped way_point;
 
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
     current_state = *msg;
@@ -46,10 +48,34 @@ bool pos_reached(geometry_msgs::PoseStamped current_pos, geometry_msgs::PoseStam
     return sqrt(err_px * err_px + err_py * err_py + err_pz * err_pz) < 2.0f;
 }
 
+void usvLocalPositionSp() {
+    way_point.pose.position.x = 30;
+    way_point.pose.position.y = 0;
+    way_point.pose.position.z = 0;
+    usv_way_points.push_back(way_point);
+
+    way_point.pose.position.x = 30;
+    way_point.pose.position.y = 15;
+    way_point.pose.position.z = 0;
+    usv_way_points.push_back(way_point);
+
+    way_point.pose.position.x = 0;
+    way_point.pose.position.y = 5;
+    way_point.pose.position.z = 0;
+    usv_way_points.push_back(way_point);
+
+    way_point.pose.position.x = 0;
+    way_point.pose.position.y = 0;
+    way_point.pose.position.z = 0;
+    usv_way_points.push_back(way_point);
+
+    std::reverse(usv_way_points.begin(), usv_way_points.end());
+}
+
 int main(int argc, char **argv)
 {
     ROS_INFO("publish");
-    ros::init(argc, argv, "offboard");
+    ros::init(argc, argv, "USVOffboard");
     ros::NodeHandle nh;
 
     ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
@@ -80,47 +106,7 @@ int main(int argc, char **argv)
         rate.sleep();
     }
 
-    geometry_msgs::PoseStamped pose;
-    pose.pose.position.x = 10;
-    pose.pose.position.y = 10;
-    pose.pose.position.z = 10;
-
-    std::vector<geometry_msgs::PoseStamped> usv_way_points;
-    geometry_msgs::PoseStamped way_point;
-
-    way_point.pose.position.x = 30;
-    way_point.pose.position.y = 40;
-    way_point.pose.position.z = 10;
-    usv_way_points.push_back(way_point);
-
-    way_point.pose.position.x = -30;
-    way_point.pose.position.y = 40;
-    way_point.pose.position.z = 10;
-    usv_way_points.push_back(way_point);
-
-    way_point.pose.position.x = -30;
-    way_point.pose.position.y = -30;
-    way_point.pose.position.z = 10;
-    usv_way_points.push_back(way_point);
-
-    way_point.pose.position.x = 0;
-    way_point.pose.position.y = 0;
-    way_point.pose.position.z = 10;
-    usv_way_points.push_back(way_point);
-
-    std::reverse(usv_way_points.begin(), usv_way_points.end());
-    
-
-    geometry_msgs::TwistStamped vel_cmd;
-    vel_cmd.twist.linear.x = 1;
-    vel_cmd.twist.linear.y = 1;
-    vel_cmd.twist.linear.z = 1;
-
-    vel_cmd.twist.angular.x = 0.1;
-    vel_cmd.twist.angular.y = 0.2;
-    vel_cmd.twist.angular.z = 0.5;
-
-
+    usvLocalPositionSp();
 
     mavros_msgs::SetMode offb_set_mode;
     offb_set_mode.request.custom_mode = "OFFBOARD";
@@ -131,12 +117,7 @@ int main(int argc, char **argv)
     ros::Time last_request = ros::Time::now();
     int count = 0;
 
-
     while(ros::ok()){
-/*        gps_global_pos_pub.publish(gps_pos);
-        global_pos_pub.publish(gps_pos);*/
-//        g_speed_control_pub.publish(vel_cmd);
-
 
         if( current_state.mode != "OFFBOARD" &&
             (ros::Time::now() - last_request > ros::Duration(5.0))){

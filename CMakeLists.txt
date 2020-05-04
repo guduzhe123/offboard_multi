@@ -21,6 +21,7 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/new_struct/
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/VehicleControl/
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/serial/
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc/test/1UAV_1USV/
         ${catkin_INCLUDE_DIRS}
 )
 
@@ -68,4 +69,23 @@ add_library(
         #[[src/serial/serialConnection.cpp]])
 
 target_link_libraries(multi_offboard multi_offboard_lib)
+
+add_executable(USVOffboard src/test/USVOffboard/main.cpp)
+target_link_libraries(USVOffboard ${catkin_LIBRARIES})
+
+
+add_executable(usv_lead_uav src/test/1UAV_1USV/main.cpp)
+add_library(usv_lead_uav_lib
+        STATIC
+        src/test/1UAV_1USV/uav_ros_Manager.cpp
+        src/test/1UAV_1USV/usv_ros_Manager.cpp
+        src/test/1UAV_1USV/usv_lead_uav.cpp
+        src/util.cpp
+        src/DataMan.cpp
+
+        )
+
+target_link_libraries(usv_lead_uav usv_lead_uav_lib)
+
+target_link_libraries(usv_lead_uav ${catkin_LIBRARIES})
 

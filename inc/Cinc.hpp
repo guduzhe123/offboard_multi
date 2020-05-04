@@ -15,6 +15,7 @@
 #include <ros/ros.h>
 #include <mavros_msgs/CommandBool.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/TwistStamped.h>
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
 #include <sensor_msgs/NavSatFix.h>
@@ -22,6 +23,8 @@
 #include <mavros_msgs/DebugValue.h>
 #include <mavros_msgs/PositionTarget.h>
 #include <mavros_msgs/GlobalPositionTarget.h>
+#include <mavros_msgs/Mavlink.h>
+#include <mavros_msgs/VFR_HUD.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 using namespace std;
@@ -126,14 +129,15 @@ enum {
     USA_DISARM
 };
 
-enum  {
+enum COMMAND_TYPE {
     VF_UAV_SQUARE = 1,
     VF_UAV_TRIANGLE,
     VF_UAV_LINE_HORIZONTAL,
     VF_UAV_LINE_VERTICAL,
     VF_USV_TRIANGLE,
     VF_USV_LINE_HORIZONTAL,
-    VF_USV_LINE_VERTICAL
+    VF_USV_LINE_VERTICAL,
+    VF_UAV_START
 };
 
 
