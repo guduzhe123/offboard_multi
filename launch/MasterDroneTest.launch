@@ -3,11 +3,12 @@
     <arg name="pluginlists_yaml" default="$(find mavros)/launch/px4_pluginlists.yaml" />
     <arg name="config_yaml" default="$(find mavros)/launch/px4_config.yaml" />
 
-<!--    <group ns="uav1">
-        <arg name="fcu_url" default="/dev/MasterUAV:921600"/>
-&lt;!&ndash;        <arg name="fcu_url" default="/dev/ttyUSB0:921600"/>&ndash;&gt;
+    <group ns="usv1">
+<!--        <arg name="fcu_url" default="/dev/MasterUAV:921600"/>-->
+        <arg name="fcu_url" default="/dev/NoopS0:921600"/>
+<!--        <arg name="fcu_url" default="/dev/ttyUSB0:57600"/>-->
         <arg name="gcs_url" value=""/>
-        <arg name="tgt_system" value="1"/>
+        <arg name="tgt_system" value="5"/>
         <arg name="tgt_component" value="1"/>
         <arg name="log_output" default="screen" />
         <arg name="fcu_protocol" default="v2.0" />
@@ -25,10 +26,10 @@
             <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
             <arg name="respawn_mavros" default="$(arg respawn_mavros)" />
         </include>
-    </group>-->
+    </group>
 
     <!-- UAV2 iris_2 -->
-    <group ns="uav2">
+    <group ns="uav1">
         <arg name="fcu_url" default="/dev/NoopS1:921600"/>
         <arg name="gcs_url" value=""/>
         <arg name="tgt_system" value="1"/>
@@ -51,7 +52,7 @@
         </include>
     </group>
 
-    <arg name="master_port" default="/dev/MasterUAV" />
+<!--    <arg name="master_port" default="/dev/MasterUAV" />
     <arg name="slave1_port" default="/dev/NoopS1" />
     <arg name="slave_baund" default="921600" />
     <arg name="master_baund" default="921600" />
@@ -61,6 +62,9 @@
         <param name="slave1_port" value="$(arg slave1_port)" />
         <param name="slave_baund" value="$(arg slave_baund)" />
         <param name="master_baund" value="$(arg master_baund)" />
-    </node>
+    </node>-->
+
+    <include file="$(find offboard)/launch/1UAV_1USV.launch"></include>
+    <include file="$(find offboard)/launch/rosbag_log.launch"></include>
 
 </launch>
