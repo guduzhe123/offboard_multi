@@ -21,7 +21,9 @@ public:
 
     enum UAV_TYPE {
         TAKEOFF,
+        FORMATION,
         FOLLOW,
+        RETURN
     };
 
 private:

@@ -6,6 +6,7 @@
 
 uav_ros_Manager::uav_ros_Manager() :
         arm_command_(0),
+        arm_i_(5),
         is_arm_(false),
         is_offboard_(false),
         is_takeoff_(false)
@@ -19,7 +20,7 @@ void uav_ros_Manager::uavOnInit(ros::NodeHandle &nh) {
     vfr_hud_sub = nh.subscribe<mavros_msgs::VFR_HUD>
             ("mavros/vfr_hud", 10,  &uav_ros_Manager::vrf_hud_cb, this);
     local_position_sub = nh.subscribe<geometry_msgs::PoseStamped>
-            ("mavros/local_position/pose", 10,  &uav_ros_Manager::local_pos_cb, this);
+            ("mavros/local_position/pose", 20,  &uav_ros_Manager::local_pos_cb, this);
     mavlink_from_sub = nh.subscribe<mavros_msgs::Mavlink>
             ("mavlink/from", 10, &uav_ros_Manager::mavlink_from_sb, this);
     global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
@@ -28,7 +29,7 @@ void uav_ros_Manager::uavOnInit(ros::NodeHandle &nh) {
             ("mavros/debug_value/debug_vector", 10, &uav_ros_Manager::debug_value_cb, this);
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
-            ("mavros/setpoint_position/local", 5);
+            ("mavros/setpoint_position/local", 100);
     gps_global_pos_pub = nh.advertise<sensor_msgs::NavSatFix>
             ("mavros/global_position/raw/fix", 1000);
     global_pos_pub = nh.advertise<sensor_msgs::NavSatFix>
@@ -84,18 +85,23 @@ void uav_ros_Manager::commander_update(const ros::TimerEvent& e) {
     if (arm_command_ == VF_UAV_START) {
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
+        util_log("uav arm_i = %d, is_arm = %d", arm_i_, is_arm_);
         if (!current_state.armed && !is_arm_) {
-            if (arming_client.call(arm_cmd) &&
-                arm_cmd.response.success) {
-                util_log("Vehicle armed");
-                is_arm_ = true;
+            while(arm_i_ > 0) {
+                if (arming_client.call(arm_cmd) &&
+                    arm_cmd.response.success) {
+                    util_log("uav Vehicle armed");
+                    is_arm_ = true;
+                }
+                --arm_i_;
             }
         }
 
         mavros_msgs::SetMode takeoff_set_mode;
         takeoff_set_mode.request.custom_mode = "AUTO.TAKEOFF";
         if (current_state.mode != "AUTO.TAKEOFF" && uav_.current_local_pos.pose.position.z < 0.5f && !is_takeoff_) {
-            for (int i = 10; ros::ok() && i > 0; --i) {
+            static int takeoff_i ;
+            for (takeoff_i = 10; ros::ok() && takeoff_i > 0; --takeoff_i) {
                 if (current_state.mode != "AUTO.TAKEOFF") {
                     if (set_mode_client.call(takeoff_set_mode)  &&
                         takeoff_set_mode.response.mode_sent) {
@@ -110,11 +116,13 @@ void uav_ros_Manager::commander_update(const ros::TimerEvent& e) {
 
         mavros_msgs::SetMode offb_set_mode;
         offb_set_mode.request.custom_mode = "OFFBOARD";
+        util_log("is_offboard = %d", is_offboard_);
         if (current_state.mode != "OFFBOARD" && !is_offboard_) {
-            for (int i = 10; ros::ok() && i > 0; --i) {
+            static int offboard_i;
+            for (offboard_i = 10; ros::ok() && offboard_i > 0; --offboard_i) {
                 if (set_mode_client.call(offb_set_mode) &&
                     offb_set_mode.response.mode_sent) {
-                    util_log("Offboard enabled");
+                    util_log("uav Offboard enabled");
                     is_offboard_ = true;
                 }
             }

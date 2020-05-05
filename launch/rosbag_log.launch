@@ -46,6 +46,14 @@
             /uav5/mavros/debug_value/debug_vector
             /uav6/mavros/debug_value/debug_vector
             /uav7/mavros/debug_value/debug_vector
+            /usv1/mavros/debug_value/debug_vector
+
+
+            /usv1/mavros/state
+            /usv1/mavros/vfr_hud
+            /usv1/mavros/setpoint_position/local
+            /usv1/mavros/local_position/pose
+            /usv1/mavros/setpoint_raw/target_local
 "
     />
 </launch>

@@ -101,6 +101,11 @@ void usv_lead_uav::uavlocalControl() {
         }
             break;
 
+        case FORMATION: {
+
+        }
+            break;
+
         case FOLLOW : {
             uav_reached_ = false;
             uav_way_point.pose.position = multiVehicle.usv1.current_local_pos.pose.position;
@@ -111,6 +116,11 @@ void usv_lead_uav::uavlocalControl() {
                 uav_state_ = FOLLOW;
                 uav_reached_ = true;
             }
+        }
+            break;
+
+        case RETURN: {
+
         }
             break;
 

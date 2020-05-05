@@ -41,6 +41,7 @@ private:
     geometry_msgs::PoseStamped target_local_pos_sp_;
 
     int arm_command_;
+    int arm_i_;
     bool is_arm_;
     bool is_offboard_;
     bool is_takeoff_;
