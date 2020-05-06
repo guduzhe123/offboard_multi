@@ -7,7 +7,8 @@ usv_lead_uav* usv_lead_uav::l_pInst = NULL;
 
 usv_lead_uav::usv_lead_uav():
         uav_state_(TAKEOFF),
-        uav_reached_(false){
+        uav_reached_(false),
+        is_get_takeoff_pos_(false){
 
 }
 
@@ -87,6 +88,8 @@ void usv_lead_uav::usvlocalControl() {
 }
 
 void usv_lead_uav::uavlocalControl() {
+    TVec3 follow_slave_first_local;
+    GetTakeoffPos(multiVehicle.usv1, multiVehicle.uav1, follow_slave_first_local);
     current_uav_local_pos_ = multiVehicle.uav1.current_local_pos;
     switch (uav_state_) {
         case TAKEOFF: {
@@ -95,20 +98,29 @@ void usv_lead_uav::uavlocalControl() {
             uav_way_point.pose.position.z = 15;
             uav_control_->uavPosSp(uav_way_point);
             if (pos_reached(current_uav_local_pos_, uav_way_point)) {
-                uav_state_ = FOLLOW;
+                uav_state_ = FORMATION;
                 uav_reached_ = true;
             }
         }
             break;
 
         case FORMATION: {
+            // uav at head of the usv
+            uav_way_point.pose.position.x = follow_slave_first_local.x();
+            uav_way_point.pose.position.y = follow_slave_first_local.y();
+            uav_control_->uavPosSp(uav_way_point);
 
+            if (pos_reached(current_uav_local_pos_, uav_way_point)) {
+                uav_state_ = FOLLOW;
+                uav_reached_ = true;
+            }
         }
             break;
 
         case FOLLOW : {
             uav_reached_ = false;
-            uav_way_point.pose.position = multiVehicle.usv1.current_local_pos.pose.position;
+            uav_way_point.pose.position.x = multiVehicle.usv1.current_local_pos.pose.position.x + follow_slave_first_local.x();
+            uav_way_point.pose.position.y = multiVehicle.usv1.current_local_pos.pose.position.y + follow_slave_first_local.y();
             uav_way_point.pose.position.z = multiVehicle.uav1.current_local_pos.pose.position.z;
 
             uav_control_->uavPosSp(uav_way_point);
@@ -120,7 +132,12 @@ void usv_lead_uav::uavlocalControl() {
             break;
 
         case RETURN: {
-
+            uav_way_point.pose.position.x = 0;
+            uav_way_point.pose.position.y = 0;
+            if (pos_reached(current_uav_local_pos_, uav_way_point)) {
+                uav_state_ = FOLLOW;
+                uav_reached_ = true;
+            }
         }
             break;
 
@@ -133,7 +150,19 @@ bool usv_lead_uav::pos_reached(geometry_msgs::PoseStamped current_pos, geometry_
     float err_px = current_pos.pose.position.x - target_pos.pose.position.x;
     float err_py = current_pos.pose.position.y - target_pos.pose.position.y;
     float err_pz = current_pos.pose.position.z - target_pos.pose.position.z;
-
     return sqrt(err_px * err_px + err_py * err_py + err_pz * err_pz) < 2.0f;
+}
+
+void usv_lead_uav::GetTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_first_local) {
+    if (slave.current_state.armed && !is_get_takeoff_pos_) {
+        master_start_gps_ = GlobalPosition{master.latitude, master.longtitude, 0};
+        slave_takeoff_gps_ = GlobalPosition{slave.latitude, slave.longtitude, 0};
+        util_log("master_start_gps_ = ( %.9f, %.9f)", master_start_gps_.latitude, master_start_gps_.longitude);
+        util_log("slave_takeoff_gps_ = ( %.9f, %.9f)", slave_takeoff_gps_.latitude, slave_takeoff_gps_.longitude);
+
+        Calculate::getInstance()->GetLocalPos(master_start_gps_, slave_takeoff_gps_, follow_slave_first_local);
+
+        is_get_takeoff_pos_ = true;
+    }
 }
 

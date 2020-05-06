@@ -9,6 +9,7 @@
 #include "uav_ros_Manager.hpp"
 #include "usv_ros_Manager.hpp"
 #include "DataMan.hpp"
+#include "Calculate.hpp"
 
 class usv_lead_uav {
 public:
@@ -30,6 +31,7 @@ private:
     void usvLocalPositionSp();
     void usvlocalControl();
     void uavlocalControl();
+    void GetTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_first_local);
     bool pos_reached(geometry_msgs::PoseStamped current_pos, geometry_msgs::PoseStamped target_pos);
 
     uav_ros_Manager::Ptr uav_control_;
@@ -37,6 +39,7 @@ private:
 
     multi_vehicle multiVehicle;
     static usv_lead_uav* l_pInst;
+    GlobalPosition master_start_gps_, slave_takeoff_gps_;
 
     std::vector<geometry_msgs::PoseStamped> usv_way_points;
     geometry_msgs::PoseStamped way_point;
@@ -45,5 +48,6 @@ private:
     geometry_msgs::PoseStamped current_uav_local_pos_;
     int uav_state_;
     bool uav_reached_;
+    bool is_get_takeoff_pos_;
 };
 #endif //OFFBOARD_USV_LEAD_UAV_HPP

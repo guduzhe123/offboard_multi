@@ -9,7 +9,8 @@ uav_ros_Manager::uav_ros_Manager() :
         arm_i_(5),
         is_arm_(false),
         is_offboard_(false),
-        is_takeoff_(false)
+        is_takeoff_(false),
+        is_land_(false)
 {
 
 }
@@ -124,6 +125,21 @@ void uav_ros_Manager::commander_update(const ros::TimerEvent& e) {
                     offb_set_mode.response.mode_sent) {
                     util_log("uav Offboard enabled");
                     is_offboard_ = true;
+                }
+            }
+        }
+    }
+
+    if (arm_command_ == VF_UAV_RETURN) {
+        mavros_msgs::SetMode land_set_mode;
+        land_set_mode.request.custom_mode = "AUTO.Return";
+        if (current_state.mode != "AUTO.Land" && !is_land_) {
+            static int land_i;
+            for (land_i = 10; ros::ok() && land_i > 0; --land_i) {
+                if (set_mode_client.call(land_set_mode) &&
+                        land_set_mode.response.mode_sent) {
+                    util_log("uav Return enabled");
+                    is_land_ = true;
                 }
             }
         }
