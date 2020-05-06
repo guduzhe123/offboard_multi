@@ -46,6 +46,7 @@ private:
     bool is_arm_;
     bool is_offboard_;
     bool is_takeoff_;
+    bool is_land_;
 };
 
 

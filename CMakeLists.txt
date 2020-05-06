@@ -82,9 +82,7 @@ add_library(usv_lead_uav_lib
         src/test/1UAV_1USV/usv_lead_uav.cpp
         src/util.cpp
         src/DataMan.cpp
-        src/new_struct/Avoidance.cpp
-        src/new_struct/Multi_UAV_formation.cpp
-        src/new_struct/Multi_USV_formation.cpp
+        src/Calculate.cpp
         )
 
 target_link_libraries(usv_lead_uav usv_lead_uav_lib)
