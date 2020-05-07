@@ -49,8 +49,7 @@ void uav_ros_Manager::uavOnInit(ros::NodeHandle &nh) {
 }
 
 void uav_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {
-    current_state = *msg;
-
+    uav_.current_state = *msg;
 }
 
 void uav_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {

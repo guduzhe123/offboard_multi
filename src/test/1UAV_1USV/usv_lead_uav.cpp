@@ -88,8 +88,7 @@ void usv_lead_uav::usvlocalControl() {
 }
 
 void usv_lead_uav::uavlocalControl() {
-    TVec3 follow_slave_first_local;
-    GetTakeoffPos(multiVehicle.usv1, multiVehicle.uav1, follow_slave_first_local);
+    GetTakeoffPos(multiVehicle.usv1, multiVehicle.uav1, follow_slave_first_local_);
     current_uav_local_pos_ = multiVehicle.uav1.current_local_pos;
     switch (uav_state_) {
         case TAKEOFF: {
@@ -106,8 +105,8 @@ void usv_lead_uav::uavlocalControl() {
 
         case FORMATION: {
             // uav at head of the usv
-            uav_way_point.pose.position.x = follow_slave_first_local.x();
-            uav_way_point.pose.position.y = follow_slave_first_local.y();
+            uav_way_point.pose.position.x = follow_slave_first_local_.x();
+            uav_way_point.pose.position.y = follow_slave_first_local_.y();
             uav_control_->uavPosSp(uav_way_point);
 
             if (pos_reached(current_uav_local_pos_, uav_way_point)) {
@@ -119,8 +118,8 @@ void usv_lead_uav::uavlocalControl() {
 
         case FOLLOW : {
             uav_reached_ = false;
-            uav_way_point.pose.position.x = multiVehicle.usv1.current_local_pos.pose.position.x + follow_slave_first_local.x();
-            uav_way_point.pose.position.y = multiVehicle.usv1.current_local_pos.pose.position.y + follow_slave_first_local.y();
+            uav_way_point.pose.position.x = multiVehicle.usv1.current_local_pos.pose.position.x + follow_slave_first_local_.x();
+            uav_way_point.pose.position.y = multiVehicle.usv1.current_local_pos.pose.position.y + follow_slave_first_local_.y();
             uav_way_point.pose.position.z = multiVehicle.uav1.current_local_pos.pose.position.z;
 
             uav_control_->uavPosSp(uav_way_point);
@@ -161,6 +160,8 @@ void usv_lead_uav::GetTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_
         util_log("slave_takeoff_gps_ = ( %.9f, %.9f)", slave_takeoff_gps_.latitude, slave_takeoff_gps_.longitude);
 
         Calculate::getInstance()->GetLocalPos(master_start_gps_, slave_takeoff_gps_, follow_slave_first_local);
+        util_log("follow_slave_first_local = ( %.2f, %.2f, %.2f)", follow_slave_first_local.x(), follow_slave_first_local.y(),
+                           follow_slave_first_local.z());
 
         is_get_takeoff_pos_ = true;
     }

@@ -46,7 +46,7 @@ void usv_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
 }
 
 void usv_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {
-    current_state = *msg;
+    usv_.current_state = *msg;
 }
 
 void usv_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
