@@ -46,6 +46,7 @@ private:
     geometry_msgs::PoseStamped uav_way_point;
     geometry_msgs::PoseStamped current_usv_local_pos_;
     geometry_msgs::PoseStamped current_uav_local_pos_;
+    TVec3 follow_slave_first_local_;
     int uav_state_;
     bool uav_reached_;
     bool is_get_takeoff_pos_;
