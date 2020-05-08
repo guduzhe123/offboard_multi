@@ -19,6 +19,27 @@ void Calculate::GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &lo
     float  k = 2.0f/3.0f; // TODO PX4 x axis data is large 1.5
     follow_uav_local_pos.x() = k * dLongt * meterPerLongt;
     follow_uav_local_pos.y() = dLat * meterPerLat;
+
+    float x, y;
+    get_vector_to_next_waypoint_fast(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude, x, y);
+    util_log("distance orig x= %.2f, distance orig y= %.2f, x new = %.2f, y new = %.2f",
+            follow_uav_local_pos.x(), follow_uav_local_pos.y(), x, y);
+}
+
+void Calculate::get_vector_to_next_waypoint_fast(double lat_now, double lon_now, double lat_next, double lon_next,
+                                               float &v_n, float &v_e)
+{
+    double lat_now_rad = lat_now * M_DEG_TO_RAD;
+    double lon_now_rad = lon_now * M_DEG_TO_RAD;
+    double lat_next_rad = lat_next * M_DEG_TO_RAD;
+    double lon_next_rad = lon_next * M_DEG_TO_RAD;
+
+    double d_lat = lat_next_rad - lat_now_rad;
+    double d_lon = lon_next_rad - lon_now_rad;
+
+    /* conscious mix of double and float trig function to maximize speed and efficiency */
+    v_n = CONSTANTS_RADIUS_OF_EARTH * d_lat;
+    v_e = CONSTANTS_RADIUS_OF_EARTH * d_lon * cos(lat_now_rad);
 }
 
 void Calculate::GetGlobalPos(const GlobalPosition &loc1, GlobalPosition &loc2, TVec2 &local_target_pos) {
