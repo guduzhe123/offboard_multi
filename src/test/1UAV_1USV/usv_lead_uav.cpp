@@ -90,6 +90,7 @@ void usv_lead_uav::usvlocalControl() {
 void usv_lead_uav::uavlocalControl() {
     GetTakeoffPos(multiVehicle.usv1, multiVehicle.uav1, follow_slave_first_local_);
     current_uav_local_pos_ = multiVehicle.uav1.current_local_pos;
+    util_log("uav state = %d", uav_state_);
     switch (uav_state_) {
         case TAKEOFF: {
             uav_way_point.pose.position.x = 0;
