@@ -1,0 +1,8 @@
+<launch>
+    <include file="$(find px4)/launch/mavros_2uavs_sitl.launch"/>
+
+    <arg name="formation_distance" default="5" />
+    <node pkg = "offboard" name = "offboard" type="uav_lead_uav" output="screen">
+        <param name="formation_distance" value="$(arg formation_distance)" />
+    </node>
+</launch>

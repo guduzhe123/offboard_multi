@@ -88,15 +88,17 @@ add_library(usv_lead_uav_lib
 target_link_libraries(usv_lead_uav usv_lead_uav_lib)
 target_link_libraries(usv_lead_uav ${catkin_LIBRARIES})
 
-#[[#[=[uav lead one uav]=]
+#[[uav lead one uav]]
 add_executable(uav_lead_uav src/test/2uavs/main.cpp)
-add_library(2uavs_lib
+add_library(uavs_lib
         STATIC
         src/test/2uavs/uav1_ros_Manager.cpp
         src/test/2uavs/uav2_ros_Manager.cpp
         src/test/2uavs/uav_lead_uav.cpp
+        src/test/2uavs/dataMan.cpp
+        src/test/2uavs/avoidance.cpp
         src/util.cpp
         src/DataMan.cpp
         src/Calculate.cpp)
-target_link_libraries(uav_lead_uav 2uav_lib)
-target_link_libraries(uav_lead_uav ${catkin_LIBRARIES})]]
+target_link_libraries(uav_lead_uav uavs_lib)
+target_link_libraries(uav_lead_uav ${catkin_LIBRARIES})

@@ -32,9 +32,9 @@ void uav_ros_Manager::uavOnInit(ros::NodeHandle &nh) {
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
             ("mavros/setpoint_position/local", 100);
     gps_global_pos_pub = nh.advertise<sensor_msgs::NavSatFix>
-            ("mavros/global_position/raw/fix", 1000);
+            ("mavros/global_position/raw/fix", 100);
     global_pos_pub = nh.advertise<sensor_msgs::NavSatFix>
-            ("mavros/global_position/global", 1000);
+            ("mavros/global_position/global", 100);
     g_speed_control_pub = nh.advertise<geometry_msgs::TwistStamped>
             ("mavros/setpoint_velocity/cmd_vel", 100);
 
@@ -79,6 +79,7 @@ void uav_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& ms
              debugValue.data[2]);
     int config = (int) debugValue.data[0];
     arm_command_ = config;
+
 }
 
 void uav_ros_Manager::commander_update(const ros::TimerEvent& e) {
@@ -146,6 +147,7 @@ void uav_ros_Manager::commander_update(const ros::TimerEvent& e) {
 }
 
 void uav_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
+    dataMan::getInstance()->SetDroneData(uav_);
     DataMan::getInstance()->SetDroneData(uav_);
 }
 
