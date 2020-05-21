@@ -6,6 +6,7 @@
 #define OFFBOARD_UAV_ROS_MANAGER_HPP
 
 #include "Cinc.hpp"
+#include "dataMan.hpp"
 #include "DataMan.hpp"
 
 class uav_ros_Manager {

@@ -33,6 +33,7 @@ private:
     void uavlocalControl();
     void GetTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_first_local);
     bool pos_reached(geometry_msgs::PoseStamped current_pos, geometry_msgs::PoseStamped target_pos);
+    void formation(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_formation);
 
     uav_ros_Manager::Ptr uav_control_;
     usv_ros_Manager::Ptr usv_control_;
@@ -47,8 +48,10 @@ private:
     geometry_msgs::PoseStamped current_usv_local_pos_;
     geometry_msgs::PoseStamped current_uav_local_pos_;
     TVec3 follow_slave_first_local_;
+    TVec3 follow_slave_formation_;
     int uav_state_;
     bool uav_reached_;
     bool is_get_takeoff_pos_;
+    double formation_distance_;
 };
 #endif //OFFBOARD_USV_LEAD_UAV_HPP

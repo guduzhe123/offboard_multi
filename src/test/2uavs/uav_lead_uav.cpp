@@ -28,6 +28,9 @@ void usv_lead_uav::onInit() {
     usv_control_.reset(new usv_ros_Manager);
     usv_control_->usvOnInit(usv_nh);
 
+    ros::NodeHandle nh("~");
+    nh.param<double >("formation_distance", formation_distance_, 5);
+
     usvLocalPositionSp();
 }
 
@@ -64,8 +67,9 @@ void usv_lead_uav::usvLocalPositionSp() {
     std::reverse(usv_way_points.begin(), usv_way_points.end());
 }
 
+// uav2
 void usv_lead_uav::usvlocalControl() {
-    current_usv_local_pos_ = multiVehicle.usv1.current_local_pos;
+    current_usv_local_pos_ = multiVehicle.uav2.current_local_pos;
     if (!usv_way_points.empty()) {
         way_point = usv_way_points.back();
         if (pos_reached(current_usv_local_pos_, usv_way_points.back())) {
@@ -83,13 +87,21 @@ void usv_lead_uav::usvlocalControl() {
             }
         }
 
-        if (uav_reached_)  usv_control_->usvPosSp(way_point);
+        if (uav_reached_)  {
+            way_point.pose.position.z += multiVehicle.uav2.avoidance_pos.z();
+            usv_control_->usvPosSp(way_point);
+            multiVehicle.uav2.target_local_pos_sp = way_point;
+        }
     }
 }
 
 void usv_lead_uav::uavlocalControl() {
-    GetTakeoffPos(multiVehicle.usv1, multiVehicle.uav1, follow_slave_first_local_);
+    GetTakeoffPos(multiVehicle.uav2, multiVehicle.uav1, follow_slave_first_local_);
+    formation(multiVehicle.uav2, multiVehicle.uav1, follow_slave_formation_);
     current_uav_local_pos_ = multiVehicle.uav1.current_local_pos;
+    multiVehicle.uav1.target_local_pos_sp = uav_way_point;
+    DataMan::getInstance()->SetDroneControlData(multiVehicle);
+
     switch (uav_state_) {
         case TAKEOFF: {
             uav_way_point.pose.position.x = 0;
@@ -99,15 +111,15 @@ void usv_lead_uav::uavlocalControl() {
             usv_control_->usvPosSp(uav_way_point);
             if (pos_reached(current_uav_local_pos_, uav_way_point)) {
                 uav_state_ = FORMATION;
-                uav_reached_ = true;
             }
         }
             break;
 
         case FORMATION: {
             // uav at head of the usv
-            uav_way_point.pose.position.x = follow_slave_first_local_.x();
-            uav_way_point.pose.position.y = follow_slave_first_local_.y();
+            uav_way_point.pose.position.x = follow_slave_formation_.x();
+            uav_way_point.pose.position.y = follow_slave_formation_.y();
+            uav_way_point.pose.position.z += multiVehicle.uav1.avoidance_pos.z();
             uav_control_->uavPosSp(uav_way_point);
 
             if (pos_reached(current_uav_local_pos_, uav_way_point)) {
@@ -119,9 +131,9 @@ void usv_lead_uav::uavlocalControl() {
 
         case FOLLOW : {
             uav_reached_ = false;
-            uav_way_point.pose.position.x = multiVehicle.usv1.current_local_pos.pose.position.x + follow_slave_first_local_.x();
-            uav_way_point.pose.position.y = multiVehicle.usv1.current_local_pos.pose.position.y + follow_slave_first_local_.y();
-            uav_way_point.pose.position.z = multiVehicle.uav1.current_local_pos.pose.position.z;
+            uav_way_point.pose.position.x = multiVehicle.uav2.current_local_pos.pose.position.x + follow_slave_formation_.x();
+            uav_way_point.pose.position.y = multiVehicle.uav2.current_local_pos.pose.position.y + follow_slave_formation_.y();
+            uav_way_point.pose.position.z = multiVehicle.uav1.current_local_pos.pose.position.z + multiVehicle.uav1.avoidance_pos.z();
 
             uav_control_->uavPosSp(uav_way_point);
             if (pos_reached(current_uav_local_pos_, uav_way_point)) {
@@ -134,6 +146,7 @@ void usv_lead_uav::uavlocalControl() {
         case RETURN: {
             uav_way_point.pose.position.x = 0;
             uav_way_point.pose.position.y = 0;
+            uav_way_point.pose.position.z += multiVehicle.uav1.avoidance_pos.z();
             if (pos_reached(current_uav_local_pos_, uav_way_point)) {
                 uav_state_ = FOLLOW;
                 uav_reached_ = true;
@@ -162,9 +175,20 @@ void usv_lead_uav::GetTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_
 
         Calculate::getInstance()->GetLocalPos(master_start_gps_, slave_takeoff_gps_, follow_slave_first_local);
         util_log("follow_slave_first_local = ( %.2f, %.2f, %.2f)", follow_slave_first_local.x(), follow_slave_first_local.y(),
-                           follow_slave_first_local.z());
+                 follow_slave_first_local.z());
 
         is_get_takeoff_pos_ = true;
     }
+}
+
+void usv_lead_uav::formation(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_formation) {
+//    TVec3 slave_local_formation = TVec3(-formation_distance_, 0 , slave.current_local_pos.pose.position.z);
+    TVec3 slave_local_formation = TVec3(-formation_distance_, 0 , slave.current_local_pos.pose.position.z);
+    TVec3 slave_first_local;
+    Calculate::getInstance()->GetLocalPos(master_start_gps_, slave_takeoff_gps_, slave_first_local);
+
+    follow_slave_formation.x() = slave_local_formation.x() + slave_first_local.x();
+    follow_slave_formation.y() = slave_local_formation.y() + slave_first_local.y();
+    util_log("slave formation x = %.2f, y = %.2f", follow_slave_formation.x(), follow_slave_formation.y());
 }
 

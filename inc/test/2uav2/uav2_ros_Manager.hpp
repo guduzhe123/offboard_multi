@@ -6,6 +6,7 @@
 #define OFFBOARD_USV_ROS_MANAGER_HPP
 
 #include "Cinc.hpp"
+#include "dataMan.hpp"
 #include "DataMan.hpp"
 
 class usv_ros_Manager {

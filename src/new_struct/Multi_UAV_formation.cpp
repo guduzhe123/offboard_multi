@@ -96,17 +96,17 @@ MultiUAVFormation::calcFollowUAVPos() {
     // 目标相对位置-当前相对位置+当前在该飞机坐标系下的绝对位置
     follow_uav1_.x() = m_multi_vehicle_.uav1.current_local_pos.pose.position.x + Drone_uav2_.x() + follow_uav1_first_local_.x();
     follow_uav1_.y() = m_multi_vehicle_.uav1.current_local_pos.pose.position.y + Drone_uav2_.y() + follow_uav1_first_local_.y();
-    follow_uav1_.z() =  m_multi_vehicle_.leader_uav.current_local_pos.pose.position.z;
+    follow_uav1_.z() = m_multi_vehicle_.leader_uav.current_local_pos.pose.position.z;
     follow_uav1_keep_local_ = TVec3 (Drone_uav2_.x() + follow_uav1_first_local_.x(), Drone_uav2_.y() + follow_uav1_first_local_.y(), 0);
 
     follow_uav2_.x() = m_multi_vehicle_.uav1.current_local_pos.pose.position.x + Drone_uav3_.x() + follow_uav2_first_local_.x();
     follow_uav2_.y() = m_multi_vehicle_.uav1.current_local_pos.pose.position.y + Drone_uav3_.y() + follow_uav2_first_local_.y();
-    follow_uav2_.z() =  m_multi_vehicle_.leader_uav.current_local_pos.pose.position.z;
+    follow_uav2_.z() = m_multi_vehicle_.leader_uav.current_local_pos.pose.position.z;
     follow_uav2_keep_local_ = TVec3 (Drone_uav3_.x() + follow_uav2_first_local_.x(), Drone_uav3_.y() + follow_uav2_first_local_.y(), 0);
 
     follow_uav3_.x() = m_multi_vehicle_.uav1.current_local_pos.pose.position.x + Drone_uav4_.x() + follow_uav3_first_local_.x();
     follow_uav3_.y() = m_multi_vehicle_.uav1.current_local_pos.pose.position.y + Drone_uav4_.y() + follow_uav3_first_local_.y();
-    follow_uav3_.z() =  m_multi_vehicle_.leader_uav.current_local_pos.pose.position.z;
+    follow_uav3_.z() = m_multi_vehicle_.leader_uav.current_local_pos.pose.position.z;
     follow_uav3_keep_local_ = TVec3 (Drone_uav4_.x() + follow_uav3_first_local_.x(), Drone_uav4_.y() + follow_uav3_first_local_.y(), 0);
 }
 

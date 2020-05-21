@@ -30,9 +30,9 @@ void usv_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
             ("mavros/setpoint_position/local", 100);
     gps_global_pos_pub = nh.advertise<sensor_msgs::NavSatFix>
-            ("mavros/global_position/raw/fix", 1000);
+            ("mavros/global_position/raw/fix", 100);
     global_pos_pub = nh.advertise<sensor_msgs::NavSatFix>
-            ("mavros/global_position/global", 1000);
+            ("mavros/global_position/global", 100);
     g_speed_control_pub = nh.advertise<geometry_msgs::TwistStamped>
             ("mavros/setpoint_velocity/cmd_vel", 100);
 
@@ -113,6 +113,7 @@ void usv_ros_Manager::commander_update(const ros::TimerEvent& e) {
 }
 
 void usv_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
+    dataMan::getInstance()->SetDroneData(usv_);
     DataMan::getInstance()->SetDroneData(usv_);
 }
 
