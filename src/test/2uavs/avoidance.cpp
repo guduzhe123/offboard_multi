@@ -155,7 +155,9 @@ void avoidance::SetFunctionOutPut() {
     DataMan::getInstance()->SetAvoidanceData(height_avoidance_uav1_, height_avoidance_uav2_, height_avoidance_uav1_ , height_avoidance_uav1_);
 }
 
-void avoidance::checkCollision(bool &is_collision) {
+void avoidance::checkCollision(bool &is_collision, bool &is_avodiance, double danger_distance) {
     float  dist, distance_h;
     Getvehicledistance(m_multi_vehicle_.uav1, m_multi_vehicle_.uav2, distance_h, dist);
+    is_collision = dist < danger_distance;
+    is_avodiance = dist <= formation_distance_ / 2;
 }

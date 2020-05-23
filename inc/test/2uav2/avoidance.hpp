@@ -34,7 +34,7 @@ public:
 
     void Getvehicledistance(const M_Drone &vehicle1, const M_Drone &vehicle2, float &distance_h, float &distance_v);
 
-    void checkCollision(bool &is_collision);
+    void checkCollision(bool &is_collision, bool &is_avodiance, double danger_distance);
 
     static  avoidance* getInstance();
 
