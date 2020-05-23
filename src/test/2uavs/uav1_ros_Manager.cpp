@@ -5,7 +5,6 @@
 #include "test/2uav2/uav1_ros_Manager.hpp"
 
 uav_ros_Manager::uav_ros_Manager() :
-        arm_command_(0),
         arm_i_(5),
         is_arm_(false),
         is_offboard_(false),
@@ -78,12 +77,13 @@ void uav_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& ms
     util_log("uav1 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1],
              debugValue.data[2]);
     int config = (int) debugValue.data[0];
-    arm_command_ = config;
-
+    dataMan::getInstance()->setCommand(config);
 }
 
 void uav_ros_Manager::commander_update(const ros::TimerEvent& e) {
-    if (arm_command_ == VF_UAV_START) {
+    int command;
+    dataMan::getInstance()->getCommand(command);
+    if (command == UAVS_START || command == SLAVESTART) {
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
         util_log("uav arm_i = %d, is_arm = %d", arm_i_, is_arm_);
@@ -130,9 +130,13 @@ void uav_ros_Manager::commander_update(const ros::TimerEvent& e) {
         }
     }
 
-    if (arm_command_ == VF_UAV_RETURN) {
+    if (command == ALLSTOP) {
+        target_local_pos_sp_ = uav_.current_local_pos;
+    }
+
+    if (command == ALLLAND) {
         mavros_msgs::SetMode land_set_mode;
-        land_set_mode.request.custom_mode = "AUTO.Return";
+        land_set_mode.request.custom_mode = "AUTO.Land";
         if (current_state.mode != "AUTO.Land" && !is_land_) {
             static int land_i;
             for (land_i = 10; ros::ok() && land_i > 0; --land_i) {

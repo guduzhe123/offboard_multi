@@ -53,5 +53,6 @@ private:
     bool uav_reached_;
     bool is_get_takeoff_pos_;
     double formation_distance_;
+    int command_ ;
 };
 #endif //OFFBOARD_USV_LEAD_UAV_HPP

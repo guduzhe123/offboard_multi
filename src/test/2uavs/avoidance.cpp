@@ -10,12 +10,14 @@ avoidance::avoidance() :
         is_run_avoidance_(false),
         height_avoidance_uav1_{},
         height_avoidance_uav2_{},
-        config_(0){
+        config_(0),
+        formation_distance_(5){
 
 }
 
-void avoidance::Oninit(const int config) {
-
+void avoidance::Oninit() {
+    ros::NodeHandle nh("~");
+    nh.param<double >("formation_distance", formation_distance_, 5);
 }
 
 avoidance* avoidance::getInstance() {
@@ -79,8 +81,9 @@ void avoidance::checkDistance(const M_Drone &vehicle1, const M_Drone &vehicle2,
     Getvehicledistance(vehicle1, vehicle2, distance_h, dist);
     distance_h_12_ = distance_h;
 
-    if (dist < 2 ) {
-        util_log("vehlcie %d and %d distance < 2!!! distance = %.2f", vehicle1.drone_id, vehicle2.drone_id, dist);
+    if (dist < formation_distance_ / 2 ) {
+        util_log("vehlcie %d and %d distance < %.2f!!! distance = %.2f", formation_distance_ / 2 , vehicle1.drone_id, vehicle2.drone_id, dist);
+        util_log("uav1 target z = %.2f, uav2 target z = %.2f", vehicle1.target_local_pos_sp.pose.position.z, vehicle2.target_local_pos_sp.pose.position.z );
         // seems to be velocity.
         if (vehicle1.current_local_pos.pose.position.z > vehicle2.current_local_pos.pose.position.z) {
             m_drone_avoidance1 = 3 / dist;
@@ -116,14 +119,14 @@ void avoidance::checkVerticalDistance(const multi_vehicle_vec &vehicles) {
     float err_z12;
     err_z12 = fabs(multi_vehicle_.uav1_vec.back().current_local_pos.pose.position.z - multi_vehicle_.uav2_vec.back().current_local_pos.pose.position.z);
 
-    if (err_z12 > K_avodiance_safe_pos_) {
+    if (err_z12 >  formation_distance_ / 2) {
         height_avoidance_uav2_.local_target_pos_avo.z() = 0;
         height_avoidance_uav1_.local_target_pos_avo.z() = 0;
     }
 }
 
 void avoidance::checkHorizontalDistance(const multi_vehicle_vec &vehicles) {
-    if (distance_h_12_ > K_avodiance_safe_pos_) {
+    if (distance_h_12_ >  formation_distance_ / 2) {
         height_avoidance_uav1_.local_target_pos_avo.z() = 0;
         height_avoidance_uav2_.local_target_pos_avo.z() = 0;
     }
