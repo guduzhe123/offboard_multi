@@ -34,6 +34,7 @@ private:
     void GetTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_first_local);
     bool pos_reached(geometry_msgs::PoseStamped current_pos, geometry_msgs::PoseStamped target_pos);
     void formation(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_formation);
+    void checkcollision(double danger_distance);
 
     uav_ros_Manager::Ptr uav_control_;
     usv_ros_Manager::Ptr usv_control_;
@@ -54,5 +55,6 @@ private:
     bool is_get_takeoff_pos_;
     double formation_distance_;
     int command_ ;
+    double danger_distance_;
 };
 #endif //OFFBOARD_USV_LEAD_UAV_HPP

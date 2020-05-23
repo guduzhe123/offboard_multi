@@ -28,11 +28,13 @@ public:
 
 //    void get_uav_avo_output(vector<M_Drone_Avoidace> &m_drone_avoidance);
 
-    void checkVerticalDistance(const multi_vehicle_vec &vehicles);
+    void checkVerticalDistance(const multi_vehicle &vehicles);
 
-    void checkHorizontalDistance(const multi_vehicle_vec &vehicles);
+    void checkHorizontalDistance(const multi_vehicle &vehicles);
 
     void Getvehicledistance(const M_Drone &vehicle1, const M_Drone &vehicle2, float &distance_h, float &distance_v);
+
+    void checkCollision(bool &is_collision);
 
     static  avoidance* getInstance();
 
@@ -46,12 +48,13 @@ private:
     bool is_run_avoidance_;
     float distance_h_12_ = 0;
 
-    multi_vehicle_vec multi_vehicle_{};
+    multi_vehicle multi_vehicle_{};
 
     M_Drone_Avoidace height_avoidance_uav1_;
     M_Drone_Avoidace height_avoidance_uav2_;
     int config_;
     double formation_distance_;
+    multi_vehicle m_multi_vehicle_;
 
 };
 
