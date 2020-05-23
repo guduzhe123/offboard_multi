@@ -2,6 +2,7 @@
 // Created by zhouhua on 2020/5/3.
 //
 #include <test/2uav2/dataMan.hpp>
+#include <test/2uav2/avoidance.hpp>
 #include "test/2uav2/uav_lead_uav.hpp"
 
 usv_lead_uav* usv_lead_uav::l_pInst = NULL;
@@ -10,7 +11,8 @@ usv_lead_uav::usv_lead_uav():
         uav_state_(TAKEOFF),
         uav_reached_(false),
         is_get_takeoff_pos_(false),
-        command_(-1){
+        command_(-1),
+        danger_distance_(-1){
 
 }
 
@@ -31,8 +33,11 @@ void usv_lead_uav::onInit() {
     usv_control_->usvOnInit(usv_nh);
 
     ros::NodeHandle nh("~");
+    int waypoint_num_;
     nh.param<double>("formation_distance", formation_distance_, 5);
-    util_log("formation distance = %.2f", formation_distance_);
+    nh.param("waypoint_num", waypoint_num_, -1);
+    nh.param("danger_distance", danger_distance_, 0.0);
+    util_log("formation distance = %.2f, waypoint_num_ = %d", formation_distance_, waypoint_num_);
     usvLocalPositionSp();
 }
 
@@ -43,8 +48,8 @@ void usv_lead_uav::getData() {
 void usv_lead_uav::doProgress() {
     dataMan::getInstance()->getCommand(command_);
     util_log("uav1 avoidance = %.2f, uav2 avoidance = %.2f", multiVehicle.uav1.avoidance_pos.z(), multiVehicle.uav2.avoidance_pos.z());
-    usvlocalControl();
     uavlocalControl();
+    usvlocalControl();
     DataMan::getInstance()->SetDroneControlData(multiVehicle);
     dataMan::getInstance()->SetDroneControlData(multiVehicle);
 }
@@ -75,34 +80,40 @@ void usv_lead_uav::usvLocalPositionSp() {
 
 // uav2
 void usv_lead_uav::usvlocalControl() {
-    current_usv_local_pos_ = multiVehicle.uav2.current_local_pos;
-    if (!usv_way_points.empty()) {
-        if (uav_reached_) {
+    if (uav_state_ == TAKEOFF || uav_state_ == FORMATION) {
+        way_point.pose.position.x = 0;
+        way_point.pose.position.y = 0;
+        way_point.pose.position.z = 15;
+
+    } else {
+        current_usv_local_pos_ = multiVehicle.uav2.current_local_pos;
+        if (!usv_way_points.empty()) {
             way_point = usv_way_points.back();
-            way_point.pose.position.z = multiVehicle.uav2.current_local_pos.pose.position.z + multiVehicle.uav2.avoidance_pos.z();
-            if (pos_reached(current_usv_local_pos_, usv_way_points.back())) {
-                ROS_INFO("Finished one way point = (%.2f, %.2f, %.2f)",
-                         usv_way_points.back().pose.position.x, usv_way_points.back().pose.position.y,
-                         usv_way_points.back().pose.position.z);
+            way_point.pose.position.z =
+                    multiVehicle.uav2.current_local_pos.pose.position.z + multiVehicle.uav2.avoidance_pos.z();
+            util_log("uav_reached = %d, uav_state = %d", uav_reached_, uav_state_);
+            if (pos_reached(current_usv_local_pos_, way_point) && uav_reached_) {
+                util_log("Finished one way point = (%.2f, %.2f, %.2f)",
+                         way_point.pose.position.x, way_point.pose.position.y,
+                         way_point.pose.position.z);
                 usv_way_points.pop_back();
 
                 if (!usv_way_points.empty()) {
-                    ROS_INFO("Goto next way point = (%.2f, %.2f, %.2f)",
-                             usv_way_points.back().pose.position.x, usv_way_points.back().pose.position.y,
-                             usv_way_points.back().pose.position.z);
+                    util_log("Goto next way point = (%.2f, %.2f, %.2f)",
+                             way_point.pose.position.x, way_point.pose.position.y,
+                             way_point.pose.position.z);
                 } else {
-                    ROS_INFO("Finish all target points!");
+                    util_log("Finish all target points!");
                 }
             }
         }
-        multiVehicle.uav2.target_local_pos_sp = way_point;
     }
+
 
     if (command_ == ALLRETURN) {
         way_point.pose.position.x = 0;
         way_point.pose.position.y = 0;
         way_point.pose.position.z = 15;
-        uav_state_ = RETURN;
 
         way_point.pose.position.z = multiVehicle.uav2.current_local_pos.pose.position.z + multiVehicle.uav2.avoidance_pos.z();
         if (pos_reached(current_usv_local_pos_, way_point) && uav_reached_) {
@@ -111,6 +122,9 @@ void usv_lead_uav::usvlocalControl() {
         }
     }
 
+    multiVehicle.uav2.target_local_pos_sp = way_point;
+    util_log("received avoidance data = %.2f", multiVehicle.uav2.avoidance_pos.z());
+    util_log("usv way_point = %.2f, = %.2f, = %.2f", way_point.pose.position.x, way_point.pose.position.y, way_point.pose.position.z );
     usv_control_->usvPosSp(way_point);
 }
 
@@ -119,6 +133,7 @@ void usv_lead_uav::uavlocalControl() {
     formation(multiVehicle.uav2, multiVehicle.uav1, follow_slave_formation_);
     current_uav_local_pos_ = multiVehicle.uav1.current_local_pos;
     multiVehicle.uav1.target_local_pos_sp = uav_way_point;
+    if (command_ == ALLRETURN) uav_state_ = RETURN;
 
     switch (uav_state_) {
         case TAKEOFF: {
@@ -126,9 +141,9 @@ void usv_lead_uav::uavlocalControl() {
             uav_way_point.pose.position.y = 0;
             uav_way_point.pose.position.z = 15;
             uav_control_->uavPosSp(uav_way_point);
-            usv_control_->usvPosSp(uav_way_point);
             if (pos_reached(current_uav_local_pos_, uav_way_point)) {
                 uav_state_ = FORMATION;
+//                uav_reached_ = true;
             }
         }
             break;
@@ -183,7 +198,7 @@ bool usv_lead_uav::pos_reached(geometry_msgs::PoseStamped current_pos, geometry_
     float err_px = current_pos.pose.position.x - target_pos.pose.position.x;
     float err_py = current_pos.pose.position.y - target_pos.pose.position.y;
     float err_pz = current_pos.pose.position.z - target_pos.pose.position.z;
-    return sqrt(err_px * err_px + err_py * err_py + err_pz * err_pz) < 2.0f;
+    return sqrt(err_px * err_px + err_py * err_py + err_pz * err_pz) < 0.8f;
 }
 
 void usv_lead_uav::GetTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_first_local) {
@@ -234,5 +249,10 @@ void usv_lead_uav::formation(M_Drone &master, M_Drone &slave, TVec3 &follow_slav
     util_log("slave formation x = %.2f, y = %.2f", follow_slave_formation.x(), follow_slave_formation.y());
     util_log("slave slave_local_formation x = %.2f, y = %.2f", slave_local_formation.x(), slave_local_formation.y());
     util_log("slave slave_first_local x = %.2f, y = %.2f", slave_first_local.x(), slave_first_local.y());
+}
+
+void usv_lead_uav::checkcollision(double danger_distance) {
+    bool is_collision;
+    avoidance::getInstance()->checkCollision(is_collision);
 }
 
