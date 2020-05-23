@@ -18,7 +18,7 @@ public:
 
     ~avoidance() {};
 
-    void Oninit(const int config) ;
+    void Oninit() ;
 
     void GetData()  ;
 
@@ -51,6 +51,7 @@ private:
     M_Drone_Avoidace height_avoidance_uav1_;
     M_Drone_Avoidace height_avoidance_uav2_;
     int config_;
+    double formation_distance_;
 
 };
 

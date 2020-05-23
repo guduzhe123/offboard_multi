@@ -7,7 +7,7 @@ Calculate* Calculate::l_pInst = NULL;
 
 void Calculate::GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &loc2,
                             TVec3 &follow_uav_local_pos) {
-    GlobalPosition center_pos;
+/*    GlobalPosition center_pos;
     double meterPerLat, meterPerLongt;
     center_pos.latitude = 0;
     center_pos.longitude = 0;
@@ -18,10 +18,13 @@ void Calculate::GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &lo
 
     float  k = 2.0f/3.0f; // TODO PX4 x axis data is large 1.5
     follow_uav_local_pos.x() = k * dLongt * meterPerLongt;
-    follow_uav_local_pos.y() = dLat * meterPerLat;
+    follow_uav_local_pos.y() = dLat * meterPerLat;*/
 
     float x, y;
     get_vector_to_next_waypoint_fast(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude, x, y);
+
+    follow_uav_local_pos.x() = -y;
+    follow_uav_local_pos.y() = -x;
     util_log("distance orig x= %.2f, distance orig y= %.2f, x new = %.2f, y new = %.2f",
             follow_uav_local_pos.x(), follow_uav_local_pos.y(), x, y);
 }

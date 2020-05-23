@@ -5,11 +5,11 @@
 #include <test/2uav2/uav2_ros_Manager.hpp>
 
 usv_ros_Manager::usv_ros_Manager()  :
-        arm_command_(0),
         arm_i_(5),
         is_arm_(false),
         is_offboard_(false),
-        is_takeoff_(false) {
+        is_takeoff_(false),
+        is_land_(false){
 
 }
 
@@ -75,11 +75,13 @@ void usv_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& ms
     util_log("usv1 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1],
              debugValue.data[2]);
     int config = (int) debugValue.data[0];
-    arm_command_ = config;
+    dataMan::getInstance()->setCommand(config);
 }
 
 void usv_ros_Manager::commander_update(const ros::TimerEvent& e) {
-    if (arm_command_ == VF_UAV_START) {
+    int command;
+    dataMan::getInstance()->getCommand(command);
+    if (command == UAVS_START || command == MASTERSTART) {
         util_log("usv begain to start!");
         mavros_msgs::SetMode offb_set_mode;
         offb_set_mode.request.custom_mode = "OFFBOARD";
@@ -106,6 +108,25 @@ void usv_ros_Manager::commander_update(const ros::TimerEvent& e) {
                     offb_set_mode.response.mode_sent) {
                     util_log("usv Offboard enabled");
                     is_offboard_ = true;
+                }
+            }
+        }
+    }
+
+    if (command == ALLSTOP) {
+        target_local_pos_sp_ = usv_.current_local_pos;
+    }
+
+    if (command == ALLLAND) {
+        mavros_msgs::SetMode land_set_mode;
+        land_set_mode.request.custom_mode = "AUTO.Land";
+        if (current_state.mode != "AUTO.Land" && !is_land_) {
+            static int land_i;
+            for (land_i = 10; ros::ok() && land_i > 0; --land_i) {
+                if (set_mode_client.call(land_set_mode) &&
+                    land_set_mode.response.mode_sent) {
+                    util_log("uav Return enabled");
+                    is_land_ = true;
                 }
             }
         }
