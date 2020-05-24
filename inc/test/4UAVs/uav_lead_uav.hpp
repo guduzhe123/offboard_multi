@@ -6,8 +6,8 @@
 #define OFFBOARD_USV_LEAD_UAV_HPP
 
 #include "Cinc.hpp"
-#include "uav1_ros_Manager.hpp"
-#include "uav2_ros_Manager.hpp"
+#include "uav_ros_Manager.hpp"
+#include "usv_ros_Manager.hpp"
 #include "DataMan.hpp"
 #include "Calculate.hpp"
 
