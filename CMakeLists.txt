@@ -102,3 +102,19 @@ add_library(uavs_lib
         src/Calculate.cpp)
 target_link_libraries(uav_lead_uav uavs_lib)
 target_link_libraries(uav_lead_uav ${catkin_LIBRARIES})
+
+
+#[[4uav]]
+add_executable(4uav src/test/4UAVs/main.cpp)
+add_library(4uavs_lib
+        STATIC
+        src/test/4UAVs/uav1_ros_Manager.cpp
+        src/test/4UAVs/uav2_ros_Manager.cpp
+        src/test/4UAVs/uav3_ros_Manager.cpp
+        src/test/4UAVs/uav4_ros_Manager.cpp
+        src/util.cpp
+        src/DataMan.cpp
+        src/Calculate.cpp
+        src/test/4UAVs/uavs_control.cpp)
+target_link_libraries(4uav 4uavs_lib)
+target_link_libraries(4uav ${catkin_LIBRARIES})

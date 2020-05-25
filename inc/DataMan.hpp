@@ -66,6 +66,9 @@ public:
 
     void SetCallBack(IFlightDataCallback *dataCallback);
 
+    void setCommand(int command);
+    void getCommand(int& command);
+
     multi_vehicle &GetData();
 
 private:
@@ -79,6 +82,7 @@ private:
     int leader_uav_ = 0;
     IMsgRosManager * msg_config_;
     IFlightDataCallback *callback_;
+    int command_;
 };
 
 

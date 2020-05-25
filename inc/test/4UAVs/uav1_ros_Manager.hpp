@@ -2,21 +2,21 @@
 // Created by zhouhua on 2020/5/3.
 //
 
-#ifndef OFFBOARD_UAV_ROS_MANAGER_HPP
-#define OFFBOARD_UAV_ROS_MANAGER_HPP
+#ifndef OFFBOARD_UAV1_ROS_MANAGER_HPP
+#define OFFBOARD_UAV1_ROS_MANAGER_HPP
 
 #include "Cinc.hpp"
 #include "dataMan.hpp"
 #include "DataMan.hpp"
 
-class uav_ros_Manager {
+class uav1_ros_Manager {
 public:
-    uav_ros_Manager();
-    ~uav_ros_Manager() = default;
+    uav1_ros_Manager();
+    ~uav1_ros_Manager() = default;
 
     void uavOnInit(ros::NodeHandle &nh);
     void uavPosSp(const geometry_msgs::PoseStamped& way_point);
-    typedef shared_ptr<uav_ros_Manager> Ptr;
+    typedef shared_ptr<uav1_ros_Manager> Ptr;
 
 private:
     void state_cb(const mavros_msgs::State::ConstPtr& msg);
@@ -50,4 +50,4 @@ private:
 };
 
 
-#endif //OFFBOARD_UAV_ROS_MANAGER_HPP
+#endif //OFFBOARD_UAV1_ROS_MANAGER_HPP
