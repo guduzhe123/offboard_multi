@@ -13,9 +13,9 @@
 
 目前支持的编队方式：1uav-1usv, 2uavs, 4uavs, 4uavs-3usvs,4uavs-3usvs-3uuvs
 
-**1uav-1usv**
+## **1uav-1usv**
 
-一架无人机和一艘无人船的编队。
+一架无人机和一艘无人船的编队。视频地址videos/1uav-1usv.mkv
 
 <video id="video" controls="" preload="none">
     <source id="mp4" src="videos/1uav-1usv.mkv" type="video/mp4">
@@ -33,9 +33,9 @@ roslaunch offboard 1UAV_1USV_sim.launch
 
 ![Screenshot from 2020-05-26 05-56-49](videos/Screenshot from 2020-05-26 05-56-49.png)
 
-**2uavs**
+## **2uavs**
 
-两架无人机编队，实现队形保持，避碰等功能。
+两架无人机编队，实现队形保持，避碰等功能。视频地址：videos/2uavs.mkv
 
 ```
 roslaunch offboard 2UAV_sim.launch 
@@ -44,4 +44,10 @@ roslaunch offboard 2UAV_sim.launch
 <video id="video" controls="" preload="none">
     <source id="mp4" src="videos/2uavs.mkv" type="video/mp4">
 </video>
+<p align="center">
+  <img src="videos/2uavs.mkv" width = "420" height = "237"/>
+<!-- </p> -->
 
+## 6. Licence
+
+The source code is released under [GPLv3](http://www.gnu.org/licenses/) license.
