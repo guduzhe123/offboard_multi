@@ -31,7 +31,7 @@ roslaunch offboard 1UAV_1USV_sim.launch
 
 教程：https://blog.csdn.net/weixin_38416696/article/details/79435826
 
-![Screenshot from 2020-05-26 05-56-49](/home/zhouhua/Pictures/Screenshot from 2020-05-26 05-56-49.png)
+![Screenshot from 2020-05-26 05-56-49](videos/Screenshot from 2020-05-26 05-56-49.png)
 
 **2uavs**
 
