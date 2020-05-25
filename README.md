@@ -17,9 +17,9 @@
 
 一架无人机和一艘无人船的编队。视频地址videos/1uav-1usv.mkv
 
-<video id="video" controls="" preload="none">
-    <source id="mp4" src="videos/1uav-1usv.mkv" type="video/mp4">
-</video>
+<p align="center">
+  <img src="videos/1uav-1usv.gif" width = "420" height = "237"/>
+<!-- </p> -->
 
 ```
 roslaunch offboard 1UAV_1USV_sim.launch 
