@@ -21,6 +21,7 @@
   <img src="videos/1uav-1usv.gif" width = "420" height = "237"/>
 <!-- </p> -->
 
+
 ```
 roslaunch offboard 1UAV_1USV_sim.launch 
 ```
@@ -41,12 +42,10 @@ roslaunch offboard 1UAV_1USV_sim.launch
 roslaunch offboard 2UAV_sim.launch 
 ```
 
-<video id="video" controls="" preload="none">
-    <source id="mp4" src="videos/2uavs.mkv" type="video/mp4">
-</video>
 <p align="center">
-  <img src="videos/2uavs.mkv" width = "420" height = "237"/>
+  <img src="videos/2uavs.gif" width = "420" height = "237"/>
 <!-- </p> -->
+
 
 ## 6. Licence
 
