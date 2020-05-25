@@ -2,20 +2,20 @@
 // Created by zhouhua on 2020/5/3.
 //
 
-#ifndef OFFBOARD_USV_ROS_MANAGER_HPP
-#define OFFBOARD_USV_ROS_MANAGER_HPP
+#ifndef OFFBOARD_UAV2_ROS_MANAGER_HPP
+#define OFFBOARD_UAV2_ROS_MANAGER_HPP
 
 #include "Cinc.hpp"
 #include "dataMan.hpp"
 #include "DataMan.hpp"
 
-class usv_ros_Manager {
+class uav2_ros_Manager {
 public:
-    usv_ros_Manager();
-    ~usv_ros_Manager() = default;
+    uav2_ros_Manager();
+    ~uav2_ros_Manager() = default;
     void usvOnInit(ros::NodeHandle &nh);
     void usvPosSp(const geometry_msgs::PoseStamped& way_point);
-    typedef shared_ptr<usv_ros_Manager> Ptr;
+    typedef shared_ptr<uav2_ros_Manager> Ptr;
 
 private:
     void drone_pos_update(const ros::TimerEvent& e);
@@ -48,4 +48,4 @@ private:
     bool is_land_;
 
 };
-#endif //OFFBOARD_USV_ROS_MANAGER_HPP
+#endif //OFFBOARD_UAV2_ROS_MANAGER_HPP

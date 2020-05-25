@@ -329,5 +329,11 @@ void DataMan::SetCallBack(IFlightDataCallback *dataCallback) {
     callback_ = dataCallback;
 }
 
+void DataMan::setCommand(int command) {
+    command_ = command;
+}
+void DataMan::getCommand(int& command) {
+    command = command_;
+}
 
 

@@ -4,25 +4,26 @@
 
 #include <ros/ros.h>
 #include "util.h"
-#include "test/2uav2/uav1_ros_Manager.hpp"
-#include "test/2uav2/uav2_ros_Manager.hpp"
-#include "test/2uav2/uav_lead_uav.hpp"
-#include "test/2uav2//avoidance.hpp"
+#include "test/4UAVs//uavs_control.hpp"
+#include "test/4UAVs/uav1_ros_Manager.hpp"
+#include "test/4UAVs/uav2_ros_Manager.hpp"
+#include "test/4UAVs/uav3_ros_Manager.hpp"
+#include "test/4UAVs/uav4_ros_Manager.hpp"
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "uav_lead_uav");
+    ros::init(argc, argv, "uavs");
     util_daemonize ();
 
-    usv_lead_uav* lead_node;
-    lead_node = usv_lead_uav::getInstance();
+    uavs_control* lead_node;
+    lead_node = uavs_control::getInstance();
     lead_node->onInit();
-    avoidance::getInstance()->Oninit();
+//    avoidance::getInstance()->Oninit();
 
     ros::Rate rate(10.0);
     while(ros::ok()){
-        avoidance::getInstance()->GetData();
-        avoidance::getInstance()->DoProgress();
+//        avoidance::getInstance()->GetData();
+//        avoidance::getInstance()->DoProgress();
         lead_node->getData();
         lead_node->doProgress();
 
