@@ -9,7 +9,8 @@ uav2_ros_Manager::uav2_ros_Manager()  :
         is_arm_(false),
         is_offboard_(false),
         is_takeoff_(false),
-        is_land_(false){
+        is_land_(false)
+{
 
 }
 
