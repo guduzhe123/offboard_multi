@@ -104,6 +104,22 @@ target_link_libraries(uav_lead_uav uavs_lib)
 target_link_libraries(uav_lead_uav ${catkin_LIBRARIES})
 
 
+#[[3usv control]]
+add_executable(3uav src/test/3USVs/main.cpp)
+add_library(3uavs_lib
+        STATIC
+        src/test/3USVs/usv5_ros_Manager.cpp
+        src/test/3USVs/usv6_ros_Manager.cpp
+        src/test/3USVs/usv7_ros_Manager.cpp
+        src/test/3USVs/dataMan.cpp
+        src/test/3USVs/avoidance.cpp
+        src/test/3USVs/usvs_control.cpp
+        src/util.cpp
+        src/DataMan.cpp
+        src/Calculate.cpp)
+target_link_libraries(3uav 3uavs_lib)
+target_link_libraries(3uav ${catkin_LIBRARIES})
+
 #[[4uav]]
 add_executable(4uav src/test/4UAVs/main.cpp)
 add_library(4uavs_lib
