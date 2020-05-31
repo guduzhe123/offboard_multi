@@ -46,6 +46,8 @@ void uavs_control::onInit() {
     nh.param("waypoint_num", waypoint_num_, -1);
     nh.param("danger_distance", danger_distance_, 0.0);
     util_log("formation distance = %.2f, waypoint_num_ = %d", formation_distance_, waypoint_num_);
+
+//    PathCreator::geInstance()->onInit(msgRos_);
 //    usvLocalPositionSp();
 }
 
