@@ -18,7 +18,6 @@ int main(int argc, char **argv)
     uavs_control* lead_node;
     lead_node = uavs_control::getInstance();
     lead_node->onInit();
-//    avoidance::getInstance()->Oninit();
 
     ros::Rate rate(10.0);
     while(ros::ok()){

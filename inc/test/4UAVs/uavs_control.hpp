@@ -12,6 +12,8 @@
 #include "uav4_ros_Manager.hpp"
 #include "DataMan.hpp"
 #include "Calculate.hpp"
+#include "msgRos.hpp"
+#include "PathCreator.hpp"
 
 class uavs_control {
 public:
@@ -27,6 +29,7 @@ private:
     uav2_ros_Manager::Ptr uav2_control_;
     uav3_ros_Manager::Ptr uav3_control_;
     uav4_ros_Manager::Ptr uav4_control_;
+    MsgRos::Ptr msgRos_;
 
 
     static uavs_control* l_pInst;
