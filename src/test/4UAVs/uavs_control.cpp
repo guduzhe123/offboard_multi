@@ -4,8 +4,6 @@
 
 #include "test/4UAVs/uavs_control.hpp"
 
-uavs_control* uavs_control::l_pInst = NULL;
-
 uavs_control::uavs_control():
         uav_state_(TAKEOFF),
         uav_reached_(false),
@@ -17,13 +15,14 @@ uavs_control::uavs_control():
 }
 
 uavs_control* uavs_control::getInstance() {
+    static uavs_control* l_pInst = NULL;
     if (l_pInst == NULL) {
         l_pInst = new uavs_control();
     }
     return l_pInst;
 }
 
-void uavs_control::onInit() {
+void uavs_control::OnInit() {
     ros::NodeHandle uav1_nh("uav1");
     uav1_control_.reset(new uav1_ros_Manager);
     uav1_control_->uavOnInit(uav1_nh);
@@ -52,10 +51,32 @@ void uavs_control::onInit() {
 }
 
 void uavs_control::getData() {
-
+    multiVehicle = DataMan::getInstance()->GetData();
 }
 
 void uavs_control::doProgress() {
+
+}
+
+void uavs_control::PublishDronePosControl(const multi_vehicle &multi_vehicles) {
+    uav1_control_->uavPosSp(multi_vehicles.uav1.target_local_pos_sp);
+    uav2_control_->usvPosSp(multi_vehicles.uav1.target_local_pos_sp);
+    uav3_control_->uavPosSp(multi_vehicles.uav1.target_local_pos_sp);
+    uav4_control_->uavPosSp(multi_vehicles.uav1.target_local_pos_sp);
+}
+
+void uavs_control::PublishBoatPosControl(const multi_vehicle &multi_vehicles) {
+
+}
+
+void uavs_control::SetUAVState(mavros_msgs::SetMode &m_mode) {
+    uav1_control_->uavCallService(m_mode);
+    uav2_control_->uavCallService(m_mode);
+    uav3_control_->uavCallService(m_mode);
+    uav4_control_->uavCallService(m_mode);
+}
+
+void uavs_control::SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) {
 
 }
 
