@@ -105,7 +105,7 @@ target_link_libraries(uav_lead_uav ${catkin_LIBRARIES})
 
 
 #[[4uav]]
-add_executable(4uav src/test/4UAVs/main.cpp inc/test/4UAVs/msgRos.hpp)
+add_executable(4uav src/test/4UAVs/main.cpp)
 add_library(4uavs_lib
         STATIC
         src/test/4UAVs/uav1_ros_Manager.cpp
@@ -117,6 +117,6 @@ add_library(4uavs_lib
         src/Calculate.cpp
         src/test/4UAVs/uavs_control.cpp
         src/PathCreator.cpp
-        src/new_struct/ src/test/4UAVs/msgRos.cpp)
-target_link_libraries(4uav 4uavs_lib)
+        src/new_struct/)
+target_link_libraries(4uav 4uavs_lib multi_offboard_lib)
 target_link_libraries(4uav ${catkin_LIBRARIES})

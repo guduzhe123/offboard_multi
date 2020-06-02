@@ -82,7 +82,7 @@ private:
     int leader_uav_ = 0;
     IMsgRosManager * msg_config_;
     IFlightDataCallback *callback_;
-    int command_;
+    int command_ = -1;
 };
 
 

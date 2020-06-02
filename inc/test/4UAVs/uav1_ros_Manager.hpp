@@ -8,6 +8,7 @@
 #include "Cinc.hpp"
 #include "dataMan.hpp"
 #include "DataMan.hpp"
+#include "PathCreator.hpp"
 
 class uav1_ros_Manager {
 public:
@@ -16,6 +17,7 @@ public:
 
     void uavOnInit(ros::NodeHandle &nh);
     void uavPosSp(const geometry_msgs::PoseStamped& way_point);
+    void uavCallService(mavros_msgs::SetMode &m_mode);
     typedef shared_ptr<uav1_ros_Manager> Ptr;
 
 private:

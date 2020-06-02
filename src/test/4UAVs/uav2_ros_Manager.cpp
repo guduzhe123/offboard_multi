@@ -76,6 +76,7 @@ void uav2_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
              debugValue.data[2]);
     int config = (int) debugValue.data[0];
     DataMan::getInstance()->setCommand(config);
+    PathCreator::geInstance()->CreateFormationInit(config);
 }
 
 void uav2_ros_Manager::commander_update(const ros::TimerEvent& e) {
@@ -144,4 +145,8 @@ void uav2_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
 
 void uav2_ros_Manager::usvPosSp(const geometry_msgs::PoseStamped& way_point) {
     target_local_pos_sp_ = way_point;
+}
+
+void uav2_ros_Manager::uavCallService(mavros_msgs::SetMode &m_mode) {
+    set_mode_client.call(m_mode);
 }
