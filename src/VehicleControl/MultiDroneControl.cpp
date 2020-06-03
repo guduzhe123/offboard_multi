@@ -6,7 +6,8 @@
 MultiDroneControl* MultiDroneControl:: l_lint = NULL;
 
 MultiDroneControl::MultiDroneControl() :
-                    uav_state_(TAKEOFF){
+                    uav_state_(TAKEOFF),
+                    is_uav_follow_(false){
 
 }
 
@@ -17,9 +18,11 @@ MultiDroneControl* MultiDroneControl::getInstance() {
     return l_lint;
 }
 
-void MultiDroneControl::onInit(vector<geometry_msgs::PoseStamped> way_points) {
+void MultiDroneControl::onInit(vector<geometry_msgs::PoseStamped> way_points, bool is_uav_follow) {
     util_log("drone control start! size of uav way points = %d", way_points.size());
     uav_way_points_ = way_points;
+    is_uav_follow_ = is_uav_follow;
+    util_log("is uav state = %d", is_uav_follow_);
 }
 
 void MultiDroneControl::DoProgress() {
@@ -38,8 +41,12 @@ void MultiDroneControl::DoProgress() {
                 target_pos_.pose.position.z = 15;
 
                 if (pos_reached(drone_uav_leader_.current_local_pos, target_pos_, 0.8)){
-                    uav_state_ = FALLOW_USV;
-                    util_log("Finish takeoff");
+                    if (is_uav_follow_) {
+                        uav_state_ = FALLOW_USV;
+                    } else {
+                        uav_state_ = WAYPOINT;
+                    }
+                    util_log("finish takeoff uav state = %d", uav_state_);
                 }
                 break;
 

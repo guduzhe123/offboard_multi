@@ -10,8 +10,9 @@ PathCreator::PathCreator() {
 
 }
 
-void PathCreator::onInit(IMsgRosManager *msg_manager) {
+void PathCreator::onInit(IMsgRosManager *msg_manager, const bool is_uav_follow) {
     FlightManager::getInstance()->OnInitConfig(msg_manager);
+    is_uav_follow_ = is_uav_follow;
     CreatVehicle();
     CreatFunction();
 }
@@ -104,8 +105,8 @@ void PathCreator::CreatVehicle() {
     MultiBoatControlFactory m_boat_control;
     MultiDroneControlFactory m_drone_control;
 
-    m_drone_control.VehicleControlCreator()->onInit(uav_way_points);
-    m_boat_control.VehicleControlCreator()->onInit(usv_way_points);
+    m_drone_control.VehicleControlCreator()->onInit(uav_way_points, is_uav_follow_);
+    m_boat_control.VehicleControlCreator()->onInit(usv_way_points, is_uav_follow_);
 
     FlightManager::getInstance()->AddVehicleControlProgress(&m_boat_control);
     FlightManager::getInstance()->AddVehicleControlProgress(&m_drone_control);

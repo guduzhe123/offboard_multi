@@ -87,12 +87,12 @@ void uav3_ros_Manager::commander_update(const ros::TimerEvent& e) {
     if (command == UAVS_START || command == SLAVESTART) {
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
-        util_log("uav arm_i = %d, is_arm = %d", arm_i_, is_arm_);
+        util_log("uav3 arm_i = %d, is_arm = %d", arm_i_, is_arm_);
         if (!current_state.armed && !is_arm_) {
             while(arm_i_ > 0) {
                 if (arming_client.call(arm_cmd) &&
                     arm_cmd.response.success) {
-                    util_log("uav Vehicle armed");
+                    util_log("uav3 Vehicle armed");
                     is_arm_ = true;
                 }
                 --arm_i_;
@@ -107,7 +107,7 @@ void uav3_ros_Manager::commander_update(const ros::TimerEvent& e) {
                 if (current_state.mode != "AUTO.TAKEOFF") {
                     if (set_mode_client.call(takeoff_set_mode)  &&
                         takeoff_set_mode.response.mode_sent) {
-                        util_log("Takeoff enabled");
+                        util_log("uav3 Takeoff enabled");
                         is_takeoff_ = true;
                     }
                 }
@@ -124,7 +124,7 @@ void uav3_ros_Manager::commander_update(const ros::TimerEvent& e) {
             for (offboard_i = 10; ros::ok() && offboard_i > 0; --offboard_i) {
                 if (set_mode_client.call(offb_set_mode) &&
                     offb_set_mode.response.mode_sent) {
-                    util_log("uav Offboard enabled");
+                    util_log("uav3 Offboard enabled");
                     is_offboard_ = true;
                 }
             }
@@ -143,7 +143,7 @@ void uav3_ros_Manager::commander_update(const ros::TimerEvent& e) {
             for (land_i = 10; ros::ok() && land_i > 0; --land_i) {
                 if (set_mode_client.call(land_set_mode) &&
                         land_set_mode.response.mode_sent) {
-                    util_log("uav Return enabled");
+                    util_log("uav3 Return enabled");
                     is_land_ = true;
                 }
             }

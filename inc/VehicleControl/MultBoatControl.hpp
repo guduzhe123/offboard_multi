@@ -15,7 +15,7 @@ public:
 
     ~MultiBoatControl() {};
 
-    void onInit(vector<geometry_msgs::PoseStamped> way_points) override ;
+    void onInit(vector<geometry_msgs::PoseStamped> way_points, bool is_uav_follow) override ;
 
     void DoProgress() override ;
 

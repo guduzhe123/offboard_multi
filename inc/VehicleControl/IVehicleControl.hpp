@@ -11,7 +11,7 @@ class IVehicleControl {
 public:
         virtual ~IVehicleControl() {};
 
-        virtual void onInit(vector<geometry_msgs::PoseStamped> way_points) = 0;
+        virtual void onInit(vector<geometry_msgs::PoseStamped> way_points, bool is_uav_follow) = 0;
 
         virtual void DoProgress() = 0;
 

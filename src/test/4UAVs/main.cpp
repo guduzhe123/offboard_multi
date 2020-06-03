@@ -10,10 +10,14 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "uavs");
     util_daemonize ();
+    ros::NodeHandle nh("~");
+    bool follow_usv;
+    nh.param("follow_usv", follow_usv, false);
 
     auto lead_node = uavs_control::getInstance();
     DataMan::getInstance()->OnInit(lead_node);
-    PathCreator::geInstance()->onInit(lead_node);
+
+    PathCreator::geInstance()->onInit(lead_node, follow_usv);
 
     lead_node->OnInit();
 

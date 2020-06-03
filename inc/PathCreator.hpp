@@ -26,7 +26,7 @@ public:
 
     ~PathCreator() = default;
 
-    void onInit(IMsgRosManager *msg_manager);
+    void onInit(IMsgRosManager *msg_manager, const bool is_uav_follow);
 
     void uav_add_way_points(vector<geometry_msgs::PoseStamped> &uav_way_points);
 
@@ -42,6 +42,7 @@ public:
 
 private:
     static PathCreator* l_pInst;
+    bool is_uav_follow_;
 
 };
 #endif //OFFBOARD_PATHCREATOR_HPP

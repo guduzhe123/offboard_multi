@@ -18,7 +18,7 @@ MultiBoatControl* MultiBoatControl::getInstance() {
     return l_lint;
 }
 
-void MultiBoatControl::onInit(vector<geometry_msgs::PoseStamped> way_points) {
+void MultiBoatControl::onInit(vector<geometry_msgs::PoseStamped> way_points, bool is_uav_follow) {
     util_log("boat control start! sizeof usv waypoints = %d", way_points.size());
     usv_way_points_ = way_points;
 

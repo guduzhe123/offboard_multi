@@ -15,7 +15,7 @@ public:
 
     ~MultiDroneControl() {};
 
-    void onInit(vector<geometry_msgs::PoseStamped> way_points) override ;
+    void onInit(vector<geometry_msgs::PoseStamped> way_points, bool is_uav_follow) override ;
 
     void DoProgress() override;
 
@@ -42,6 +42,8 @@ private:
     M_Drone drone_uav_leader_;
     geometry_msgs::PoseStamped target_pos_;
     vector<geometry_msgs::PoseStamped> uav_way_points_;
+
+    bool is_uav_follow_;
 
 };
 

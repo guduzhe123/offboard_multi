@@ -8,10 +8,15 @@
 int main (int argc, char **argv){
     ros::init(argc, argv, "offboard");
     util_daemonize();
+
+    ros::NodeHandle nh("~");
+    bool follow_usv;
+    nh.param("follow_usv", follow_usv, false);
+
     MultiOffboard::getInstance()->OnInit();
     auto msg_ros = MultiOffboard::getInstance();
     DataMan::getInstance()->OnInit(msg_ros);
-    PathCreator::geInstance()->onInit(msg_ros);
+    PathCreator::geInstance()->onInit(msg_ros, follow_usv);
 
     ros::Rate rate(20.0);
 

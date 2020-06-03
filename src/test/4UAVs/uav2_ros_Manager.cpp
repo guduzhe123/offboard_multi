@@ -84,7 +84,7 @@ void uav2_ros_Manager::commander_update(const ros::TimerEvent& e) {
     int command;
     DataMan::getInstance()->getCommand(command);
     if (command == UAVS_START || command == MASTERSTART) {
-        util_log("usv begain to start!");
+        util_log("uav2 begain to start!");
         mavros_msgs::SetMode offb_set_mode;
         offb_set_mode.request.custom_mode = "OFFBOARD";
 
@@ -96,7 +96,7 @@ void uav2_ros_Manager::commander_update(const ros::TimerEvent& e) {
             while (arm_i_ > 0) {
                 if (arming_client.call(arm_cmd) &&
                     arm_cmd.response.success) {
-                    util_log("usv Vehicle armed");
+                    util_log("uav2 Vehicle armed");
                     is_arm_ = true;
                 }
                 arm_i_--;
@@ -108,7 +108,7 @@ void uav2_ros_Manager::commander_update(const ros::TimerEvent& e) {
             for (i = 10; ros::ok() && i > 0; --i) {
                 if (set_mode_client.call(offb_set_mode) &&
                     offb_set_mode.response.mode_sent) {
-                    util_log("usv Offboard enabled");
+                    util_log("uav2 Offboard enabled");
                     is_offboard_ = true;
                 }
             }
@@ -127,7 +127,7 @@ void uav2_ros_Manager::commander_update(const ros::TimerEvent& e) {
             for (land_i = 10; ros::ok() && land_i > 0; --land_i) {
                 if (set_mode_client.call(land_set_mode) &&
                     land_set_mode.response.mode_sent) {
-                    util_log("uav Return enabled");
+                    util_log("uav2 Return enabled");
                     is_land_ = true;
                 }
             }

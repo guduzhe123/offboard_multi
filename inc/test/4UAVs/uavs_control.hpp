@@ -42,6 +42,7 @@ private:
     double formation_distance_;
     int command_ ;
     double danger_distance_;
+    bool follow_usv_;
 };
 
 
