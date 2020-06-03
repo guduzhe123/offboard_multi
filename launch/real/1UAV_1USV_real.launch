@@ -4,8 +4,8 @@
     <group ns="uav1">
         <!--        <arg name="fcu_url" default="/dev/MasterUAV:921600"/>-->
         <arg name="fcu_url" default="/dev/NoopS0:921600"/>
-        <!--        <arg name="fcu_url" default="/dev/ttyUSB0:57600"/>-->
-        <arg name="gcs_url" value=""/>
+        <arg name="gcs_url" value="udp://:14560@localhost:14550"/>
+<!--        <arg name="gcs_url" value="udp-b://@"/>-->
         <arg name="tgt_system" value="1"/>
         <arg name="tgt_component" value="1"/>
         <arg name="log_output" default="screen" />
@@ -30,7 +30,7 @@
     <!-- UAV2 iris_2 -->
     <group ns="usv1">
         <arg name="fcu_url" default="/dev/NoopS1:921600"/>
-        <arg name="gcs_url" value=""/>
+        <arg name="gcs_url" value="udp://:14561@localhost:14550"/>
         <arg name="tgt_system" value="5"/>
         <arg name="tgt_component" value="1"/>
         <arg name="log_output" default="screen" />

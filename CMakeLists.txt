@@ -104,7 +104,7 @@ target_link_libraries(uav_lead_uav uavs_lib)
 target_link_libraries(uav_lead_uav ${catkin_LIBRARIES})
 
 
-#[[3usv control]]
+#[[#[=[3usv control]=]
 add_executable(3uav src/test/3USVs/main.cpp)
 add_library(3uavs_lib
         STATIC
@@ -118,7 +118,7 @@ add_library(3uavs_lib
         src/DataMan.cpp
         src/Calculate.cpp)
 target_link_libraries(3uav 3uavs_lib)
-target_link_libraries(3uav ${catkin_LIBRARIES})
+target_link_libraries(3uav ${catkin_LIBRARIES})]]
 
 #[[4uav]]
 add_executable(4uav src/test/4UAVs/main.cpp)
