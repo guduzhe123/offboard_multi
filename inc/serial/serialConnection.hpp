@@ -8,6 +8,7 @@
 #include <ros/ros.h>
 #include <serial/serial.h>
 #include <iostream>
+#include "util.h"
 
 using namespace std;
 
