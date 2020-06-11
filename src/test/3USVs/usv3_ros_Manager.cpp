@@ -2,7 +2,7 @@ z//
 // Created by zhouhua on 2020/5/3.
 //
 
-#include "test/4UAVs/usv7_ros_Manager.hpp"
+#include "test/3USVs/usv7_ros_Manager.hpp"
 
 usv7_ros_Manager::usv7_ros_Manager() :
         arm_i_(5),
