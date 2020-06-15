@@ -34,6 +34,7 @@ add_executable(offboard src/offboard.cpp)
 target_link_libraries(offboard ${catkin_LIBRARIES})
 
 add_executable(mserial src/serial/serialConnection.cpp
+        src/util.cpp
         )
 target_link_libraries(mserial
         ${catkin_LIBRARIES}

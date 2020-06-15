@@ -3,7 +3,8 @@
     <arg name="config_yaml" default="$(find mavros)/launch/px4_config.yaml" />
     <group ns="uav1">
         <!--        <arg name="fcu_url" default="/dev/MasterUAV:921600"/>-->
-        <arg name="fcu_url" default="/dev/NoopS0:921600"/>
+<!--        <arg name="fcu_url" default="/dev/NoopS0:921600"/>-->
+        <arg name="fcu_url" default="/dev/CUAVM0:230400"/>
         <arg name="gcs_url" value="udp://:14560@localhost:14550"/>
 <!--        <arg name="gcs_url" value="udp-b://@"/>-->
         <arg name="tgt_system" value="1"/>

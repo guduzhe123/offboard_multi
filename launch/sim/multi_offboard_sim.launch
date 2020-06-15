@@ -1,4 +1,5 @@
 <launch>
+    <include file="$(find px4)/launch/multi_10_vehs_mavros_sitl.launch"/>
     <node pkg = "offboard" name = "multi_offboard" type="multi_offboard" output="screen"/>
     <include file="$(find offboard)/launch/rosbag_log.launch"/>
 </launch>
