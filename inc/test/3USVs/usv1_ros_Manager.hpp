@@ -9,14 +9,14 @@
 #include "dataMan.hpp"
 #include "DataMan.hpp"
 
-class usv5_ros_Manager {
+class usv1_ros_Manager {
 public:
-    usv5_ros_Manager();
-    ~usv5_ros_Manager() = default;
+    usv1_ros_Manager();
+    ~usv1_ros_Manager() = default;
 
     void usvOnInit(ros::NodeHandle &nh);
     void usvPosSp(const geometry_msgs::PoseStamped& way_point);
-    typedef shared_ptr<usv5_ros_Manager> Ptr;
+    typedef shared_ptr<usv1_ros_Manager> Ptr;
 
 private:
     void state_cb(const mavros_msgs::State::ConstPtr& msg);

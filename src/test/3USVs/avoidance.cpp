@@ -8,9 +8,9 @@ avoidance* avoidance::l_lptr = NULL;
 
 avoidance::avoidance() :
         is_run_avoidance_(false),
-        height_avoidance_usv5_{},
-        height_avoidance_usv6_{},
-        height_avoidance_usv7_{},
+        height_avoidance_usv1_{},
+        height_avoidance_usv2_{},
+        height_avoidance_usv3_{},
         config_(0),
         formation_distance_(5){
 
@@ -34,36 +34,36 @@ void avoidance::GetData() {
 
 void avoidance::DoProgress() {
     // TODO need to use map.
-    float avo_usv5, avo_usv6, avo_usv7;
+    float avo_usv1, avo_usv2, avo_usv3;
 
-    checkDistance(m_multi_vehicle_.usv5, m_multi_vehicle_.usv6, avo_usv5, avo_usv6);
-    height_avoidance_usv5_.local_target_pos_avo.z() = avo_usv5;
-    height_avoidance_usv6_.local_target_pos_avo.z() = avo_usv6;
-    height_avoidance_usv6_.local_target_pos_avo.z() = avo_usv6; //heightVar = distance
+    checkDistance(m_multi_vehicle_.usv1, m_multi_vehicle_.usv2, avo_usv1, avo_usv2);
+    height_avoidance_usv1_.local_target_pos_avo.z() = avo_usv1;
+    height_avoidance_usv2_.local_target_pos_avo.z() = avo_usv2;
+    height_avoidance_usv2_.local_target_pos_avo.z() = avo_usv2; //heightVar = distance
 
     //write log
-    if (fabs(avo_usv5) > 0.01 && fabs(avo_usv6) > 0.01)
-        util_log("distance between and usv5 and usv6 < 2m, asv5 move = %.2f, asv6 move = %.2f", avo_usv5, avo_usv6);
+    if (fabs(avo_usv1) > 0.01 && fabs(avo_usv2) > 0.01)
+        util_log("distance between and usv1 and usv2 < 2m, asv5 move = %.2f, asv6 move = %.2f", avo_usv1, avo_usv2);
 
-    if (fabs(avo_usv5) > 0.01 && fabs(avo_usv7) > 0.01)
-        util_log("distance between and usv5 and usv6 < 2m, asv5 move = %.2f, asv7 move = %.2f", avo_usv5, avo_usv7);
+    if (fabs(avo_usv1) > 0.01 && fabs(avo_usv3) > 0.01)
+        util_log("distance between and usv1 and usv2 < 2m, asv5 move = %.2f, asv7 move = %.2f", avo_usv1, avo_usv3);
 
-    if (fabs(avo_usv5) > 0.01 && fabs(avo_usv6) > 0.01)
-        util_log("distance between and usv6 and usv7 < 2m, asv6 move = %.2f, asv7 move = %.2f", avo_usv6, avo_usv7);
+    if (fabs(avo_usv1) > 0.01 && fabs(avo_usv2) > 0.01)
+        util_log("distance between and usv2 and usv7 < 2m, asv6 move = %.2f, asv7 move = %.2f", avo_usv2, avo_usv3);
 
 
 //Based distance to do process
-    if (fabs(height_avoidance_usv5_.local_target_pos_avo.z()) > K_max_avodiance_pos_) {
-        height_avoidance_usv5_.local_target_pos_avo.z() = K_max_avodiance_pos_ *
-                                                          fabs(height_avoidance_usv5_.local_target_pos_avo.z()) / height_avoidance_usv5_.local_target_pos_avo.z();
+    if (fabs(height_avoidance_usv1_.local_target_pos_avo.z()) > K_max_avodiance_pos_) {
+        height_avoidance_usv1_.local_target_pos_avo.z() = K_max_avodiance_pos_ *
+                                                          fabs(height_avoidance_usv1_.local_target_pos_avo.z()) / height_avoidance_usv1_.local_target_pos_avo.z();
     }
-    if (fabs(height_avoidance_usv6_.local_target_pos_avo.z()) > K_max_avodiance_pos_) {
-        height_avoidance_usv6_.local_target_pos_avo.z() = K_max_avodiance_pos_ *
-                                                          fabs(height_avoidance_usv6_.local_target_pos_avo.z()) / height_avoidance_usv6_.local_target_pos_avo.z();
+    if (fabs(height_avoidance_usv2_.local_target_pos_avo.z()) > K_max_avodiance_pos_) {
+        height_avoidance_usv2_.local_target_pos_avo.z() = K_max_avodiance_pos_ *
+                                                          fabs(height_avoidance_usv2_.local_target_pos_avo.z()) / height_avoidance_usv2_.local_target_pos_avo.z();
     }
-    if (fabs(height_avoidance_usv7_.local_target_pos_avo.z()) > K_max_avodiance_pos_) {
-        height_avoidance_usv6_.local_target_pos_avo.z() = K_max_avodiance_pos_ *
-                                                          fabs(height_avoidance_usv7_.local_target_pos_avo.z()) / height_avoidance_usv7_.local_target_pos_avo.z();
+    if (fabs(height_avoidance_usv3_.local_target_pos_avo.z()) > K_max_avodiance_pos_) {
+        height_avoidance_usv2_.local_target_pos_avo.z() = K_max_avodiance_pos_ *
+                                                          fabs(height_avoidance_usv3_.local_target_pos_avo.z()) / height_avoidance_usv3_.local_target_pos_avo.z();
     }
 
 
@@ -72,19 +72,19 @@ void avoidance::DoProgress() {
     checkVerticalDistance(m_multi_vehicle_);
     checkHorizontalDistance(m_multi_vehicle_);
     util_log(
-            "height_avoidance_usv5_ = %.2f, height_avoidance_usv6_ = %.2f, height_avoidance_usv6_ = %.2f",
-            height_avoidance_usv5_.local_target_pos_avo.z(),
-            height_avoidance_usv6_.local_target_pos_avo.z());
-            height_avoidance_usv7_.local_target_pos_avo.z());
+            "height_avoidance_usv1_ = %.2f, height_avoidance_usv2_ = %.2f, height_avoidance_usv2_ = %.2f",
+            height_avoidance_usv1_.local_target_pos_avo.z(),
+            height_avoidance_usv2_.local_target_pos_avo.z(),
+            height_avoidance_usv3_.local_target_pos_avo.z());
 
     SetFunctionOutPut();
 
 }
 
-void avoidance::checkDistance(const M_Drone &vehicle1, const M_Drone &vehicle2, const M_Drone &vehicle3,
-                              float &m_drone_avoidance1, float &m_drone_avoidance2, float &m_drone_avoidance3) {
+void avoidance::checkDistance(const M_Drone &vehicle1, const M_Drone &vehicle2, 
+                              float &m_drone_avoidance1, float &m_drone_avoidance2) {
 
-    if (fabs(vehicle1.latitude) < 0.1 || fabs(vehicle2.latitude || fabs(vehicle3.latitude) < 0.1) {
+    if (fabs(vehicle1.latitude) < 0.1 || fabs(vehicle2.latitude /*|| fabs(vehicle3.latitude) < 0.1*/) {
         return;
     }
 
@@ -98,7 +98,7 @@ void avoidance::checkDistance(const M_Drone &vehicle1, const M_Drone &vehicle2, 
 
     if (dist < formation_distance_ / 2 ) {
         util_log("vehlcie %d and %d distance < %.2f!!! distance = %.2f", formation_distance_ / 2 , vehicle1.drone_id, vehicle2.drone_id, dist);
-        util_log("usv5 target z = %.2f, usv6 target z = %.2f", vehicle1.target_local_pos_sp.pose.position.z, vehicle2.target_local_pos_sp.pose.position.z );
+        util_log("usv1 target z = %.2f, usv2 target z = %.2f", vehicle1.target_local_pos_sp.pose.position.z, vehicle2.target_local_pos_sp.pose.position.z );
         // seems to be velocity.
         if (vehicle1.current_local_pos.pose.position.z > vehicle2.current_local_pos.pose.position.z) {
             m_drone_avoidance1 = 3 / dist;
@@ -132,18 +132,18 @@ bool avoidance::checkHorizontalArrive(const M_Drone &vehicle) {
 
 void avoidance::checkVerticalDistance(const multi_vehicle &vehicles) {
     float err_z12;
-    err_z12 = fabs(m_multi_vehicle_.usv5.current_local_pos.pose.position.z - m_multi_vehicle_.usv6.current_local_pos.pose.position.z);
+    err_z12 = fabs(m_multi_vehicle_.usv1.current_local_pos.pose.position.z - m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
 
     if (err_z12 >  formation_distance_ / 2) {
-        height_avoidance_usv6_.local_target_pos_avo.z() = 0;
-        height_avoidance_usv5_.local_target_pos_avo.z() = 0;
+        height_avoidance_usv2_.local_target_pos_avo.z() = 0;
+        height_avoidance_usv1_.local_target_pos_avo.z() = 0;
     }
 }
 
 void avoidance::checkHorizontalDistance(const multi_vehicle &vehicles) {
     if (distance_h_12_ >  formation_distance_ / 2) {
-        height_avoidance_usv5_.local_target_pos_avo.z() = 0;
-        height_avoidance_usv6_.local_target_pos_avo.z() = 0;
+        height_avoidance_usv1_.local_target_pos_avo.z() = 0;
+        height_avoidance_usv2_.local_target_pos_avo.z() = 0;
     }
 }
 
@@ -179,13 +179,13 @@ void avoidance::Getvehicledistance(const M_Drone &vehicle1, const M_Drone &vehic
 }
 
 void avoidance::SetFunctionOutPut() {
-    dataMan::getInstance()->SetAvoidanceData(height_avoidance_usv5_, height_avoidance_usv6_);
-    DataMan::getInstance()->SetAvoidanceData(height_avoidance_usv5_, height_avoidance_usv6_, height_avoidance_usv5_ , height_avoidance_usv5_);
+    dataMan::getInstance()->SetAvoidanceData(height_avoidance_usv1_, height_avoidance_usv2_);
+    DataMan::getInstance()->SetAvoidanceData(height_avoidance_usv1_, height_avoidance_usv2_, height_avoidance_usv1_ , height_avoidance_usv1_);
 }
 
 void avoidance::checkCollision(bool &is_collision, bool &is_avodiance, double danger_distance) {
     float  dist, distance_h;
-    Getvehicledistance(m_multi_vehicle_.usv5, m_multi_vehicle_.usv6, distance_h, dist);
+    Getvehicledistance(m_multi_vehicle_.usv1, m_multi_vehicle_.usv2, distance_h, dist);
     is_collision = dist < danger_distance;
     is_avodiance = dist <= formation_distance_ / 2;
 }

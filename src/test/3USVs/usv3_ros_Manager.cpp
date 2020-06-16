@@ -2,9 +2,9 @@ z//
 // Created by zhouhua on 2020/5/3.
 //
 
-#include "test/3USVs/usv7_ros_Manager.hpp"
+#include "test/3USVs/usv3_ros_Manager.hpp"
 
-usv7_ros_Manager::usv7_ros_Manager() :
+usv3_ros_Manager::usv3_ros_Manager() :
         arm_i_(5),
         is_arm_(false),
         is_offboard_(false),
@@ -14,19 +14,19 @@ usv7_ros_Manager::usv7_ros_Manager() :
 
 }
 
-void usv7_ros_Manager::uavOnInit(ros::NodeHandle &nh) {
+void usv3_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
     state_sub = nh.subscribe<mavros_msgs::State>
-            ("mavros/state", 10, &usv7_ros_Manager::state_cb, this);
+            ("mavros/state", 10, &usv3_ros_Manager::state_cb, this);
     vfr_hud_sub = nh.subscribe<mavros_msgs::VFR_HUD>
-            ("mavros/vfr_hud", 10,  &usv7_ros_Manager::vrf_hud_cb, this);
+            ("mavros/vfr_hud", 10, &usv3_ros_Manager::vrf_hud_cb, this);
     local_position_sub = nh.subscribe<geometry_msgs::PoseStamped>
-            ("mavros/local_position/pose", 20,  &usv7_ros_Manager::local_pos_cb, this);
+            ("mavros/local_position/pose", 20, &usv3_ros_Manager::local_pos_cb, this);
     mavlink_from_sub = nh.subscribe<mavros_msgs::Mavlink>
-            ("mavlink/from", 10, &usv7_ros_Manager::mavlink_from_sb, this);
+            ("mavlink/from", 10, &usv3_ros_Manager::mavlink_from_sb, this);
     global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
-            ("mavros/global_position/global", 10, &usv7_ros_Manager::global_pos_cb, this);
+            ("mavros/global_position/global", 10, &usv3_ros_Manager::global_pos_cb, this);
     commander_sub = nh.subscribe<mavros_msgs::DebugValue>
-            ("mavros/debug_value/debug_vector", 10, &usv7_ros_Manager::debug_value_cb, this);
+            ("mavros/debug_value/debug_vector", 10, &usv3_ros_Manager::debug_value_cb, this);
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
             ("mavros/setpoint_position/local", 100);
@@ -42,36 +42,36 @@ void usv7_ros_Manager::uavOnInit(ros::NodeHandle &nh) {
     set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
             ("mavros/set_mode");
 
-    exec_timer_ = nh.createTimer(ros::Duration(0.01), &usv7_ros_Manager::drone_pos_update, this);
-    commander_timer_ = nh.createTimer(ros::Duration(0.01), &usv7_ros_Manager::commander_update, this);
-    publish_timer_ = nh.createTimer(ros::Duration(0.01), &usv7_ros_Manager::publishDronePosControl, this);
+    exec_timer_ = nh.createTimer(ros::Duration(0.01), &usv3_ros_Manager::drone_pos_update, this);
+    commander_timer_ = nh.createTimer(ros::Duration(0.01), &usv3_ros_Manager::commander_update, this);
+    publish_timer_ = nh.createTimer(ros::Duration(0.01), &usv3_ros_Manager::publishDronePosControl, this);
 }
 
-void usv7_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {
+void usv3_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {
     uav_.current_state = *msg;
 }
 
-void usv7_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
+void usv3_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
     current_vfr_hud = *msg;
 }
 
-void usv7_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
+void usv3_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
     uav_.current_local_pos = *msg;
 }
 
-void usv7_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
+void usv3_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
     current_mavlink = *msg;
     uav_.drone_id = current_mavlink.sysid;
 //    util_log("sys_id = %d", current_mavlink.sysid);
 }
 
-void usv7_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg) {
+void usv3_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg) {
     uav_.altitude = msg->altitude;
     uav_.longtitude = msg->longitude;
     uav_.latitude = msg->latitude;
 }
 
-void usv7_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg) {
+void usv3_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg) {
     mavros_msgs::DebugValue debugValue;
     debugValue = *msg;
     util_log("uav1 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1],
@@ -80,7 +80,7 @@ void usv7_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
     DataMan::getInstance()->setCommand(config);
 }
 
-void usv7_ros_Manager::commander_update(const ros::TimerEvent& e) {
+void usv3_ros_Manager::commander_update(const ros::TimerEvent& e) {
     int command;
     DataMan::getInstance()->getCommand(command);
     if (command == UAVS_START || command == SLAVESTART) {
@@ -150,16 +150,16 @@ void usv7_ros_Manager::commander_update(const ros::TimerEvent& e) {
     }
 }
 
-void usv7_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
+void usv3_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
 //    DataMan::getInstance()->SetDroneData(uav_);
     DataMan::getInstance()->SetDroneData(uav_);
 }
 
-void usv7_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
+void usv3_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
     local_pos_pub.publish(target_local_pos_sp_);
 }
 
-void usv7_ros_Manager::uavPosSp(const geometry_msgs::PoseStamped& way_point) {
+void usv3_ros_Manager::usvPosSp(const geometry_msgs::PoseStamped& way_point) {
     target_local_pos_sp_ = way_point;
 }
 

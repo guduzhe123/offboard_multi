@@ -6,9 +6,9 @@
 #define OFFBOARD_USVS_CONTROL_HPP
 
 #include "Cinc.hpp"
-#include "usv5_ros_Manager.hpp"
-#include "usv6_ros_Manager.hpp"
-#include "usv7_ros_Manager.hpp"
+#include "test/3USVs/usv1_ros_Manager.hpp"
+#include "test/3USVs/usv2_ros_Manager.hpp"
+#include "test/3USVs/usv3_ros_Manager.hpp"
 #include "DataMan.hpp"
 #include "Calculate.hpp"
 
@@ -25,7 +25,6 @@ private:
     usv1_ros_Manager::Ptr usv1_control_;
     usv2_ros_Manager::Ptr usv2_control_;
     usv3_ros_Manager::Ptr usv3_control_;
-    usv4_ros_Manager::Ptr usv4_control_;
 
 
     static usvs_control* l_pInst;

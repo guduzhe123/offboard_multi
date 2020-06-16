@@ -50,8 +50,9 @@ private:
 
     multi_vehicle multi_vehicle_{};
 
-    M_Drone_Avoidace height_avoidance_usv5_;
-    M_Drone_Avoidace height_avoidance_usv6_;
+    M_Drone_Avoidace height_avoidance_usv1_;
+    M_Drone_Avoidace height_avoidance_usv2_;
+    M_Drone_Avoidace height_avoidance_usv3_;
     int config_;
     double formation_distance_;
     multi_vehicle m_multi_vehicle_;

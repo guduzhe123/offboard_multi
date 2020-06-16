@@ -24,17 +24,17 @@ usvs_control* usvs_control::getInstance() {
 }
 
 void usvs_control::onInit() {
-    ros::NodeHandle usv5_nh("usv5");
-    usv5_control_.reset(new usv5_ros_Manager);
-    usv5_control_->usvOnInit(usv5_nh);
+    ros::NodeHandle usv1_nh("usv1");
+    usv1_control_.reset(new usv1_ros_Manager);
+    usv1_control_->usvOnInit(usv1_nh);
 
-    ros::NodeHandle usv6_nh("usv6");
-    usv6_control_.reset(new usv6_ros_Manager);
-    usv6_control_->usvOnInit(usv6_nh);
+    ros::NodeHandle usv2_nh("usv2");
+    usv2_control_.reset(new usv1_ros_Manager);
+    usv2_control_->usvOnInit(usv2_nh);
 
-    ros::NodeHandle usv7_nh("usv7");
-    usv7_control_.reset(new usv7_ros_Manager);
-    usv7_control_->usvOnInit(usv7_nh);
+    ros::NodeHandle usv3_nh("usv3");
+    usv3_control_.reset(new usv3_ros_Manager);
+    usv3_control_->usvOnInit(usv3_nh);
 
     ros::NodeHandle nh("~");
     int waypoint_num_;

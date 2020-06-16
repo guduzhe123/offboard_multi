@@ -9,14 +9,14 @@
 #include "dataMan.hpp"
 #include "DataMan.hpp"
 
-class usv7_ros_Manager {
+class usv3_ros_Manager {
 public:
-    usv7_ros_Manager();
-    ~usv7_ros_Manager() = default;
+    usv3_ros_Manager();
+    ~usv3_ros_Manager() = default;
 
-    void uavOnInit(ros::NodeHandle &nh);
-    void uavPosSp(const geometry_msgs::PoseStamped& way_point);
-    typedef shared_ptr<usv7_ros_Manager> Ptr;
+    void usvOnInit(ros::NodeHandle &nh);
+    void usvPosSp(const geometry_msgs::PoseStamped& way_point);
+    typedef shared_ptr<usv3_ros_Manager> Ptr;
 
 private:
     void state_cb(const mavros_msgs::State::ConstPtr& msg);

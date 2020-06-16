@@ -9,13 +9,13 @@
 #include "dataMan.hpp"
 #include "DataMan.hpp"
 
-class usv6_ros_Manager {
+class usv2_ros_Manager {
 public:
-    usv6_ros_Manager();
-    ~usv6_ros_Manager() = default;
+    usv2_ros_Manager();
+    ~usv2_ros_Manager() = default;
     void usvOnInit(ros::NodeHandle &nh);
     void usvPosSp(const geometry_msgs::PoseStamped& way_point);
-    typedef shared_ptr<usv6_ros_Manager> Ptr;
+    typedef shared_ptr<usv2_ros_Manager> Ptr;
 
 private:
     void drone_pos_update(const ros::TimerEvent& e);

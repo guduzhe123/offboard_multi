@@ -108,9 +108,9 @@ target_link_libraries(uav_lead_uav ${catkin_LIBRARIES})
 add_executable(3uav src/test/3USVs/main.cpp)
 add_library(3uavs_lib
         STATIC
-        src/test/3USVs/usv5_ros_Manager.cpp
-        src/test/3USVs/usv6_ros_Manager.cpp
-        src/test/3USVs/usv7_ros_Manager.cpp
+        src/test/3USVs/usv1_ros_Manager.cpp
+        src/test/3USVs/usv2_ros_Manager.cpp
+        src/test/3USVs/usv3_ros_Manager.cpp
         src/test/3USVs/dataMan.cpp
         src/test/3USVs/avoidance.cpp
         src/test/3USVs/usvs_control.cpp
