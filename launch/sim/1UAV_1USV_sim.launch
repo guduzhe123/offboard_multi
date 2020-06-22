@@ -1,4 +1,5 @@
 <launch>
     <include file="$(find px4)/launch/mavros_1rover_1uav_sitl.launch"/>
     <node pkg = "offboard" name = "offboard" type="usv_lead_uav" output="screen"/>
+    <include file="$(find offboard)/launch/rosbag_log.launch"/>
 </launch>

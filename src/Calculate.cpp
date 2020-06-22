@@ -88,6 +88,14 @@ double Calculate::rad2deg(double rad) {
     return rad * (180.0 / M_PI);
 }
 
+float Calculate::dgrIn180s(float d) {
+    int n = d / 360;
+    float d1 = d - (float) (n * 360);
+    if (d1 > 180) d1 -= 360;
+    if (d1 < -180)d1 += 360;
+    return d1;
+}
+
 void Calculate::getMeterScaleHere(double &meterPerLatUnit, double &meterPerLongtUnit,
                                        const GlobalPosition &center_pos)
 {
@@ -111,6 +119,48 @@ void Calculate::getMeterScaleHere(double &meterPerLatUnit, double &meterPerLongt
 
     }
 
+}
+
+void Calculate::quaternion_to_rpy(geometry_msgs::Quaternion orientation, double &roll, double &pitch, double &yaw) {
+    /*Frame	|                     ROS	                                       | PX4
+    Body	|FLU (X Forward, Y Left, Z Up), usually named base_link	           |FRD (X Forward, Y Right and Z Down)
+    World	|ENU (X East, Y North and Z Up), with the naming being odom or map |NED (X North, Y East, Z Down)
+     */
+    tf::Quaternion RQ2;
+    tf::quaternionMsgToTF(orientation, RQ2);
+    tf::Matrix3x3(RQ2).getRPY(roll, pitch, yaw);
+}
+
+Eigen::Quaterniond Calculate::quaternion_from_rpy(const double roll, const double pitch, const double yaw) {
+    return quaternion_from_rpy(Eigen::Vector3d(roll, pitch, yaw));
+}
+/*
+ * Note: order of axis are match tf2::LinearMath (bullet).
+ * YPR rotation convention -> YAW first, Pitch second, Roll third
+ * Compatibility checked by unittests.
+ */
+
+Eigen::Quaterniond Calculate::quaternion_from_rpy(const Eigen::Vector3d &rpy)
+{
+    // YPR - ZYX
+    return Eigen::Quaterniond(
+            Eigen::AngleAxisd(rpy.z(), Eigen::Vector3d::UnitZ()) *
+            Eigen::AngleAxisd(rpy.y(), Eigen::Vector3d::UnitY()) *
+            Eigen::AngleAxisd(rpy.x(), Eigen::Vector3d::UnitX())
+    );
+}
+
+Eigen::Quaterniond Calculate::transform_orientation(const Eigen::Quaterniond &q, const StaticTF transform)
+{
+    // Transform the attitude representation from frame to frame.
+    // The proof for this transform can be seen
+    // http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/transforms/
+    static const auto NED_ENU_Q = quaternion_from_rpy(M_PI, 0.0, M_PI_2);
+    switch (transform) {
+        case StaticTF::NED_TO_ENU:
+        case StaticTF::ENU_TO_NED:
+            return NED_ENU_Q * q;
+    }
 }
 
 Calculate* Calculate::getInstance() {

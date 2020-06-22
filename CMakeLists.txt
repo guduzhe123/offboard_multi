@@ -6,18 +6,30 @@ find_package(catkin REQUIRED COMPONENTS
         rospy
         serial
         std_msgs
+        message_generation
 )
 
+add_message_files(
+        FILES
+        DronePosUpdate.msg
+)
+
+generate_messages(DEPENDENCIES  std_msgs)
+
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES offboard
-#  CATKIN_DEPENDS roscpp rospy std_msgs
-#  DEPENDS system_lib
+        INCLUDE_DIRS inc
+        LIBRARIES offboard
+        CATKIN_DEPENDS
+        message_runtime
+        roscpp
+        rospy
+        std_msgs
+        #DEPENDS system_lib
 )
 
 include_directories(
-        include
         inc/
+        SYSTEM
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/new_struct/
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/VehicleControl/
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/serial/

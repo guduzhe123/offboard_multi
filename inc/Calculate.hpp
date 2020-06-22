@@ -6,9 +6,22 @@
 #define OFFBOARD_CALCULATE_HPP
 
 #include "Cinc.hpp"
+#include <tf/transform_broadcaster.h>
 #define M_DEG_TO_RAD 		0.017453292519943295
 #define M_RAD_TO_DEG 		57.295779513082323
 #define CONSTANTS_RADIUS_OF_EARTH			6371000			/* meters (m)		*/
+/**
+ * @brief Orientation transform options when applying rotations to data
+ */
+enum class StaticTF {
+    NED_TO_ENU,		//!< will change orientation from being expressed WRT NED frame to WRT ENU frame
+    ENU_TO_NED,		//!< change from expressed WRT ENU frame to WRT NED frame
+    AIRCRAFT_TO_BASELINK,	//!< change from expressed WRT aircraft frame to WRT to baselink frame
+    BASELINK_TO_AIRCRAFT,	//!< change from expressed WRT baselnk to WRT aircraft
+    ECEF_TO_ENU,		//!< change from expressed WRT ECEF frame to WRT ENU frame
+    ENU_TO_ECEF		//!< change from expressed WRT ENU frame to WRT ECEF frame
+};
+
 class Calculate {
 public:
     void GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &loc2,
@@ -25,10 +38,16 @@ public:
 
     double rad2deg(double rad);
 
+    float dgrIn180s(float d);
+
     void getMeterScaleHere(double &meterPerLatUnit, double &meterPerLongtUnit, const GlobalPosition &center_pos);
 
     double calcDist(const GlobalPosition &loc1, const GlobalPosition &loc2);
 
+    void quaternion_to_rpy(geometry_msgs::Quaternion orientation, double &roll, double &pitch, double &yaw);
+    Eigen::Quaterniond quaternion_from_rpy(const double roll, const double pitch, const double yaw);
+    Eigen::Quaterniond quaternion_from_rpy(const Eigen::Vector3d &rpy);
+    Eigen::Quaterniond transform_orientation(const Eigen::Quaterniond &q, const StaticTF transform);
     static Calculate* getInstance();
 
 private:

@@ -37,6 +37,8 @@ void uav_ros_Manager::uavOnInit(ros::NodeHandle &nh) {
             ("mavros/global_position/global", 1000);
     g_speed_control_pub = nh.advertise<geometry_msgs::TwistStamped>
             ("mavros/setpoint_velocity/cmd_vel", 100);
+    dronePosPub = nh.advertise<offboard::DronePosUpdate>
+            ("drone/PosUpDate", 100);
 
     arming_client = nh.serviceClient<mavros_msgs::CommandBool>
             ("mavros/cmd/arming");
@@ -58,6 +60,16 @@ void uav_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
 
 void uav_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
     uav_.current_local_pos = *msg;
+    double roll, pitch, yaw;
+    Calculate::getInstance()->quaternion_to_rpy(uav_.current_local_pos.pose.orientation, roll, pitch, yaw);
+
+    dronepos_.m_roll = roll;
+    dronepos_.m_pitch = pitch;
+    dronepos_.m_heading = yaw;
+    dronepos_.m_x = uav_.current_local_pos.pose.position.x;
+    dronepos_.m_y = uav_.current_local_pos.pose.position.y;
+    dronepos_.m_z = uav_.current_local_pos.pose.position.z;
+    dronePosPub.publish(dronepos_);
 }
 
 void uav_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
@@ -150,6 +162,7 @@ void uav_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
 }
 
 void uav_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
+    target_local_pos_sp_.pose.orientation = uav_.current_local_pos.pose.orientation;
     local_pos_pub.publish(target_local_pos_sp_);
 }
 

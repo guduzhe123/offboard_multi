@@ -6,38 +6,45 @@
             /uav1/mavros/global_position/global
             /uav1/mavros/setpoint_position/local
             /uav1/mavros/local_position/pose
+            /uav1/drone/PosUpDate
 
             /uav2/mavros/state
             /uav2/mavros/vfr_hud
             /uav2/mavros/setpoint_position/local
             /uav2/mavros/local_position/pose
             /uav2/mavros/setpoint_raw/target_local
+            /uav2/drone/PosUpDate
 
             /uav3/mavros/state
             /uav3/mavros/vfr_hud
             /uav3/mavros/setpoint_position/local
             /uav3/mavros/local_position/pose
+            /uav3/drone/PosUpDate
 
             /uav4/mavros/state
             /uav4/mavros/vfr_hud
             /uav4/mavros/setpoint_position/local
             /uav4/mavros/local_position/pose
+            /uav4/drone/PosUpDate
 
             /uav5/mavros/state
             /uav5/mavros/vfr_hud
             /uav5/mavros/setpoint_position/local
             /uav5/mavros/local_position/pose
             /uav5/mavros/setpoint_raw/target_local
+            /uav5/drone/PosUpDate
 
             /uav6/mavros/state
             /uav6/mavros/vfr_hud
             /uav6/mavros/setpoint_position/local
             /uav6/mavros/local_position/pose
+            /uav6/drone/PosUpDate
 
             /uav7/mavros/state
             /uav7/mavros/vfr_hud
             /uav7/mavros/setpoint_position/local
             /uav7/mavros/local_position/pose
+            /uav7/drone/PosUpDate
 
             /uav1/mavros/debug_value/debug_vector
             /uav2/mavros/debug_value/debug_vector
@@ -54,6 +61,7 @@
             /usv1/mavros/setpoint_position/local
             /usv1/mavros/local_position/pose
             /usv1/mavros/setpoint_raw/target_local
+            /usv1/drone/PosUpDate
 "
     />
 </launch>
