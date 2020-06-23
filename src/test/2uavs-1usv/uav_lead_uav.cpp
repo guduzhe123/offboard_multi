@@ -1,9 +1,9 @@
 //
 // Created by zhouhua on 2020/5/3.
 //
-#include <test/2uav2/dataMan.hpp>
-#include <test/2uav2/avoidance.hpp>
-#include "test/2uav2/uav_lead_uav.hpp"
+#include <test/2uav-usv/dataMan.hpp>
+#include <test/2uav-usv/avoidance.hpp>
+#include "test/2uav-usv/uav_lead_uav.hpp"
 
 usv_lead_uav* usv_lead_uav::l_pInst = NULL;
 
@@ -25,13 +25,17 @@ usv_lead_uav* usv_lead_uav::getInstance() {
 }
 
 void usv_lead_uav::onInit() {
-    util_log("1uav lead 1uav!");
-    ros::NodeHandle uav_nh("uav1");
-    uav_control_.reset(new uav_ros_Manager);
-    uav_control_->uavOnInit(uav_nh);
+    util_log("1usv lead 2uavs!");
+    ros::NodeHandle uav1_nh("uav1");
+    uav1_control_.reset(new uav_ros_Manager);
+    uav1_control_->uavOnInit(uav1_nh);
 
-    ros::NodeHandle usv_nh("uav2");
-    usv_control_.reset(new usv_ros_Manager);
+    ros::NodeHandle uav2_nh("uav2");
+    uav2_control_.reset(new uav2_ros_Manager);
+    uav2_control_->uavOnInit(uav2_nh);
+
+    ros::NodeHandle usv_nh("usv1");
+    usv_control_.reset(new usv1_ros_Manager);
     usv_control_->usvOnInit(usv_nh);
 
     ros::NodeHandle nh("~");
@@ -137,8 +141,8 @@ void usv_lead_uav::usvlocalControl() {
 
     multiVehicle.uav2.target_local_pos_sp = way_point;
     util_log("received avoidance data = %.2f", multiVehicle.uav2.avoidance_pos.z());
-    util_log("usv way_point = %.2f, = %.2f, = %.2f", way_point.pose.position.x, way_point.pose.position.y, way_point.pose.position.z );
-    usv_control_->usvPosSp(way_point);
+    util_log("uav way_point = %.2f, = %.2f, = %.2f", way_point.pose.position.x, way_point.pose.position.y, way_point.pose.position.z );
+    uav2_control_->uavPosSp(way_point);
 }
 
 void usv_lead_uav::uavlocalControl() {
@@ -152,8 +156,8 @@ void usv_lead_uav::uavlocalControl() {
         case TAKEOFF: {
             uav_way_point.pose.position.x = 0;
             uav_way_point.pose.position.y = 0;
-            uav_way_point.pose.position.z = 15;
-            uav_control_->uavPosSp(uav_way_point);
+            uav_way_point.pose.position.z = 13;
+            uav1_control_->uavPosSp(uav_way_point);
             if (pos_reached(current_uav_local_pos_, uav_way_point)) {
                 uav_state_ = FORMATION;
 //                uav_reached_ = true;
@@ -170,7 +174,7 @@ void usv_lead_uav::uavlocalControl() {
             } else {
                 uav_way_point.pose.position.z = way_point.pose.position.z;
             }
-            uav_control_->uavPosSp(uav_way_point);
+            uav1_control_->uavPosSp(uav_way_point);
 
             if (pos_reached(current_uav_local_pos_, uav_way_point)) {
                 uav_state_ = FOLLOW;
@@ -190,7 +194,7 @@ void usv_lead_uav::uavlocalControl() {
                 uav_way_point.pose.position.z = way_point.pose.position.z;
             }
 
-            uav_control_->uavPosSp(uav_way_point);
+            uav1_control_->uavPosSp(uav_way_point);
             if (pos_reached(current_uav_local_pos_, uav_way_point)) {
                 uav_state_ = FOLLOW;
                 uav_reached_ = true;
@@ -208,7 +212,7 @@ void usv_lead_uav::uavlocalControl() {
             } else {
                 uav_way_point.pose.position.z = way_point.pose.position.z;
             }
-            uav_control_->uavPosSp(uav_way_point);
+            uav1_control_->uavPosSp(uav_way_point);
             if (pos_reached(current_uav_local_pos_, uav_way_point)) {
                 uav_reached_ = true;
             }

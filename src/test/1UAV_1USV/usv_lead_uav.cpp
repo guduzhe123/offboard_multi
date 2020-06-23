@@ -20,6 +20,7 @@ usv_lead_uav* usv_lead_uav::getInstance() {
 }
 
 void usv_lead_uav::onInit() {
+    util_log("1usv lead 1uav!");
     ros::NodeHandle uav_nh("uav1");
     uav_control_.reset(new uav_ros_Manager);
     uav_control_->uavOnInit(uav_nh);

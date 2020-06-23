@@ -34,6 +34,8 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/VehicleControl/
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/serial/
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/test/1UAV_1USV/
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc/test/2uav2/
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc/test/2uav-usv/
         ${catkin_INCLUDE_DIRS}
 )
 
@@ -116,6 +118,21 @@ add_library(uavs_lib
 target_link_libraries(uav_lead_uav uavs_lib)
 target_link_libraries(uav_lead_uav ${catkin_LIBRARIES})
 
+#[[uav lead one uav and follow usv]]
+add_executable(usv_lead_2uav src/test/2uavs-1usv/main.cpp)
+add_library(usv_lead_2uav_lib
+        STATIC
+        src/test/2uavs-1usv/uav1_ros_Manager.cpp
+        src/test/2uavs-1usv/uav2_ros_Manager.cpp
+        src/test/2uavs-1usv/usv1_ros_Manager.cpp
+        src/test/2uavs-1usv/uav_lead_uav.cpp
+        src/test/2uavs-1usv/dataMan.cpp
+        src/test/2uavs-1usv/avoidance.cpp
+        src/util.cpp
+        src/DataMan.cpp
+        src/Calculate.cpp)
+target_link_libraries(usv_lead_2uav usv_lead_2uav_lib)
+target_link_libraries(usv_lead_2uav ${catkin_LIBRARIES})
 
 #[[#[=[3usv control]=]
 add_executable(3uav src/test/3USVs/main.cpp)
