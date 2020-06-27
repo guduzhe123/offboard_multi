@@ -113,7 +113,6 @@ add_library(3uavs_lib
         src/test/3USVs/usv3_ros_Manager.cpp
         src/test/3USVs/dataMan.cpp
         src/test/3USVs/avoidance.cpp
-        src/test/3USVs/usvs_control.cpp
         src/util.cpp
         src/DataMan.cpp
         src/Calculate.cpp)

@@ -1,9 +1,9 @@
 //
-// Created by zhouhua on 2020/5/3.
+// Created by cheng on 6/27/20.
 //
 
-#ifndef OFFBOARD_USV6_ROS_MANAGER_HPP
-#define OFFBOARD_USV6_ROS_MANAGER_HPP
+#ifndef OFFBOARD_WS_USV2_ROS_MANAGER_HPP
+#define OFFBOARD_WS_USV2_ROS_MANAGER_HPP
 
 #include "Cinc.hpp"
 #include "dataMan.hpp"
@@ -13,9 +13,9 @@ class usv2_ros_Manager {
 public:
     usv2_ros_Manager();
     ~usv2_ros_Manager() = default;
-    void usvOnInit(ros::NodeHandle &nh);
-    void usvPosSp(const geometry_msgs::PoseStamped& way_point);
-    typedef shared_ptr<usv2_ros_Manager> Ptr;
+    void usv2OnInit(ros::NodeHandle &nh);
+    void usv2PosSp(const geometry_msgs::PoseStamped& way_point);
+    typedef shared_ptr<usv1_ros_Manager> Ptr;
 
 private:
     void drone_pos_update(const ros::TimerEvent& e);
@@ -41,11 +41,13 @@ private:
     mavros_msgs::Mavlink current_mavlink;
     geometry_msgs::PoseStamped target_local_pos_sp_;
 
+    int arm_command_;
     int arm_i_;
     bool is_arm_;
     bool is_offboard_;
     bool is_takeoff_;
-    bool is_land_;
 
 };
-#endif //OFFBOARD_UAV2_ROS_MANAGER_HPP
+
+
+#endif //OFFBOARD_WS_USV2_ROS_MANAGER_HPP

@@ -1,13 +1,13 @@
 //
-// Created by zhouhua on 2020/5/13.
+// Created by cheng on 6/27/20.
 //
 
-#ifndef OFFBOARD_dATAMAN_HPP
-#define OFFBOARD_dATAMAN_HPP
+#ifndef OFFBOARD_WS_DATAMAN_HPP
+#define OFFBOARD_WS_DATAMAN_HPP
 
 #include "Cinc.hpp"
-enum UAVCOMMAND {
-    UAVS_START,
+enum USVCOMMAND {
+    USVS_START,
     ALLSTOP,
     SLAVEBACKX,
     SLAVEFORWARDX,
@@ -24,7 +24,7 @@ public:
     dataMan();
     ~dataMan() = default;
     void SetDroneData(const M_Drone &mDrone);
-    void SetAvoidanceData(const M_Drone_Avoidace& usv5, const M_Drone_Avoidace& usv6);
+    void SetAvoidanceData(const M_Drone_Avoidace& uav1, const M_Drone_Avoidace& uav2);
     void SetDroneControlData(const multi_vehicle &m_multi_vehicles);
     multi_vehicle &GetData();
     static dataMan* getInstance();
@@ -38,4 +38,5 @@ private:
     int command_;
 };
 
-#endif //OFFBOARD_dATAMAN_HPP
+
+#endif //OFFBOARD_WS_DATAMAN_HPP

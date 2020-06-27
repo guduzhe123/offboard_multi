@@ -1,35 +1,35 @@
 //
-// Created by zhouhua on 2020/5/8.
+// Created by cheng on 6/27/20.
 //
 
 #include <ros/ros.h>
 #include "util.h"
-#include "test/3USVs/usvs_control.hpp"
-#include "test/3USVs/usv5_ros_Manager.hpp"
-#include "test/3USVs/usv6_ros_Manager.hpp"
-#include "test/3USVs/usv7_ros_Manager.hpp"
+#include "test/3USVs/usv1_ros_Manager.hpp"
+#include "test/3USVs/usv2_ros_Manager.hpp"
+#include "test/3USVs/usv3_ros_Manager.hpp"
+#include "test/3USVs/avoidance.hpp"
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "usvs");
-    util_daemonize ();
-
-    usvs_control* lead_node;
-    lead_node = usvs_control::getInstance();
-    lead_node->onInit();
+//    ros::init(argc, argv, "uav_lead_uav");
+//    util_daemonize ();
+//
+//    usv_lead_uav* lead_node;
+//    lead_node = usv_lead_uav::getInstance();
+//    lead_node->onInit();
 //    avoidance::getInstance()->Oninit();
-
-    ros::Rate rate(10.0);
-    while(ros::ok()){
+//
+//    ros::Rate rate(10.0);
+//    while(ros::ok()){
 //        avoidance::getInstance()->GetData();
 //        avoidance::getInstance()->DoProgress();
-        lead_node->getData();   //achieve data
-        lead_node->doProgress();    //progress
-
-        DataMan::getInstance()->PrintData();
-        ros::spinOnce();
-        rate.sleep();
-    }
+//        lead_node->getData();
+//        lead_node->doProgress();
+//
+//        DataMan::getInstance()->PrintData();
+//        ros::spinOnce();
+//        rate.sleep();
+//    }
     return 0;
 
 }
