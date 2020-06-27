@@ -1,7 +1,7 @@
 <launch>
     <include file="$(find px4)/launch/mavros_2uavs_1usv_sitl.launch"/>
 
-    <arg name="formation_distance" value="10" />
+    <arg name="formation_distance" value="8" />
     <arg name="point_num" value="6" />
     <arg name="danger_distance" value="1" />
 

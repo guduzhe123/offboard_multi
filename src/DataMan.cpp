@@ -235,11 +235,11 @@ void DataMan::PrinrDorneFlightDate() {
 }
 
 void DataMan::PrintBoatData() {
-    util_log("uav5 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv1.current_local_pos.pose.position.x,
+    util_log("usv1 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv1.current_local_pos.pose.position.x,
              multi_vehicle_.usv1.current_local_pos.pose.position.y, multi_vehicle_.usv1.current_local_pos.pose.position.z);
-    util_log("uav6 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv2.current_local_pos.pose.position.x,
+    util_log("usv2 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv2.current_local_pos.pose.position.x,
              multi_vehicle_.usv2.current_local_pos.pose.position.y, multi_vehicle_.usv2.current_local_pos.pose.position.z);
-    util_log("uav7 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv3.current_local_pos.pose.position.x,
+    util_log("usv3 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv3.current_local_pos.pose.position.x,
              multi_vehicle_.usv3.current_local_pos.pose.position.y, multi_vehicle_.usv3.current_local_pos.pose.position.z);
 }
 

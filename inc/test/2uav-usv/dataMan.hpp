@@ -16,7 +16,8 @@ enum UAVCOMMAND {
     MASTERSTART,
     SLAVESTART,
     ALLRETURN,
-    ALLLAND
+    ALLLAND,
+    FOLLOW_USV
 };
 
 class dataMan {

@@ -29,6 +29,10 @@ void dataMan::SetDroneData(const M_Drone &mDrone) {
                 multi_vehicle_.uav2 = mDrone;
             }
                 break;
+            case USV1: {
+                multi_vehicle_.usv1 = mDrone;
+            }
+                break;
             default:
                 break;
         }

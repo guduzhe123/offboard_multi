@@ -163,6 +163,25 @@ Eigen::Quaterniond Calculate::transform_orientation(const Eigen::Quaterniond &q,
     }
 }
 
+double Calculate::quaternion_get_yaw(const geometry_msgs::Quaternion &orientation)
+{
+    // to match equation from:
+    // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+    Eigen::Quaterniond q, Q;
+    Q.w() = orientation.w;
+    Q.x() = orientation.x;
+    Q.y() = orientation.y;
+    Q.z() = orientation.z;
+    q = transform_orientation(Q, StaticTF::ENU_TO_NED);
+//    q = Q;
+    const double &q0 = q.w();
+    const double &q1 = q.x();
+    const double &q2 = q.y();
+    const double &q3 = q.z();
+
+    return std::atan2(2. * (q0*q3 + q1*q2), 1. - 2. * (q2*q2 + q3*q3));
+}
+
 Calculate* Calculate::getInstance() {
     if (l_pInst == NULL) {
         l_pInst = new Calculate();

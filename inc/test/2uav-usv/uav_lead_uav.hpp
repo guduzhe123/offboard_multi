@@ -23,15 +23,16 @@ public:
 
     enum UAV_TYPE {
         TAKEOFF,
+        TURN_YAW,
         FORMATION,
-        FOLLOW,
+        FOLLOW_UAV,
         RETURN
     };
 
 private:
     void usvLocalPositionSp();
-    void usvlocalControl();
-    void uavlocalControl();
+    void lead_uavlocalControl();
+    void follow_uavlocalControl();
     void GetTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_first_local);
     bool pos_reached(geometry_msgs::PoseStamped current_pos, geometry_msgs::PoseStamped target_pos);
     void formation(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_formation);

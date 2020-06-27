@@ -48,27 +48,27 @@ void usv_lead_uav::onInit() {
 }
 
 void usv_lead_uav::getData() {
-    multiVehicle = dataMan::getInstance()->GetData();
+    multiVehicle = DataMan::getInstance()->GetData();
 }
 
 void usv_lead_uav::doProgress() {
     dataMan::getInstance()->getCommand(command_);
     util_log("uav1 avoidance = %.2f, uav2 avoidance = %.2f", multiVehicle.uav1.avoidance_pos.z(), multiVehicle.uav2.avoidance_pos.z());
     checkCollision(danger_distance_);
-    uavlocalControl();
-    usvlocalControl();
+    follow_uavlocalControl();
+    lead_uavlocalControl();
     DataMan::getInstance()->SetDroneControlData(multiVehicle);
     dataMan::getInstance()->SetDroneControlData(multiVehicle);
 }
 
 void usv_lead_uav::usvLocalPositionSp() {
-    way_point.pose.position.x = 30;
+    way_point.pose.position.x = 10;
     way_point.pose.position.y = 0;
     way_point.pose.position.z = 15;
     usv_way_points.push_back(way_point);
 
-    way_point.pose.position.x = 30;
-    way_point.pose.position.y = 15;
+    way_point.pose.position.x = 10;
+    way_point.pose.position.y = 10;
     way_point.pose.position.z = 15;
     usv_way_points.push_back(way_point);
 
@@ -86,9 +86,9 @@ void usv_lead_uav::usvLocalPositionSp() {
 }
 
 // uav2
-void usv_lead_uav::usvlocalControl() {
+void usv_lead_uav::lead_uavlocalControl() {
     util_log("uav_reached = %d, uav_state = %d", uav_reached_, uav_state_);
-    if (uav_state_ == TAKEOFF || uav_state_ == FORMATION) {
+    if (uav_state_ == TAKEOFF || uav_state_ == FORMATION || uav_state_ == TURN_YAW) {
         way_point.pose.position.x = 0;
         way_point.pose.position.y = 0;
         way_point.pose.position.z = 15;
@@ -98,31 +98,45 @@ void usv_lead_uav::usvlocalControl() {
 
     } else {
         current_usv_local_pos_ = multiVehicle.uav2.current_local_pos;
-        if (!usv_way_points.empty()) {
-            way_point = usv_way_points.back();
-            if (is_avoidance_) way_point.pose.position.z =
-                    multiVehicle.uav2.current_local_pos.pose.position.z + multiVehicle.uav2.avoidance_pos.z();
-            if (pos_reached(current_usv_local_pos_, way_point) && uav_reached_) {
-                util_log("Finished one way point = (%.2f, %.2f, %.2f)",
-                         way_point.pose.position.x, way_point.pose.position.y,
-                         way_point.pose.position.z);
-                usv_way_points.pop_back();
-
-                if (!usv_way_points.empty()) {
-                    util_log("Goto next way point = (%.2f, %.2f, %.2f)",
+        if (command_ != FOLLOW_USV) {
+            if (!usv_way_points.empty()) {
+                way_point = usv_way_points.back();
+                if (is_avoidance_)
+                    way_point.pose.position.z =
+                            multiVehicle.uav2.current_local_pos.pose.position.z + multiVehicle.uav2.avoidance_pos.z();
+                if (pos_reached(current_usv_local_pos_, way_point) && uav_reached_) {
+                    util_log("Finished one way point = (%.2f, %.2f, %.2f)",
                              way_point.pose.position.x, way_point.pose.position.y,
                              way_point.pose.position.z);
+                    usv_way_points.pop_back();
+
+                    if (!usv_way_points.empty()) {
+                        util_log("Goto next way point = (%.2f, %.2f, %.2f)",
+                                 way_point.pose.position.x, way_point.pose.position.y,
+                                 way_point.pose.position.z);
+                    } else {
+                        util_log("Finish all target points!");
+                    }
+                }
+            } else if (uav_state_ == FOLLOW_UAV) {
+                if (is_avoidance_) {
+                    way_point.pose.position.z =
+                            multiVehicle.uav2.current_local_pos.pose.position.z + multiVehicle.uav2.avoidance_pos.z();
                 } else {
-                    util_log("Finish all target points!");
+                    way_point.pose.position.z = multiVehicle.uav2.current_local_pos.pose.position.z;
                 }
             }
-        } else if (uav_state_ == FOLLOW ) {
+        } else {
+            util_log("command follow usv");
+            way_point.pose.position.x = multiVehicle.usv1.current_local_pos.pose.position.x;
+            way_point.pose.position.y = multiVehicle.usv1.current_local_pos.pose.position.y;
             if (is_avoidance_) {
                 way_point.pose.position.z =
                         multiVehicle.uav2.current_local_pos.pose.position.z + multiVehicle.uav2.avoidance_pos.z();
             } else {
                 way_point.pose.position.z = multiVehicle.uav2.current_local_pos.pose.position.z;
             }
+            util_log("follow uav way_point = %.2f, = %.2f, = %.2f", way_point.pose.position.x, way_point.pose.position.y, way_point.pose.position.z );
         }
     }
 
@@ -145,58 +159,80 @@ void usv_lead_uav::usvlocalControl() {
     uav2_control_->uavPosSp(way_point);
 }
 
-void usv_lead_uav::uavlocalControl() {
+void usv_lead_uav::follow_uavlocalControl() {
+    DroneControl uav1_ctrl {};
     GetTakeoffPos(multiVehicle.uav2, multiVehicle.uav1, follow_slave_first_local_);
     formation(multiVehicle.uav2, multiVehicle.uav1, follow_slave_formation_);
     current_uav_local_pos_ = multiVehicle.uav1.current_local_pos;
-    multiVehicle.uav1.target_local_pos_sp = uav_way_point;
+    multiVehicle.uav1.target_local_pos_sp = uav1_ctrl.target_pose;
     if (command_ == ALLRETURN) uav_state_ = RETURN;
 
     switch (uav_state_) {
         case TAKEOFF: {
-            uav_way_point.pose.position.x = 0;
-            uav_way_point.pose.position.y = 0;
-            uav_way_point.pose.position.z = 13;
-            uav1_control_->uavPosSp(uav_way_point);
-            if (pos_reached(current_uav_local_pos_, uav_way_point)) {
-                uav_state_ = FORMATION;
+            uav1_ctrl.target_pose.pose.position.x = 0;
+            uav1_ctrl.target_pose.pose.position.y = 0;
+            uav1_ctrl.target_pose.pose.position.z = 13;
+            uav1_ctrl.speed_ctrl = false;
+            uav1_ctrl.target_pose.pose.orientation = multiVehicle.uav1.current_local_pos.pose.orientation;
+            uav1_control_->uavPosSp(uav1_ctrl);
+            if (pos_reached(current_uav_local_pos_, uav1_ctrl.target_pose)) {
+                uav_state_ = TURN_YAW;
 //                uav_reached_ = true;
             }
         }
             break;
 
-        case FORMATION: {
-            // uav at head of the usv
-            uav_way_point.pose.position.x = follow_slave_formation_.x();
-            uav_way_point.pose.position.y = follow_slave_formation_.y();
-            if (is_avoidance_) {
-                uav_way_point.pose.position.z += multiVehicle.uav1.avoidance_pos.z();
+        case TURN_YAW: {
+            float yaw_err;
+            yaw_err = multiVehicle.uav1.yaw - multiVehicle.uav2.yaw;
+            if (fabs(yaw_err) > 5) {
+                uav1_ctrl.speed_ctrl = true;
+                uav1_ctrl.target_heading = multiVehicle.uav2.yaw;
+                util_log("target heading = %.2f", uav1_ctrl.target_heading);
             } else {
-                uav_way_point.pose.position.z = way_point.pose.position.z;
+                uav1_ctrl.speed_ctrl = true;
+                uav1_ctrl.target_heading = multiVehicle.uav1.yaw;
+                uav_state_ = FORMATION;
             }
-            uav1_control_->uavPosSp(uav_way_point);
+            uav1_control_->uavPosSp(uav1_ctrl);
+        }
+            break;
 
-            if (pos_reached(current_uav_local_pos_, uav_way_point)) {
-                uav_state_ = FOLLOW;
+        case FORMATION: {
+            uav1_ctrl.target_pose.pose.position.x = follow_slave_formation_.x();
+            uav1_ctrl.target_pose.pose.position.y = follow_slave_formation_.y();
+            if (is_avoidance_) {
+                uav1_ctrl.target_pose.pose.position.z += multiVehicle.uav1.avoidance_pos.z();
+            } else {
+                uav1_ctrl.target_pose.pose.position.z = way_point.pose.position.z - 2;
+            }
+            uav1_ctrl.speed_ctrl = false;
+            uav1_ctrl.target_pose.pose.orientation = multiVehicle.uav2.current_local_pos.pose.orientation;
+            uav1_control_->uavPosSp(uav1_ctrl);
+
+            if (pos_reached(current_uav_local_pos_, uav1_ctrl.target_pose)) {
+                uav_state_ = FOLLOW_UAV;
                 uav_reached_ = true;
             }
         }
             break;
 
-        case FOLLOW : {
+        case FOLLOW_UAV : {
             uav_reached_ = false;
-            uav_way_point.pose.position.x = multiVehicle.uav2.current_local_pos.pose.position.x + follow_slave_formation_.x();
-            uav_way_point.pose.position.y = multiVehicle.uav2.current_local_pos.pose.position.y + follow_slave_formation_.y();
+            uav1_ctrl.target_pose.pose.position.x = multiVehicle.uav2.current_local_pos.pose.position.x + follow_slave_formation_.x();
+            uav1_ctrl.target_pose.pose.position.y = multiVehicle.uav2.current_local_pos.pose.position.y + follow_slave_formation_.y();
             if (is_avoidance_) {
-                uav_way_point.pose.position.z =
+                uav1_ctrl.target_pose.pose.position.z =
                         multiVehicle.uav1.current_local_pos.pose.position.z + multiVehicle.uav1.avoidance_pos.z();
             } else {
-                uav_way_point.pose.position.z = way_point.pose.position.z;
+                uav1_ctrl.target_pose.pose.position.z = way_point.pose.position.z - 2;
             }
 
-            uav1_control_->uavPosSp(uav_way_point);
-            if (pos_reached(current_uav_local_pos_, uav_way_point)) {
-                uav_state_ = FOLLOW;
+            uav1_ctrl.speed_ctrl = false;
+            uav1_ctrl.target_pose.pose.orientation = multiVehicle.uav1.current_local_pos.pose.orientation;
+            uav1_control_->uavPosSp(uav1_ctrl);
+            if (pos_reached(current_uav_local_pos_, uav1_ctrl.target_pose)) {
+                uav_state_ = FOLLOW_UAV;
                 uav_reached_ = true;
             }
         }
@@ -204,16 +240,18 @@ void usv_lead_uav::uavlocalControl() {
 
         case RETURN: {
             uav_reached_ = false;
-            uav_way_point.pose.position.x = 0;
-            uav_way_point.pose.position.y = 0;
-            uav_way_point.pose.position.z = 15;
+            uav1_ctrl.target_pose.pose.position.x = 0;
+            uav1_ctrl.target_pose.pose.position.y = 0;
+            uav1_ctrl.target_pose.pose.position.z = 13;
             if (is_avoidance_) {
-                uav_way_point.pose.position.z += multiVehicle.uav1.avoidance_pos.z();
+                uav1_ctrl.target_pose.pose.position.z += multiVehicle.uav1.avoidance_pos.z();
             } else {
-                uav_way_point.pose.position.z = way_point.pose.position.z;
+                uav1_ctrl.target_pose.pose.position.z = way_point.pose.position.z - 2;
             }
-            uav1_control_->uavPosSp(uav_way_point);
-            if (pos_reached(current_uav_local_pos_, uav_way_point)) {
+            uav1_ctrl.speed_ctrl = false;
+            uav1_ctrl.target_pose.pose.orientation = multiVehicle.uav1.current_local_pos.pose.orientation;
+            uav1_control_->uavPosSp(uav1_ctrl);
+            if (pos_reached(current_uav_local_pos_, uav1_ctrl.target_pose)) {
                 uav_reached_ = true;
             }
         }

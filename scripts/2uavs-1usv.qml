@@ -97,6 +97,15 @@ FactPanel {
             onClicked: controller.sendCommand(600, 0, 0, 8, 0, 0, 0, 0, 0, 0)
         }
 
+        QGCButton {
+            text: "ALLLAND"
+            onClicked: controller.sendCommand(600, 0, 0, 9, 0, 0, 0, 0, 0, 0)
+        }
+
+        QGCButton {
+            text: "FOLLOW_USV"
+            onClicked: controller.sendCommand(600, 0, 0, 10, 0, 0, 0, 0, 0, 0)
+        }
     }
 
     // Your own custom changes end here - everything else below is always required

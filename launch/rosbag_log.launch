@@ -7,6 +7,7 @@
             /uav1/mavros/setpoint_position/local
             /uav1/mavros/local_position/pose
             /uav1/drone/PosUpDate
+            /uav1/mavros/setpoint_velocity/cmd_vel
 
             /uav2/mavros/state
             /uav2/mavros/vfr_hud
@@ -14,6 +15,7 @@
             /uav2/mavros/local_position/pose
             /uav2/mavros/setpoint_raw/target_local
             /uav2/drone/PosUpDate
+            /uav2/mavros/setpoint_velocity/cmd_vel
 
             /uav3/mavros/state
             /uav3/mavros/vfr_hud
@@ -33,6 +35,7 @@
             /uav5/mavros/local_position/pose
             /uav5/mavros/setpoint_raw/target_local
             /uav5/drone/PosUpDate
+            /uav5/mavros/setpoint_velocity/cmd_vel
 
             /uav6/mavros/state
             /uav6/mavros/vfr_hud

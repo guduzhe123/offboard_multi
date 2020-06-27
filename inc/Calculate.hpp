@@ -48,6 +48,7 @@ public:
     Eigen::Quaterniond quaternion_from_rpy(const double roll, const double pitch, const double yaw);
     Eigen::Quaterniond quaternion_from_rpy(const Eigen::Vector3d &rpy);
     Eigen::Quaterniond transform_orientation(const Eigen::Quaterniond &q, const StaticTF transform);
+    double quaternion_get_yaw(const geometry_msgs::Quaternion &orientation);
     static Calculate* getInstance();
 
 private:

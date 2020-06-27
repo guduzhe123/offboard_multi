@@ -163,6 +163,12 @@ struct TVehicleMsg {
     ros::Publisher global_pos_pub;
 };
 
+struct DroneControl {
+    bool speed_ctrl = false;
+    float target_heading = 0;
+    geometry_msgs::PoseStamped target_pose{};
+};
+
 enum FDATA_TYPE {
     FDATA_DRONE = 0,
     FDATA_DRONE_TARGTE,

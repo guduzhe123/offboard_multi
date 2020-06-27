@@ -35,6 +35,8 @@ void uav2_ros_Manager::uavOnInit(ros::NodeHandle &nh) {
             ("mavros/global_position/global", 100);
     g_speed_control_pub = nh.advertise<geometry_msgs::TwistStamped>
             ("mavros/setpoint_velocity/cmd_vel", 100);
+    dronePosPub = nh.advertise<offboard::DronePosUpdate>
+            ("drone/PosUpDate", 100);
 
     arming_client = nh.serviceClient<mavros_msgs::CommandBool>
             ("mavros/cmd/arming");
@@ -55,12 +57,22 @@ void uav2_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
 
 void uav2_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
     uav_.current_local_pos = *msg;
+    offboard::DronePosUpdate dronepos_;
+    double yaw;
+
+    yaw = Calculate::getInstance()->quaternion_get_yaw(uav_.current_local_pos.pose.orientation);
+    dronepos_.m_heading = yaw * 180 / M_PI;
+    dronepos_.m_x = uav_.current_local_pos.pose.position.x;
+    dronepos_.m_y = uav_.current_local_pos.pose.position.y;
+    dronepos_.m_z = uav_.current_local_pos.pose.position.z;
+    dronePosPub.publish(dronepos_);
+    uav_.yaw = dronepos_.m_heading;
+    util_log("uav2 m_heading = %.2f", dronepos_.m_heading);
 }
 
 void uav2_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
     current_mavlink = *msg;
     uav_.drone_id = current_mavlink.sysid;
-    util_log("usv sys_id = %d", current_mavlink.sysid);
 }
 
 void uav2_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg) {
