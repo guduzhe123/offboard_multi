@@ -68,12 +68,12 @@ void usv_lead_uav::usvLocalPositionSp() {
     usv_way_points.push_back(way_point);
 
     way_point.pose.position.x = 10;
-    way_point.pose.position.y = 10;
+    way_point.pose.position.y = -10;
     way_point.pose.position.z = 15;
     usv_way_points.push_back(way_point);
 
     way_point.pose.position.x = 0;
-    way_point.pose.position.y = 5;
+    way_point.pose.position.y = -10;
     way_point.pose.position.z = 15;
     usv_way_points.push_back(way_point);
 
@@ -171,7 +171,7 @@ void usv_lead_uav::follow_uavlocalControl() {
         case TAKEOFF: {
             uav1_ctrl.target_pose.pose.position.x = 0;
             uav1_ctrl.target_pose.pose.position.y = 0;
-            uav1_ctrl.target_pose.pose.position.z = 13;
+            uav1_ctrl.target_pose.pose.position.z = 10;
             uav1_ctrl.speed_ctrl = false;
             uav1_ctrl.target_pose.pose.orientation = multiVehicle.uav1.current_local_pos.pose.orientation;
             uav1_control_->uavPosSp(uav1_ctrl);
@@ -190,7 +190,7 @@ void usv_lead_uav::follow_uavlocalControl() {
                 uav1_ctrl.target_heading = multiVehicle.uav2.yaw;
                 util_log("target heading = %.2f", uav1_ctrl.target_heading);
             } else {
-                uav1_ctrl.speed_ctrl = true;
+                uav1_ctrl.speed_ctrl = false;
                 uav1_ctrl.target_heading = multiVehicle.uav1.yaw;
                 uav_state_ = FORMATION;
             }
@@ -219,8 +219,8 @@ void usv_lead_uav::follow_uavlocalControl() {
 
         case FOLLOW_UAV : {
             uav_reached_ = false;
-            uav1_ctrl.target_pose.pose.position.x = multiVehicle.uav2.current_local_pos.pose.position.x + follow_slave_formation_.x();
-            uav1_ctrl.target_pose.pose.position.y = multiVehicle.uav2.current_local_pos.pose.position.y + follow_slave_formation_.y();
+            uav1_ctrl.target_pose.pose.position.x = way_point.pose.position.x + follow_slave_formation_.x();
+            uav1_ctrl.target_pose.pose.position.y = way_point.pose.position.y + follow_slave_formation_.y();
             if (is_avoidance_) {
                 uav1_ctrl.target_pose.pose.position.z =
                         multiVehicle.uav1.current_local_pos.pose.position.z + multiVehicle.uav1.avoidance_pos.z();
@@ -242,7 +242,7 @@ void usv_lead_uav::follow_uavlocalControl() {
             uav_reached_ = false;
             uav1_ctrl.target_pose.pose.position.x = 0;
             uav1_ctrl.target_pose.pose.position.y = 0;
-            uav1_ctrl.target_pose.pose.position.z = 13;
+            uav1_ctrl.target_pose.pose.position.z = 10;
             if (is_avoidance_) {
                 uav1_ctrl.target_pose.pose.position.z += multiVehicle.uav1.avoidance_pos.z();
             } else {

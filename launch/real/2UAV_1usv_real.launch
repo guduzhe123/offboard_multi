@@ -78,7 +78,7 @@
 
     <include file="$(find offboard)/launch/rosbag_log.launch"/>
     <arg name="formation_distance" default="10" />
-    <node pkg = "offboard" name = "offboard" type="uav_lead_uav" output="screen">
+    <node pkg = "offboard" name = "offboard" type="usv_lead_2uav" output="screen">
         <param name="formation_distance" value="$(arg formation_distance)" />
     </node>
 </launch>
