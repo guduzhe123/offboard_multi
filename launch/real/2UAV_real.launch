@@ -4,7 +4,8 @@
     <group ns="uav1">
         <!--        <arg name="fcu_url" default="/dev/MasterUAV:921600"/>-->
 <!--        <arg name="fcu_url" default="/dev/NoopS0:921600"/>-->
-                <arg name="fcu_url" default="/dev/ttyUSB0:230400"/>
+<!--                <arg name="fcu_url" default="/dev/ttyUSB0:230400"/>-->
+                <arg name="fcu_url" default="/dev/REMOTE915_SC2:115200"/>
         <arg name="gcs_url" value="udp://:14560@localhost:14550"/>
         <arg name="tgt_system" value="1"/>
         <arg name="tgt_component" value="1"/>
@@ -28,8 +29,8 @@
     </group>
 
     <!-- UAV2 iris_2 -->
-    <group ns="uav2">
-<!--        <arg name="fcu_url" default="/dev/NoopS1:921600"/>-->
+ <!--   <group ns="uav2">
+&lt;!&ndash;        <arg name="fcu_url" default="/dev/NoopS1:921600"/>&ndash;&gt;
         <arg name="fcu_url" default="/dev/ttyUSB1:230400"/>
         <arg name="gcs_url" value="udp://:14561@localhost:14550"/>
         <arg name="tgt_system" value="2"/>
@@ -53,7 +54,7 @@
     </group>
 
     <group ns="uav3">
-        <!--        <arg name="fcu_url" default="/dev/NoopS1:921600"/>-->
+        &lt;!&ndash;        <arg name="fcu_url" default="/dev/NoopS1:921600"/>&ndash;&gt;
         <arg name="fcu_url" default="/dev/ttyUSB2:230400"/>
         <arg name="gcs_url" value="udp://:14564@localhost:14550"/>
         <arg name="tgt_system" value="3"/>
@@ -74,7 +75,7 @@
             <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
             <arg name="respawn_mavros" default="$(arg respawn_mavros)" />
         </include>
-    </group>
+    </group>-->
 
     <include file="$(find offboard)/launch/rosbag_log.launch"/>
     <arg name="formation_distance" default="10" />

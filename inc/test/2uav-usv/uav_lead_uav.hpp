@@ -12,6 +12,8 @@
 #include "DataMan.hpp"
 #include "Calculate.hpp"
 
+static float K_leader_height_ = 15;
+static float K_follow_height_ = 12;
 class usv_lead_uav {
 public:
     usv_lead_uav();

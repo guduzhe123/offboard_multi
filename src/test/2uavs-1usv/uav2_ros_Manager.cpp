@@ -62,6 +62,7 @@ void uav2_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
 
     yaw = Calculate::getInstance()->quaternion_get_yaw(uav_.current_local_pos.pose.orientation);
     dronepos_.m_heading = yaw * 180 / M_PI;
+    if (dronepos_.m_heading  < 0) dronepos_.m_heading  += 360;
     dronepos_.m_x = uav_.current_local_pos.pose.position.x;
     dronepos_.m_y = uav_.current_local_pos.pose.position.y;
     dronepos_.m_z = uav_.current_local_pos.pose.position.z;

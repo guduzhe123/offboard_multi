@@ -30,7 +30,8 @@
 
     <!-- UAV2 iris_2 -->
     <group ns="uav2">
-        <arg name="fcu_url" default="/dev/CUAVM1:230400"/>
+<!--        <arg name="fcu_url" default="/dev/CUAVM1:230400"/>-->
+        <arg name="fcu_url" default="/dev/REMOTE915_SC2:115200"/>
         <arg name="gcs_url" value="udp://:14561@localhost:14550"/>
         <arg name="tgt_system" value="2"/>
         <arg name="tgt_component" value="1"/>
@@ -52,7 +53,7 @@
         </include>
     </group>
 
-   <!-- &lt;!&ndash; USV1  &ndash;&gt;
+    <!-- USV1  -->
     <group ns="usv1">
         <arg name="fcu_url" default="/dev/NoopS1:921600"/>
         <arg name="gcs_url" value="udp://:14562@localhost:14550"/>
@@ -74,7 +75,7 @@
             <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
             <arg name="respawn_mavros" default="$(arg respawn_mavros)" />
         </include>
-    </group>-->
+    </group>
 
     <include file="$(find offboard)/launch/rosbag_log.launch"/>
     <arg name="formation_distance" default="10" />
