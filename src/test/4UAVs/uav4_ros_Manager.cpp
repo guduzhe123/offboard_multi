@@ -9,7 +9,8 @@ uav4_ros_Manager::uav4_ros_Manager() :
         is_arm_(false),
         is_offboard_(false),
         is_takeoff_(false),
-        is_land_(false)
+        is_land_(false),
+        is_speed_ctrl_(false)
 {
 
 }
@@ -36,6 +37,8 @@ void uav4_ros_Manager::uavOnInit(ros::NodeHandle &nh) {
             ("mavros/global_position/global", 100);
     g_speed_control_pub = nh.advertise<geometry_msgs::TwistStamped>
             ("mavros/setpoint_velocity/cmd_vel", 100);
+    dronePosPub = nh.advertise<offboard::DronePosUpdate>
+            ("drone/PosUpDate", 100);
 
     arming_client = nh.serviceClient<mavros_msgs::CommandBool>
             ("mavros/cmd/arming");
@@ -57,6 +60,21 @@ void uav4_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
 
 void uav4_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
     uav_.current_local_pos = *msg;
+    double yaw;
+    EulerAngles angles;
+
+    yaw = Calculate::getInstance()->quaternion_get_yaw(uav_.current_local_pos.pose.orientation, angles);
+    dronepos_.m_heading = yaw * 180 / M_PI;
+    if (dronepos_.m_heading  < 0) dronepos_.m_heading  += 360;
+
+    dronepos_.m_x = uav_.current_local_pos.pose.position.x;
+    dronepos_.m_y = uav_.current_local_pos.pose.position.y;
+    dronepos_.m_z = uav_.current_local_pos.pose.position.z;
+    dronepos_.m_roll = angles.roll;
+    dronepos_.m_pitch = angles.pitch;
+    dronePosPub.publish(dronepos_);
+    uav_.yaw = dronepos_.m_heading;
+    util_log("uav1 m_heading = %.2f", dronepos_.m_heading);
 }
 
 void uav4_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
@@ -156,12 +174,40 @@ void uav4_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
     DataMan::getInstance()->SetDroneData(uav_);
 }
 
-void uav4_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
-    local_pos_pub.publish(target_local_pos_sp_);
+void uav4_ros_Manager::uavPosSp(const DroneControl& droneControl) {
+    target_local_pos_sp_ = droneControl.target_pose;
+    is_speed_ctrl_ = droneControl.speed_ctrl;
+    target_heading_ = droneControl.target_heading;
 }
 
-void uav4_ros_Manager::uavPosSp(const geometry_msgs::PoseStamped& way_point) {
-    target_local_pos_sp_ = way_point;
+void uav4_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
+    if (is_speed_ctrl_) {
+        drone_yaw_control();
+        g_speed_control_pub.publish(vel_ctrl_sp_);
+    } else {
+//        target_local_pos_sp_.pose.orientation = uav_.current_local_pos.pose.orientation;
+        TVec3 pos_sp, pos_cur, pos_offset;
+        pos_sp = TVec3(target_local_pos_sp_.pose.position.x, target_local_pos_sp_.pose.position.y,
+                target_local_pos_sp_.pose.position.z);
+        pos_cur = TVec3(uav_.current_local_pos.pose.position.x, uav_.current_local_pos.pose.position.y,
+                        uav_.current_local_pos.pose.position.z);
+        Calculate::getInstance()->posToPosCtrl(pos_sp, pos_offset, pos_cur, m_speedLimit);
+
+        target_local_pos_sp_.pose.position.x = pos_offset.x();
+        target_local_pos_sp_.pose.position.y = pos_offset.y();
+        target_local_pos_sp_.pose.position.z = pos_offset.z();
+
+        local_pos_pub.publish(target_local_pos_sp_);
+    }
+}
+
+void uav4_ros_Manager::drone_yaw_control() {
+    float delta_heading = target_heading_ - dronepos_.m_heading;
+    int g_yaw_rate_sign = delta_heading / fabs(delta_heading);
+    float yaw_rate = g_yaw_rate_sign * 2;
+    vel_ctrl_sp_.twist.angular.z = yaw_rate;
+    util_log("yaw_rate = %.2f, target_heading_ = %.2f, dronepos_.m_heading = %.2f", yaw_rate, target_heading_,
+             dronepos_.m_heading);
 }
 
 void uav4_ros_Manager::uavCallService(mavros_msgs::SetMode &m_mode) {

@@ -10,6 +10,7 @@
 #define M_DEG_TO_RAD 		0.017453292519943295
 #define M_RAD_TO_DEG 		57.295779513082323
 #define CONSTANTS_RADIUS_OF_EARTH			6371000			/* meters (m)		*/
+const float m_speedLimit = 3;
 /**
  * @brief Orientation transform options when applying rotations to data
  */
@@ -48,7 +49,8 @@ public:
     Eigen::Quaterniond quaternion_from_rpy(const double roll, const double pitch, const double yaw);
     Eigen::Quaterniond quaternion_from_rpy(const Eigen::Vector3d &rpy);
     Eigen::Quaterniond transform_orientation(const Eigen::Quaterniond &q, const StaticTF transform);
-    double quaternion_get_yaw(const geometry_msgs::Quaternion &orientation);
+    double quaternion_get_yaw(const geometry_msgs::Quaternion &orientation, EulerAngles& angles);
+    void posToPosCtrl(TVec3 &target_point, TVec3 &target_after_judge, TVec3 &drone_cur_pos, float speed_limit);
     static Calculate* getInstance();
 
 private:
