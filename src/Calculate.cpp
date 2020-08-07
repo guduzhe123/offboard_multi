@@ -163,7 +163,7 @@ Eigen::Quaterniond Calculate::transform_orientation(const Eigen::Quaterniond &q,
     }
 }
 
-double Calculate::quaternion_get_yaw(const geometry_msgs::Quaternion &orientation)
+double Calculate::quaternion_get_yaw(const geometry_msgs::Quaternion &orientation, EulerAngles& angle)
 {
     // to match equation from:
     // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
@@ -179,7 +179,54 @@ double Calculate::quaternion_get_yaw(const geometry_msgs::Quaternion &orientatio
     const double &q2 = q.y();
     const double &q3 = q.z();
 
+    double sinr_cosp = 2 * (q0 * q1 + q2 * q3);
+    double cosr_cosp = 1 - 2 * (q1 * q1 + q2 * q2);
+    angle.roll = std::atan2(sinr_cosp, cosr_cosp);
+
+    // pitch (y-axis rotation)
+    double sinp = 2 * (q0 * q2 - q3 * q1);
+    if (std::abs(sinp) >= 1)
+        angle.pitch = std::copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+    else
+        angle.pitch = std::asin(sinp);
+
+    // yaw (z-axis rotation)
+    double siny_cosp = 2 * (q0 * q3 + q1 * q2);
+    double cosy_cosp = 1 - 2 * (q2 * q2 + q3 * q3);
+    angle.yaw = std::atan2(siny_cosp, cosy_cosp);
+
     return std::atan2(2. * (q0*q3 + q1*q2), 1. - 2. * (q2*q2 + q3*q3));
+}
+
+void Calculate::posToPosCtrl(TVec3 &target_point, TVec3 &target_after_judge, TVec3 &drone_cur_pos, float speed_limit) {
+    // get orign target closer to drone point
+    TVec3 pos_offset = target_point - drone_cur_pos;
+
+    if (speed_limit < 0.1f) {
+        speed_limit = m_speedLimit;
+    }
+    speed_limit *= 2;
+
+    //防止 一个向量过大 导致另外一个坐标轴的误差不被修正
+    //limit x/y/z to speed_limit, to avoid(5,0,100), one dimension is far smaller than another one
+    //3/15=0.2
+    if (pos_offset.norm() > 20) {
+        if (fabsf(pos_offset.x()) > speed_limit) {
+            pos_offset.x() = (pos_offset.x() > 0) ? speed_limit : -speed_limit;
+        }
+        if (fabsf(pos_offset.y()) > speed_limit) {
+            pos_offset.y() = (pos_offset.y() > 0) ? speed_limit : -speed_limit;
+        }
+        if (fabsf(pos_offset.z()) > speed_limit) {
+            pos_offset.z() = (pos_offset.z() > 0) ? speed_limit : -speed_limit;
+        }
+    }
+
+    float pos_len = pos_offset.norm();
+    if (pos_len > speed_limit) {
+        pos_offset = speed_limit * pos_offset.normalized();
+    }
+    target_after_judge = pos_offset;
 }
 
 Calculate* Calculate::getInstance() {

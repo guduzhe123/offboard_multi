@@ -59,10 +59,15 @@ void uavs_control::doProgress() {
 }
 
 void uavs_control::PublishDronePosControl(const multi_vehicle &multi_vehicles) {
-    uav1_control_->uavPosSp(multi_vehicles.uav1.target_local_pos_sp);
-    uav2_control_->usvPosSp(multi_vehicles.uav2.target_local_pos_sp);
-    uav3_control_->uavPosSp(multi_vehicles.uav3.target_local_pos_sp);
-    uav4_control_->uavPosSp(multi_vehicles.uav4.target_local_pos_sp);
+    DroneControl uav1, uav2, uav3, uav4;
+    uav1.target_pose = multi_vehicles.uav1.target_local_pos_sp;
+    uav2.target_pose = multi_vehicles.uav2.target_local_pos_sp;
+    uav3.target_pose = multi_vehicles.uav3.target_local_pos_sp;
+    uav4.target_pose = multi_vehicles.uav4.target_local_pos_sp;
+    uav1_control_->uavPosSp(uav1);
+    uav2_control_->uavPosSp(uav2);
+    uav3_control_->uavPosSp(uav3);
+    uav4_control_->uavPosSp(uav4);
 }
 
 void uavs_control::PublishBoatPosControl(const multi_vehicle &multi_vehicles) {

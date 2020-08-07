@@ -50,6 +50,19 @@ typedef struct GlobalPosition
                         * greater than 3 for strong signal */
 } GlobalPosition;      // pack(1)
 
+struct DroneControl {
+    bool speed_ctrl = false;
+    float target_heading = 0;
+    geometry_msgs::PoseStamped target_pose{};
+};
+
+typedef struct EulerAngles {
+    double roll;
+    double pitch;
+    double yaw;
+} EulerAngles;
+
+
 struct M_Drone {
     int drone_id;
     int movement_state;
@@ -68,6 +81,7 @@ struct M_Drone {
     TVec3 velocity;
     geometry_msgs::PoseStamped target_local_pos_sp;
     mavros_msgs::PositionTarget current_local_pos_sp;
+    DroneControl droneControl;
 };
 
 struct multi_vehicle{
@@ -164,12 +178,6 @@ struct TVehicleMsg {
 
     ros::Publisher local_pos_pub;
     ros::Publisher global_pos_pub;
-};
-
-struct DroneControl {
-    bool speed_ctrl = false;
-    float target_heading = 0;
-    geometry_msgs::PoseStamped target_pose{};
 };
 
 enum FDATA_TYPE {
