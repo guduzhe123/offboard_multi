@@ -10,7 +10,7 @@
 #define M_DEG_TO_RAD 		0.017453292519943295
 #define M_RAD_TO_DEG 		57.295779513082323
 #define CONSTANTS_RADIUS_OF_EARTH			6371000			/* meters (m)		*/
-const float m_speedLimit = 3;
+const float m_speedLimit = 1.0;
 /**
  * @brief Orientation transform options when applying rotations to data
  */
