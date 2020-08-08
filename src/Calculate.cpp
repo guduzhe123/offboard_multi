@@ -226,7 +226,7 @@ void Calculate::posToPosCtrl(TVec3 &target_point, TVec3 &target_after_judge, TVe
     if (pos_len > speed_limit) {
         pos_offset = speed_limit * pos_offset.normalized();
     }
-    target_after_judge = pos_offset;
+    target_after_judge = pos_offset + drone_cur_pos;
 }
 
 Calculate* Calculate::getInstance() {
