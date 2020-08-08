@@ -84,7 +84,7 @@ void uav4_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 void uav4_ros_Manager::commander_update(const ros::TimerEvent& e) {
     int command;
     DataMan::getInstance()->getCommand(command);
-    if (command == UAVS_START || command == SLAVESTART) {
+    if (command == VF_UAV_ALL_START /*|| command == SLAVESTART*/) {
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
         util_log("uav4 arm_i = %d, is_arm = %d", arm_i_, is_arm_);
@@ -131,11 +131,11 @@ void uav4_ros_Manager::commander_update(const ros::TimerEvent& e) {
         }
     }
 
-    if (command == ALLSTOP) {
+    if (command == VF_UAV_ALL_STOP) {
         target_local_pos_sp_ = uav_.current_local_pos;
     }
 
-    if (command == ALLLAND) {
+    if (command == VF_UAV_ALL_LAND) {
         mavros_msgs::SetMode land_set_mode;
         land_set_mode.request.custom_mode = "AUTO.Land";
         if (current_state.mode != "AUTO.Land" && !is_land_) {

@@ -54,47 +54,37 @@ FactPanel {
 
         QGCButton {
             text: "UAV_START "
-            onClicked: controller.sendCommand(600, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-        }
-
-        QGCButton {
-            text: "Master Start"
-            onClicked: controller.sendCommand(600, 0, 0, 6, 0, 0, 0, 0, 0, 0)
-        }
-        
-        QGCButton {
-            text: "Slave Start"
-            onClicked: controller.sendCommand(600, 0, 0, 7, 0, 0, 0, 0, 0, 0)
+            onClicked: controller.sendCommand(600, 0, 0, 10, 0, 0, 0, 0, 0, 0)
         }
 
         QGCButton {
             text: "All_Stop "
+            onClicked: controller.sendCommand(600, 0, 0, 11, 0, 0, 0, 0, 0, 0)
+        }
+
+        QGCButton {
+            text: "Square"
             onClicked: controller.sendCommand(600, 0, 0, 1, 0, 0, 0, 0, 0, 0)
         }
-
+        
         QGCButton {
-            text: "Slave Back X"
+            text: "TRIANGLE"
             onClicked: controller.sendCommand(600, 0, 0, 2, 0, 0, 0, 0, 0, 0)
         }
-        
+
         QGCButton {
-            text: "Slave Forward X"
+            text: "LINE_HORIZONTAL"
             onClicked: controller.sendCommand(600, 0, 0, 3, 0, 0, 0, 0, 0, 0)
         }
-
-        QGCButton {
-            text: "Slave Back Y"
-            onClicked: controller.sendCommand(600, 0, 0, 4, 0, 0, 0, 0, 0, 0)
-        }
         
         QGCButton {
-            text: "Slave Forward Y"
-            onClicked: controller.sendCommand(600, 0, 0, 5, 0, 0, 0, 0, 0, 0)
+            text: "LINE_VERTICAL"
+            onClicked: controller.sendCommand(600, 0, 0, 4, 0, 0, 0, 0, 0, 0)
         }
 
         QGCButton {
-            text: "ALLRETURN"
-            onClicked: controller.sendCommand(600, 0, 0, 8, 0, 0, 0, 0, 0, 0)
+            text: "ALL RETURN"
+            onClicked: controller.sendCommand(600, 0, 0, 9, 0, 0, 0, 0, 0, 0)
         }
 
     }

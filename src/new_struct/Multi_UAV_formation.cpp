@@ -72,6 +72,15 @@ void MultiUAVFormation::Oninit(const int config_) {
         }
             break;
 
+        case VF_UAV_RETURN: {
+            is_formation_ = true;
+            util_log("Formation call! ALL Return!");
+            leader_drone_ = m_multi_vehicle_.uav1;
+
+
+            break;
+        }
+
         default:
             break;
 
@@ -179,6 +188,7 @@ void MultiUAVFormation::SetFunctionOutPut() {
         m_multi_vehicle_.uav3.target_local_pos_sp = CalculateTargetPos(leader_curr , follow_uav2_) ;
         m_multi_vehicle_.uav4.target_local_pos_sp = CalculateTargetPos(leader_curr , follow_uav3_) ;
         m_multi_vehicle_.leader_uav.target_local_pos_sp = m_multi_vehicle_.uav1.target_local_pos_sp;
+
         DataMan::getInstance()->SetDroneControlData(m_multi_vehicle_);
     }
 }

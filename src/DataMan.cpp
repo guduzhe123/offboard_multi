@@ -331,6 +331,11 @@ void DataMan::SetCallBack(IFlightDataCallback *dataCallback) {
 
 void DataMan::setCommand(int command) {
     command_ = command;
+/*    multi_vehicle_.user_command = command;
+    util_log("set command = %d", multi_vehicle_.user_command);
+    if (callback_) {
+        callback_->OnFlightDataUpdate(FDATA_MANUAL_COMMAND);
+    }*/
 }
 void DataMan::getCommand(int& command) {
     command = command_;

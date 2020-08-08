@@ -83,7 +83,7 @@ void uav2_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 void uav2_ros_Manager::commander_update(const ros::TimerEvent& e) {
     int command;
     DataMan::getInstance()->getCommand(command);
-    if (command == UAVS_START || command == MASTERSTART) {
+    if (command == VF_UAV_ALL_START /*|| command == SLAVESTART*/) {
         util_log("uav2 begain to start!");
         mavros_msgs::SetMode offb_set_mode;
         offb_set_mode.request.custom_mode = "OFFBOARD";
@@ -115,11 +115,11 @@ void uav2_ros_Manager::commander_update(const ros::TimerEvent& e) {
         }
     }
 
-    if (command == ALLSTOP) {
+    if (command == VF_UAV_ALL_STOP) {
         target_local_pos_sp_ = usv_.current_local_pos;
     }
 
-    if (command == ALLLAND) {
+    if (command == VF_UAV_ALL_LAND) {
         mavros_msgs::SetMode land_set_mode;
         land_set_mode.request.custom_mode = "AUTO.Land";
         if (current_state.mode != "AUTO.Land" && !is_land_) {
