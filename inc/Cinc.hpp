@@ -132,6 +132,7 @@ enum {
 
 enum  {
     TAKEOFF,
+    ADJUSTHEADING,
     WAYPOINT,
     LAND,
     FALLOW_USV

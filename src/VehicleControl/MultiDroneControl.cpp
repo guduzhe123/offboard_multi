@@ -98,33 +98,34 @@ void MultiDroneControl::DoProgress() {
 
         // uav2 is the head drone.
         drone_uav_leader_.target_local_pos_sp = target_pos_;
+
+        setVehicleCtrlData();
     } else {
-        drone_uav_leader_.target_local_pos_sp.pose.position = m_multi_vehicle_.leader_uav.current_local_pos_sp.position;
+        drone_uav_leader_.target_local_pos_sp.pose.position = m_multi_vehicle_.leader_uav.current_local_pos.pose.position;
         droneManualControl();
     }
 
-    setVehicleCtrlData();
 }
 
 void MultiDroneControl::chooseLeader() {
     if (m_multi_vehicle_.uav1.current_state.connected /*&&
-        m_multi_vehicle_.uav1.current_state.armed */&&
-        m_multi_vehicle_.uav1.current_state.mode == "OFFBOARD") {
+        m_multi_vehicle_.uav1.current_state.armed *//*&&
+        m_multi_vehicle_.uav1.current_state.mode == "OFFBOARD"*/) {
         m_multi_vehicle_.leader_uav = m_multi_vehicle_.uav1;
     } else {
         if (m_multi_vehicle_.uav2.current_state.connected/* &&
-            m_multi_vehicle_.uav2.current_state.armed*/ &&
-            m_multi_vehicle_.uav2.current_state.mode == "OFFBOARD") {
+            m_multi_vehicle_.uav2.current_state.armed*/ /*&&
+            m_multi_vehicle_.uav2.current_state.mode == "OFFBOARD"*/) {
             m_multi_vehicle_.leader_uav = m_multi_vehicle_.uav2;
         } else {
             if (m_multi_vehicle_.uav3.current_state.connected /*&&
-                m_multi_vehicle_.uav3.current_state.armed */&&
-                m_multi_vehicle_.uav3.current_state.mode == "OFFBOARD") {
+                m_multi_vehicle_.uav3.current_state.armed *//*&&
+                m_multi_vehicle_.uav3.current_state.mode == "OFFBOARD"*/) {
                 m_multi_vehicle_.leader_uav = m_multi_vehicle_.uav3;
             } else {
                 if (m_multi_vehicle_.uav4.current_state.connected /*&&
-                    m_multi_vehicle_.uav4.current_state.armed */&&
-                    m_multi_vehicle_.uav4.current_state.mode == "OFFBOARD") {
+                    m_multi_vehicle_.uav4.current_state.armed *//*&&
+                    m_multi_vehicle_.uav4.current_state.mode == "OFFBOARD"*/) {
                     m_multi_vehicle_.leader_uav = m_multi_vehicle_.uav4;
                 }
             }
@@ -174,10 +175,14 @@ bool MultiDroneControl::pos_reached(geometry_msgs::PoseStamped &current_pos, geo
 }
 
 void MultiDroneControl::droneManualControl() {
-    m_multi_vehicle_.uav1.target_local_pos_sp = m_multi_vehicle_.leader_uav.target_local_pos_sp;
-    m_multi_vehicle_.uav2.target_local_pos_sp = m_multi_vehicle_.leader_uav.target_local_pos_sp;
-    m_multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicle_.leader_uav.target_local_pos_sp;
-    m_multi_vehicle_.uav4.target_local_pos_sp = m_multi_vehicle_.leader_uav.target_local_pos_sp;
+    m_multi_vehicle_.uav1.target_local_pos_sp = drone_uav_leader_.target_local_pos_sp;
+    m_multi_vehicle_.uav2.target_local_pos_sp = drone_uav_leader_.target_local_pos_sp;
+    m_multi_vehicle_.uav3.target_local_pos_sp = drone_uav_leader_.target_local_pos_sp;
+    m_multi_vehicle_.uav4.target_local_pos_sp = drone_uav_leader_.target_local_pos_sp;
+
+    util_log("!!!!!!manual control output = (%.2f, %.2f, %.2f)", drone_uav_leader_.target_local_pos_sp.pose.position.x,
+             drone_uav_leader_.target_local_pos_sp.pose.position.y, drone_uav_leader_.target_local_pos_sp.pose.position.z);
+
     DataMan::getInstance()->SetDroneControlData(m_multi_vehicle_);
 }
 

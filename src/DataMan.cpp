@@ -231,6 +231,8 @@ void DataMan::PrinrDorneFlightDate() {
              multi_vehicle_.uav3.current_local_pos.pose.position.y, multi_vehicle_.uav3.current_local_pos.pose.position.z);
     util_log("uav4 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.uav4.current_local_pos.pose.position.x,
              multi_vehicle_.uav4.current_local_pos.pose.position.y, multi_vehicle_.uav4.current_local_pos.pose.position.z);
+    util_log("leader uav current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.leader_uav.current_local_pos.pose.position.x,
+             multi_vehicle_.leader_uav.current_local_pos.pose.position.y, multi_vehicle_.leader_uav.current_local_pos.pose.position.z);
 
 }
 
