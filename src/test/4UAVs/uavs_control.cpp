@@ -64,6 +64,12 @@ void uavs_control::PublishDronePosControl(const multi_vehicle &multi_vehicles) {
     uav2.target_pose = multi_vehicles.uav2.target_local_pos_sp;
     uav3.target_pose = multi_vehicles.uav3.target_local_pos_sp;
     uav4.target_pose = multi_vehicles.uav4.target_local_pos_sp;
+
+    // keep height different for safety
+    uav2.target_pose.pose.position.z = multi_vehicles.uav2.target_local_pos_sp.pose.position.z - 2;
+    uav3.target_pose.pose.position.z = multi_vehicles.uav3.target_local_pos_sp.pose.position.z + 2;
+    uav4.target_pose.pose.position.z = multi_vehicles.uav4.target_local_pos_sp.pose.position.z + 4;
+
     uav1_control_->uavPosSp(uav1);
     uav2_control_->uavPosSp(uav2);
     uav3_control_->uavPosSp(uav3);

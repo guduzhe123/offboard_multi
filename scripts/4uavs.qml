@@ -87,6 +87,11 @@ FactPanel {
             onClicked: controller.sendCommand(600, 0, 0, 9, 0, 0, 0, 0, 0, 0)
         }
 
+        QGCButton {
+            text: "ALL LAND"
+            onClicked: controller.sendCommand(600, 0, 0, 12, 0, 0, 0, 0, 0, 0)
+        }
+
     }
 
     // Your own custom changes end here - everything else below is always required

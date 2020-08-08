@@ -15,11 +15,12 @@ MultiUAVFormation::MultiUAVFormation() :
 
 }
 
-void MultiUAVFormation::Oninit(const int config_) {
-    util_log("formation config = %d", config_ );
+void MultiUAVFormation::Oninit(const int config) {
+    util_log("formation config = %d", config );
+    config_ = config;
     leader_curr_pos_ = TVec3(m_multi_vehicle_.uav1.current_local_pos.pose.position.x, m_multi_vehicle_.uav1.current_local_pos.pose.position.y,
                             m_multi_vehicle_.uav1.current_local_pos.pose.position.z);
-    switch (config_) {
+    switch (config) {
         case VF_UAV_SQUARE: {
             is_formation_ = true;
             util_log("Formation call! Square!");
@@ -76,8 +77,6 @@ void MultiUAVFormation::Oninit(const int config_) {
             is_formation_ = true;
             util_log("Formation call! ALL Return!");
             leader_drone_ = m_multi_vehicle_.uav1;
-
-
             break;
         }
 
@@ -180,15 +179,24 @@ void MultiUAVFormation::SetFunctionOutPut() {
 
     if (is_formation_) {
         util_log("formation drone output!!!!!");
-        geometry_msgs::PoseStamped leader_curr{};
-        leader_curr.pose.position.z = m_multi_vehicle_.leader_uav.current_local_pos.pose.position.z;
+        if (config_ != VF_UAV_RETURN) {
+            geometry_msgs::PoseStamped leader_curr{};
+            leader_curr.pose.position.z = m_multi_vehicle_.leader_uav.current_local_pos.pose.position.z;
 
-        m_multi_vehicle_.uav1.target_local_pos_sp = CalculateTargetPos(leader_curr , leader_curr_pos_) ;
-        m_multi_vehicle_.uav2.target_local_pos_sp = CalculateTargetPos(leader_curr , follow_uav1_) ;
-        m_multi_vehicle_.uav3.target_local_pos_sp = CalculateTargetPos(leader_curr , follow_uav2_) ;
-        m_multi_vehicle_.uav4.target_local_pos_sp = CalculateTargetPos(leader_curr , follow_uav3_) ;
-        m_multi_vehicle_.leader_uav.target_local_pos_sp = m_multi_vehicle_.uav1.target_local_pos_sp;
+            m_multi_vehicle_.uav1.target_local_pos_sp = CalculateTargetPos(leader_curr, leader_curr_pos_);
+            m_multi_vehicle_.uav2.target_local_pos_sp = CalculateTargetPos(leader_curr, follow_uav1_);
+            m_multi_vehicle_.uav3.target_local_pos_sp = CalculateTargetPos(leader_curr, follow_uav2_);
+            m_multi_vehicle_.uav4.target_local_pos_sp = CalculateTargetPos(leader_curr, follow_uav3_);
+            m_multi_vehicle_.leader_uav.target_local_pos_sp = m_multi_vehicle_.uav1.target_local_pos_sp;
+        } else {
+            m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.x = 0;
+            m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.y = 0;
+            m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z = m_multi_vehicle_.uav1.current_local_pos.pose.position.z;
 
+            m_multi_vehicle_.uav2.target_local_pos_sp = m_multi_vehicle_.uav1.target_local_pos_sp;
+            m_multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicle_.uav1.target_local_pos_sp;
+            m_multi_vehicle_.uav4.target_local_pos_sp = m_multi_vehicle_.uav1.target_local_pos_sp;
+        }
         DataMan::getInstance()->SetDroneControlData(m_multi_vehicle_);
     }
 }

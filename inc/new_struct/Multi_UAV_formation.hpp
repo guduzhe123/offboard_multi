@@ -40,6 +40,7 @@ private:
 
     multi_vehicle m_multi_vehicle_;
 
+    int config_;
     bool is_formation_;
     bool is_get_takeoff_pos_;
     int leader_uav_id_;
