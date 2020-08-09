@@ -128,6 +128,17 @@ FactPanel {
             onClicked: controller.sendCommand(600, 0, 0, 15, 0, 0, 0, 0, 0, 0)
         }
 
+
+        QGCButton {
+            text: "UAV Fallow USV"
+            onClicked: controller.sendCommand(600, 0, 0, 16, 0, 0, 0, 0, 0, 0)
+        }
+
+        QGCButton {
+            text: "USV Fallow UAV"
+            onClicked: controller.sendCommand(600, 0, 0, 17, 0, 0, 0, 0, 0, 0)
+        }
+
     }
 
     // Your own custom changes end here - everything else below is always required

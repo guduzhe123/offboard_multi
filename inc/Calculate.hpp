@@ -51,10 +51,11 @@ public:
     Eigen::Quaterniond transform_orientation(const Eigen::Quaterniond &q, const StaticTF transform);
     double quaternion_get_yaw(const geometry_msgs::Quaternion &orientation, EulerAngles& angles);
     void posToPosCtrl(TVec3 &target_point, TVec3 &target_after_judge, TVec3 &drone_cur_pos, float speed_limit);
+    void getTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_first_local);
     static Calculate* getInstance();
 
 private:
-
+    bool is_get_takeoff_pos_ = false;
     static Calculate* l_pInst;
 };
 #endif //OFFBOARD_CALCULATE_HPP

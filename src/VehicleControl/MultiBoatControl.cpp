@@ -118,17 +118,17 @@ void MultiBoatControl::DoProgress() {
 
 void MultiBoatControl::chooseLeader() {
     if (m_multi_vehicle_.usv1.current_state.connected
-        /*m_multi_vehicle_.usv1.current_state.armed &&*/
+        && m_multi_vehicle_.usv1.current_state.armed
         /* && m_multi_vehicle_.usv1.current_state.mode == "OFFBOARD"*/) {
         m_multi_vehicle_.leader_usv = m_multi_vehicle_.usv1;
     } else {
         if (m_multi_vehicle_.usv2.current_state.connected
-           /* m_multi_vehicle_.usv2.current_state.armed &&*/
+            && m_multi_vehicle_.usv2.current_state.armed
             /* && m_multi_vehicle_.usv2.current_state.mode == "OFFBOARD"*/) {
             m_multi_vehicle_.leader_usv = m_multi_vehicle_.usv2;
         } else {
             if (m_multi_vehicle_.usv3.current_state.connected
-                /*m_multi_vehicle_.usv3.current_state.armed &&*/
+                &&m_multi_vehicle_.usv3.current_state.armed
                 /*&& m_multi_vehicle_.usv3.current_state.mode == "OFFBOARD"*/) {
                 m_multi_vehicle_.leader_usv = m_multi_vehicle_.usv3;
             }

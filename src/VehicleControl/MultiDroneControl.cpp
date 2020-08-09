@@ -36,9 +36,12 @@ void MultiDroneControl::DoProgress() {
         switch (uav_state_) {
             // takeoff
             case TAKEOFF:
+                // get usv and uav takeoff location different
+                Calculate::getInstance()->getTakeoffPos(m_multi_vehicle_.usv1, m_multi_vehicle_.uav1,
+                                                        follow_slave_first_local_);
                 target_pos_.pose.position.x = 0;
                 target_pos_.pose.position.y = 0;
-                target_pos_.pose.position.z = 15;
+                target_pos_.pose.position.z = K_multi_usv_formation_distance;
 
                 if (pos_reached(drone_uav_leader_.current_local_pos, target_pos_, 0.8)){
                     if (is_uav_follow_) {
@@ -80,16 +83,28 @@ void MultiDroneControl::DoProgress() {
 
                 break;
 
+            case FORMATION: {
+                target_pos_.pose.position.x = follow_slave_first_local_.x();
+                target_pos_.pose.position.y = follow_slave_first_local_.y();
+
+                if (pos_reached(m_multi_vehicle_.leader_uav.current_local_pos, target_pos_, 0.8)) {
+                    uav_state_ = FALLOW_USV;
+                }
+                break;
+            }
+
             case FALLOW_USV:
                 if (m_multi_vehicle_.leader_usv.current_state.armed) {
-                    target_pos_.pose.position.x = m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x;
-                    target_pos_.pose.position.y = m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y;
+                    target_pos_.pose.position.x = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.x +
+                            follow_slave_first_local_.x();
+                    target_pos_.pose.position.y = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.y +
+                            follow_slave_first_local_.y();
                     util_log("usv leader target pos x = %.2f, y = %.2f, z = %.2f", m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x,
                              m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y, m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z);
                 }
-                if (m_multi_vehicle_.leader_usv.movement_state == USA_DISARM) {
+/*                if (m_multi_vehicle_.leader_usv.movement_state == USA_DISARM) {
                     uav_state_ = LAND;
-                }
+                }*/
                 break;
 
             default:
@@ -108,23 +123,23 @@ void MultiDroneControl::DoProgress() {
 }
 
 void MultiDroneControl::chooseLeader() {
-    if (m_multi_vehicle_.uav1.current_state.connected /*&&
-        m_multi_vehicle_.uav1.current_state.armed *//*&&
+    if (m_multi_vehicle_.uav1.current_state.connected &&
+        m_multi_vehicle_.uav1.current_state.armed /*&&
         m_multi_vehicle_.uav1.current_state.mode == "OFFBOARD"*/) {
         m_multi_vehicle_.leader_uav = m_multi_vehicle_.uav1;
     } else {
-        if (m_multi_vehicle_.uav2.current_state.connected/* &&
-            m_multi_vehicle_.uav2.current_state.armed*/ /*&&
+        if (m_multi_vehicle_.uav2.current_state.connected &&
+            m_multi_vehicle_.uav2.current_state.armed /*&&
             m_multi_vehicle_.uav2.current_state.mode == "OFFBOARD"*/) {
             m_multi_vehicle_.leader_uav = m_multi_vehicle_.uav2;
         } else {
-            if (m_multi_vehicle_.uav3.current_state.connected /*&&
-                m_multi_vehicle_.uav3.current_state.armed *//*&&
+            if (m_multi_vehicle_.uav3.current_state.connected &&
+                m_multi_vehicle_.uav3.current_state.armed /*&&
                 m_multi_vehicle_.uav3.current_state.mode == "OFFBOARD"*/) {
                 m_multi_vehicle_.leader_uav = m_multi_vehicle_.uav3;
             } else {
-                if (m_multi_vehicle_.uav4.current_state.connected /*&&
-                    m_multi_vehicle_.uav4.current_state.armed *//*&&
+                if (m_multi_vehicle_.uav4.current_state.connected &&
+                    m_multi_vehicle_.uav4.current_state.armed /*&&
                     m_multi_vehicle_.uav4.current_state.mode == "OFFBOARD"*/) {
                     m_multi_vehicle_.leader_uav = m_multi_vehicle_.uav4;
                 }
@@ -140,6 +155,9 @@ void MultiDroneControl::chooseLeader() {
 void MultiDroneControl::getData() {
     m_multi_vehicle_ = DataMan::getInstance()->GetData();
     is_formation_ = m_multi_vehicle_.leader_uav.is_formation;
+    config_ = m_multi_vehicle_.user_command;
+    if (config_ == VF_UAV_FALLOW_USV) uav_state_ = FORMATION;
+
 }
 
 geometry_msgs::PoseStamped MultiDroneControl::CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, TVec3 &formation_target) {

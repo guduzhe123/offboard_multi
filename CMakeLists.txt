@@ -168,3 +168,26 @@ add_library(4uavs_lib
         src/new_struct/)
 target_link_libraries(4uav 4uavs_lib multi_offboard_lib)
 target_link_libraries(4uav ${catkin_LIBRARIES})
+
+
+#[[4uav]]
+add_executable(7vehicles src/test/7Vehicles/main.cpp)
+add_library(7vehicles_lib
+        STATIC
+        src/test/3USVs/usv1_ros_Manager.cpp
+        src/test/3USVs/usv2_ros_Manager.cpp
+        src/test/3USVs/usv3_ros_Manager.cpp
+        src/test/4UAVs/uav1_ros_Manager.cpp
+        src/test/4UAVs/uav2_ros_Manager.cpp
+        src/test/4UAVs/uav3_ros_Manager.cpp
+        src/test/4UAVs/uav4_ros_Manager.cpp
+        src/util.cpp
+        src/DataMan.cpp
+        src/Calculate.cpp
+        src/test/3USVs/usvs_control.cpp
+        src/test/4UAVs/uavs_control.cpp
+        src/test/7Vehicles/7vechicles_control.cpp
+        src/PathCreator.cpp
+        src/new_struct/)
+target_link_libraries(7vehicles 7vehicles_lib multi_offboard_lib)
+target_link_libraries(7vehicles ${catkin_LIBRARIES})

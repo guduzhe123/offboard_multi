@@ -8,6 +8,7 @@
 #include "Cinc.hpp"
 #include "IVehicleControl.hpp"
 #include "DataMan.hpp"
+#include "Calculate.hpp"
 
 class MultiDroneControl : public IVehicleControl {
 public:
@@ -36,12 +37,14 @@ private:
 
     static MultiDroneControl* l_lint;
 
+    int config_;
     int uav_state_;
     bool is_formation_;
     multi_vehicle m_multi_vehicle_;
     M_Drone drone_uav_leader_;
     geometry_msgs::PoseStamped target_pos_;
     vector<geometry_msgs::PoseStamped> uav_way_points_;
+    TVec3 follow_slave_first_local_;
 
     bool is_uav_follow_;
 

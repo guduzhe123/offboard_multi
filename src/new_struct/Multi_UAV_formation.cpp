@@ -196,6 +196,11 @@ void MultiUAVFormation::SetFunctionOutPut() {
             m_multi_vehicle_.uav2.target_local_pos_sp = m_multi_vehicle_.uav1.target_local_pos_sp;
             m_multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicle_.uav1.target_local_pos_sp;
             m_multi_vehicle_.uav4.target_local_pos_sp = m_multi_vehicle_.uav1.target_local_pos_sp;
+
+            m_multi_vehicle_.uav2.target_local_pos_sp.pose.position.z = K_multi_usv_formation_distance;
+            m_multi_vehicle_.uav3.target_local_pos_sp.pose.position.z = K_multi_usv_formation_distance;
+            m_multi_vehicle_.uav4.target_local_pos_sp.pose.position.z = K_multi_usv_formation_distance;
+
         }
         DataMan::getInstance()->SetDroneControlData(m_multi_vehicle_);
     }

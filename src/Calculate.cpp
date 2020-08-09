@@ -229,6 +229,23 @@ void Calculate::posToPosCtrl(TVec3 &target_point, TVec3 &target_after_judge, TVe
     target_after_judge = pos_offset + drone_cur_pos;
 }
 
+void Calculate::getTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_first_local) {
+    GlobalPosition master_start_gps, slave_takeoff_gps;
+
+    if (slave.current_state.armed && !is_get_takeoff_pos_) {
+        master_start_gps = GlobalPosition{master.latitude, master.longtitude, 0};
+        slave_takeoff_gps = GlobalPosition{slave.latitude, slave.longtitude, 0};
+        util_log("master_start_gps_ = ( %.9f, %.9f)", master_start_gps.latitude, master_start_gps.longitude);
+        util_log("slave_takeoff_gps_ = ( %.9f, %.9f)", slave_takeoff_gps.latitude, slave_takeoff_gps.longitude);
+
+        GetLocalPos(master_start_gps, slave_takeoff_gps, follow_slave_first_local);
+        util_log("follow_slave_first_local = ( %.2f, %.2f, %.2f)", follow_slave_first_local.x(), follow_slave_first_local.y(),
+                 follow_slave_first_local.z());
+
+        is_get_takeoff_pos_ = true;
+    }
+}
+
 Calculate* Calculate::getInstance() {
     if (l_pInst == NULL) {
         l_pInst = new Calculate();

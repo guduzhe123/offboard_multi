@@ -22,32 +22,32 @@ void PathCreator::uav_add_way_points(vector<geometry_msgs::PoseStamped> &uav_way
 
     way_point.pose.position.x = 0;
     way_point.pose.position.y = 0;
-    way_point.pose.position.z = 15;
+    way_point.pose.position.z = K_multi_usv_formation_distance;
     uav_way_points.push_back(way_point);
 
-    way_point.pose.position.x = 40;
-    way_point.pose.position.y = 40;
-    way_point.pose.position.z = 15;
+    way_point.pose.position.x = 10;
+    way_point.pose.position.y = 10;
+    way_point.pose.position.z = K_multi_usv_formation_distance;
     uav_way_points.push_back(way_point);
 
-    way_point.pose.position.x = -30;
-    way_point.pose.position.y = 40;
-    way_point.pose.position.z = 15;
+    way_point.pose.position.x = -0;
+    way_point.pose.position.y = 10;
+    way_point.pose.position.z = K_multi_usv_formation_distance;
     uav_way_points.push_back(way_point);
 
-    way_point.pose.position.x = -30;
-    way_point.pose.position.y = -40;
-    way_point.pose.position.z = 15;
+    way_point.pose.position.x = -10;
+    way_point.pose.position.y = -10;
+    way_point.pose.position.z = K_multi_usv_formation_distance;
     uav_way_points.push_back(way_point);
 
-    way_point.pose.position.x = 30;
-    way_point.pose.position.y = -40;
-    way_point.pose.position.z = 15;
+    way_point.pose.position.x = 10;
+    way_point.pose.position.y = -10;
+    way_point.pose.position.z = K_multi_usv_formation_distance;
     uav_way_points.push_back(way_point);
 
     way_point.pose.position.x = 0;
     way_point.pose.position.y = 0;
-    way_point.pose.position.z = 15;
+    way_point.pose.position.z = K_multi_usv_formation_distance;
     uav_way_points.push_back(way_point);
 
     std::reverse(uav_way_points.begin(), uav_way_points.end());
@@ -56,23 +56,23 @@ void PathCreator::uav_add_way_points(vector<geometry_msgs::PoseStamped> &uav_way
 void PathCreator::usv_add_way_points(vector<geometry_msgs::PoseStamped> &usv_way_points) {
     geometry_msgs::PoseStamped way_point;
 
-    way_point.pose.position.x = 40;
-    way_point.pose.position.y = 40;
+    way_point.pose.position.x = 10;
+    way_point.pose.position.y = 10;
     way_point.pose.position.z = 0;
     usv_way_points.push_back(way_point);
 
-    way_point.pose.position.x = -40;
-    way_point.pose.position.y = 40;
+    way_point.pose.position.x = -10;
+    way_point.pose.position.y = 10;
     way_point.pose.position.z = 0;
     usv_way_points.push_back(way_point);
 
-    way_point.pose.position.x = -50;
-    way_point.pose.position.y = -50;
+    way_point.pose.position.x = -10;
+    way_point.pose.position.y = -10;
     way_point.pose.position.z = 0;
     usv_way_points.push_back(way_point);
 
-    way_point.pose.position.x = 30;
-    way_point.pose.position.y = -40;
+    way_point.pose.position.x = 10;
+    way_point.pose.position.y = -10;
     way_point.pose.position.z = 0;
     usv_way_points.push_back(way_point);
 

@@ -135,7 +135,8 @@ enum  {
     ADJUSTHEADING,
     WAYPOINT,
     LAND,
-    FALLOW_USV
+    FALLOW_USV,
+    FORMATION
 };
 
 enum {
@@ -159,7 +160,9 @@ enum COMMAND_TYPE {
     VF_UAV_ALL_LAND = 12,
     VF_USV_ALL_START = 13,
     VF_USV_ALL_STOP = 14,
-    VF_USV_ALL_RETURN = 15
+    VF_USV_ALL_RETURN = 15,
+    VF_UAV_FALLOW_USV = 16,
+    VF_USV_FALLOW_UAV = 17
 };
 
 
