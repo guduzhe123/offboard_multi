@@ -96,7 +96,7 @@ void uav1_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
     int config = (int) debugValue.data[0];
 
     DataMan::getInstance()->setCommand(config);
-    PathCreator::geInstance()->CreateFormationInit(config);
+    PathCreator::geInstance()->CreateUAVFormationInit(config);
 }
 
 void uav1_ros_Manager::commander_update(const ros::TimerEvent& e) {

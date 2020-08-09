@@ -36,7 +36,8 @@ public:
 
     void CreatVehicle();
 
-    void CreateFormationInit(const int config);
+    void CreateUAVFormationInit(const int config);
+    void CreateUSVFormationInit(const int config);
 
     static PathCreator* geInstance();
 

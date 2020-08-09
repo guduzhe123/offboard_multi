@@ -6,27 +6,30 @@
 #define OFFBOARD_USVS_CONTROL_HPP
 
 #include "Cinc.hpp"
-#include "usv5_ros_Manager.hpp"
-#include "usv6_ros_Manager.hpp"
-#include "usv7_ros_Manager.hpp"
+#include "usv1_ros_Manager.hpp"
+#include "usv2_ros_Manager.hpp"
+#include "usv3_ros_Manager.hpp"
 #include "DataMan.hpp"
 #include "Calculate.hpp"
 
-class usvs_control {
+class usvs_control : public IMsgRosManager{
 public:
     usvs_control();
     ~usvs_control() = default;
-    void onInit();
+    static  usvs_control* getInstance();
+    void OnInit() override ;
+    void PublishDronePosControl(const multi_vehicle &multi_vehicles) override ;
+    void PublishBoatPosControl(const multi_vehicle &multi_vehicles) override ;
+    void SetUAVState(mavros_msgs::SetMode &m_mode) override ;
+    void SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) override ;
+
     void getData();
     void doProgress();
-    static  usvs_control* getInstance();
 
 private:
     usv1_ros_Manager::Ptr usv1_control_;
     usv2_ros_Manager::Ptr usv2_control_;
     usv3_ros_Manager::Ptr usv3_control_;
-    usv4_ros_Manager::Ptr usv4_control_;
-
 
     static usvs_control* l_pInst;
     int usv_state_;

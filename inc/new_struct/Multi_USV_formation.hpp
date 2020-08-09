@@ -46,6 +46,7 @@ private:
     bool usv2_reached_;
     bool usv3_reached_;
     int leader_usv_id_;
+    int config_;
     M_Drone leader_drone_;
 
     TVec3 leader_curr_pos_;

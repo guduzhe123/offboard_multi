@@ -23,18 +23,18 @@ usvs_control* usvs_control::getInstance() {
     return l_pInst;
 }
 
-void usvs_control::onInit() {
-    ros::NodeHandle usv5_nh("usv5");
-    usv5_control_.reset(new usv5_ros_Manager);
-    usv5_control_->usvOnInit(usv5_nh);
+void usvs_control::OnInit() {
+    ros::NodeHandle usv1_nh("usv1");
+    usv1_control_.reset(new usv1_ros_Manager);
+    usv1_control_->usvOnInit(usv1_nh);
 
-    ros::NodeHandle usv6_nh("usv6");
-    usv6_control_.reset(new usv6_ros_Manager);
-    usv6_control_->usvOnInit(usv6_nh);
+    ros::NodeHandle usv2_nh("usv2");
+    usv2_control_.reset(new usv2_ros_Manager);
+    usv2_control_->usvOnInit(usv2_nh);
 
-    ros::NodeHandle usv7_nh("usv7");
-    usv7_control_.reset(new usv7_ros_Manager);
-    usv7_control_->usvOnInit(usv7_nh);
+    ros::NodeHandle usv3_nh("usv3");
+    usv3_control_.reset(new usv3_ros_Manager);
+    usv3_control_->usvOnInit(usv3_nh);
 
     ros::NodeHandle nh("~");
     int waypoint_num_;
@@ -50,6 +50,24 @@ void usvs_control::getData() {
 }
 
 void usvs_control::doProgress() {
+
+}
+
+void usvs_control::PublishDronePosControl(const multi_vehicle &multi_vehicles) {
+
+}
+
+void usvs_control::PublishBoatPosControl(const multi_vehicle &multi_vehicles) {
+    usv1_control_->usvPosSp(multi_vehicles.usv1.target_local_pos_sp);
+    usv2_control_->usvPosSp(multi_vehicles.usv2.target_local_pos_sp);
+    usv3_control_->usvPosSp(multi_vehicles.usv3.target_local_pos_sp);
+}
+
+void usvs_control::SetUAVState(mavros_msgs::SetMode &m_mode) {
+
+}
+
+void usvs_control::SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) {
 
 }
 

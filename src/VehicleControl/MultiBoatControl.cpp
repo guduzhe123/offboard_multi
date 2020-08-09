@@ -33,8 +33,8 @@ void MultiBoatControl::DoProgress() {
     if (is_formation_) {
         return;
     }
-    util_log("leader uav movement_state = %d", m_multi_vehicle_.leader_uav.movement_state);
-    if (m_multi_vehicle_.leader_usv.current_state.mode == "OFFBOARD" && m_multi_vehicle_.leader_uav.movement_state == FALLOW_USV) {
+    util_log("leader usv movement_state = %d", m_multi_vehicle_.leader_uav.movement_state);
+    if (m_multi_vehicle_.leader_usv.current_state.mode == "OFFBOARD" /*&& m_multi_vehicle_.leader_uav.movement_state == FALLOW_USV*/) {
         mavros_msgs::CommandBool arm_cmd;
         switch (usv_state_) {
             case USA_INIT:
@@ -52,25 +52,25 @@ void MultiBoatControl::DoProgress() {
                 if (!usv_way_points_.empty()) {
                     m_multi_vehicle_.leader_usv.target_local_pos_sp = usv_way_points_.back();
                     if (pos_reached(m_multi_vehicle_.usv1.current_local_pos, usv_way_points_.back(), usv_position_allow_reached_)) {
-                        usv5_reached_ = true;
+                        usv1_reached_ = true;
                         arm_cmd.request.value = false;
                         DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv1.drone_id);
-                        util_log("usv5 disarm at one point");
+                        util_log("usv1 disarm at one point");
                     }
                     if (pos_reached(m_multi_vehicle_.usv2.current_local_pos, usv_way_points_.back(), usv_position_allow_reached_)) {
-                        usv6_reached_ = true;
+                        usv2_reached_ = true;
                         arm_cmd.request.value = false;
                         DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv2.drone_id);
-                        util_log("usv6 disarm at one point");
+                        util_log("usv2 disarm at one point");
                     }
                     if (pos_reached(m_multi_vehicle_.usv3.current_local_pos, usv_way_points_.back(), usv_position_allow_reached_)) {
-                        usv7_reached_ = true;
+                        usv3_reached_ = true;
                         arm_cmd.request.value = false;
                         DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv3.drone_id);
-                        util_log("usv7 disarm at one point");
+                        util_log("usv3 disarm at one point");
                     }
 
-                    if (usv5_reached_ /*&& usv6_reached_ && usv7_reached_*/) {
+                    if (usv1_reached_ /*&& usv2_reached_ && usv3_reached_*/) {
                         util_log("Finished one way point = (%.2f, %.2f, %.2f)",
                                  usv_way_points_.back().pose.position.x, usv_way_points_.back().pose.position.y,
                                  usv_way_points_.back().pose.position.z);
@@ -84,13 +84,13 @@ void MultiBoatControl::DoProgress() {
                             util_log("Finish all target points!");
                             usv_state_ = USA_DISARM;
                         }
-                        usv5_reached_ = false;
-                        usv6_reached_ = false;
-                        usv7_reached_ = false;
+                        usv1_reached_ = false;
+                        usv2_reached_ = false;
+                        usv3_reached_ = false;
                     }
 
                     // arm all if at least one of them cannot reach at the target.
-                    if ((!usv5_reached_ || !usv6_reached_ || !usv7_reached_) && usv_state_ == USA_WAYPOINT){
+                    if ((!usv1_reached_ || !usv2_reached_ || !usv3_reached_) && usv_state_ == USA_WAYPOINT){
                         arm_cmd.request.value = true;
                         DataMan::getInstance()->SetUSVState(arm_cmd, 0);
                     }
@@ -107,25 +107,29 @@ void MultiBoatControl::DoProgress() {
                 util_log("Disarm all usv");
                 break;
         }
+        setVehicleCtrlData();
+    } else {
+        m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position =
+                m_multi_vehicle_.leader_usv.current_local_pos.pose.position;
+        USVManualControl();
     }
-    setVehicleCtrlData();
 
 }
 
 void MultiBoatControl::chooseLeader() {
-    if (m_multi_vehicle_.usv1.current_state.connected &&
+    if (m_multi_vehicle_.usv1.current_state.connected
         /*m_multi_vehicle_.usv1.current_state.armed &&*/
-        m_multi_vehicle_.usv1.current_state.mode == "OFFBOARD") {
+        /* && m_multi_vehicle_.usv1.current_state.mode == "OFFBOARD"*/) {
         m_multi_vehicle_.leader_usv = m_multi_vehicle_.usv1;
     } else {
-        if (m_multi_vehicle_.usv2.current_state.connected &&
+        if (m_multi_vehicle_.usv2.current_state.connected
            /* m_multi_vehicle_.usv2.current_state.armed &&*/
-            m_multi_vehicle_.usv2.current_state.mode == "OFFBOARD") {
+            /* && m_multi_vehicle_.usv2.current_state.mode == "OFFBOARD"*/) {
             m_multi_vehicle_.leader_usv = m_multi_vehicle_.usv2;
         } else {
-            if (m_multi_vehicle_.usv3.current_state.connected &&
+            if (m_multi_vehicle_.usv3.current_state.connected
                 /*m_multi_vehicle_.usv3.current_state.armed &&*/
-                m_multi_vehicle_.usv3.current_state.mode == "OFFBOARD") {
+                /*&& m_multi_vehicle_.usv3.current_state.mode == "OFFBOARD"*/) {
                 m_multi_vehicle_.leader_usv = m_multi_vehicle_.usv3;
             }
         }
@@ -160,4 +164,15 @@ bool MultiBoatControl::pos_reached(geometry_msgs::PoseStamped &current_pos, geom
     float err_pz = current_pos.pose.position.z - target_pos.pose.position.z;
 
     return sqrt(err_px * err_px + err_py * err_py /*+ err_pz * err_pz*/) < err_allow;
+}
+
+void MultiBoatControl::USVManualControl() {
+    m_multi_vehicle_.usv1.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
+    m_multi_vehicle_.usv2.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
+    m_multi_vehicle_.usv3.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
+
+    util_log("!!!!!!manual control output = (%.2f, %.2f, %.2f)", m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x,
+             m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y, m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z);
+
+    DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);
 }

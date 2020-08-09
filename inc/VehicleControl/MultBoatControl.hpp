@@ -32,15 +32,16 @@ private:
 
     geometry_msgs::PoseStamped CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, TVec3 &formation_target);
 
+    void USVManualControl();
     static MultiBoatControl* l_lint;
 
     multi_vehicle m_multi_vehicle_;
     vector<geometry_msgs::PoseStamped> usv_way_points_;
     int usv_state_;
 
-    bool usv5_reached_;
-    bool usv6_reached_;
-    bool usv7_reached_;
+    bool usv1_reached_;
+    bool usv2_reached_;
+    bool usv3_reached_;
     bool is_formation_;
 };
 

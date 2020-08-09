@@ -134,21 +134,23 @@ add_library(usv_lead_2uav_lib
 target_link_libraries(usv_lead_2uav usv_lead_2uav_lib)
 target_link_libraries(usv_lead_2uav ${catkin_LIBRARIES})
 
-#[[#[=[3usv control]=]
-add_executable(3uav src/test/3USVs/main.cpp)
-add_library(3uavs_lib
+#[[3usv control]]
+add_executable(3usv src/test/3USVs/main.cpp)
+add_library(3usvs_lib
         STATIC
-        src/test/3USVs/usv5_ros_Manager.cpp
-        src/test/3USVs/usv6_ros_Manager.cpp
-        src/test/3USVs/usv7_ros_Manager.cpp
+        src/test/3USVs/usv1_ros_Manager.cpp
+        src/test/3USVs/usv2_ros_Manager.cpp
+        src/test/3USVs/usv3_ros_Manager.cpp
         src/test/3USVs/dataMan.cpp
-        src/test/3USVs/avoidance.cpp
         src/test/3USVs/usvs_control.cpp
         src/util.cpp
         src/DataMan.cpp
-        src/Calculate.cpp)
-target_link_libraries(3uav 3uavs_lib)
-target_link_libraries(3uav ${catkin_LIBRARIES})]]
+        src/Calculate.cpp
+        src/PathCreator.cpp
+        src/new_struct/
+        src/FlightManager.cpp)
+target_link_libraries(3usv 3usvs_lib multi_offboard_lib)
+target_link_libraries(3usv ${catkin_LIBRARIES})
 
 #[[4uav]]
 add_executable(4uav src/test/4UAVs/main.cpp)

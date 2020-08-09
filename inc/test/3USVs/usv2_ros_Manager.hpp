@@ -2,33 +2,33 @@
 // Created by zhouhua on 2020/5/3.
 //
 
-#ifndef OFFBOARD_USV5_ROS_MANAGER_HPP
-#define OFFBOARD_USV5_ROS_MANAGER_HPP
+#ifndef OFFBOARD_USV2_ROS_MANAGER_HPP
+#define OFFBOARD_USV2_ROS_MANAGER_HPP
 
 #include "Cinc.hpp"
 #include "dataMan.hpp"
 #include "DataMan.hpp"
+#include "PathCreator.hpp"
 
-class usv5_ros_Manager {
+class usv2_ros_Manager {
 public:
-    usv5_ros_Manager();
-    ~usv5_ros_Manager() = default;
-
+    usv2_ros_Manager();
+    ~usv2_ros_Manager() = default;
     void usvOnInit(ros::NodeHandle &nh);
     void usvPosSp(const geometry_msgs::PoseStamped& way_point);
-    typedef shared_ptr<usv5_ros_Manager> Ptr;
+    typedef shared_ptr<usv2_ros_Manager> Ptr;
 
 private:
+    void drone_pos_update(const ros::TimerEvent& e);
+    void commander_update(const ros::TimerEvent& e);
+    void publishDronePosControl(const ros::TimerEvent& e);
+
     void state_cb(const mavros_msgs::State::ConstPtr& msg);
     void vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr& msg);
     void local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg);
     void mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg);
     void global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg);
     void debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
-
-    void drone_pos_update(const ros::TimerEvent& e);
-    void commander_update(const ros::TimerEvent& e);
-    void publishDronePosControl(const ros::TimerEvent& e);
 
     ros::Subscriber state_sub, vfr_hud_sub, local_position_sub, mavlink_from_sub, global_pos_sub, commander_sub;
     ros::Publisher local_pos_pub, gps_global_pos_pub, global_pos_pub, g_speed_control_pub;
@@ -47,7 +47,6 @@ private:
     bool is_offboard_;
     bool is_takeoff_;
     bool is_land_;
+
 };
-
-
-#endif //OFFBOARD_UAV1_ROS_MANAGER_HPP
+#endif //OFFBOARD_UAV2_ROS_MANAGER_HPP

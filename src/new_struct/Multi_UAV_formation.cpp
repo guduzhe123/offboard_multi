@@ -121,7 +121,7 @@ MultiUAVFormation::calcFollowUAVPos() {
 void MultiUAVFormation::OnCheckFormationArrived() {
     if (pos_reached(m_multi_vehicle_.uav2.current_local_pos, follow_uav1_) &&
         pos_reached(m_multi_vehicle_.uav3.current_local_pos, follow_uav2_) &&
-        pos_reached(m_multi_vehicle_.uav4.current_local_pos, follow_uav3_)) {
+        pos_reached(m_multi_vehicle_.uav4.current_local_pos, follow_uav3_) && config_ != VF_UAV_RETURN) {
         is_formation_ = false;
     }
 }

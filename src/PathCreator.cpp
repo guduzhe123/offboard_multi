@@ -112,15 +112,19 @@ void PathCreator::CreatVehicle() {
     FlightManager::getInstance()->AddVehicleControlProgress(&m_drone_control);
 }
 
-void PathCreator::CreateFormationInit(const int config) {
+void PathCreator::CreateUAVFormationInit(const int config) {
     MultiUAVFormationFactory FormationFactory;
     IControlFunction* m_func = FormationFactory.FunctionCreator();
     m_func->Oninit(config);
 
+}
+
+void PathCreator::CreateUSVFormationInit(const int config) {
     MultiUSVFormationFactory USVFormationFactory;
     IControlFunction* usv_func = USVFormationFactory.FunctionCreator();
     usv_func->Oninit(config);
 }
+
 
 PathCreator* PathCreator::geInstance() {
     if (l_pInst == NULL) {

@@ -5,9 +5,11 @@
 #include <ros/ros.h>
 #include "util.h"
 #include "test/3USVs/usvs_control.hpp"
-#include "test/3USVs/usv5_ros_Manager.hpp"
-#include "test/3USVs/usv6_ros_Manager.hpp"
-#include "test/3USVs/usv7_ros_Manager.hpp"
+#include "test/3USVs/usv1_ros_Manager.hpp"
+#include "test/3USVs/usv2_ros_Manager.hpp"
+#include "test/3USVs/usv3_ros_Manager.hpp"
+#include "FlightManager.hpp"
+#include "PathCreator.hpp"
 
 int main(int argc, char **argv)
 {
@@ -16,13 +18,15 @@ int main(int argc, char **argv)
 
     usvs_control* lead_node;
     lead_node = usvs_control::getInstance();
-    lead_node->onInit();
+    lead_node->OnInit();
+    DataMan::getInstance()->OnInit(lead_node);
+    PathCreator::geInstance()->onInit(lead_node, true);
 //    avoidance::getInstance()->Oninit();
 
     ros::Rate rate(10.0);
     while(ros::ok()){
-//        avoidance::getInstance()->GetData();
-//        avoidance::getInstance()->DoProgress();
+        FlightManager::getInstance()->GetData();
+        FlightManager::getInstance()->DoProgress();
         lead_node->getData();   //achieve data
         lead_node->doProgress();    //progress
 

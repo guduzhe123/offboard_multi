@@ -21,16 +21,16 @@ void dataMan::SetDroneData(const M_Drone &mDrone) {
     {
         boost::unique_lock<boost::mutex> lock(m_mutex);
         switch (mDrone.drone_id) {
-            case USV5: {
-                multi_vehicle_.usv5 = mDrone;
+            case USV1: {
+                multi_vehicle_.usv1 = mDrone;
             }
                 break;
-            case USV6: {
-                multi_vehicle_.usv6 = mDrone;
+            case USV2: {
+                multi_vehicle_.usv2 = mDrone;
             }
                 break;
-            case USV7: {
-                multi_vehicle_.usv7 = mDrone;
+            case USV3: {
+                multi_vehicle_.usv3 = mDrone;
             }
                 break;
             default:

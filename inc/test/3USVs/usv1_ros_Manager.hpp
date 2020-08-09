@@ -2,21 +2,22 @@
 // Created by zhouhua on 2020/5/3.
 //
 
-#ifndef OFFBOARD_USV7_ROS_MANAGER_HPP
-#define OFFBOARD_USV7_ROS_MANAGER_HPP
+#ifndef OFFBOARD_USV1_ROS_MANAGER_HPP
+#define OFFBOARD_USV1_ROS_MANAGER_HPP
 
 #include "Cinc.hpp"
 #include "dataMan.hpp"
 #include "DataMan.hpp"
+#include "PathCreator.hpp"
 
-class usv7_ros_Manager {
+class usv1_ros_Manager {
 public:
-    usv7_ros_Manager();
-    ~usv7_ros_Manager() = default;
+    usv1_ros_Manager();
+    ~usv1_ros_Manager() = default;
 
-    void uavOnInit(ros::NodeHandle &nh);
-    void uavPosSp(const geometry_msgs::PoseStamped& way_point);
-    typedef shared_ptr<usv7_ros_Manager> Ptr;
+    void usvOnInit(ros::NodeHandle &nh);
+    void usvPosSp(const geometry_msgs::PoseStamped& way_point);
+    typedef shared_ptr<usv1_ros_Manager> Ptr;
 
 private:
     void state_cb(const mavros_msgs::State::ConstPtr& msg);
@@ -35,7 +36,7 @@ private:
     ros::ServiceClient arming_client, set_mode_client;
     ros::Timer exec_timer_, commander_timer_, publish_timer_;
 
-    M_Drone uav_;
+    M_Drone usv_;
     mavros_msgs::State current_state;
     geometry_msgs::PoseStamped current_local_pos;
     mavros_msgs:: VFR_HUD current_vfr_hud;
@@ -50,4 +51,4 @@ private:
 };
 
 
-#endif //OFFBOARD_UAV4_ROS_MANAGER_HPP
+#endif //OFFBOARD_UAV1_ROS_MANAGER_HPP

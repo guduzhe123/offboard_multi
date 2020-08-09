@@ -18,11 +18,12 @@ MultiUSVFormation::MultiUSVFormation() :
 
 }
 
-void MultiUSVFormation::Oninit(const int config_) {
-    util_log("usv formation config = %d", config_ );
+void MultiUSVFormation::Oninit(const int config) {
+    util_log("usv formation config = %d", config );
+    config_ = config;
     leader_curr_pos_ = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x, m_multi_vehicle_.usv1.current_local_pos.pose.position.y,
                             m_multi_vehicle_.usv1.current_local_pos.pose.position.z);
-    switch (config_) {
+    switch (config) {
         case VF_USV_TRIANGLE: {
             is_formation_ = true;
             util_log("usv Formation call! Triangle!");
@@ -53,6 +54,13 @@ void MultiUSVFormation::Oninit(const int config_) {
             Drone_usv2_ = TVec3(K_multi_usv_formation_distance, 0 , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
             Drone_usv3_ = TVec3(2* K_multi_usv_formation_distance, 0, m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
             calcFollowUSVPos();
+
+        }
+            break;
+
+        case VF_USV_ALL_RETURN: {
+            is_formation_ = true;
+            util_log("usv Formation call! All USVs Return!");
 
         }
             break;
@@ -112,7 +120,7 @@ void MultiUSVFormation::OnCheckFormationArrived() {
         util_log("usv7 disarm at one point");
     }
 
-    if (usv1_reached_ && usv2_reached_ && usv3_reached_) {
+    if (usv1_reached_ && usv2_reached_ && usv3_reached_ && config_ != VF_USV_ALL_RETURN) {
         is_formation_ = false;
 
         usv1_reached_ = false;
@@ -174,14 +182,22 @@ void MultiUSVFormation::SetFunctionOutPut() {
 
     if (is_formation_) {
         util_log("formation boat output!!!!!");
-        geometry_msgs::PoseStamped leader_curr{};
-        leader_curr.pose.position.z = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.z;
+        if (config_ != VF_USV_ALL_RETURN) {
+            geometry_msgs::PoseStamped leader_curr{};
+            leader_curr.pose.position.z = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.z;
 
-        m_multi_vehicle_.usv1.target_local_pos_sp = CalculateTargetPos(leader_curr , leader_curr_pos_) ;
-        m_multi_vehicle_.usv2.target_local_pos_sp = CalculateTargetPos(leader_curr , follow_usv1_) ;
-        m_multi_vehicle_.usv3.target_local_pos_sp = CalculateTargetPos(leader_curr , follow_usv2_) ;
-        m_multi_vehicle_.leader_usv.target_local_pos_sp = m_multi_vehicle_.usv1.target_local_pos_sp;
+            m_multi_vehicle_.usv1.target_local_pos_sp = CalculateTargetPos(leader_curr, leader_curr_pos_);
+            m_multi_vehicle_.usv2.target_local_pos_sp = CalculateTargetPos(leader_curr, follow_usv1_);
+            m_multi_vehicle_.usv3.target_local_pos_sp = CalculateTargetPos(leader_curr, follow_usv2_);
+            m_multi_vehicle_.leader_usv.target_local_pos_sp = m_multi_vehicle_.usv1.target_local_pos_sp;
+        } else {
+            m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.x = 0;
+            m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.y = 0;
+            m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.z = 0;
+
+            m_multi_vehicle_.usv2.target_local_pos_sp = m_multi_vehicle_.usv1.target_local_pos_sp;
+            m_multi_vehicle_.usv3.target_local_pos_sp = m_multi_vehicle_.usv1.target_local_pos_sp;
+        }
         DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);
-
     }
 }
