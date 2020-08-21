@@ -179,21 +179,6 @@ double Calculate::quaternion_get_yaw(const geometry_msgs::Quaternion &orientatio
     const double &q2 = q.y();
     const double &q3 = q.z();
 
-    double sinr_cosp = 2 * (q0 * q1 + q2 * q3);
-    double cosr_cosp = 1 - 2 * (q1 * q1 + q2 * q2);
-    angle.roll = std::atan2(sinr_cosp, cosr_cosp);
-
-    // pitch (y-axis rotation)
-    double sinp = 2 * (q0 * q2 - q3 * q1);
-    if (std::abs(sinp) >= 1)
-        angle.pitch = std::copysign(M_PI / 2, sinp); // use 90 degrees if out of range
-    else
-        angle.pitch = std::asin(sinp);
-
-    // yaw (z-axis rotation)
-    double siny_cosp = 2 * (q0 * q3 + q1 * q2);
-    double cosy_cosp = 1 - 2 * (q2 * q2 + q3 * q3);
-    angle.yaw = std::atan2(siny_cosp, cosy_cosp);
 
     return std::atan2(2. * (q0*q3 + q1*q2), 1. - 2. * (q2*q2 + q3*q3));
 }

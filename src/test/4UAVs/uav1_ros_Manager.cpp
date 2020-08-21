@@ -59,18 +59,20 @@ void uav1_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
 
 void uav1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
     uav_.current_local_pos = *msg;
-    double yaw;
+    double yaw, roll, pitch;
     EulerAngles angles;
 
     yaw = Calculate::getInstance()->quaternion_get_yaw(uav_.current_local_pos.pose.orientation, angles);
+    Calculate::getInstance()->quaternion_to_rpy(uav_.current_local_pos.pose.orientation, roll, pitch, yaw);
+
     dronepos_.m_heading = yaw * 180 / M_PI;
     if (dronepos_.m_heading  < 0) dronepos_.m_heading  += 360;
 
     dronepos_.m_x = uav_.current_local_pos.pose.position.x;
     dronepos_.m_y = uav_.current_local_pos.pose.position.y;
     dronepos_.m_z = uav_.current_local_pos.pose.position.z;
-    dronepos_.m_roll = angles.roll;
-    dronepos_.m_pitch = angles.pitch;
+    dronepos_.m_roll = roll * 180 / M_PI;
+    dronepos_.m_pitch = pitch * 180 / M_PI;
     dronePosPub.publish(dronepos_);
     uav_.yaw = dronepos_.m_heading;
     util_log("uav1 m_heading = %.2f", dronepos_.m_heading);
@@ -193,6 +195,7 @@ void uav1_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
                         uav_.current_local_pos.pose.position.z);
         Calculate::getInstance()->posToPosCtrl(pos_sp, pos_offset, pos_cur, m_speedLimit);
 
+        target_local_pos_sp_.pose.orientation = uav_.current_local_pos.pose.orientation;
         target_local_pos_sp_.pose.position.x = pos_offset.x();
         target_local_pos_sp_.pose.position.y = pos_offset.y();
         target_local_pos_sp_.pose.position.z = pos_offset.z();
