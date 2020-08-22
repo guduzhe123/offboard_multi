@@ -65,6 +65,20 @@
             /usv1/mavros/local_position/pose
             /usv1/mavros/setpoint_raw/target_local
             /usv1/drone/PosUpDate
+
+            /usv2/mavros/state
+            /usv2/mavros/vfr_hud
+            /usv2/mavros/setpoint_position/local
+            /usv2/mavros/local_position/pose
+            /usv2/mavros/setpoint_raw/target_local
+            /usv2/drone/PosUpDate
+
+            /usv3/mavros/state
+            /usv3/mavros/vfr_hud
+            /usv3/mavros/setpoint_position/local
+            /usv3/mavros/local_position/pose
+            /usv3/mavros/setpoint_raw/target_local
+            /usv3/drone/PosUpDate
 "
     />
 </launch>

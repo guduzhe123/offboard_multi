@@ -3,8 +3,8 @@
     <arg name="config_yaml" default="$(find mavros)/launch/px4_config.yaml" />
 
     <group ns="uav1">
-        <!--        <arg name="fcu_url" default="/dev/MasterUAV:921600"/>-->
-        <arg name="fcu_url" default="/dev/CUAVM0:230400"/>
+                <arg name="fcu_url" default="/dev/ttyUSB0:921600"/>
+<!--        <arg name="fcu_url" default="/dev/CUAVM0:230400"/>-->
         <arg name="gcs_url" value="udp://:14560@localhost:14550"/>
 <!--        <arg name="gcs_url" value="udp-b://@"/>-->
         <arg name="tgt_system" value="1"/>
@@ -28,11 +28,11 @@
     </group>
 
     <!-- UAV2 iris_2 -->
-    <group ns="usv1">
+ <!--   <group ns="usv1">
                 <arg name="fcu_url" default="/dev/NoopS1:921600"/>
-<!--        <arg name="fcu_url" default="/dev/ttyUSB2:230400"/>-->
+&lt;!&ndash;        <arg name="fcu_url" default="/dev/ttyUSB2:230400"/>&ndash;&gt;
         <arg name="gcs_url" value="udp://:14561@localhost:14550"/>
-<!--        <arg name="gcs_url" value="udp-b://@"/>-->
+&lt;!&ndash;        <arg name="gcs_url" value="udp-b://@"/>&ndash;&gt;
         <arg name="tgt_system" value="5"/>
         <arg name="tgt_component" value="1"/>
         <arg name="log_output" default="screen" />
@@ -51,7 +51,7 @@
             <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
             <arg name="respawn_mavros" default="$(arg respawn_mavros)" />
         </include>
-    </group>
+    </group>-->
 
     <include file="$(find offboard)/launch/rosbag_log.launch"/>
     <node pkg = "offboard" name = "offboard" type="usv_lead_uav" output="screen"/>
