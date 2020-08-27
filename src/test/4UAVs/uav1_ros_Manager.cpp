@@ -188,7 +188,7 @@ void uav1_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
         g_speed_control_pub.publish(vel_ctrl_sp_);
     } else {
 //        target_local_pos_sp_.pose.orientation = uav_.current_local_pos.pose.orientation;
-        TVec3 pos_sp, pos_cur, pos_offset;
+        /*TVec3 pos_sp, pos_cur, pos_offset;
         pos_sp = TVec3(target_local_pos_sp_.pose.position.x, target_local_pos_sp_.pose.position.y,
                 target_local_pos_sp_.pose.position.z);
         pos_cur = TVec3(uav_.current_local_pos.pose.position.x, uav_.current_local_pos.pose.position.y,
@@ -198,8 +198,9 @@ void uav1_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
         target_local_pos_sp_.pose.orientation = uav_.current_local_pos.pose.orientation;
         target_local_pos_sp_.pose.position.x = pos_offset.x();
         target_local_pos_sp_.pose.position.y = pos_offset.y();
-        target_local_pos_sp_.pose.position.z = pos_offset.z();
+        target_local_pos_sp_.pose.position.z = pos_offset.z();*/
 
+        target_local_pos_sp_.pose.orientation = uav_.current_local_pos.pose.orientation;
         local_pos_pub.publish(target_local_pos_sp_);
     }
 }

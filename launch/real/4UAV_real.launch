@@ -31,7 +31,8 @@
     <!-- UAV2 iris_2 -->
     <group ns="uav2">
 <!--        <arg name="fcu_url" default="/dev/CUAVM1:230400"/>-->
-        <arg name="fcu_url" default="/dev/REMOTE915_SC2:115200"/>
+<!--        <arg name="fcu_url" default="/dev/REMOTE915_SC2:115200"/>-->
+        <arg name="fcu_url" default="/dev/NoopS0:921600"/>
         <arg name="gcs_url" value="udp://:14561@localhost:14550"/>
         <arg name="tgt_system" value="2"/>
         <arg name="tgt_component" value="1"/>
