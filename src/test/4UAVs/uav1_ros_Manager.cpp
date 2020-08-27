@@ -10,7 +10,8 @@ uav1_ros_Manager::uav1_ros_Manager() :
         is_offboard_(false),
         is_takeoff_(false),
         is_land_(false),
-        is_speed_ctrl_(false)
+        is_speed_ctrl_(false),
+        start_time_(0)
 {
 
 }
@@ -104,7 +105,8 @@ void uav1_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 void uav1_ros_Manager::commander_update(const ros::TimerEvent& e) {
     int command;
     DataMan::getInstance()->getCommand(command);
-    if (command == VF_UAV_ALL_START /*|| command == SLAVESTART*/) {
+    start_time_++;
+    if (command == VF_UAV_ALL_START /*|| command == SLAVESTART*/ || start_time_ > 500) {
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
         util_log("uav arm_i = %d, is_arm = %d", arm_i_, is_arm_);

@@ -49,6 +49,7 @@ private:
     offboard::DronePosUpdate dronepos_;
 
     int arm_i_;
+    int start_time_;
     bool is_arm_;
     bool is_offboard_;
     bool is_takeoff_;

@@ -26,16 +26,16 @@ void PathCreator::uav_add_way_points(vector<geometry_msgs::PoseStamped> &uav_way
     uav_way_points.push_back(way_point);
 
     way_point.pose.position.x = 0;
-    way_point.pose.position.y = 10;
+    way_point.pose.position.y = 50;
     way_point.pose.position.z = K_multi_usv_formation_distance;
     uav_way_points.push_back(way_point);
 
-    way_point.pose.position.x = 10;
-    way_point.pose.position.y = 10;
+    way_point.pose.position.x = 50;
+    way_point.pose.position.y = 50;
     way_point.pose.position.z = K_multi_usv_formation_distance;
     uav_way_points.push_back(way_point);
 
-    way_point.pose.position.x = 10;
+    way_point.pose.position.x = 50;
     way_point.pose.position.y = 0;
     way_point.pose.position.z = K_multi_usv_formation_distance;
     uav_way_points.push_back(way_point);
