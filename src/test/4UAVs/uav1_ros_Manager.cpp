@@ -105,8 +105,8 @@ void uav1_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 void uav1_ros_Manager::commander_update(const ros::TimerEvent& e) {
     int command;
     DataMan::getInstance()->getCommand(command);
-    start_time_++;
-    if (command == VF_UAV_ALL_START /*|| command == SLAVESTART*/ || start_time_ > 500) {
+//    start_time_++;
+    if (command == VF_UAV_ALL_START /*|| command == SLAVESTART*/ || start_time_ > 200) {
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
         util_log("uav arm_i = %d, is_arm = %d", arm_i_, is_arm_);
@@ -152,6 +152,26 @@ void uav1_ros_Manager::commander_update(const ros::TimerEvent& e) {
             }
         }
     }
+/*
+    int config;
+    if (fabs(uav_.current_local_pos.pose.position.z - 10) < 0.08 ) {
+        config = VF_UAV_SQUARE;
+        PathCreator::geInstance()->CreateUAVFormationInit(config);
+    }
+
+    if (fabs(uav_.current_local_pos.pose.position.z - 12) < 0.08 ) {
+        config = VF_UAV_TRIANGLE;
+        PathCreator::geInstance()->CreateUAVFormationInit(config);
+    }
+
+    if (fabs(uav_.current_local_pos.pose.position.z - 13) < 0.08 ) {
+        config = VF_UAV_LINE_HORIZONTAL;
+        PathCreator::geInstance()->CreateUAVFormationInit(config);
+    }
+    if (fabs(uav_.current_local_pos.pose.position.z - 14) < 0.08 ) {
+        config = VF_UAV_LINE_VERTICAL;
+        PathCreator::geInstance()->CreateUAVFormationInit(config);
+    }*/
 
     if (command == VF_UAV_ALL_STOP) {
         target_local_pos_sp_ = uav_.current_local_pos;
