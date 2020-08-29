@@ -105,9 +105,9 @@ void uav4_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 void uav4_ros_Manager::commander_update(const ros::TimerEvent& e) {
     int command;
     DataMan::getInstance()->getCommand(command);
-//    start_time_++;
+    start_time_++;
     util_log("start_time = %d", start_time_);
-    if (command == VF_UAV_ALL_START /*|| command == SLAVESTART*/ || start_time_ > 200) {
+    if (command == VF_UAV_ALL_START /*|| command == SLAVESTART*/ || start_time_ > 500) {
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
         util_log("uav4 arm_i = %d, is_arm = %d", arm_i_, is_arm_);

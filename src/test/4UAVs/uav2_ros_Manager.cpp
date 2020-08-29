@@ -104,8 +104,8 @@ void uav2_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 void uav2_ros_Manager::commander_update(const ros::TimerEvent& e) {
     int command;
     DataMan::getInstance()->getCommand(command);
-//    start_time_++;
-    if (command == VF_UAV_ALL_START /*|| command == SLAVESTART*/ || start_time_ > 200) {
+    start_time_++;
+    if (command == VF_UAV_ALL_START /*|| command == SLAVESTART*/ || start_time_ > 500) {
         util_log("uav2 begain to start!");
 
         mavros_msgs::CommandBool arm_cmd;
