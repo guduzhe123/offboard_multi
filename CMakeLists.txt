@@ -117,6 +117,7 @@ add_library(uavs_lib
         src/Calculate.cpp)
 target_link_libraries(uav_lead_uav uavs_lib)
 target_link_libraries(uav_lead_uav ${catkin_LIBRARIES})
+add_dependencies(uav_lead_uav ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #[[uav lead one uav and follow usv]]
 add_executable(usv_lead_2uav src/test/2uavs-1usv/main.cpp)
@@ -133,6 +134,7 @@ add_library(usv_lead_2uav_lib
         src/Calculate.cpp)
 target_link_libraries(usv_lead_2uav usv_lead_2uav_lib)
 target_link_libraries(usv_lead_2uav ${catkin_LIBRARIES})
+add_dependencies(usv_lead_2uav ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #[[3usv control]]
 add_executable(3usv src/test/3USVs/main.cpp)
@@ -151,6 +153,7 @@ add_library(3usvs_lib
         src/FlightManager.cpp)
 target_link_libraries(3usv 3usvs_lib multi_offboard_lib)
 target_link_libraries(3usv ${catkin_LIBRARIES})
+add_dependencies(3usv ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #[[4uav]]
 add_executable(4uav src/test/4UAVs/main.cpp)
@@ -167,7 +170,8 @@ add_library(4uavs_lib
         src/PathCreator.cpp
         src/new_struct/)
 target_link_libraries(4uav 4uavs_lib multi_offboard_lib)
-target_link_libraries(4uav ${catkin_LIBRARIES})
+target_link_libraries(4uavs_lib ${catkin_LIBRARIES})
+add_dependencies(4uav ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
 #[[4uav]]
