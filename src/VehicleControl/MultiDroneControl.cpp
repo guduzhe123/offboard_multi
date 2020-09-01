@@ -43,7 +43,11 @@ void MultiDroneControl::DoProgress() {
                 target_pos_.pose.position.y = 0;
                 target_pos_.pose.position.z = K_multi_usv_formation_distance;
 
-                if (pos_reached(drone_uav_leader_.current_local_pos, target_pos_, 0.8)){
+                if (pos_reached(drone_uav_leader_.current_local_pos, target_pos_, 0.8)
+/*                    pos_reached(m_multi_vehicle_.uav2.current_local_pos, target_pos_, 5) &&
+                    pos_reached(m_multi_vehicle_.uav3.current_local_pos, target_pos_, 5) &&
+                    pos_reached(m_multi_vehicle_.uav4.current_local_pos, target_pos_, 5)*/
+                    ){
                     if (is_uav_follow_) {
                         uav_state_ = FALLOW_USV;
                     } else {
@@ -56,7 +60,10 @@ void MultiDroneControl::DoProgress() {
             case WAYPOINT:
                 if (!uav_way_points_.empty()) {
                     target_pos_ = uav_way_points_.back();
-                    if (pos_reached(drone_uav_leader_.current_local_pos, target_pos_, 0.8)) {
+                    if (pos_reached(drone_uav_leader_.current_local_pos, target_pos_, 0.8) /*&&
+                        pos_reached(m_multi_vehicle_.uav2.current_local_pos, target_pos_, 5) &&
+                        pos_reached(m_multi_vehicle_.uav3.current_local_pos, target_pos_, 5) &&
+                        pos_reached(m_multi_vehicle_.uav4.current_local_pos, target_pos_, 5) */) {
                         uav_way_points_.pop_back();
                         util_log("Finished one way point = (%.2f, %.2f, %.2f)",
                                  target_pos_.pose.position.x, target_pos_.pose.position.y, target_pos_.pose.position.z);
@@ -72,7 +79,10 @@ void MultiDroneControl::DoProgress() {
                 target_pos_.pose.position.y = 0;
                 target_pos_.pose.position.z = 0;
 
-                if (pos_reached(drone_uav_leader_.current_local_pos,target_pos_, 0.8)) {
+                if (pos_reached(drone_uav_leader_.current_local_pos,target_pos_, 0.8)/* &&
+                    pos_reached(m_multi_vehicle_.uav2.current_local_pos, target_pos_, 5) &&
+                    pos_reached(m_multi_vehicle_.uav3.current_local_pos, target_pos_, 5) &&
+                    pos_reached(m_multi_vehicle_.uav4.current_local_pos, target_pos_, 5) */) {
 
                     util_log("reached the land");
                     mavros_msgs::SetMode land_set_mode;
@@ -94,6 +104,7 @@ void MultiDroneControl::DoProgress() {
             }
 
             case FALLOW_USV:
+                m_multi_vehicle_.leader_usv.current_state.armed = true; // TODO for test.
                 if (m_multi_vehicle_.leader_usv.current_state.armed) {
                     target_pos_.pose.position.x = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.x +
                             follow_slave_first_local_.x();
