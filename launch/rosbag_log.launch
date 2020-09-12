@@ -79,6 +79,19 @@
             /usv3/mavros/local_position/pose
             /usv3/mavros/setpoint_raw/target_local
             /usv3/drone/PosUpDate
+
+            /uav1/mavlink/from
+            /uav2/mavlink/from
+            /uav3/mavlink/from
+            /uav4/mavlink/from
+            /usv1/mavlink/from
+            /usv2/mavlink/from
+            /usv3/mavlink/from
+            /uuv1/mavlink/from
+            /uuv2/mavlink/from
+            /uuv3/mavlink/from
+
+
 "
     />
 </launch>

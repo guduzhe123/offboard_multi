@@ -30,7 +30,7 @@ void uav2_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/debug_value/debug_vector", 10, &uav2_ros_Manager::debug_value_cb, this);
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
-            ("mavros/setpoint_position/local", 100);
+            ("mavros/setpoint_position/local", 20);
     gps_global_pos_pub = nh.advertise<sensor_msgs::NavSatFix>
             ("mavros/global_position/raw/fix", 100);
     global_pos_pub = nh.advertise<sensor_msgs::NavSatFix>

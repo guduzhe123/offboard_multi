@@ -137,6 +137,7 @@ void MultiBoatControl::chooseLeader() {
     m_multi_vehicle_.leader_usv.movement_state = usv_state_;
     m_multi_vehicle_.leader_uav.is_formation = is_formation_;
     DataMan::getInstance()->SetUSVLeader(m_multi_vehicle_.leader_usv);
+    util_log("usv leader = %d" , m_multi_vehicle_.leader_usv.drone_id);
 }
 
 geometry_msgs::PoseStamped MultiBoatControl::CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, TVec3 &formation_target) {
