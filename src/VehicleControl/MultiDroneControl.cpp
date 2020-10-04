@@ -39,9 +39,11 @@ void MultiDroneControl::DoProgress() {
                 // get usv and uav takeoff location different
                 Calculate::getInstance()->getTakeoffPos(m_multi_vehicle_.usv1, m_multi_vehicle_.uav1,
                                                         follow_slave_first_local_);
-                target_pos_.pose.position.x = 0;
-                target_pos_.pose.position.y = 0;
-                target_pos_.pose.position.z = K_multi_usv_formation_distance;
+                body_pos_.pose.position.x = 0;
+                body_pos_.pose.position.y = 0;
+                body_pos_.pose.position.z = K_multi_usv_formation_distance;
+                Calculate::getInstance()->bodyFrame2LocalFrame(body_pos_, target_pos_,
+                                                               (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
 
                 if (pos_reached(drone_uav_leader_.current_local_pos, target_pos_, 0.8)
 /*                    pos_reached(m_multi_vehicle_.uav2.current_local_pos, target_pos_, 5) &&
@@ -59,7 +61,10 @@ void MultiDroneControl::DoProgress() {
 
             case WAYPOINT:
                 if (!uav_way_points_.empty()) {
-                    target_pos_ = uav_way_points_.back();
+                    body_pos_ = uav_way_points_.back();
+                    Calculate::getInstance()->bodyFrame2LocalFrame(body_pos_, target_pos_,
+                                                                   (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
+
                     if (pos_reached(drone_uav_leader_.current_local_pos, target_pos_, 0.8) /*&&
                         pos_reached(m_multi_vehicle_.uav2.current_local_pos, target_pos_, 5) &&
                         pos_reached(m_multi_vehicle_.uav3.current_local_pos, target_pos_, 5) &&
@@ -94,8 +99,12 @@ void MultiDroneControl::DoProgress() {
                 break;
 
             case FORMATION: {
-                target_pos_.pose.position.x = follow_slave_first_local_.x();
-                target_pos_.pose.position.y = follow_slave_first_local_.y();
+                body_pos_.pose.position.x = follow_slave_first_local_.x();
+                body_pos_.pose.position.y = follow_slave_first_local_.y();
+
+
+                Calculate::getInstance()->bodyFrame2LocalFrame(body_pos_, target_pos_,
+                                                               (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
 
                 if (pos_reached(m_multi_vehicle_.leader_uav.current_local_pos, target_pos_, 0.8)) {
                     uav_state_ = FALLOW_USV;
@@ -106,10 +115,14 @@ void MultiDroneControl::DoProgress() {
             case FALLOW_USV:
                 m_multi_vehicle_.leader_usv.current_state.armed = true; // TODO for test.
                 if (m_multi_vehicle_.leader_usv.current_state.armed) {
-                    target_pos_.pose.position.x = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.x +
+                    body_pos_.pose.position.x = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.x +
                             follow_slave_first_local_.x();
-                    target_pos_.pose.position.y = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.y +
+                    body_pos_.pose.position.y = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.y +
                             follow_slave_first_local_.y();
+
+                    Calculate::getInstance()->bodyFrame2LocalFrame(body_pos_, target_pos_,
+                                                                   (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
+
                     util_log("usv leader target pos x = %.2f, y = %.2f, z = %.2f", m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x,
                              m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y, m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z);
                 }

@@ -53,6 +53,7 @@ public:
     void posToPosCtrl(TVec3 &target_point, TVec3 &target_after_judge, TVec3 &drone_cur_pos, float speed_limit);
     void getTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_first_local);
     void circleCenter(M_Drone &uav1, M_Drone &uav2, TVec3 &target_pos);
+    void bodyFrame2LocalFrame(geometry_msgs::PoseStamped &body, geometry_msgs::PoseStamped &local, float yaw);
     static Calculate* getInstance();
 
 private:

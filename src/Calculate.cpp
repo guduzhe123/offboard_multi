@@ -240,6 +240,13 @@ void Calculate::circleCenter(M_Drone &uav1, M_Drone &uav2, TVec3 &target_pos) {
 
 }
 
+void Calculate::bodyFrame2LocalFrame(geometry_msgs::PoseStamped &body, geometry_msgs::PoseStamped &local, float yaw) {
+    local.pose.position.x = body.pose.position.x * cos(yaw) - body.pose.position.y * sin(yaw);
+    local.pose.position.y = body.pose.position.x * sin(yaw) + body.pose.position.y * cos(yaw);
+    local.pose.position.z = body.pose.position.z;
+    util_log("cos(%.2f) = %.2f, sin(%.2f) = %.2f" , yaw, cos(yaw), yaw, sin(yaw));
+}
+
 Calculate* Calculate::getInstance() {
     if (l_pInst == NULL) {
         l_pInst = new Calculate();
