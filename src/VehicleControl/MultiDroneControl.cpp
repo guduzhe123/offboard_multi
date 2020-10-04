@@ -118,6 +118,10 @@ void MultiDroneControl::DoProgress() {
                 }*/
                 break;
 
+            case Circle:
+
+                break;
+
             default:
                 break;
         }

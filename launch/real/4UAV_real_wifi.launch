@@ -1,0 +1,10 @@
+<launch>
+    <arg name="pluginlists_yaml" default="$(find mavros)/launch/px4_pluginlists.yaml" />
+    <arg name="config_yaml" default="$(find mavros)/launch/px4_config.yaml" />
+
+    <include file="$(find offboard)/launch/rosbag_log.launch"/>
+    <arg name="formation_distance" default="10" />
+    <node pkg = "offboard" name = "offboard" type="4uav" output="screen">
+        <param name="formation_distance" value="$(arg formation_distance)" />
+    </node>
+</launch>

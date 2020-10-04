@@ -231,6 +231,15 @@ void Calculate::getTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_sla
     }
 }
 
+void Calculate::circleCenter(M_Drone &uav1, M_Drone &uav2, TVec3 &target_pos) {
+    TVec3 line;
+    line.x() = uav1.current_local_pos.pose.position.x - uav2.current_local_pos.pose.position.x;
+    line.y() = uav1.current_local_pos.pose.position.y - uav2.current_local_pos.pose.position.y;
+    line.z() = uav1.current_local_pos.pose.position.z - uav2.current_local_pos.pose.position.z;
+    
+
+}
+
 Calculate* Calculate::getInstance() {
     if (l_pInst == NULL) {
         l_pInst = new Calculate();

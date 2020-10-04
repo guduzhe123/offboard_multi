@@ -171,3 +171,4 @@ void uav_ros_Manager::uavPosSp(const geometry_msgs::PoseStamped& way_point) {
 }
 
 
+
