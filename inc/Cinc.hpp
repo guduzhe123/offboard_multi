@@ -141,9 +141,10 @@ enum  {
 };
 
 enum {
-    USA_INIT,
-    USA_WAYPOINT,
-    USA_DISARM
+    USV_INIT,
+    USV_WAYPOINT,
+    USV_DISARM,
+    USV_FORMATION
 };
 
 enum COMMAND_TYPE {

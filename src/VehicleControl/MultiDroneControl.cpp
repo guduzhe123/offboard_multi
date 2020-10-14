@@ -102,7 +102,6 @@ void MultiDroneControl::DoProgress() {
                 body_pos_.pose.position.x = follow_slave_first_local_.x();
                 body_pos_.pose.position.y = follow_slave_first_local_.y();
 
-
                 Calculate::getInstance()->bodyFrame2LocalFrame(body_pos_, target_pos_,
                                                                (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
 
@@ -126,7 +125,7 @@ void MultiDroneControl::DoProgress() {
                     util_log("usv leader target pos x = %.2f, y = %.2f, z = %.2f", m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x,
                              m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y, m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z);
                 }
-/*                if (m_multi_vehicle_.leader_usv.movement_state == USA_DISARM) {
+/*                if (m_multi_vehicle_.leader_usv.movement_state == USV_DISARM) {
                     uav_state_ = LAND;
                 }*/
                 break;

@@ -31,7 +31,7 @@ MultiOffboard::MultiOffboard() :
         usv_armed(false),
         curr_altitude(0),
         uav_state_(TAKEOFF),
-        usv_state_(USA_INIT),
+        usv_state_(USV_INIT),
         leader_uav_id_(UAV1),
         leader_usv_id_(USV1)
         {

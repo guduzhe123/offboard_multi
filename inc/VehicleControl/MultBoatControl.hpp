@@ -8,6 +8,7 @@
 #include "Cinc.hpp"
 #include "IVehicleControl.hpp"
 #include "DataMan.hpp"
+#include "Calculate.hpp"
 
 class MultiBoatControl : public IVehicleControl {
 public:
@@ -43,6 +44,10 @@ private:
     bool usv2_reached_;
     bool usv3_reached_;
     bool is_formation_;
+
+    geometry_msgs::PoseStamped target_pos_;
+    geometry_msgs::PoseStamped body_pos_;
+    float init_yaw_;
 };
 
 class MultiBoatControlFactory : public IVehicleControlFactory {
