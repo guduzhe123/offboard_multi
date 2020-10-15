@@ -145,7 +145,7 @@ target_link_libraries(usv_lead_2uav ${catkin_LIBRARIES})
 add_dependencies(usv_lead_2uav ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #[[3usv control]]
-add_executable(3usv src/test/3USVs/main.cpp)
+add_executable(3usv src/test/3USVs/main.cpp inc/ActionCircle.hpp)
 add_library(3usvs_lib
         STATIC
         src/test/3USVs/usv1_ros_Manager.cpp

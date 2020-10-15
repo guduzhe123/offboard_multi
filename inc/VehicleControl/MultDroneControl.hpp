@@ -9,6 +9,7 @@
 #include "IVehicleControl.hpp"
 #include "DataMan.hpp"
 #include "Calculate.hpp"
+#include "ActionCircle.hpp"
 
 class MultiDroneControl : public IVehicleControl {
 public:
@@ -48,6 +49,7 @@ private:
     TVec3 follow_slave_first_local_;
 
     bool is_uav_follow_;
+    bool state_changed_;
 
 };
 

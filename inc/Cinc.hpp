@@ -27,6 +27,7 @@
 #include <mavros_msgs/VFR_HUD.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
+#include "pid.hpp"
 using namespace std;
 
 typedef Eigen::Vector2f TVec2;
@@ -54,6 +55,7 @@ struct DroneControl {
     bool speed_ctrl = false;
     float target_heading = 0;
     geometry_msgs::PoseStamped target_pose{};
+    geometry_msgs::TwistStamped g_vel_sp{};
 };
 
 typedef struct EulerAngles {
@@ -137,7 +139,8 @@ enum  {
     LAND,
     FALLOW_USV,
     FORMATION,
-    Circle
+    CIRCLE_INIT,
+    CIRCLE
 };
 
 enum {
@@ -164,7 +167,9 @@ enum COMMAND_TYPE {
     VF_USV_ALL_STOP = 14,
     VF_USV_ALL_RETURN = 15,
     VF_UAV_FALLOW_USV = 16,
-    VF_USV_FALLOW_UAV = 17
+    VF_USV_FALLOW_UAV = 17,
+    VF_UAV_CIRCLE = 18,
+    VF_USV_CIRCLE = 19
 };
 
 
@@ -196,6 +201,34 @@ enum FDATA_TYPE {
     FDATA_BOAT,
     FDATA_BOAT_TARGET,
     FDATA_MANUAL_COMMAND
+};
+
+struct TCircleConfig{
+    bool is_clockWise = true;
+    TVec3 m_target_pos = TVec3(NAN, NAN, NAN); ///< target position to move at
+    TVec3 m_circle_pos = TVec3(NAN, NAN, NAN); ///< circle point
+    float m_speed = NAN;  ///< total speed
+    float m_radius = NAN; ///< circle radius;
+    float target_heading = NAN; //< target head
+};
+
+/// This struct defines output of circle tracking
+///
+struct TCircleOutput {
+    TVec3 v_out = TVec3(NAN, NAN, NAN);
+    float m_target_heading = NAN;
+    float m_gimbal_pitch = NAN;
+    bool m_drone_circle_finished;
+    float m_speed = NAN;  ///< total speed
+};
+
+/// This struct defines status of drone during circle point tracking
+///
+struct TCircleStatus{
+    TVec3 m_curPos = TVec3(NAN, NAN, NAN); ///< current drone position
+    float m_radius = NAN; ///< the radius of circle
+    float m_heading = NAN;///< current heading of drone
+    TVec3 m_cross_v = TVec3(NAN, NAN, NAN); ///< cross
 };
 
 #endif //OFFBOARD_CINC_HPP

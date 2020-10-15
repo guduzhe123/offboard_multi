@@ -5,10 +5,7 @@
 #include "Calculate.hpp"
 Calculate* Calculate::l_pInst = NULL;
 
-Calculate::Calculate() :
-        m_K_r(PID(K_circle_pid_out, -K_circle_pid_out, 1, 0, 0.05)),
-        m_K_h(PID(K_circle_pid_out, -K_circle_pid_out, 1, 0, 0.1)),
-        m_K_a(PID(K_circle_pid_out, -K_circle_pid_out, 1, 0, 0.1)) {
+Calculate::Calculate() {
 
 }
 
@@ -238,20 +235,22 @@ void Calculate::getTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_sla
     }
 }
 
-void Calculate::circleCenter(M_Drone &uav1, TVec3 &target_pos) {
-    TVec3 line;
-    line.x() = uav1.current_local_pos.pose.position.x - target_pos.x();
-    line.y() = uav1.current_local_pos.pose.position.y - target_pos.y();
-    line.z() = uav1.current_local_pos.pose.position.z - target_pos.z();
-    float radius = pow(line.x(), 2) + pow(line.y(), 2) +pow(line.z(), 2);
-    line.normalized();
-}
 
 void Calculate::bodyFrame2LocalFrame(geometry_msgs::PoseStamped &body, geometry_msgs::PoseStamped &local, float yaw) {
     local.pose.position.x = body.pose.position.x * cos(yaw) - body.pose.position.y * sin(yaw);
     local.pose.position.y = body.pose.position.x * sin(yaw) + body.pose.position.y * cos(yaw);
     local.pose.position.z = body.pose.position.z;
     util_log("cos(%.2f) = %.2f, sin(%.2f) = %.2f" , yaw, cos(yaw), yaw, sin(yaw));
+}
+
+//rad!!! 注意这个接口是NED，不能和EUS直接相乘！！！
+TQuat Calculate::EulerAngle2QuatNED(const float ned_yaw, const float ned_pitch, const float ned_roll) {
+    //auto rot = mavros_ftf::quaternion_from_rpy(ned_yaw, ned_pitch, ned_roll);
+    Eigen::AngleAxisf roll(Eigen::AngleAxisf(ned_roll, TVec3::UnitX()));
+    Eigen::AngleAxisf pitch(Eigen::AngleAxisf(ned_pitch, TVec3::UnitY()));
+    Eigen::AngleAxisf yaw(Eigen::AngleAxisf(ned_yaw, TVec3::UnitZ()));
+    TQuat q = yaw * pitch * roll;
+    return q;//!!!
 }
 
 Calculate* Calculate::getInstance() {

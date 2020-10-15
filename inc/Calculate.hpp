@@ -12,12 +12,6 @@
 #define M_RAD_TO_DEG 		57.295779513082323
 #define CONSTANTS_RADIUS_OF_EARTH			6371000			/* meters (m)		*/
 static const float m_speedLimit = 2.0;
-static const float K_circle_pid_out = 1.0f;
-static const float K_max_vh = 0.5f; //max speed to control height
-static const float K_max_vr = 0.5f; //max speed to control radius
-static const float K_max_va = 1.0f; //max speed to control angle
-static const float K_circle_distance_range = 0.8f;
-static const float K_heading_err = 2.0f;
 
 /**
  * @brief Orientation transform options when applying rotations to data
@@ -63,19 +57,13 @@ public:
     double quaternion_get_yaw(const geometry_msgs::Quaternion &orientation, EulerAngles& angles);
     void posToPosCtrl(TVec3 &target_point, TVec3 &target_after_judge, TVec3 &drone_cur_pos, float speed_limit);
     void getTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_first_local);
-    void circleCenter(M_Drone &uav1, TVec3 &target_pos);
     void bodyFrame2LocalFrame(geometry_msgs::PoseStamped &body, geometry_msgs::PoseStamped &local, float yaw);
+    TQuat EulerAngle2QuatNED(const float ned_yaw, const float ned_pitch, const float ned_roll);
     static Calculate* getInstance();
 
 private:
     bool is_get_takeoff_pos_ = false;
     static Calculate* l_pInst;
 
-    // PID to control radius
-    PID m_K_r;
-    // PID to control height
-    PID m_K_h;
-    // PID to control angle
-    PID m_K_a;
 };
 #endif //OFFBOARD_CALCULATE_HPP

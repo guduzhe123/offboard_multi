@@ -82,6 +82,12 @@ FactPanel {
             onClicked: controller.sendCommand(600, 0, 0, 4, 0, 0, 0, 0, 0, 0)
         }
 
+
+        QGCButton {
+            text: "CIRCLE"
+            onClicked: controller.sendCommand(600, 0, 0, 18, 0, 0, 0, 0, 0, 0)
+        }
+
         QGCButton {
             text: "ALL RETURN"
             onClicked: controller.sendCommand(600, 0, 0, 9, 0, 0, 0, 0, 0, 0)

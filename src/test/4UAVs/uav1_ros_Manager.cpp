@@ -180,6 +180,7 @@ void uav1_ros_Manager::uavPosSp(const DroneControl& droneControl) {
     target_local_pos_sp_ = droneControl.target_pose;
     is_speed_ctrl_ = droneControl.speed_ctrl;
     target_heading_ = droneControl.target_heading;
+    vel_ctrl_sp_ = droneControl.g_vel_sp;
 }
 
 void uav1_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
@@ -210,7 +211,7 @@ void uav1_ros_Manager::drone_yaw_control() {
     int g_yaw_rate_sign = delta_heading / fabs(delta_heading);
     float yaw_rate = g_yaw_rate_sign * 2;
     vel_ctrl_sp_.twist.angular.z = yaw_rate;
-    util_log("yaw_rate = %.2f, target_heading_ = %.2f, dronepos_.m_heading = %.2f", yaw_rate, target_heading_,
+    util_log("yaw_rate = %.2f, target_heading_ = %.2f, drone_pos_.m_heading = %.2f", yaw_rate, target_heading_,
              dronepos_.m_heading);
 }
 

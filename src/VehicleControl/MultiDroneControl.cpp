@@ -7,7 +7,8 @@ MultiDroneControl* MultiDroneControl:: l_lint = NULL;
 
 MultiDroneControl::MultiDroneControl() :
                     uav_state_(TAKEOFF),
-                    is_uav_follow_(false){
+                    is_uav_follow_(false),
+                    state_changed_(false){
 
 }
 
@@ -30,6 +31,8 @@ void MultiDroneControl::DoProgress() {
     if (is_formation_) {
         return;
     }
+
+    drone_uav_leader_.droneControl.speed_ctrl = false;
 //    uav_global_pos_sp();
     if (drone_uav_leader_.current_state.mode == "OFFBOARD"  /*&& drone_uav_leader_.current_state.armed*/) {
         util_log("uav state = %d", uav_state_);
@@ -107,32 +110,66 @@ void MultiDroneControl::DoProgress() {
 
                 if (pos_reached(m_multi_vehicle_.leader_uav.current_local_pos, target_pos_, 0.8)) {
                     uav_state_ = FALLOW_USV;
+                    state_changed_ = true;
                 }
                 break;
             }
 
-            case FALLOW_USV:
+            case FALLOW_USV: {
                 m_multi_vehicle_.leader_usv.current_state.armed = true; // TODO for test.
                 if (m_multi_vehicle_.leader_usv.current_state.armed) {
                     body_pos_.pose.position.x = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.x +
-                            follow_slave_first_local_.x();
+                                                follow_slave_first_local_.x();
                     body_pos_.pose.position.y = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.y +
-                            follow_slave_first_local_.y();
+                                                follow_slave_first_local_.y();
 
                     Calculate::getInstance()->bodyFrame2LocalFrame(body_pos_, target_pos_,
-                                                                   (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
+                                                                   (float) (m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
 
-                    util_log("usv leader target pos x = %.2f, y = %.2f, z = %.2f", m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x,
-                             m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y, m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z);
+                    util_log("usv leader target pos x = %.2f, y = %.2f, z = %.2f",
+                             m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x,
+                             m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y,
+                             m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z);
                 }
 /*                if (m_multi_vehicle_.leader_usv.movement_state == USV_DISARM) {
                     uav_state_ = LAND;
                 }*/
                 break;
+            }
 
-            case Circle:
+            case CIRCLE_INIT: {
+                TCircleConfig circle_config;
+                circle_config.target_heading = m_multi_vehicle_.uav1.yaw;
+                circle_config.m_radius = 10;
+                circle_config.m_circle_pos = TVec3(m_multi_vehicle_.uav1.current_local_pos.pose.position.x,
+                                                   m_multi_vehicle_.uav1.current_local_pos.pose.position.y +
+                                                   circle_config.m_radius,
+                                                   m_multi_vehicle_.uav1.current_local_pos.pose.position.z);
+                circle_config.m_speed = 1.0;
+
+                ActionCircle::getInstance()->onInit(circle_config);
+                uav_state_ = CIRCLE;
+                util_log("Circle init!!!!");
+                state_changed_ = true;
+                break;
+            }
+
+            case CIRCLE: {
+                TVec3 uav1_pos;
+                uav1_pos.x() = m_multi_vehicle_.uav1.current_local_pos.pose.position.x;
+                uav1_pos.y() = m_multi_vehicle_.uav1.current_local_pos.pose.position.y;
+                uav1_pos.z() = m_multi_vehicle_.uav1.current_local_pos.pose.position.z;
+
+                ActionCircle::getInstance()->doProgress(uav1_pos);
+                TCircleOutput circle_output;
+                ActionCircle::getInstance()->GetOutput(circle_output);
+                drone_uav_leader_.droneControl.speed_ctrl = true;
+                drone_uav_leader_.droneControl.g_vel_sp.twist.linear.x = circle_output.v_out.x();
+                drone_uav_leader_.droneControl.g_vel_sp.twist.linear.y = circle_output.v_out.y();
+                drone_uav_leader_.droneControl.g_vel_sp.twist.linear.z = circle_output.v_out.z();
 
                 break;
+            }
 
             default:
                 break;
@@ -183,7 +220,12 @@ void MultiDroneControl::getData() {
     m_multi_vehicle_ = DataMan::getInstance()->GetData();
     is_formation_ = m_multi_vehicle_.leader_uav.is_formation;
     config_ = m_multi_vehicle_.user_command;
-    if (config_ == VF_UAV_FALLOW_USV) uav_state_ = FORMATION;
+    if (config_ == VF_UAV_FALLOW_USV && !state_changed_) {
+        uav_state_ = FORMATION;
+    }
+    if (config_ == VF_UAV_CIRCLE && !state_changed_) {
+        uav_state_ = CIRCLE_INIT;
+    }
 
 }
 
