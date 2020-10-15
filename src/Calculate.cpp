@@ -5,6 +5,13 @@
 #include "Calculate.hpp"
 Calculate* Calculate::l_pInst = NULL;
 
+Calculate::Calculate() :
+        m_K_r(PID(K_circle_pid_out, -K_circle_pid_out, 1, 0, 0.05)),
+        m_K_h(PID(K_circle_pid_out, -K_circle_pid_out, 1, 0, 0.1)),
+        m_K_a(PID(K_circle_pid_out, -K_circle_pid_out, 1, 0, 0.1)) {
+
+}
+
 void Calculate::GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &loc2,
                             TVec3 &follow_uav_local_pos) {
 /*    GlobalPosition center_pos;
@@ -231,13 +238,13 @@ void Calculate::getTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_sla
     }
 }
 
-void Calculate::circleCenter(M_Drone &uav1, M_Drone &uav2, TVec3 &target_pos) {
+void Calculate::circleCenter(M_Drone &uav1, TVec3 &target_pos) {
     TVec3 line;
-    line.x() = uav1.current_local_pos.pose.position.x - uav2.current_local_pos.pose.position.x;
-    line.y() = uav1.current_local_pos.pose.position.y - uav2.current_local_pos.pose.position.y;
-    line.z() = uav1.current_local_pos.pose.position.z - uav2.current_local_pos.pose.position.z;
-    
-
+    line.x() = uav1.current_local_pos.pose.position.x - target_pos.x();
+    line.y() = uav1.current_local_pos.pose.position.y - target_pos.y();
+    line.z() = uav1.current_local_pos.pose.position.z - target_pos.z();
+    float radius = pow(line.x(), 2) + pow(line.y(), 2) +pow(line.z(), 2);
+    line.normalized();
 }
 
 void Calculate::bodyFrame2LocalFrame(geometry_msgs::PoseStamped &body, geometry_msgs::PoseStamped &local, float yaw) {

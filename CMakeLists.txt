@@ -81,7 +81,8 @@ add_library(
         src/VehicleControl/MultiBoatControl.cpp
         src/VehicleControl/MultiDroneControl.cpp
         src/Calculate.cpp
-        src/RoPID_ext.cpp
+        src/PID.cpp
+        src/ActionCircle.cpp
         #[[src/serial/serialConnection.cpp]])
 
 target_link_libraries(multi_offboard multi_offboard_lib)
@@ -97,6 +98,8 @@ add_library(usv_lead_uav_lib
         src/test/1UAV_1USV/usv_ros_Manager.cpp
         src/test/1UAV_1USV/usv_lead_uav.cpp
         src/util.cpp
+        src/PID.cpp
+        src/ActionCircle.cpp
         src/DataMan.cpp
         src/Calculate.cpp
         )
@@ -115,6 +118,8 @@ add_library(uavs_lib
         src/test/2uavs/avoidance.cpp
         src/util.cpp
         src/DataMan.cpp
+        src/PID.cpp
+        src/ActionCircle.cpp
         src/Calculate.cpp)
 target_link_libraries(uav_lead_uav uavs_lib)
 target_link_libraries(uav_lead_uav ${catkin_LIBRARIES})
@@ -131,6 +136,8 @@ add_library(usv_lead_2uav_lib
         src/test/2uavs-1usv/dataMan.cpp
         src/test/2uavs-1usv/avoidance.cpp
         src/util.cpp
+        src/PID.cpp
+        src/ActionCircle.cpp
         src/DataMan.cpp
         src/Calculate.cpp)
 target_link_libraries(usv_lead_2uav usv_lead_2uav_lib)
@@ -150,6 +157,8 @@ add_library(3usvs_lib
         src/DataMan.cpp
         src/Calculate.cpp
         src/PathCreator.cpp
+        src/PID.cpp
+        src/ActionCircle.cpp
         src/new_struct/
         src/FlightManager.cpp)
 target_link_libraries(3usv 3usvs_lib multi_offboard_lib)
@@ -167,7 +176,8 @@ add_library(4uavs_lib
         src/util.cpp
         src/DataMan.cpp
         src/Calculate.cpp
-        src/RoPID_ext.cpp
+        src/PID.cpp
+        src/ActionCircle.cpp
         src/test/4UAVs/uavs_control.cpp
         src/PathCreator.cpp
         src/new_struct/)
@@ -190,7 +200,8 @@ add_library(7vehicles_lib
         src/util.cpp
         src/DataMan.cpp
         src/Calculate.cpp
-        src/RoPID_ext.cpp
+        src/PID.cpp
+        src/ActionCircle.cpp
         src/test/3USVs/usvs_control.cpp
         src/test/4UAVs/uavs_control.cpp
         src/test/7Vehicles/7vechicles_control.cpp
