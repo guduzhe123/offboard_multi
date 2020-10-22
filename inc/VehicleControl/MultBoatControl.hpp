@@ -38,6 +38,7 @@ private:
 
     multi_vehicle m_multi_vehicle_;
     vector<geometry_msgs::PoseStamped> usv_way_points_;
+    vector<geometry_msgs::PoseStamped> uav_way_points_init_;
     int usv_state_;
 
     bool usv1_reached_;
