@@ -222,4 +222,5 @@ void uav2_ros_Manager::uavCallService(mavros_msgs::SetMode &m_mode) {
 
 void uav2_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg) {
     uav_.waypointList = *msg;
+    util_log("uav2 mission waypoint size = %d", uav_.waypointList.waypoints.size());
 }

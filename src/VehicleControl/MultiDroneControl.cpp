@@ -38,27 +38,31 @@ void MultiDroneControl::DoProgress() {
         util_log("uav state = %d", uav_state_);
         switch (uav_state_) {
             case INIT: {
-                for (auto & i : uav_way_points_init_) {
-                    geometry_msgs::PoseStamped target_body;
-                    Calculate::getInstance()->bodyFrame2LocalFrame(i, target_body,
-                                                                   (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
-                    uav_way_points_.push_back(target_body);
-                }
-
-                if (!m_multi_vehicle_.uav1.waypointList.waypoints.empty()) {
-                    for (auto &i : m_multi_vehicle_.uav1.waypointList.waypoints) {
+                if (!m_multi_vehicle_.leader_uav.waypointList.waypoints.empty()) {
+                    for (auto &i : m_multi_vehicle_.leader_uav.waypointList.waypoints) {
                         GlobalPosition takeoff, waypnt;
                         geometry_msgs::PoseStamped target_init;
                         TVec3 target_local;
-                        takeoff.longitude = m_multi_vehicle_.uav1.longtitude;
-                        takeoff.latitude = m_multi_vehicle_.uav1.latitude;
+                        takeoff.longitude = m_multi_vehicle_.leader_uav.longtitude;
+                        takeoff.latitude = m_multi_vehicle_.leader_uav.latitude;
                         waypnt.longitude = i.y_long;
                         waypnt.latitude = i.x_lat;
                         Calculate::getInstance()->GetLocalPos(takeoff, waypnt, target_local);
-                        target_init.pose.position.x = target_local.x();
-                        target_init.pose.position.y = target_local.y();
+                        target_init.pose.position.x = -target_local.x();
+                        target_init.pose.position.y = -target_local.y();
                         target_init.pose.position.z = K_uav_height;
                         uav_way_points_.push_back(target_init);
+                        util_log("target_local = (%.2f, %.2f)", target_local.x(), target_local.y());
+                    }
+                    std::reverse(uav_way_points_.begin(), uav_way_points_.end());
+                    util_log("drone mission waypoint size = %d", uav_way_points_.size());
+                } else {
+                    for (auto & i : uav_way_points_init_) {
+                        geometry_msgs::PoseStamped target_body;
+                        Calculate::getInstance()->bodyFrame2LocalFrame(i, target_body,
+                                                                       (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
+                        uav_way_points_.push_back(target_body);
+                        util_log("drone local size = %d", uav_way_points_.size());
                     }
                 }
                 uav_state_ = TAKEOFF;

@@ -24,6 +24,7 @@ void DataMan::SetDroneData(const M_Drone &mDrone) {
         switch (mDrone.drone_id) {
             case UAV1: {
                 multi_vehicle_.uav1 = mDrone;
+                multi_vehicle_.leader_uav.waypointList = multi_vehicle_.uav1.waypointList;
             }
                 break;
             case UAV2: {
@@ -32,22 +33,27 @@ void DataMan::SetDroneData(const M_Drone &mDrone) {
                 break;
             case UAV3: {
                 multi_vehicle_.uav3 = mDrone;
+//                multi_vehicle_.leader_uav.waypointList = multi_vehicle_.uav3.waypointList;
             }
                 break;
             case UAV4: {
                 multi_vehicle_.uav4 = mDrone;
+//                multi_vehicle_.leader_uav.waypointList = multi_vehicle_.uav4.waypointList;
             }
                 break;
             case USV1: {
                 multi_vehicle_.usv1 = mDrone;
+                multi_vehicle_.leader_usv.waypointList = multi_vehicle_.usv1.waypointList;
             }
                 break;
             case USV2: {
                 multi_vehicle_.usv2 = mDrone;
+                multi_vehicle_.leader_usv.waypointList = multi_vehicle_.usv2.waypointList;
             }
                 break;
             case USV3: {
                 multi_vehicle_.usv3 = mDrone;
+                multi_vehicle_.leader_usv.waypointList = multi_vehicle_.usv3.waypointList;
             }
                 break;
             case UUV1: {
