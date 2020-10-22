@@ -57,6 +57,7 @@ private:
     bool is_speed_ctrl_;
 
     float target_heading_;
+    float yaw_rate_;
 };
 
 

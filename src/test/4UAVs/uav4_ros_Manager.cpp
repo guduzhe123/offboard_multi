@@ -78,7 +78,7 @@ void uav4_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     dronepos_.m_pitch = pitch * 180 / M_PI;
     dronePosPub.publish(dronepos_);
     uav_.yaw = dronepos_.m_heading;
-    util_log("uav1 m_heading = %.2f", dronepos_.m_heading);
+    util_log("uav4 m_heading = %.2f", dronepos_.m_heading);
 }
 
 void uav4_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
@@ -96,7 +96,7 @@ void uav4_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg
 void uav4_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg) {
     mavros_msgs::DebugValue debugValue;
     debugValue = *msg;
-    util_log("uav1 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1],
+    util_log("uav4 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1],
              debugValue.data[2]);
     int config = (int) debugValue.data[0];
     DataMan::getInstance()->setCommand(config);

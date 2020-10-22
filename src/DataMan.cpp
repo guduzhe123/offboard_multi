@@ -170,6 +170,8 @@ void DataMan::SetDroneControlData(const multi_vehicle &m_multi_vehicles) {
         multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicles.uav3.target_local_pos_sp;
         multi_vehicle_.uav4.target_local_pos_sp = m_multi_vehicles.uav4.target_local_pos_sp;
         multi_vehicle_.leader_uav.target_local_pos_sp = m_multi_vehicles.leader_uav.target_local_pos_sp;
+
+        multi_vehicle_.uav1.droneControl = m_multi_vehicles.uav1.droneControl;
     }
 
     if(callback_) {
@@ -185,6 +187,7 @@ void DataMan::PublishDroneControlData(const multi_vehicle &m_multi_vehicles) {
         multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicles.uav3.target_local_pos_sp;
         multi_vehicle_.uav4.target_local_pos_sp = m_multi_vehicles.uav4.target_local_pos_sp;
         multi_vehicle_.leader_uav.target_local_pos_sp = m_multi_vehicles.leader_uav.target_local_pos_sp;
+        multi_vehicle_.uav1.droneControl = m_multi_vehicles.uav1.droneControl;
     }
     msg_config_-> PublishDronePosControl(m_multi_vehicles);
 }

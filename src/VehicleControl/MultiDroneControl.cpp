@@ -177,13 +177,17 @@ void MultiDroneControl::DoProgress() {
                 uav1_pos.y() = m_multi_vehicle_.uav1.current_local_pos.pose.position.y;
                 uav1_pos.z() = m_multi_vehicle_.uav1.current_local_pos.pose.position.z;
 
-                ActionCircle::getInstance()->doProgress(uav1_pos);
+                ActionCircle::getInstance()->doProgress(uav1_pos, m_multi_vehicle_.uav1.yaw);
                 TCircleOutput circle_output;
                 ActionCircle::getInstance()->GetOutput(circle_output);
                 drone_uav_leader_.droneControl.speed_ctrl = true;
                 drone_uav_leader_.droneControl.g_vel_sp.twist.linear.x = circle_output.v_out.x();
                 drone_uav_leader_.droneControl.g_vel_sp.twist.linear.y = circle_output.v_out.y();
                 drone_uav_leader_.droneControl.g_vel_sp.twist.linear.z = circle_output.v_out.z();
+                drone_uav_leader_.droneControl.target_heading = circle_output.m_target_heading;
+                drone_uav_leader_.droneControl.yaw_rate = circle_output.m_yaw_rate;
+
+                util_log("circle result: (%.2f, %.2f, %.2f)", circle_output.v_out.x(), circle_output.v_out.y(), circle_output.v_out.z());
 
                 break;
             }
@@ -266,6 +270,9 @@ void MultiDroneControl::setVehicleCtrlData() {
     util_log("!!!!!!drone control output = (%.2f, %.2f, %.2f)", m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.x,
              m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.y, m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z);
 
+    if (drone_uav_leader_.droneControl.speed_ctrl) {
+        m_multi_vehicle_.uav1.droneControl = drone_uav_leader_.droneControl;
+    }
     DataMan::getInstance()->SetDroneControlData(m_multi_vehicle_);
 }
 

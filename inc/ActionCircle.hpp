@@ -12,7 +12,7 @@
 static const float K_circle_pid_out = 1.0f;
 static const float K_max_vh = 0.5f; //max speed to control height
 static const float K_max_vr = 0.5f; //max speed to control radius
-static const float K_max_va = 1.0f; //max speed to control angle
+static const float K_max_va = 10.0f; //max speed to control angle
 static const float K_circle_distance_range = 0.8f;
 static const float K_heading_err = 2.0f;
 
@@ -22,12 +22,13 @@ public:
     ~ActionCircle() = default;
 
     void onInit(const TCircleConfig &config);
-    void doProgress(TVec3 &m_curPos);
+    void doProgress(TVec3 &m_curPos, float cur_heading);
     void GetOutput(TCircleOutput& output);
     static ActionCircle* getInstance();
 
 private:
     float rad2dgr(float d) { return d * 180.0 / M_PI; };
+    float dgrIn180s(float d);
 
     TCircleOutput m_output;
     TCircleConfig m_cfg;

@@ -56,6 +56,7 @@ typedef struct GlobalPosition
 struct DroneControl {
     bool speed_ctrl = false;
     float target_heading = 0;
+    float yaw_rate = 0;
     geometry_msgs::PoseStamped target_pose{};
     geometry_msgs::TwistStamped g_vel_sp{};
 };
@@ -224,6 +225,7 @@ struct TCircleOutput {
     float m_gimbal_pitch = NAN;
     bool m_drone_circle_finished;
     float m_speed = NAN;  ///< total speed
+    float m_yaw_rate = NAN;
 };
 
 /// This struct defines status of drone during circle point tracking

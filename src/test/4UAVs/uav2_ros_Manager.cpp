@@ -77,7 +77,7 @@ void uav2_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     dronepos_.m_pitch = pitch * 180 / M_PI;
     dronePosPub.publish(dronepos_);
     uav_.yaw = dronepos_.m_heading;
-    util_log("uav1 m_heading = %.2f", dronepos_.m_heading);
+    util_log("uav2 m_heading = %.2f", dronepos_.m_heading);
 }
 
 void uav2_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
@@ -130,7 +130,7 @@ void uav2_ros_Manager::commander_update(const ros::TimerEvent& e) {
                 if (current_state.mode != "AUTO.TAKEOFF") {
                     if (set_mode_client.call(takeoff_set_mode)  &&
                         takeoff_set_mode.response.mode_sent) {
-                        util_log("uav1 Takeoff enabled");
+                        util_log("uav2 Takeoff enabled");
                         is_takeoff_ = true;
                     }
                 }

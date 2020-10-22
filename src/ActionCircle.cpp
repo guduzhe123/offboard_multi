@@ -8,7 +8,7 @@ ActionCircle* ActionCircle::l_pInst = NULL;
 ActionCircle::ActionCircle()  :
         m_K_r(PID(K_circle_pid_out, -K_circle_pid_out, 1, 0, 0.05)),
         m_K_h(PID(K_circle_pid_out, -K_circle_pid_out, 1, 0, 0.1)),
-        m_K_a(PID(K_circle_pid_out, -K_circle_pid_out, 1, 0, 0.1)){
+        m_K_a(PID(K_circle_pid_out, -K_circle_pid_out, 0.05, 0.0, 0.005)){
 
 }
 
@@ -19,7 +19,7 @@ void ActionCircle::onInit(const TCircleConfig &config) {
     m_output.m_speed = config.m_speed;
 }
 
-void ActionCircle::doProgress(TVec3 &m_curPos) {
+void ActionCircle::doProgress(TVec3 &m_curPos, float cur_heading) {
 // velocity to control radius
     float c_radius = TVec3(m_curPos - m_cfg.m_circle_pos).norm();
     float dt = 0.05; // 20HZ
@@ -36,7 +36,8 @@ void ActionCircle::doProgress(TVec3 &m_curPos) {
     // velocity to control height
     float c_height = m_curPos.z();
     float h_speed = K_max_vh * m_K_h.calculate(m_cfg.m_target_pos.z(), c_height, dt);
-    TVec3 v_h(0, 0, h_speed);
+//    TVec3 v_h(0, 0, h_speed);
+    TVec3 v_h(0, 0, 0);
 
     // velocity to circle
     //get the 2 vector angle
@@ -46,6 +47,15 @@ void ActionCircle::doProgress(TVec3 &m_curPos) {
     dv.z() = 0;
     util_log("dv = (%.2f, %.2f, %.2f)", dv.x(), dv.y(), dv.z());
     m_output.v_out = v_r + v_h + dv;
+
+    TVec3 nv = p0.normalized();
+    float heading = rad2dgr(atan2(nv.x(), nv.y()));
+    m_output.m_target_heading = dgrIn180s(heading);
+    float rate = K_max_va * m_K_a.calculate(90, cur_heading, dt);
+    m_output.m_yaw_rate = rate;
+    util_log("m_output.m_target_heading = %.2f, cur_heading = %.2f, rate = %.2f",
+            m_output.m_target_heading, cur_heading, rate);
+
 }
 
 ActionCircle* ActionCircle::getInstance() {
@@ -57,4 +67,12 @@ ActionCircle* ActionCircle::getInstance() {
 
 void ActionCircle::GetOutput(TCircleOutput &output) {
     output = m_output;
+}
+
+float ActionCircle::dgrIn180s(float d) {
+    int n = d / 360;
+    float d1 = d - (float) (n * 360);
+    if (d1 > 180) d1 -= 360;
+    if (d1 < -180) d1 += 360;
+    return d1;
 }
