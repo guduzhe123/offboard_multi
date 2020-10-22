@@ -6,7 +6,7 @@
 MultiDroneControl* MultiDroneControl:: l_lint = NULL;
 
 MultiDroneControl::MultiDroneControl() :
-                    uav_state_(TAKEOFF),
+                    uav_state_(INIT),
                     is_uav_follow_(false),
                     state_changed_(false){
 
@@ -21,7 +21,7 @@ MultiDroneControl* MultiDroneControl::getInstance() {
 
 void MultiDroneControl::onInit(vector<geometry_msgs::PoseStamped> way_points, bool is_uav_follow) {
     util_log("drone control start! size of uav way points = %d", way_points.size());
-    uav_way_points_ = way_points;
+    uav_way_points_init_ = way_points;
     is_uav_follow_ = is_uav_follow;
     util_log("is uav state = %d", is_uav_follow_);
 }
@@ -34,19 +34,44 @@ void MultiDroneControl::DoProgress() {
 
     drone_uav_leader_.droneControl.speed_ctrl = false;
 //    uav_global_pos_sp();
-    if (drone_uav_leader_.current_state.mode == "OFFBOARD"  /*&& drone_uav_leader_.current_state.armed*/) {
+    if (drone_uav_leader_.current_state.mode == "OFFBOARD"  && drone_uav_leader_.current_state.armed) {
         util_log("uav state = %d", uav_state_);
         switch (uav_state_) {
+            case INIT: {
+                for (auto & i : uav_way_points_init_) {
+                    geometry_msgs::PoseStamped target_body;
+                    Calculate::getInstance()->bodyFrame2LocalFrame(i, target_body,
+                                                                   (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
+                    uav_way_points_.push_back(target_body);
+                }
+
+                if (!m_multi_vehicle_.uav1.waypointList.waypoints.empty()) {
+                    for (auto &i : m_multi_vehicle_.uav1.waypointList.waypoints) {
+                        GlobalPosition takeoff, waypnt;
+                        geometry_msgs::PoseStamped target_init;
+                        TVec3 target_local;
+                        takeoff.longitude = m_multi_vehicle_.uav1.longtitude;
+                        takeoff.latitude = m_multi_vehicle_.uav1.latitude;
+                        waypnt.longitude = i.y_long;
+                        waypnt.latitude = i.x_lat;
+                        Calculate::getInstance()->GetLocalPos(takeoff, waypnt, target_local);
+                        target_init.pose.position.x = target_local.x();
+                        target_init.pose.position.y = target_local.y();
+                        target_init.pose.position.z = K_uav_height;
+                        uav_way_points_.push_back(target_init);
+                    }
+                }
+                uav_state_ = TAKEOFF;
+                break;
+            }
             // takeoff
             case TAKEOFF:
                 // get usv and uav takeoff location different
                 Calculate::getInstance()->getTakeoffPos(m_multi_vehicle_.usv1, m_multi_vehicle_.uav1,
                                                         follow_slave_first_local_);
-                body_pos_.pose.position.x = 0;
-                body_pos_.pose.position.y = 0;
-                body_pos_.pose.position.z = K_multi_usv_formation_distance;
-                Calculate::getInstance()->bodyFrame2LocalFrame(body_pos_, target_pos_,
-                                                               (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
+                target_pos_.pose.position.x = 0;
+                target_pos_.pose.position.y = 0;
+                target_pos_.pose.position.z = K_uav_height;
 
                 if (pos_reached(drone_uav_leader_.current_local_pos, target_pos_, 0.8)
 /*                    pos_reached(m_multi_vehicle_.uav2.current_local_pos, target_pos_, 5) &&
@@ -64,9 +89,7 @@ void MultiDroneControl::DoProgress() {
 
             case WAYPOINT:
                 if (!uav_way_points_.empty()) {
-                    body_pos_ = uav_way_points_.back();
-                    Calculate::getInstance()->bodyFrame2LocalFrame(body_pos_, target_pos_,
-                                                                   (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
+                    target_pos_ = uav_way_points_.back();
 
                     if (pos_reached(drone_uav_leader_.current_local_pos, target_pos_, 0.8) /*&&
                         pos_reached(m_multi_vehicle_.uav2.current_local_pos, target_pos_, 5) &&
@@ -102,11 +125,8 @@ void MultiDroneControl::DoProgress() {
                 break;
 
             case FORMATION: {
-                body_pos_.pose.position.x = follow_slave_first_local_.x();
-                body_pos_.pose.position.y = follow_slave_first_local_.y();
-
-                Calculate::getInstance()->bodyFrame2LocalFrame(body_pos_, target_pos_,
-                                                               (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
+                target_pos_.pose.position.x = follow_slave_first_local_.x();
+                target_pos_.pose.position.y = follow_slave_first_local_.y();
 
                 if (pos_reached(m_multi_vehicle_.leader_uav.current_local_pos, target_pos_, 0.8)) {
                     uav_state_ = FALLOW_USV;
@@ -118,13 +138,10 @@ void MultiDroneControl::DoProgress() {
             case FALLOW_USV: {
                 m_multi_vehicle_.leader_usv.current_state.armed = true; // TODO for test.
                 if (m_multi_vehicle_.leader_usv.current_state.armed) {
-                    body_pos_.pose.position.x = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.x +
+                    target_pos_.pose.position.x = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.x +
                                                 follow_slave_first_local_.x();
-                    body_pos_.pose.position.y = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.y +
+                    target_pos_.pose.position.y = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.y +
                                                 follow_slave_first_local_.y();
-
-                    Calculate::getInstance()->bodyFrame2LocalFrame(body_pos_, target_pos_,
-                                                                   (float) (m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
 
                     util_log("usv leader target pos x = %.2f, y = %.2f, z = %.2f",
                              m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x,

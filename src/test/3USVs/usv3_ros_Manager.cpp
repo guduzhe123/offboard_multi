@@ -27,6 +27,8 @@ void usv3_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/global_position/global", 10, &usv3_ros_Manager::global_pos_cb, this);
     commander_sub = nh.subscribe<mavros_msgs::DebugValue>
             ("mavros/debug_value/debug_vector", 10, &usv3_ros_Manager::debug_value_cb, this);
+    way_point_sub = nh.subscribe<mavros_msgs::WaypointList>
+            ("mavros/mission/waypoints", 10, &usv3_ros_Manager::wayPointCB, this);
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
             ("mavros/setpoint_position/local", 100);
@@ -133,4 +135,6 @@ void usv3_ros_Manager::usvPosSp(const geometry_msgs::PoseStamped& way_point) {
     target_local_pos_sp_ = way_point;
 }
 
-
+void usv3_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg) {
+    uav_.waypointList = *msg;
+}

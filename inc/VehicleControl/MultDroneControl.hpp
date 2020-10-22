@@ -46,6 +46,8 @@ private:
     geometry_msgs::PoseStamped target_pos_;
     geometry_msgs::PoseStamped body_pos_;
     vector<geometry_msgs::PoseStamped> uav_way_points_;
+    vector<geometry_msgs::PoseStamped> uav_way_points_init_;
+    vector<geometry_msgs::PoseStamped> uav_way_points_body_;
     TVec3 follow_slave_first_local_;
 
     bool is_uav_follow_;

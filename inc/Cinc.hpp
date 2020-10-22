@@ -25,6 +25,7 @@
 #include <mavros_msgs/GlobalPositionTarget.h>
 #include <mavros_msgs/Mavlink.h>
 #include <mavros_msgs/VFR_HUD.h>
+#include <mavros_msgs/WaypointList.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include "pid.hpp"
@@ -41,6 +42,7 @@ static const bool K_Param_local_global = true;
 static const float K_err_allow = 0.5;
 static const float K_multi_formation_distance = 6;
 static const float K_multi_usv_formation_distance = 15;
+static const float K_uav_height = 15;
 static const float usv_position_allow_reached_ = 3;
 
 typedef struct GlobalPosition
@@ -84,6 +86,7 @@ struct M_Drone {
     geometry_msgs::PoseStamped target_local_pos_sp;
     mavros_msgs::PositionTarget current_local_pos_sp;
     DroneControl droneControl;
+    mavros_msgs::WaypointList  waypointList;
 };
 
 struct multi_vehicle{
@@ -133,6 +136,7 @@ enum {
 };
 
 enum  {
+    INIT,
     TAKEOFF,
     ADJUSTHEADING,
     WAYPOINT,
