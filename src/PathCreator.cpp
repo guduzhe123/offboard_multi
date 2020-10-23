@@ -102,12 +102,15 @@ void PathCreator::CreatVehicle() {
 
     MultiBoatControlFactory m_boat_control;
     MultiDroneControlFactory m_drone_control;
+    MultiUUVControlFactory m_uuv_control;
 
     m_drone_control.VehicleControlCreator()->onInit(uav_way_points, is_uav_follow_);
     m_boat_control.VehicleControlCreator()->onInit(usv_way_points, is_uav_follow_);
+    m_uuv_control.VehicleControlCreator()->onInit(usv_way_points, false);
 
     FlightManager::getInstance()->AddVehicleControlProgress(&m_boat_control);
     FlightManager::getInstance()->AddVehicleControlProgress(&m_drone_control);
+    FlightManager::getInstance()->AddVehicleControlProgress(&m_uuv_control);
 }
 
 void PathCreator::CreateUAVFormationInit(const int config) {

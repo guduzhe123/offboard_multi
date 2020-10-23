@@ -58,6 +58,7 @@ void DataMan::SetDroneData(const M_Drone &mDrone) {
                 break;
             case UUV1: {
                 multi_vehicle_.uuv1 = mDrone;
+                multi_vehicle_.leader_uuv.waypointList = multi_vehicle_.uuv1.waypointList;
             }
                 break;
             case UUV2: {
@@ -209,6 +210,15 @@ void DataMan::SetBoatControlData(const multi_vehicle &m_multi_vehicles) {
     msg_config_->PublishBoatPosControl(m_multi_vehicles);
 }
 
+void DataMan::SetUUVControlData(const multi_vehicle &m_multi_vehicles) {
+    {
+        boost::unique_lock<boost::mutex> lock(m_mutex);
+        multi_vehicle_.uuv1.target_local_pos_sp = m_multi_vehicles.uuv1.target_local_pos_sp;
+        multi_vehicle_.leader_usv.target_local_pos_sp = m_multi_vehicles.leader_usv.target_local_pos_sp;
+    }
+    msg_config_->PublishUUVPosControl(m_multi_vehicles);
+}
+
 void DataMan::SetUAVLeader(M_Drone &leader_uav) {
     boost::unique_lock<boost::mutex> lock(m_mutex);
     multi_vehicle_.leader_uav = leader_uav;
@@ -217,6 +227,12 @@ void DataMan::SetUAVLeader(M_Drone &leader_uav) {
 void DataMan::SetUSVLeader(M_Drone &leader_usv) {
     boost::unique_lock<boost::mutex> lock(m_mutex);
     multi_vehicle_.leader_usv = leader_usv;
+
+}
+
+void DataMan::SetUUVLeader(M_Drone &leader_uuv) {
+    boost::unique_lock<boost::mutex> lock(m_mutex);
+    multi_vehicle_.leader_uuv = leader_uuv;
 
 }
 

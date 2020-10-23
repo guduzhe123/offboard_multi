@@ -54,6 +54,8 @@ public:
 
     void SetBoatControlData(const multi_vehicle &m_multi_vehicles);
 
+    void SetUUVControlData(const multi_vehicle &m_multi_vehicles);
+
     void SetUAVState(mavros_msgs::SetMode &m_mode);
 
     void SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id);
@@ -61,6 +63,8 @@ public:
     void SetUAVLeader(M_Drone &leader_uav);
 
     void SetUSVLeader(M_Drone &leader_usv);
+
+    void SetUUVLeader(M_Drone &leader_uuv);
 
     void SetUserCommand(const int value);
 

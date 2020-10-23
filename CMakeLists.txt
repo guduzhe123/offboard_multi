@@ -80,6 +80,7 @@ add_library(
         src/DataMan.cpp inc/DataMan.hpp
         src/VehicleControl/MultiBoatControl.cpp
         src/VehicleControl/MultiDroneControl.cpp
+        src/VehicleControl/MultiUUVControl.cpp
         src/Calculate.cpp
         src/PID.cpp
         src/ActionCircle.cpp
@@ -151,6 +152,7 @@ add_library(3usvs_lib
         src/test/3USVs/usv1_ros_Manager.cpp
         src/test/3USVs/usv2_ros_Manager.cpp
         src/test/3USVs/usv3_ros_Manager.cpp
+        src/test/UUV_Control/uuv1_ros_Manager.cpp
         src/test/3USVs/dataMan.cpp
         src/test/3USVs/usvs_control.cpp
         src/util.cpp
@@ -193,6 +195,7 @@ add_library(7vehicles_lib
         src/test/3USVs/usv1_ros_Manager.cpp
         src/test/3USVs/usv2_ros_Manager.cpp
         src/test/3USVs/usv3_ros_Manager.cpp
+        src/test/UUV_Control/uuv1_ros_Manager.cpp
         src/test/4UAVs/uav1_ros_Manager.cpp
         src/test/4UAVs/uav2_ros_Manager.cpp
         src/test/4UAVs/uav3_ros_Manager.cpp

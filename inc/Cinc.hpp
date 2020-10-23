@@ -103,6 +103,7 @@ struct multi_vehicle{
     M_Drone uuv3;
     M_Drone leader_uav;
     M_Drone leader_usv;
+    M_Drone leader_uuv;
     int user_command;
 };
 
@@ -155,6 +156,13 @@ enum {
     USV_FORMATION
 };
 
+enum {
+    UUV_INIT,
+    UUV_WAYPOINT,
+    UUV_DISARM,
+    UUV_FORMATION
+};
+
 enum COMMAND_TYPE {
     VF_UAV_SQUARE = 1,
     VF_UAV_TRIANGLE = 2,
@@ -174,7 +182,8 @@ enum COMMAND_TYPE {
     VF_UAV_FALLOW_USV = 16,
     VF_USV_FALLOW_UAV = 17,
     VF_UAV_CIRCLE = 18,
-    VF_USV_CIRCLE = 19
+    VF_USV_CIRCLE = 19,
+    VF_UUV_ALL_START = 20
 };
 
 

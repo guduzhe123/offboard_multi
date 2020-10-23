@@ -466,3 +466,7 @@ void MultiOffboard::SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_i
         drone_uav7_.arming_client.call(arm_command);
     }
 }
+
+void MultiOffboard::PublishUUVPosControl(const multi_vehicle &multi_vehicles) {
+
+}

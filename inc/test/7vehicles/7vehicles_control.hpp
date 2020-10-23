@@ -12,6 +12,7 @@
 #include "test/3USVs/usv1_ros_Manager.hpp"
 #include "test/3USVs/usv2_ros_Manager.hpp"
 #include "test/3USVs/usv3_ros_Manager.hpp"
+#include "test/UUV_Control/uuv1_ros_Manager.hpp"
 #include "DataMan.hpp"
 #include "Calculate.hpp"
 #include "PathCreator.hpp"
@@ -27,6 +28,7 @@ public:
     void OnInit() override ;
     void PublishDronePosControl(const multi_vehicle &multi_vehicles) override ;
     void PublishBoatPosControl(const multi_vehicle &multi_vehicles) override ;
+    void PublishUUVPosControl(const multi_vehicle &multi_vehicles) override;
     void SetUAVState(mavros_msgs::SetMode &m_mode) override ;
     void SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) override ;
 
@@ -38,6 +40,7 @@ private:
     usv1_ros_Manager::Ptr usv1_control_;
     usv2_ros_Manager::Ptr usv2_control_;
     usv3_ros_Manager::Ptr usv3_control_;
+    uuv1_ros_Manager::Ptr uuv1_control_;
 
     multi_vehicle multiVehicle;
     int uav_state_;

@@ -51,6 +51,10 @@ void seven_vehicle_control::OnInit() {
     usv3_control_.reset(new usv3_ros_Manager);
     usv3_control_->usvOnInit(usv3_nh);
 
+    ros::NodeHandle uuv1_nh("uuv1");
+    uuv1_control_.reset(new uuv1_ros_Manager);
+    uuv1_control_->usvOnInit(uuv1_nh);
+
     ros::NodeHandle nh("~");
     int waypoint_num_;
     nh.param<double>("formation_distance", formation_distance_, 5);
@@ -92,6 +96,10 @@ void seven_vehicle_control::PublishBoatPosControl(const multi_vehicle &multi_veh
     usv1_control_->usvPosSp(multi_vehicles.usv1.target_local_pos_sp);
     usv2_control_->usvPosSp(multi_vehicles.usv2.target_local_pos_sp);
     usv3_control_->usvPosSp(multi_vehicles.usv3.target_local_pos_sp);
+}
+
+void seven_vehicle_control::PublishUUVPosControl(const multi_vehicle &multi_vehicles) {
+    uuv1_control_->usvPosSp(multi_vehicles.uuv1.target_local_pos_sp);
 }
 
 void seven_vehicle_control::SetUAVState(mavros_msgs::SetMode &m_mode) {

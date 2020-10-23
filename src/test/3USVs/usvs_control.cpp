@@ -71,3 +71,7 @@ void usvs_control::SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id
 
 }
 
+void usvs_control::PublishUUVPosControl(const multi_vehicle &multi_vehicles) {
+
+}
+

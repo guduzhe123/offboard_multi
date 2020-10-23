@@ -12,6 +12,7 @@
 #include "IVehicleControl.hpp"
 #include "Multi_UAV_formation.hpp"
 #include "Multi_USV_formation.hpp"
+#include "MultUUVControl.hpp"
 #include "Avoidance.hpp"
 #include "MultDroneControl.hpp"
 #include "MultBoatControl.hpp"

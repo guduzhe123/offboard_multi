@@ -17,6 +17,8 @@ public:
 
     virtual void PublishBoatPosControl(const multi_vehicle &multi_vehicles) = 0;
 
+    virtual void PublishUUVPosControl(const multi_vehicle &multi_vehicles) = 0;
+
     virtual void SetUAVState(mavros_msgs::SetMode &m_mode) = 0;
 
     virtual void SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) = 0;

@@ -49,6 +49,14 @@
             /uav7/mavros/local_position/pose
             /uav7/drone/PosUpDate
 
+            /uuv1/mavros/state
+            /uuv1/mavros/vfr_hud
+            /uuv1/mavros/global_position/global
+            /uuv1/mavros/setpoint_position/local
+            /uuv1/mavros/local_position/pose
+            /uuv1/drone/PosUpDate
+            /uuv1/mavros/setpoint_velocity/cmd_vel
+
             /uav1/mavros/debug_value/debug_vector
             /uav2/mavros/debug_value/debug_vector
             /uav3/mavros/debug_value/debug_vector
@@ -57,6 +65,7 @@
             /uav6/mavros/debug_value/debug_vector
             /uav7/mavros/debug_value/debug_vector
             /usv1/mavros/debug_value/debug_vector
+            /uuv1/mavros/debug_value/debug_vector
 
 
             /usv1/mavros/state
