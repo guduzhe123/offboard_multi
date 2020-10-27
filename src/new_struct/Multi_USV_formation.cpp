@@ -30,8 +30,6 @@ void MultiUSVFormation::Oninit(const int config) {
             leader_drone_ = m_multi_vehicle_.usv1;
             Drone_usv2_ = TVec3(-K_multi_usv_formation_distance, -K_multi_usv_formation_distance , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
             Drone_usv3_ = TVec3(K_multi_usv_formation_distance, -K_multi_usv_formation_distance , m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
-            calcFollowUSVPos();
-
         }
             break;
 
@@ -42,8 +40,7 @@ void MultiUSVFormation::Oninit(const int config) {
             leader_drone_ = m_multi_vehicle_.usv1;
             Drone_usv2_ = TVec3(0, -K_multi_usv_formation_distance , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
             Drone_usv3_ = TVec3(0, -2 * K_multi_usv_formation_distance, m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
-            calcFollowUSVPos();
-
+//            calcFollowUSVPos();
         }
             break;
 
@@ -53,8 +50,7 @@ void MultiUSVFormation::Oninit(const int config) {
             leader_drone_ = m_multi_vehicle_.usv1;
             Drone_usv2_ = TVec3(K_multi_usv_formation_distance, 0 , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
             Drone_usv3_ = TVec3(2* K_multi_usv_formation_distance, 0, m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
-            calcFollowUSVPos();
-
+//            calcFollowUSVPos();
         }
             break;
 
@@ -69,6 +65,31 @@ void MultiUSVFormation::Oninit(const int config) {
             break;
 
     }
+
+    changeToLocalTarget();
+    calcFollowUSVPos();
+}
+
+void MultiUSVFormation::changeToLocalTarget() {
+    geometry_msgs::PoseStamped body_usv2, body_usv3, local_usv2, local_usv3;
+    body_usv2.pose.position.x = Drone_usv2_.x();
+    body_usv2.pose.position.y = Drone_usv2_.y();
+    body_usv2.pose.position.z = Drone_usv2_.z();
+
+    body_usv3.pose.position.x = Drone_usv3_.x();
+    body_usv3.pose.position.y = Drone_usv3_.y();
+    body_usv3.pose.position.z = Drone_usv3_.z();
+
+    Calculate::getInstance()->bodyFrame2LocalFrame(body_usv2, local_usv2, m_multi_vehicle_.usv1.yaw);
+    Calculate::getInstance()->bodyFrame2LocalFrame(body_usv3, local_usv3, m_multi_vehicle_.usv1.yaw);
+
+    Drone_usv2_.x() = local_usv2.pose.position.x;
+    Drone_usv2_.y() = local_usv2.pose.position.y;
+    Drone_usv2_.z() = local_usv2.pose.position.z;
+
+    Drone_usv3_.x() = local_usv3.pose.position.x;
+    Drone_usv3_.y() = local_usv3.pose.position.y;
+    Drone_usv3_.z() = local_usv3.pose.position.z;
 }
 
 MultiUSVFormation* MultiUSVFormation::getInstance() {

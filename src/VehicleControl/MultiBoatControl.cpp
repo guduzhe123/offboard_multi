@@ -143,12 +143,12 @@ void MultiBoatControl::DoProgress() {
 
                 break;
         }
-        setVehicleCtrlData();
     } else {
         m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position =
                 m_multi_vehicle_.leader_usv.current_local_pos.pose.position;
-        USVManualControl();
+//        USVManualControl();
     }
+    setVehicleCtrlData();
 
 }
 

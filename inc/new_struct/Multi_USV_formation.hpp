@@ -36,6 +36,8 @@ private:
 
     void GetTakeoffPos();
 
+    void changeToLocalTarget();
+
     static MultiUSVFormation* multi_formation;
 
     multi_vehicle m_multi_vehicle_;

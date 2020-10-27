@@ -58,6 +58,7 @@ public:
     void posToPosCtrl(TVec3 &target_point, TVec3 &target_after_judge, TVec3 &drone_cur_pos, float speed_limit);
     void getTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_slave_first_local);
     void bodyFrame2LocalFrame(geometry_msgs::PoseStamped &body, geometry_msgs::PoseStamped &local, float yaw);
+    void localFrame2BodyFrame(geometry_msgs::PoseStamped &body, geometry_msgs::PoseStamped &local, float yaw);
     TQuat EulerAngle2QuatNED(const float ned_yaw, const float ned_pitch, const float ned_roll);
     static Calculate* getInstance();
 
