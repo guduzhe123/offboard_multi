@@ -228,7 +228,15 @@ void Calculate::bodyFrame2LocalFrame(geometry_msgs::PoseStamped &body, geometry_
     local.pose.position.x = body.pose.position.x * cos(yaw) - body.pose.position.y * sin(yaw);
     local.pose.position.y = body.pose.position.x * sin(yaw) + body.pose.position.y * cos(yaw);
     local.pose.position.z = body.pose.position.z;
-    util_log("cos(%.2f) = %.2f, sin(%.2f) = %.2f" , yaw, cos(yaw), yaw, sin(yaw));
+    util_log("body to local cos(%.2f) = %.2f, sin(%.2f) = %.2f" , yaw, cos(yaw), yaw, sin(yaw));
+}
+
+
+void Calculate::localFrame2bodyFrame(geometry_msgs::PoseStamped &local, geometry_msgs::PoseStamped &body, float yaw) {
+    body.pose.position.x = local.pose.position.x * cos(yaw) + local.pose.position.y * sin(yaw);
+    body.pose.position.y = -local.pose.position.x * sin(yaw) + local.pose.position.y * cos(yaw);
+    body.pose.position.z = local.pose.position.z;
+    util_log("local to body cos(%.2f) = %.2f, sin(%.2f) = %.2f" , yaw, cos(yaw), yaw, sin(yaw));
 }
 
 

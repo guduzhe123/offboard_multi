@@ -100,6 +100,21 @@
             /uuv2/mavlink/from
             /uuv3/mavlink/from
 
+            /uav1/mavros/global_position/local
+            /uav1//mavros/imu/data
+            /uav2/mavros/global_position/local
+            /uav2//mavros/imu/data
+            /uav3/mavros/global_position/local
+            /uav3//mavros/imu/data
+            /uav4/mavros/global_position/local
+            /uav4//mavros/imu/data
+
+            /usv1/mavros/global_position/local
+            /usv1//mavros/imu/data
+            /usv2/mavros/global_position/local
+            /usv2//mavros/imu/data
+            /usv3/mavros/global_position/local
+            /usv3//mavros/imu/data
 
 "
     />

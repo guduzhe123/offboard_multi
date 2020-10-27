@@ -51,7 +51,7 @@ private:
     int config_;
     M_Drone leader_drone_;
 
-    TVec3 leader_curr_pos_;
+    TVec3 leader_curr_pos_, leader_cur_target_;
     TVec3 Drone_usv1_, Drone_usv2_, Drone_usv3_, Drone_usv4_;
     TVec3 follow_usv1_;
     TVec3 follow_usv2_;

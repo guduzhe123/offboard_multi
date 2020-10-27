@@ -23,6 +23,10 @@ void MultiUSVFormation::Oninit(const int config) {
     config_ = config;
     leader_curr_pos_ = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x, m_multi_vehicle_.usv1.current_local_pos.pose.position.y,
                             m_multi_vehicle_.usv1.current_local_pos.pose.position.z);
+    if (!m_multi_vehicle_.usv1.waypointList.waypoints.empty()) {
+
+    }
+
     switch (config) {
         case VF_USV_TRIANGLE: {
             is_formation_ = true;
@@ -178,6 +182,7 @@ void MultiUSVFormation::GetTakeoffPos() {
 void MultiUSVFormation::DoProgress() {
     GetTakeoffPos();
     OnCheckFormationArrived();
+
     SetFunctionOutPut();
 }
 
