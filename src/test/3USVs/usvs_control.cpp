@@ -68,7 +68,23 @@ void usvs_control::SetUAVState(mavros_msgs::SetMode &m_mode) {
 }
 
 void usvs_control::SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) {
+    switch (usv_id) {
+        case USV1: {
+            usv1_control_->usvCallService(arm_command);
+            break;
+        }
+        case USV2: {
+            usv2_control_->usvCallService(arm_command);
+            break;
+        }
+        case USV3: {
+            usv3_control_->usvCallService(arm_command);
+            break;
+        }
 
+        default:
+            break;
+    }
 }
 
 void usvs_control::PublishUUVPosControl(const multi_vehicle &multi_vehicles) {

@@ -39,6 +39,8 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/global_position/global", 100);
     g_speed_control_pub = nh.advertise<geometry_msgs::TwistStamped>
             ("mavros/setpoint_velocity/cmd_vel", 100);
+    dronePosPub = nh.advertise<offboard::DronePosUpdate>
+            ("drone/PosUpDate", 100);
 
     arming_client = nh.serviceClient<mavros_msgs::CommandBool>
             ("mavros/cmd/arming");
@@ -60,6 +62,26 @@ void usv1_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
 void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
     usv_.current_local_pos = *msg;
     util_log("usv1 current_local_pos = %2f", usv_.current_local_pos.pose.position.x);
+
+    double yaw, roll, pitch;
+    EulerAngles angles;
+
+    yaw = Calculate::getInstance()->quaternion_get_yaw(usv_.current_local_pos.pose.orientation, angles);
+    Calculate::getInstance()->quaternion_to_rpy(usv_.current_local_pos.pose.orientation, roll, pitch, yaw);
+
+    dronepos_.m_heading = yaw * 180 / M_PI;
+    if (dronepos_.m_heading  < 0) dronepos_.m_heading  += 360;
+
+    dronepos_.m_x = usv_.current_local_pos.pose.position.x;
+    dronepos_.m_y = usv_.current_local_pos.pose.position.y;
+    dronepos_.m_z = usv_.current_local_pos.pose.position.z;
+    dronepos_.m_roll = roll * 180 / M_PI;
+    dronepos_.m_pitch = pitch * 180 / M_PI;
+    dronePosPub.publish(dronepos_);
+//    usv_.yaw = dronepos_.m_heading;
+    usv_.yaw = current_vfr_hud.heading;
+    util_log("usv1 heading = %.2f, usv_.yaw = %.2f", dronepos_.m_heading, usv_.yaw);
+    
 }
 
 void usv1_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
@@ -91,13 +113,14 @@ void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {
     if (command == VF_USV_ALL_START /*|| command == SLAVESTART*/) {
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
-        util_log("uav arm_i = %d, is_arm = %d", arm_i_, is_arm_);
+        util_log("usv1 arm_i = %d, is_arm = %d", arm_i_, is_arm_);
         if (!current_state.armed && !is_arm_) {
             while(arm_i_ > 0) {
                 if (arming_client.call(arm_cmd) &&
                     arm_cmd.response.success) {
-                    util_log("uav Vehicle armed");
+                    util_log("usv1 Vehicle armed");
                     is_arm_ = true;
+                    break;
                 }
                 --arm_i_;
             }
@@ -111,7 +134,7 @@ void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {
             for (offboard_i = 10; ros::ok() && offboard_i > 0; --offboard_i) {
                 if (set_mode_client.call(offb_set_mode) &&
                     offb_set_mode.response.mode_sent) {
-                    util_log("uav Offboard enabled");
+                    util_log("usv1 Offboard enabled");
                     is_offboard_ = true;
                 }
             }
@@ -141,4 +164,8 @@ void usv1_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg
     usv_.waypointList = *msg;
 }
 
+void usv1_ros_Manager::usvCallService(mavros_msgs::CommandBool &m_mode) {
+    util_log("usv1 call for arm mode = %d", m_mode);
+//    arming_client.call(m_mode);
+}
 

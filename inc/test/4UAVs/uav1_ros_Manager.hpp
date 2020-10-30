@@ -9,7 +9,6 @@
 #include "dataMan.hpp"
 #include "DataMan.hpp"
 #include "PathCreator.hpp"
-#include "offboard/DronePosUpdate.h"
 
 class uav1_ros_Manager {
 public:

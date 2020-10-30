@@ -29,6 +29,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include "pid.hpp"
+#include "offboard/DronePosUpdate.h"
 using namespace std;
 
 typedef Eigen::Vector2f TVec2;

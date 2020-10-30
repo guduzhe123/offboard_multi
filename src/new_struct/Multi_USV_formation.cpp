@@ -10,6 +10,7 @@
 MultiUSVFormation* MultiUSVFormation::multi_formation = NULL;
 
 MultiUSVFormation::MultiUSVFormation() :
+        config_(0),
         is_formation_(false),
         is_get_takeoff_pos_(false),
         usv1_reached_(false),
@@ -23,9 +24,9 @@ void MultiUSVFormation::Oninit(const int config) {
     config_ = config;
     leader_curr_pos_ = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x, m_multi_vehicle_.usv1.current_local_pos.pose.position.y,
                             m_multi_vehicle_.usv1.current_local_pos.pose.position.z);
-    if (!m_multi_vehicle_.usv1.waypointList.waypoints.empty()) {
+/*    if (!m_multi_vehicle_.usv1.waypointList.waypoints.empty()) {
 
-    }
+    }*/
 
     switch (config) {
         case VF_USV_TRIANGLE: {
@@ -84,8 +85,8 @@ void MultiUSVFormation::changeToLocalTarget() {
     body_usv3.pose.position.y = Drone_usv3_.y();
     body_usv3.pose.position.z = Drone_usv3_.z();
 
-    Calculate::getInstance()->bodyFrame2LocalFrame(body_usv2, local_usv2, m_multi_vehicle_.usv1.yaw);
-    Calculate::getInstance()->bodyFrame2LocalFrame(body_usv3, local_usv3, m_multi_vehicle_.usv1.yaw);
+    Calculate::getInstance()->bodyFrame2LocalFrame(body_usv2, local_usv2, m_multi_vehicle_.usv1.yaw * M_PI / 180.0);
+    Calculate::getInstance()->bodyFrame2LocalFrame(body_usv3, local_usv3, m_multi_vehicle_.usv1.yaw * M_PI / 180.0);
 
     Drone_usv2_.x() = local_usv2.pose.position.x;
     Drone_usv2_.y() = local_usv2.pose.position.y;
@@ -134,15 +135,15 @@ void MultiUSVFormation::OnCheckFormationArrived() {
 
     if (pos_reached(m_multi_vehicle_.usv2.current_local_pos, follow_usv1_, usv_position_allow_reached_)) {
         usv2_reached_ = true;
-        arm_cmd.request.value = false;
+/*        arm_cmd.request.value = false;
         DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv2.drone_id);
-        util_log("usv6 disarm at one point");
+        util_log("usv6 disarm at one point");*/
     }
     if (pos_reached(m_multi_vehicle_.usv3.current_local_pos, follow_usv2_, usv_position_allow_reached_)) {
         usv3_reached_ = true;
-        arm_cmd.request.value = false;
+/*        arm_cmd.request.value = false;
         DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv3.drone_id);
-        util_log("usv7 disarm at one point");
+        util_log("usv7 disarm at one point");*/
     }
 
     if (usv1_reached_ && usv2_reached_ && usv3_reached_ && config_ != VF_USV_ALL_RETURN) {
@@ -163,7 +164,7 @@ MultiUSVFormation::pos_reached(geometry_msgs::PoseStamped &current_pos, TVec3 &f
 }
 
 void MultiUSVFormation::GetTakeoffPos() {
-    if (m_multi_vehicle_.leader_usv.current_state.armed && !is_get_takeoff_pos_) {
+    if (/*m_multi_vehicle_.leader_usv.current_state.armed &&*/ !is_get_takeoff_pos_) {
 
         usv1_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv1.latitude, m_multi_vehicle_.usv1.longtitude,0};
         usv2_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv2.latitude, m_multi_vehicle_.usv2.longtitude,0};
@@ -181,8 +182,12 @@ void MultiUSVFormation::GetTakeoffPos() {
 
 void MultiUSVFormation::DoProgress() {
     GetTakeoffPos();
-    OnCheckFormationArrived();
+    if (!config_ && !is_formation_) {
+        changeToLocalTarget();
+        calcFollowUSVPos();
+    }
 
+    OnCheckFormationArrived();
     SetFunctionOutPut();
 }
 

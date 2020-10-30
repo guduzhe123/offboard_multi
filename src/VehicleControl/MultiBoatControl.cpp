@@ -154,17 +154,17 @@ void MultiBoatControl::DoProgress() {
 
 void MultiBoatControl::chooseLeader() {
     if (m_multi_vehicle_.usv1.current_state.connected
-        && m_multi_vehicle_.usv1.current_state.armed
+//        && m_multi_vehicle_.usv1.current_state.armed
         /* && m_multi_vehicle_.usv1.current_state.mode == "OFFBOARD"*/) {
         m_multi_vehicle_.leader_usv = m_multi_vehicle_.usv1;
     } else {
         if (m_multi_vehicle_.usv2.current_state.connected
-            && m_multi_vehicle_.usv2.current_state.armed
+//            && m_multi_vehicle_.usv2.current_state.armed
             /* && m_multi_vehicle_.usv2.current_state.mode == "OFFBOARD"*/) {
             m_multi_vehicle_.leader_usv = m_multi_vehicle_.usv2;
         } else {
             if (m_multi_vehicle_.usv3.current_state.connected
-                &&m_multi_vehicle_.usv3.current_state.armed
+//                &&m_multi_vehicle_.usv3.current_state.armed
                 /*&& m_multi_vehicle_.usv3.current_state.mode == "OFFBOARD"*/) {
                 m_multi_vehicle_.leader_usv = m_multi_vehicle_.usv3;
             }
@@ -187,8 +187,8 @@ geometry_msgs::PoseStamped MultiBoatControl::CalculateTargetPos(geometry_msgs::P
 
 void MultiBoatControl::setVehicleCtrlData() {
     m_multi_vehicle_.usv1.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.target_local_pos_sp, m_multi_vehicle_.usv1.follower_keep_pos);
-    m_multi_vehicle_.usv2.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.target_local_pos_sp, m_multi_vehicle_.usv2.follower_keep_pos);
-    m_multi_vehicle_.usv3.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.target_local_pos_sp, m_multi_vehicle_.usv3.follower_keep_pos);
+    m_multi_vehicle_.usv2.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.current_local_pos, m_multi_vehicle_.usv2.follower_keep_pos);
+    m_multi_vehicle_.usv3.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.current_local_pos, m_multi_vehicle_.usv3.follower_keep_pos);
     m_multi_vehicle_.leader_usv.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
 
     DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);

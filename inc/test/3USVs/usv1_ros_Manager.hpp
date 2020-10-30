@@ -17,6 +17,7 @@ public:
 
     void usvOnInit(ros::NodeHandle &nh);
     void usvPosSp(const geometry_msgs::PoseStamped& way_point);
+    void usvCallService(mavros_msgs::CommandBool &m_mode);
     typedef shared_ptr<usv1_ros_Manager> Ptr;
 
 private:
@@ -33,7 +34,7 @@ private:
     void publishDronePosControl(const ros::TimerEvent& e);
 
     ros::Subscriber state_sub, vfr_hud_sub, local_position_sub, mavlink_from_sub, global_pos_sub, commander_sub, way_point_sub;
-    ros::Publisher local_pos_pub, gps_global_pos_pub, global_pos_pub, g_speed_control_pub;
+    ros::Publisher local_pos_pub, gps_global_pos_pub, global_pos_pub, g_speed_control_pub, dronePosPub;
     ros::ServiceClient arming_client, set_mode_client;
     ros::Timer exec_timer_, commander_timer_, publish_timer_;
 
@@ -43,6 +44,7 @@ private:
     mavros_msgs:: VFR_HUD current_vfr_hud;
     mavros_msgs::Mavlink current_mavlink;
     geometry_msgs::PoseStamped target_local_pos_sp_;
+    offboard::DronePosUpdate dronepos_;
 
     int arm_i_;
     bool is_arm_;

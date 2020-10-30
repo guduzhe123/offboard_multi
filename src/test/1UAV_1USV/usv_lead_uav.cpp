@@ -42,18 +42,18 @@ void usv_lead_uav::doProgress() {
 }
 
 void usv_lead_uav::usvLocalPositionSp() {
-    way_point.pose.position.x = 30;
+    way_point.pose.position.x = 60;
     way_point.pose.position.y = 0;
     way_point.pose.position.z = 0;
     usv_way_points.push_back(way_point);
 
-    way_point.pose.position.x = 30;
-    way_point.pose.position.y = 15;
+    way_point.pose.position.x = 60;
+    way_point.pose.position.y = 50;
     way_point.pose.position.z = 0;
     usv_way_points.push_back(way_point);
 
-    way_point.pose.position.x = 0;
-    way_point.pose.position.y = 5;
+    way_point.pose.position.x = -10;
+    way_point.pose.position.y = 50;
     way_point.pose.position.z = 0;
     usv_way_points.push_back(way_point);
 
