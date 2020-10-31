@@ -116,6 +116,10 @@
             /usv3/mavros/global_position/local
             /usv3//mavros/imu/data
 
+            /usv1/mavros/mission/waypoints
+            /usv2/mavros/mission/waypoints
+            /usv3/mavros/mission/waypoints
+
 "
     />
 </launch>

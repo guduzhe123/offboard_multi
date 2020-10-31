@@ -30,6 +30,8 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/debug_value/debug_vector", 10, &usv1_ros_Manager::debug_value_cb, this);
     way_point_sub = nh.subscribe<mavros_msgs::WaypointList>
             ("mavros/mission/waypoints", 10, &usv1_ros_Manager::wayPointCB, this);
+    homePos_sub = nh.subscribe<mavros_msgs::HomePosition>
+            ("mavros/home_position/home", 10, &usv1_ros_Manager::homePositionCB, this);
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
             ("mavros/setpoint_position/local", 100);
@@ -162,6 +164,12 @@ void usv1_ros_Manager::usvPosSp(const geometry_msgs::PoseStamped& way_point) {
 
 void usv1_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg) {
     usv_.waypointList = *msg;
+}
+
+
+void usv1_ros_Manager::homePositionCB(const mavros_msgs::HomePosition::ConstPtr& msg){
+    usv_.homePosition = *msg;
+    util_log("usv1 home position lat = %.8f, lon = %.8f", msg->geo.latitude, msg->geo.longitude);
 }
 
 void usv1_ros_Manager::usvCallService(mavros_msgs::CommandBool &m_mode) {

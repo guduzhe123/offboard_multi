@@ -7,7 +7,8 @@ MultiBoatControl* MultiBoatControl:: l_lint = NULL;
 
 MultiBoatControl::MultiBoatControl() :
         usv_state_(USV_INIT),
-        is_formation_(false){
+        is_formation_(false),
+        update_takeoff_(false){
 
 }
 
@@ -30,9 +31,10 @@ void MultiBoatControl::getData() {
 }
 
 void MultiBoatControl::DoProgress() {
-    if (is_formation_) {
+/*    if (is_formation_) {
         return;
-    }
+    }*/
+
     util_log("leader usv movement_state = %d", m_multi_vehicle_.leader_uav.movement_state);
     if (m_multi_vehicle_.leader_usv.current_state.mode == "OFFBOARD" /*&& m_multi_vehicle_.leader_uav.movement_state == FALLOW_USV*/) {
         mavros_msgs::CommandBool arm_cmd;
@@ -52,8 +54,8 @@ void MultiBoatControl::DoProgress() {
                         GlobalPosition takeoff, waypnt;
                         geometry_msgs::PoseStamped target_init;
                         TVec3 target_local;
-                        takeoff.longitude = m_multi_vehicle_.leader_usv.longtitude;
-                        takeoff.latitude = m_multi_vehicle_.leader_usv.latitude;
+                        takeoff.longitude = m_multi_vehicle_.leader_usv.homePosition.geo.longitude;
+                        takeoff.latitude = m_multi_vehicle_.leader_usv.homePosition.geo.latitude;
                         waypnt.longitude = i.y_long;
                         waypnt.latitude = i.x_lat;
                         Calculate::getInstance()->GetLocalPos(takeoff, waypnt, target_local);

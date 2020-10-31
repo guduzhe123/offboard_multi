@@ -26,6 +26,7 @@
 #include <mavros_msgs/Mavlink.h>
 #include <mavros_msgs/VFR_HUD.h>
 #include <mavros_msgs/WaypointList.h>
+#include <mavros_msgs/HomePosition.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include "pid.hpp"
@@ -89,6 +90,7 @@ struct M_Drone {
     mavros_msgs::PositionTarget current_local_pos_sp;
     DroneControl droneControl;
     mavros_msgs::WaypointList  waypointList;
+    mavros_msgs::HomePosition homePosition;
 };
 
 struct multi_vehicle{

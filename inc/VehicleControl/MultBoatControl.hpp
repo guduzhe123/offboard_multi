@@ -45,6 +45,7 @@ private:
     bool usv2_reached_;
     bool usv3_reached_;
     bool is_formation_;
+    bool update_takeoff_;
 
     geometry_msgs::PoseStamped target_pos_;
     geometry_msgs::PoseStamped body_pos_;

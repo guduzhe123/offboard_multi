@@ -164,11 +164,14 @@ MultiUSVFormation::pos_reached(geometry_msgs::PoseStamped &current_pos, TVec3 &f
 }
 
 void MultiUSVFormation::GetTakeoffPos() {
-    if (/*m_multi_vehicle_.leader_usv.current_state.armed &&*/ !is_get_takeoff_pos_) {
+    if (m_multi_vehicle_.leader_usv.current_state.armed) {
 
-        usv1_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv1.latitude, m_multi_vehicle_.usv1.longtitude,0};
-        usv2_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv2.latitude, m_multi_vehicle_.usv2.longtitude,0};
-        usv3_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv3.latitude, m_multi_vehicle_.usv3.longtitude,0};
+        usv1_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv1.homePosition.geo.latitude,
+                                               m_multi_vehicle_.usv1.homePosition.geo.longitude,0};
+        usv2_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv2.homePosition.geo.latitude,
+                                               m_multi_vehicle_.usv2.homePosition.geo.longitude,0};
+        usv3_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv3.homePosition.geo.latitude,
+                                               m_multi_vehicle_.usv3.homePosition.geo.longitude,0};
         util_log("usv1_takeoff_gps_pos_ = ( %.9f, %.9f)", usv1_takeoff_gps_pos_.latitude, usv1_takeoff_gps_pos_.longitude);
         util_log("usv2_takeoff_gps_pos_ = ( %.9f, %.9f)", usv2_takeoff_gps_pos_.latitude, usv2_takeoff_gps_pos_.longitude);
         util_log("usv3_takeoff_gps_pos_ = ( %.9f, %.9f)", usv3_takeoff_gps_pos_.latitude, usv3_takeoff_gps_pos_.longitude);
@@ -176,7 +179,6 @@ void MultiUSVFormation::GetTakeoffPos() {
         Calculate::getInstance()->GetLocalPos(usv1_takeoff_gps_pos_, usv2_takeoff_gps_pos_, follow_usv1_first_local_);
         Calculate::getInstance()->GetLocalPos(usv1_takeoff_gps_pos_, usv3_takeoff_gps_pos_, follow_usv2_first_local_);
 
-        is_get_takeoff_pos_ = true;
     }
 }
 

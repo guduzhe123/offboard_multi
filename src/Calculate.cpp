@@ -14,6 +14,7 @@ void Calculate::GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &lo
 
     float x, y;
     get_vector_to_next_waypoint_fast(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude, x, y);
+    util_log("takeoff lat = %.8f, lon = %.8f, way lat = %.8f, way lon = %.8f", loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude);
 
     follow_uav_local_pos.x() = -y;
     follow_uav_local_pos.y() = -x;
