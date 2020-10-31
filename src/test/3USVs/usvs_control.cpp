@@ -58,9 +58,19 @@ void usvs_control::PublishDronePosControl(const multi_vehicle &multi_vehicles) {
 }
 
 void usvs_control::PublishBoatPosControl(const multi_vehicle &multi_vehicles) {
-    usv1_control_->usvPosSp(multi_vehicles.usv1.target_local_pos_sp);
-    usv2_control_->usvPosSp(multi_vehicles.usv2.target_local_pos_sp);
-    usv3_control_->usvPosSp(multi_vehicles.usv3.target_local_pos_sp);
+    DroneControl usv1, usv2, usv3;
+    usv1.target_pose = multi_vehicles.usv1.target_local_pos_sp;
+    usv2.target_pose = multi_vehicles.usv2.target_local_pos_sp;
+    usv3.target_pose = multi_vehicles.usv3.target_local_pos_sp;
+
+    if (multi_vehicles.usv1.droneControl.speed_ctrl) {
+        util_log("usv1 send vel control = %.d", multi_vehicles.usv1.droneControl.speed_ctrl);
+        usv1 = multi_vehicles.usv1.droneControl;
+    }
+
+    usv1_control_->usvPosSp(usv1);
+    usv2_control_->usvPosSp(usv2);
+    usv3_control_->usvPosSp(usv3);
 }
 
 void usvs_control::SetUAVState(mavros_msgs::SetMode &m_mode) {

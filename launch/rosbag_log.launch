@@ -119,6 +119,9 @@
             /usv1/mavros/mission/waypoints
             /usv2/mavros/mission/waypoints
             /usv3/mavros/mission/waypoints
+            /usv1/mavros/setpoint_velocity/cmd_vel
+            /usv2/mavros/setpoint_velocity/cmd_vel
+            /usv3/mavros/setpoint_velocity/cmd_vel
 
 "
     />

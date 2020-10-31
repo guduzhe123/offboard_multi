@@ -9,6 +9,7 @@
 #include "IVehicleControl.hpp"
 #include "DataMan.hpp"
 #include "Calculate.hpp"
+#include "ActionCircle.hpp"
 
 class MultiBoatControl : public IVehicleControl {
 public:
@@ -46,10 +47,12 @@ private:
     bool usv3_reached_;
     bool is_formation_;
     bool update_takeoff_;
+    bool state_changed_;
 
     geometry_msgs::PoseStamped target_pos_;
     geometry_msgs::PoseStamped body_pos_;
     float init_yaw_;
+
 };
 
 class MultiBoatControlFactory : public IVehicleControlFactory {

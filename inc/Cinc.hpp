@@ -156,7 +156,9 @@ enum {
     USV_INIT,
     USV_WAYPOINT,
     USV_DISARM,
-    USV_FORMATION
+    USV_FORMATION,
+    USV_CIRCLE_INIT,
+    USV_CIRCLE
 };
 
 enum {

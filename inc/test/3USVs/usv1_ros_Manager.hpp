@@ -16,7 +16,7 @@ public:
     ~usv1_ros_Manager() = default;
 
     void usvOnInit(ros::NodeHandle &nh);
-    void usvPosSp(const geometry_msgs::PoseStamped& way_point);
+    void usvPosSp(const DroneControl& droneControl);
     void usvCallService(mavros_msgs::CommandBool &m_mode);
     typedef shared_ptr<usv1_ros_Manager> Ptr;
 
@@ -46,12 +46,18 @@ private:
     mavros_msgs::Mavlink current_mavlink;
     geometry_msgs::PoseStamped target_local_pos_sp_;
     offboard::DronePosUpdate dronepos_;
+    geometry_msgs::TwistStamped vel_ctrl_sp_;
+
 
     int arm_i_;
     bool is_arm_;
     bool is_offboard_;
     bool is_takeoff_;
     bool is_land_;
+    bool is_speed_ctrl_;
+
+    float target_heading_;
+    float yaw_rate_;
 };
 
 

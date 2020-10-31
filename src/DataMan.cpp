@@ -206,6 +206,7 @@ void DataMan::SetBoatControlData(const multi_vehicle &m_multi_vehicles) {
         multi_vehicle_.usv2.target_local_pos_sp = m_multi_vehicles.usv2.target_local_pos_sp;
         multi_vehicle_.usv3.target_local_pos_sp = m_multi_vehicles.usv3.target_local_pos_sp;
         multi_vehicle_.leader_usv.target_local_pos_sp = m_multi_vehicles.leader_usv.target_local_pos_sp;
+        multi_vehicle_.usv1.droneControl = m_multi_vehicles.usv1.droneControl;
     }
     msg_config_->PublishBoatPosControl(m_multi_vehicles);
 }

@@ -8,7 +8,8 @@ MultiBoatControl* MultiBoatControl:: l_lint = NULL;
 MultiBoatControl::MultiBoatControl() :
         usv_state_(USV_INIT),
         is_formation_(false),
-        update_takeoff_(false){
+        update_takeoff_(false),
+        state_changed_(false){
 
 }
 
@@ -28,6 +29,9 @@ void MultiBoatControl::onInit(vector<geometry_msgs::PoseStamped> way_points, boo
 void MultiBoatControl::getData() {
     m_multi_vehicle_ = DataMan::getInstance()->GetData();
     is_formation_ = m_multi_vehicle_.leader_usv.is_formation;
+    if (m_multi_vehicle_.user_command == VF_USV_CIRCLE && !state_changed_) {
+        usv_state_ = USV_CIRCLE_INIT;
+    }
 }
 
 void MultiBoatControl::DoProgress() {
@@ -144,6 +148,43 @@ void MultiBoatControl::DoProgress() {
             case USV_FORMATION:
 
                 break;
+
+            case USV_CIRCLE_INIT: {
+                TCircleConfig circle_config;
+                circle_config.target_heading = m_multi_vehicle_.uav1.yaw;
+                circle_config.m_radius = 10;
+                circle_config.m_circle_pos = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x,
+                                                   m_multi_vehicle_.usv1.current_local_pos.pose.position.y +
+                                                   circle_config.m_radius,
+                                                   m_multi_vehicle_.usv1.current_local_pos.pose.position.z);
+                circle_config.m_speed = 2.0;
+
+                ActionCircle::getInstance()->onInit(circle_config);
+                usv_state_ = USV_CIRCLE;
+                util_log("USV Circle init!!!!");
+                state_changed_ = true;
+                break;
+            }
+            case USV_CIRCLE: {
+                TVec3 usv1_pos;
+                usv1_pos.x() = m_multi_vehicle_.usv1.current_local_pos.pose.position.x;
+                usv1_pos.y() = m_multi_vehicle_.usv1.current_local_pos.pose.position.y;
+                usv1_pos.z() = m_multi_vehicle_.usv1.current_local_pos.pose.position.z;
+
+                ActionCircle::getInstance()->doProgress(usv1_pos, m_multi_vehicle_.usv1.yaw);
+                TCircleOutput circle_output;
+                ActionCircle::getInstance()->GetOutput(circle_output);
+/*                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.x = circle_output.v_out.x();
+                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.y = circle_output.v_out.y();
+                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.z = circle_output.v_out.z();*/
+                float dt = 5.0;
+                m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x = usv1_pos.x() + circle_output.v_out.x() * dt;
+                m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y = usv1_pos.y() + circle_output.v_out.y() * dt;
+                m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z = usv1_pos.z() + circle_output.v_out.z() * dt;
+                util_log("usv circle result: (%.2f, %.2f, %.2f)", circle_output.v_out.x(), circle_output.v_out.y(), circle_output.v_out.z());
+
+                break;
+            }
         }
     } else {
         m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position =
@@ -193,6 +234,9 @@ void MultiBoatControl::setVehicleCtrlData() {
     m_multi_vehicle_.usv3.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.current_local_pos, m_multi_vehicle_.usv3.follower_keep_pos);
     m_multi_vehicle_.leader_usv.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
 
+    if (m_multi_vehicle_.leader_usv.droneControl.speed_ctrl) {
+        m_multi_vehicle_.usv1.droneControl = m_multi_vehicle_.leader_usv.droneControl;
+    }
     DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);
 }
 

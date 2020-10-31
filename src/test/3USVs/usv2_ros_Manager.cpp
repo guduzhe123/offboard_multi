@@ -152,11 +152,20 @@ void usv2_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
 }
 
 void usv2_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
-    local_pos_pub.publish(target_local_pos_sp_);
+    util_log("usv2 is_speed_ctrl_ = %d", is_speed_ctrl_);
+    if (is_speed_ctrl_) {
+        g_speed_control_pub.publish(vel_ctrl_sp_);
+    } else {
+        local_pos_pub.publish(target_local_pos_sp_);
+    }
 }
 
-void usv2_ros_Manager::usvPosSp(const geometry_msgs::PoseStamped& way_point) {
-    target_local_pos_sp_ = way_point;
+void usv2_ros_Manager::usvPosSp(const DroneControl& droneControl) {
+    target_local_pos_sp_ = droneControl.target_pose;
+    is_speed_ctrl_ = droneControl.speed_ctrl;
+    target_heading_ = droneControl.target_heading;
+    vel_ctrl_sp_ = droneControl.g_vel_sp;
+    yaw_rate_ = droneControl.yaw_rate;
 }
 
 void usv2_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg) {
