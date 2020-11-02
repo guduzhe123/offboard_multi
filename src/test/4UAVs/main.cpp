@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
     lead_node->OnInit();
 
-    ros::Rate rate(20.0);
+    ros::Rate rate(50.0);
 
     while(ros::ok()){
         FlightManager::getInstance()->GetData();

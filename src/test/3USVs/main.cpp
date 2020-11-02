@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     PathCreator::geInstance()->onInit(lead_node, true);
 //    avoidance::getInstance()->Oninit();
 
-    ros::Rate rate(10.0);
+    ros::Rate rate(50.0);
     while(ros::ok()){
         FlightManager::getInstance()->GetData();
         FlightManager::getInstance()->DoProgress();

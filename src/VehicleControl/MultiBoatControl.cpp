@@ -174,10 +174,11 @@ void MultiBoatControl::DoProgress() {
                 ActionCircle::getInstance()->doProgress(usv1_pos, m_multi_vehicle_.usv1.yaw);
                 TCircleOutput circle_output;
                 ActionCircle::getInstance()->GetOutput(circle_output);
+//                m_multi_vehicle_.leader_usv.droneControl.speed_ctrl = true;
 /*                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.x = circle_output.v_out.x();
                 m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.y = circle_output.v_out.y();
                 m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.z = circle_output.v_out.z();*/
-                float dt = 5.0;
+                float dt = 2.0;
                 m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x = usv1_pos.x() + circle_output.v_out.x() * dt;
                 m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y = usv1_pos.y() + circle_output.v_out.y() * dt;
                 m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z = usv1_pos.z() + circle_output.v_out.z() * dt;
@@ -236,6 +237,7 @@ void MultiBoatControl::setVehicleCtrlData() {
 
     if (m_multi_vehicle_.leader_usv.droneControl.speed_ctrl) {
         m_multi_vehicle_.usv1.droneControl = m_multi_vehicle_.leader_usv.droneControl;
+        util_log("usv speed_ctrl!!!!!");
     }
     DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);
 }

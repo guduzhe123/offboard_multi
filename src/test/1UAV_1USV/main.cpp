@@ -10,13 +10,13 @@
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "usv_lead_uav");
-    util_daemonize ();
+//    util_daemonize ();
 
     usv_lead_uav* lead_node;
     lead_node = usv_lead_uav::getInstance();
     lead_node->onInit();
 
-    ros::Rate rate(10.0);
+    ros::Rate rate(50.0);
     while(ros::ok()){
         lead_node->getData();
         lead_node->doProgress();
