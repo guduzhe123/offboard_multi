@@ -30,6 +30,8 @@ void uav1_ros_Manager::uavOnInit(ros::NodeHandle &nh) {
             ("mavros/debug_value/debug_vector", 10, &uav1_ros_Manager::debug_value_cb, this);
     way_point_sub = nh.subscribe<mavros_msgs::WaypointList>
             ("mavros/mission/waypoints", 10, &uav1_ros_Manager::wayPointCB, this);
+    homePos_sub = nh.subscribe<mavros_msgs::HomePosition>
+            ("mavros/home_position/home", 10, &uav1_ros_Manager::homePositionCB, this);
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
             ("mavros/setpoint_position/local", 20);
@@ -226,3 +228,7 @@ void uav1_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg
     util_log("uav1 mission waypoint size = %d", uav_.waypointList.waypoints.size());
 }
 
+void uav1_ros_Manager::homePositionCB(const mavros_msgs::HomePosition::ConstPtr& msg){
+    uav_.homePosition = *msg;
+    util_log("uav1 home position lat = %.8f, lon = %.8f", msg->geo.latitude, msg->geo.longitude);
+}

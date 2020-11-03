@@ -136,12 +136,16 @@ MultiUAVFormation::pos_reached(geometry_msgs::PoseStamped &current_pos, TVec3 &f
 }
 
 void MultiUAVFormation::GetTakeoffPos() {
-    if (m_multi_vehicle_.leader_uav.current_state.armed && !is_get_takeoff_pos_) {
+    if (m_multi_vehicle_.leader_uav.current_state.armed ) {
 
-        uav1_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.uav1.latitude, m_multi_vehicle_.uav1.longtitude,0};
-        uav2_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.uav2.latitude, m_multi_vehicle_.uav2.longtitude,0};
-        uav3_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.uav3.latitude, m_multi_vehicle_.uav3.longtitude,0};
-        uav4_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.uav4.latitude, m_multi_vehicle_.uav4.longtitude,0};
+        uav1_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.uav1.homePosition.geo.latitude,
+                                               m_multi_vehicle_.uav1.homePosition.geo.longitude,0};
+        uav2_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.uav2.homePosition.geo.latitude,
+                                               m_multi_vehicle_.uav2.homePosition.geo.longitude,0};
+        uav3_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.uav3.homePosition.geo.latitude,
+                                               m_multi_vehicle_.uav3.homePosition.geo.longitude,0};
+        uav4_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.uav4.homePosition.geo.latitude,
+                                               m_multi_vehicle_.uav4.homePosition.geo.longitude,0};
         util_log("uav1_takeoff_gps_pos_ = ( %.9f, %.9f)", uav1_takeoff_gps_pos_.latitude, uav1_takeoff_gps_pos_.longitude);
         util_log("uav2_takeoff_gps_pos_ = ( %.9f, %.9f)", uav2_takeoff_gps_pos_.latitude, uav2_takeoff_gps_pos_.longitude);
         util_log("uav3_takeoff_gps_pos_ = ( %.9f, %.9f)", uav3_takeoff_gps_pos_.latitude, uav3_takeoff_gps_pos_.longitude);
@@ -151,7 +155,6 @@ void MultiUAVFormation::GetTakeoffPos() {
         Calculate::getInstance()->GetLocalPos(uav1_takeoff_gps_pos_, uav3_takeoff_gps_pos_, follow_uav2_first_local_);
         Calculate::getInstance()->GetLocalPos(uav1_takeoff_gps_pos_, uav4_takeoff_gps_pos_, follow_uav3_first_local_);
 
-        is_get_takeoff_pos_ = true;
     }
 }
 

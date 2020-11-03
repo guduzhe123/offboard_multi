@@ -43,8 +43,8 @@ void MultiDroneControl::DoProgress() {
                         GlobalPosition takeoff, waypnt;
                         geometry_msgs::PoseStamped target_init;
                         TVec3 target_local;
-                        takeoff.longitude = m_multi_vehicle_.leader_uav.longtitude;
-                        takeoff.latitude = m_multi_vehicle_.leader_uav.latitude;
+                        takeoff.longitude = m_multi_vehicle_.leader_uav.homePosition.geo.longitude;
+                        takeoff.latitude = m_multi_vehicle_.leader_uav.homePosition.geo.latitude;
                         waypnt.longitude = i.y_long;
                         waypnt.latitude = i.x_lat;
                         Calculate::getInstance()->GetLocalPos(takeoff, waypnt, target_local);
