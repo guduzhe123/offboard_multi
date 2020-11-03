@@ -219,7 +219,7 @@ void MultiUSVFormation::SetFunctionOutPut() {
             geometry_msgs::PoseStamped leader_curr{};
             leader_curr.pose.position.z = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.z;
 
-            m_multi_vehicle_.usv1.target_local_pos_sp = CalculateTargetPos(leader_curr, leader_curr_pos_);
+            m_multi_vehicle_.usv1.target_local_pos_sp = CalculateTargetPos(leader_curr, TVec3{0,0,0});
             m_multi_vehicle_.usv2.target_local_pos_sp = CalculateTargetPos(leader_curr, follow_usv1_);
             m_multi_vehicle_.usv3.target_local_pos_sp = CalculateTargetPos(leader_curr, follow_usv2_);
             m_multi_vehicle_.leader_usv.target_local_pos_sp = m_multi_vehicle_.usv1.target_local_pos_sp;

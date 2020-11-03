@@ -73,6 +73,8 @@ public:
     void setCommand(int command);
     void getCommand(int& command);
 
+    void setUSVHomePosition();
+
     multi_vehicle &GetData();
 
 private:

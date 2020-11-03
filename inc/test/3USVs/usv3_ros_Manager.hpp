@@ -35,7 +35,7 @@ private:
     void publishDronePosControl(const ros::TimerEvent& e);
 
     ros::Subscriber state_sub, vfr_hud_sub, local_position_sub, mavlink_from_sub, global_pos_sub, commander_sub, way_point_sub, homePos_sub;
-    ros::Publisher local_pos_pub, gps_global_pos_pub, global_pos_pub, g_speed_control_pub, dronePosPub;
+    ros::Publisher local_pos_pub, gps_global_pos_pub, global_pos_pub, g_speed_control_pub, dronePosPub, home_pos_pub;
     ros::ServiceClient arming_client, set_mode_client;
     ros::Timer exec_timer_, commander_timer_, publish_timer_;
 
@@ -54,6 +54,7 @@ private:
     bool is_takeoff_;
     bool is_land_;
     bool is_speed_ctrl_;
+    bool home_pos_updated_;
 
     float target_heading_;
     float yaw_rate_;

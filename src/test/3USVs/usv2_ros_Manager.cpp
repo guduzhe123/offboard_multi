@@ -9,7 +9,8 @@ usv2_ros_Manager::usv2_ros_Manager()  :
         is_arm_(false),
         is_offboard_(false),
         is_takeoff_(false),
-        is_land_(false)
+        is_land_(false),
+        home_pos_updated_(false)
 {
 
 }
@@ -42,6 +43,8 @@ void usv2_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/setpoint_velocity/cmd_vel", 100);
     dronePosPub = nh.advertise<offboard::DronePosUpdate>
             ("drone/PosUpDate", 100);
+    home_pos_pub = nh.advertise<mavros_msgs::HomePosition>
+            ("mavros/home_position/home", 100);
 
     arming_client = nh.serviceClient<mavros_msgs::CommandBool>
             ("mavros/cmd/arming");
@@ -143,6 +146,17 @@ void usv2_ros_Manager::commander_update(const ros::TimerEvent& e) {
 
     if (command == VF_USV_ALL_STOP) {
         target_local_pos_sp_ = usv_.current_local_pos;
+    }
+
+    if (command == VF_SET_HOME) {
+        mavros_msgs::HomePosition homepos_manual;
+        if (!home_pos_updated_) {
+            homepos_manual.geo.latitude = usv_.latitude;
+            homepos_manual.geo.longitude = usv_.longtitude;
+            home_pos_pub.publish(homepos_manual);
+            util_log("usv2 homepos_manual.geo.latitude = %.6f", homepos_manual.geo.latitude);
+//            home_pos_updated_ = true;
+        }
     }
 }
 

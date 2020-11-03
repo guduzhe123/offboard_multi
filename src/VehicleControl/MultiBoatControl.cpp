@@ -143,6 +143,9 @@ void MultiBoatControl::DoProgress() {
                 arm_cmd.request.value = false;
                 DataMan::getInstance()->SetUSVState(arm_cmd, 0);
                 util_log("Disarm all usv");
+                target_pos_.pose.position.x = 0;
+                target_pos_.pose.position.y = 0;
+                target_pos_.pose.position.z = 0;
                 break;
 
             case USV_FORMATION:
