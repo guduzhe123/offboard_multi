@@ -1,0 +1,26 @@
+<launch>
+    <node pkg="rosbag" type="play" name="rosbag" required="true"
+          args="/home/zhouhua/.ros/multi_data_2020-11-06-22-47-56_0.bag"/>
+          <!--args="-r 5 /home/eric/Desktop/DemarkDemoRosbag/data_big_2018-10-12-18-55-40_0.bag"/>-->
+
+    <node name="extract" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen"
+          cwd="ROS_HOME">
+        <remap from="image" to="/camera/live_view"/>
+    </node>
+
+    <node name="CompressedToRaw" pkg="offboard" type="CompressedToRaw" output="screen"/>
+    <!--https://answers.ros.org/question/200922/how-to-roslaunch-a-rostopic-echo-to-text-file/-->
+    <!--this does not work!-->
+    <!--<node name="save_gps" pkg="rostopic" type="rostopic" required="true" output="screen"
+          args="echo /drone/pos_update >>gps.txt">
+    </node>-->
+    <!--rostopic echo /drone/pos_update >>mydata.txt
+    rostopic echo /drone/dof_info >>gimbal.txt
+    rostopic echo /drone/sensor_info >>distance.txt-->
+</launch>
+<!-- cd ~/.ros
+ mkdir test
+ mv ~/.ros/frame*.jpg test/
+ ffmpeg -framerate 5 -i frame%04d.jpg -c:v libx264 -profile:v high -crf 10 -pix_fmt yuv420p output.mp4-->
+
+        <!-- ffmpeg -framerate 25 -i frame%04d.jpg -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p output.mp4 -->

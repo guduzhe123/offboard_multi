@@ -123,6 +123,7 @@
             /usv2/mavros/setpoint_velocity/cmd_vel
             /usv3/mavros/setpoint_velocity/cmd_vel
 
+            usb_cam/image_raw/compressed
 "
     />
 </launch>

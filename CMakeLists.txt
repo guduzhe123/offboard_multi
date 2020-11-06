@@ -6,8 +6,13 @@ find_package(catkin REQUIRED COMPONENTS
         rospy
         serial
         std_msgs
+        cv_bridge
+        image_transport
         message_generation
 )
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+message(STATUS "CE30 OpenCV version: ${OpenCV_VERSION}, OpenCV_DIR: ${OpenCV_DIR}")
 
 add_message_files(
         FILES
@@ -24,6 +29,8 @@ catkin_package(
         roscpp
         rospy
         std_msgs
+        cv_bridge
+        image_transport
         #DEPENDS system_lib
 )
 
@@ -212,3 +219,6 @@ add_library(7vehicles_lib
         src/new_struct/)
 target_link_libraries(7vehicles 7vehicles_lib multi_offboard_lib)
 target_link_libraries(7vehicles ${catkin_LIBRARIES})
+
+add_executable(CompressedToRaw src/CompressedToRaw.cpp)
+TARGET_LINK_LIBRARIES(CompressedToRaw ${OpenCV_LIBS} ${catkin_LIBRARIES})
