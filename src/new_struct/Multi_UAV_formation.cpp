@@ -119,15 +119,17 @@ MultiUAVFormation::calcFollowUAVPos() {
 }
 
 void MultiUAVFormation::OnCheckFormationArrived() {
-    if (pos_reached(m_multi_vehicle_.uav2.current_local_pos, follow_uav1_) &&
-        pos_reached(m_multi_vehicle_.uav3.current_local_pos, follow_uav2_) &&
-        pos_reached(m_multi_vehicle_.uav4.current_local_pos, follow_uav3_) && config_ != VF_UAV_RETURN) {
+    if (pos_reached(m_multi_vehicle_.uav2.current_local_pos, follow_uav1_, m_multi_vehicle_.uav2.drone_id) &&
+        pos_reached(m_multi_vehicle_.uav3.current_local_pos, follow_uav2_, m_multi_vehicle_.uav3.drone_id) &&
+        pos_reached(m_multi_vehicle_.uav4.current_local_pos, follow_uav3_, m_multi_vehicle_.uav4.drone_id) &&
+        config_ != VF_UAV_RETURN) {
         is_formation_ = false;
     }
 }
 
 bool
-MultiUAVFormation::pos_reached(geometry_msgs::PoseStamped &current_pos, TVec3 &follow_uav_target) {
+MultiUAVFormation::pos_reached(geometry_msgs::PoseStamped &current_pos, TVec3 &follow_uav_target, int id) {
+    if (id == 0) return true;
     float err_px = current_pos.pose.position.x - follow_uav_target.x();
     float err_py = current_pos.pose.position.y - follow_uav_target.y();
     float err_pz = current_pos.pose.position.z - follow_uav_target.z();
