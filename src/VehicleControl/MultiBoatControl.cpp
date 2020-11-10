@@ -39,21 +39,21 @@ void MultiBoatControl::DoProgress() {
         return;
     }*/
 
-    util_log("leader usv movement_state = %d", m_multi_vehicle_.leader_uav.movement_state);
+    util_log("leader usv movement_state = %d", usv_state_);
+    util_log("leader usv armed = %d", m_multi_vehicle_.leader_usv.current_state.armed);
     if (m_multi_vehicle_.leader_usv.current_state.mode == "OFFBOARD" /*&& m_multi_vehicle_.leader_uav.movement_state == FALLOW_USV*/) {
         mavros_msgs::CommandBool arm_cmd;
         switch (usv_state_) {
             case USV_INIT:
-                util_log("leader usv armed = %d", m_multi_vehicle_.leader_usv.current_state.armed);
-                if (!m_multi_vehicle_.leader_usv.current_state.armed) {
+/*                if (!m_multi_vehicle_.leader_usv.current_state.armed) {
                     arm_cmd.request.value = true;
                     DataMan::getInstance()->SetUSVState(arm_cmd, 0);
                     setVehicleCtrlData(); // keep leader usv offboard
                     init_yaw_ = (float)m_multi_vehicle_.usv1.yaw * M_PI / 180.0f;
                     return;
-                }
-
-                if (!m_multi_vehicle_.leader_usv.waypointList.waypoints.empty()) {
+                }*/
+                util_log("waypoint size = %d", m_multi_vehicle_.usv1.waypointList.waypoints.size());
+                if (!m_multi_vehicle_.usv1.waypointList.waypoints.empty()) {
                     for (auto &i : m_multi_vehicle_.leader_usv.waypointList.waypoints) {
                         GlobalPosition takeoff, waypnt;
                         geometry_msgs::PoseStamped target_init;
@@ -177,14 +177,15 @@ void MultiBoatControl::DoProgress() {
                 ActionCircle::getInstance()->doProgress(usv1_pos, m_multi_vehicle_.usv1.yaw);
                 TCircleOutput circle_output;
                 ActionCircle::getInstance()->GetOutput(circle_output);
-//                m_multi_vehicle_.leader_usv.droneControl.speed_ctrl = true;
-/*                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.x = circle_output.v_out.x();
-                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.y = circle_output.v_out.y();
-                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.z = circle_output.v_out.z();*/
-                float dt = 2.0;
+                m_multi_vehicle_.leader_usv.droneControl.speed_ctrl = true;
+//                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.x = circle_output.v_out.x();
+                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.x = 1;
+                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.y = 1;
+                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.angular.z = circle_output.m_target_heading * M_PI / 180.0f;
+                /*float dt = 2.0;
                 m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x = usv1_pos.x() + circle_output.v_out.x() * dt;
                 m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y = usv1_pos.y() + circle_output.v_out.y() * dt;
-                m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z = usv1_pos.z() + circle_output.v_out.z() * dt;
+                m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z = usv1_pos.z() + circle_output.v_out.z() * dt;*/
                 util_log("usv circle result: (%.2f, %.2f, %.2f)", circle_output.v_out.x(), circle_output.v_out.y(), circle_output.v_out.z());
 
                 break;

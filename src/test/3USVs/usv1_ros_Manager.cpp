@@ -187,6 +187,7 @@ void usv1_ros_Manager::usvPosSp(const DroneControl& droneControl) {
 
 void usv1_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg) {
     usv_.waypointList = *msg;
+    util_log("usv1 waypoint size = %d", usv_.waypointList.waypoints.size());
 }
 
 

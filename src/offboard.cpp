@@ -133,10 +133,6 @@ int main(int argc, char **argv)
 
 
     while(ros::ok()){
-/*        gps_global_pos_pub.publish(gps_pos);
-        global_pos_pub.publish(gps_pos);*/
-//        g_speed_control_pub.publish(vel_cmd);
-
 
         if( current_state.mode != "OFFBOARD" &&
             (ros::Time::now() - last_request > ros::Duration(5.0))){
@@ -174,7 +170,8 @@ int main(int argc, char **argv)
             }
         }
 
-        local_pos_pub.publish(way_point);
+//        local_pos_pub.publish(way_point);
+        g_speed_control_pub.publish(vel_cmd);
         ros::spinOnce();
         rate.sleep();
     }

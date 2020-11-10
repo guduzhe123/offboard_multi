@@ -43,7 +43,7 @@ typedef Eigen::Quaternionf TQuat;
 static const bool K_Param_local_global = true;
 static const float K_err_allow = 0.5;
 static const float K_multi_formation_distance = 6;
-static const float K_multi_usv_formation_distance = 5;
+static const float K_multi_usv_formation_distance = 2;
 static const float K_uav_height = 15;
 static const float usv_position_allow_reached_ = 3;
 

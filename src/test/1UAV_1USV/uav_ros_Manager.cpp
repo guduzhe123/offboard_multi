@@ -163,7 +163,7 @@ void uav_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
 
 void uav_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
     target_local_pos_sp_.pose.orientation = uav_.current_local_pos.pose.orientation;
-    local_pos_pub.publish(target_local_pos_sp_);
+//    local_pos_pub.publish(target_local_pos_sp_);
 }
 
 void uav_ros_Manager::uavPosSp(const geometry_msgs::PoseStamped& way_point) {

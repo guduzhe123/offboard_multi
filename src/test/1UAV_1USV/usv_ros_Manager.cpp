@@ -114,6 +114,7 @@ void usv_ros_Manager::commander_update(const ros::TimerEvent& e) {
         if (current_state.mode != "OFFBOARD" && !is_offboard_) {
             static int i;
             for (i = 10; ros::ok() && i > 0; --i) {
+                util_log("usv call Offboard ");
                 if (set_mode_client.call(offb_set_mode) &&
                     offb_set_mode.response.mode_sent) {
                     util_log("usv Offboard enabled");
@@ -129,7 +130,17 @@ void usv_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
 }
 
 void usv_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
-    local_pos_pub.publish(target_local_pos_sp_);
+//    local_pos_pub.publish(target_local_pos_sp_);
+    geometry_msgs::TwistStamped vel_cmd;
+    vel_cmd.twist.linear.x = 1;
+    vel_cmd.twist.linear.y = 1;
+    vel_cmd.twist.linear.z = 0;
+
+    vel_cmd.twist.angular.x = 0;
+    vel_cmd.twist.angular.y = 0;
+    vel_cmd.twist.angular.z = atan(vel_cmd.twist.linear.x / vel_cmd.twist.linear.y);
+
+    g_speed_control_pub.publish(vel_cmd);
 }
 
 void usv_ros_Manager::usvPosSp(const geometry_msgs::PoseStamped& way_point) {

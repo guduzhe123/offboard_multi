@@ -27,6 +27,8 @@ void ActionCircle::doProgress(TVec3 &m_curPos, float cur_heading) {
         dt = 0.5;
     }
     TVec3 p0 = m_curPos - m_cfg.m_circle_pos;
+    util_log("circle m_curPos = (%.2f, %.2f, %.2f), m_circle_pos = (%.2f, %.2f, %.2f)", m_curPos.x(), m_curPos.y(), m_curPos.z()
+            , m_cfg.m_circle_pos.x(), m_cfg.m_circle_pos.y(), m_cfg.m_circle_pos.z());
 
     float r_speed = K_max_vr * m_K_r.calculate(m_cfg.m_radius, c_radius, dt);
     TVec3 v_r = p0;
@@ -49,8 +51,9 @@ void ActionCircle::doProgress(TVec3 &m_curPos, float cur_heading) {
     m_output.v_out = v_r + v_h + dv;
 
     TVec3 nv = p0.normalized();
-    float heading = rad2dgr(atan2(nv.x(), nv.y()));
-    m_output.m_target_heading = dgrIn180s(heading);
+    util_log("nv = (%.2f, %.2f, %.2f)", nv.x(), nv.y(), nv.z());
+    float heading = rad2dgr(atan2(-nv.y(), nv.x()));
+//    m_output.m_target_heading = dgrIn180s(heading);
     float rate = K_max_va * m_K_a.calculate(90, cur_heading, dt);
     m_output.m_yaw_rate = rate;
     util_log("m_output.m_target_heading = %.2f, cur_heading = %.2f, rate = %.2f",

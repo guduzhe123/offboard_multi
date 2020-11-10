@@ -10,7 +10,7 @@
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "usv_lead_uav");
-//    util_daemonize ();
+    util_daemonize ();
 
     usv_lead_uav* lead_node;
     lead_node = usv_lead_uav::getInstance();
