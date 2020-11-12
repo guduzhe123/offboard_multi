@@ -77,11 +77,10 @@ void MultiDroneControl::DoProgress() {
                 target_pos_.pose.position.y = 0;
                 target_pos_.pose.position.z = K_uav_height;
 
-                if (pos_reached(drone_uav_leader_.current_local_pos, target_pos_, 0.8)
-/*                    pos_reached(m_multi_vehicle_.uav2.current_local_pos, target_pos_, 5) &&
-                    pos_reached(m_multi_vehicle_.uav3.current_local_pos, target_pos_, 5) &&
-                    pos_reached(m_multi_vehicle_.uav4.current_local_pos, target_pos_, 5)*/
-                    ){
+                if (pos_reached(drone_uav_leader_, target_pos_, 0.8) &&
+                    pos_reached(m_multi_vehicle_.uav2, target_pos_, 0.8) &&
+                    pos_reached(m_multi_vehicle_.uav3, target_pos_, 0.8) &&
+                    pos_reached(m_multi_vehicle_.uav4, target_pos_, 0.8) ) {
                     if (is_uav_follow_) {
                         uav_state_ = FALLOW_USV;
                     } else {
@@ -95,10 +94,10 @@ void MultiDroneControl::DoProgress() {
                 if (!uav_way_points_.empty()) {
                     target_pos_ = uav_way_points_.back();
 
-                    if (pos_reached(drone_uav_leader_.current_local_pos, target_pos_, 0.8) /*&&
-                        pos_reached(m_multi_vehicle_.uav2.current_local_pos, target_pos_, 5) &&
-                        pos_reached(m_multi_vehicle_.uav3.current_local_pos, target_pos_, 5) &&
-                        pos_reached(m_multi_vehicle_.uav4.current_local_pos, target_pos_, 5) */) {
+                    if (pos_reached(drone_uav_leader_, target_pos_, 0.8) &&
+                        pos_reached(m_multi_vehicle_.uav2, target_pos_, 0.8) &&
+                        pos_reached(m_multi_vehicle_.uav3, target_pos_, 0.8) &&
+                        pos_reached(m_multi_vehicle_.uav4, target_pos_, 0.8) ) {
                         uav_way_points_.pop_back();
                         util_log("Finished one way point = (%.2f, %.2f, %.2f)",
                                  target_pos_.pose.position.x, target_pos_.pose.position.y, target_pos_.pose.position.z);
@@ -114,10 +113,10 @@ void MultiDroneControl::DoProgress() {
                 target_pos_.pose.position.y = 0;
                 target_pos_.pose.position.z = 0;
 
-                if (pos_reached(drone_uav_leader_.current_local_pos,target_pos_, 0.8)/* &&
-                    pos_reached(m_multi_vehicle_.uav2.current_local_pos, target_pos_, 5) &&
-                    pos_reached(m_multi_vehicle_.uav3.current_local_pos, target_pos_, 5) &&
-                    pos_reached(m_multi_vehicle_.uav4.current_local_pos, target_pos_, 5) */) {
+                if (pos_reached(drone_uav_leader_, target_pos_, 0.8) &&
+                    pos_reached(m_multi_vehicle_.uav2, target_pos_, 0.8) &&
+                    pos_reached(m_multi_vehicle_.uav3, target_pos_, 0.8) &&
+                    pos_reached(m_multi_vehicle_.uav4, target_pos_, 0.8) ) {
 
                     util_log("reached the land");
                     mavros_msgs::SetMode land_set_mode;
@@ -132,7 +131,10 @@ void MultiDroneControl::DoProgress() {
                 target_pos_.pose.position.x = follow_slave_first_local_.x();
                 target_pos_.pose.position.y = follow_slave_first_local_.y();
 
-                if (pos_reached(m_multi_vehicle_.leader_uav.current_local_pos, target_pos_, 0.8)) {
+                if (pos_reached(m_multi_vehicle_.leader_uav, target_pos_, 0.8)&&
+                    pos_reached(m_multi_vehicle_.uav2, target_pos_, 0.8) &&
+                    pos_reached(m_multi_vehicle_.uav3, target_pos_, 0.8) &&
+                    pos_reached(m_multi_vehicle_.uav4, target_pos_, 0.8) ) {
                     uav_state_ = FALLOW_USV;
                     state_changed_ = true;
                 }
@@ -280,11 +282,12 @@ void MultiDroneControl::setVehicleCtrlData() {
     DataMan::getInstance()->SetDroneControlData(m_multi_vehicle_);
 }
 
-bool MultiDroneControl::pos_reached(geometry_msgs::PoseStamped &current_pos, geometry_msgs::PoseStamped &target_pos,
-                                float err_allow){
-    float err_px = current_pos.pose.position.x - target_pos.pose.position.x;
-    float err_py = current_pos.pose.position.y - target_pos.pose.position.y;
-    float err_pz = current_pos.pose.position.z - target_pos.pose.position.z;
+bool MultiDroneControl::pos_reached(M_Drone &current_drone, geometry_msgs::PoseStamped &target_pos,
+                                    float err_allow) {
+    if (current_drone.drone_id == 0 || current_drone.current_state.mode != "OFFBOARD" || !current_drone.current_state.armed) return true;
+    float err_px = current_drone.current_local_pos.pose.position.x - target_pos.pose.position.x;
+    float err_py = current_drone.current_local_pos.pose.position.y - target_pos.pose.position.y;
+    float err_pz = current_drone.current_local_pos.pose.position.z - target_pos.pose.position.z;
 
     return sqrt(err_px * err_px + err_py * err_py + err_pz * err_pz) < err_allow;
 }

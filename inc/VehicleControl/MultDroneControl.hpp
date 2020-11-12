@@ -30,7 +30,8 @@ public:
     static MultiDroneControl* getInstance();
 
 private:
-    bool pos_reached(geometry_msgs::PoseStamped &current_pos, geometry_msgs::PoseStamped &target_pos, float err_allow);
+    bool pos_reached(M_Drone &current_drone, geometry_msgs::PoseStamped &target_pos,
+                     float err_allow);
 
     void droneManualControl();
 
