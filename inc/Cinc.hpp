@@ -147,9 +147,11 @@ enum  {
     WAYPOINT,
     LAND,
     FALLOW_USV,
+    FALLOW_UUV,
     FORMATION,
     CIRCLE_INIT,
-    CIRCLE
+    CIRCLE,
+    RETURN
 };
 
 enum {

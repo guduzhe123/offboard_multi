@@ -11,6 +11,8 @@
 #include "Calculate.hpp"
 #include "ActionCircle.hpp"
 
+static const float K_pos_target_arrived_len_ = 0.8;
+
 class MultiDroneControl : public IVehicleControl {
 public:
     MultiDroneControl();

@@ -181,6 +181,7 @@ void uav3_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
 }
 
 void uav3_ros_Manager::uavPosSp(const DroneControl& droneControl) {
+    uav_.droneControl = droneControl;
     target_local_pos_sp_ = droneControl.target_pose;
     is_speed_ctrl_ = droneControl.speed_ctrl;
     target_heading_ = droneControl.target_heading;
