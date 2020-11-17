@@ -200,12 +200,11 @@ void MultiUAVFormation::SetFunctionOutPut() {
             m_multi_vehicle_.uav3.target_local_pos_sp = m_multi_vehicle_.uav1.target_local_pos_sp;
             m_multi_vehicle_.uav4.target_local_pos_sp = m_multi_vehicle_.uav1.target_local_pos_sp;
 
+            TVec3 uav1_target = TVec3(0,0,m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z);
             follow_uav1_ = TVec3(0,0,m_multi_vehicle_.uav2.droneControl.target_pose.pose.position.z);
             follow_uav2_ = TVec3(0,0,m_multi_vehicle_.uav3.droneControl.target_pose.pose.position.z);
             follow_uav3_ = TVec3(0,0,m_multi_vehicle_.uav4.droneControl.target_pose.pose.position.z);
-            if (pos_reached(m_multi_vehicle_.uav2.current_local_pos, follow_uav1_, m_multi_vehicle_.uav2.drone_id) &&
-                pos_reached(m_multi_vehicle_.uav3.current_local_pos, follow_uav2_, m_multi_vehicle_.uav3.drone_id) &&
-                pos_reached(m_multi_vehicle_.uav4.current_local_pos, follow_uav3_, m_multi_vehicle_.uav4.drone_id)) {
+            if (pos_reached(m_multi_vehicle_.uav1.current_local_pos, uav1_target, m_multi_vehicle_.uav1.drone_id)) {
                 m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z = 0;
                 m_multi_vehicle_.uav2.target_local_pos_sp.pose.position.z = 0;
                 m_multi_vehicle_.uav3.target_local_pos_sp.pose.position.z = 0;

@@ -151,7 +151,7 @@ void MultiDroneControl::DoProgress() {
                 target_pos_.pose.position.x = follow_slave_first_local_.x();
                 target_pos_.pose.position.y = follow_slave_first_local_.y();
 
-                if (pos_reached(m_multi_vehicle_.leader_uav, target_pos_, K_pos_target_arrived_len_)&&
+                if (pos_reached(m_multi_vehicle_.leader_uav, target_pos_, K_pos_target_arrived_len_) &&
                     pos_reached(m_multi_vehicle_.uav2, m_multi_vehicle_.uav2.droneControl.target_pose, K_pos_target_arrived_len_) &&
                     pos_reached(m_multi_vehicle_.uav3, m_multi_vehicle_.uav3.droneControl.target_pose, K_pos_target_arrived_len_) &&
                     pos_reached(m_multi_vehicle_.uav4, m_multi_vehicle_.uav4.droneControl.target_pose, K_pos_target_arrived_len_)  ) {
@@ -181,16 +181,16 @@ void MultiDroneControl::DoProgress() {
             }
 
             case FALLOW_UUV: {
-                if (m_multi_vehicle_.uuv1.current_state.armed) {
+                if (m_multi_vehicle_.uuv1.drone_id != 0) {
                     target_pos_.pose.position.x = m_multi_vehicle_.uuv1.current_local_pos.pose.position.x +
                                                 follow_slave_first_local_.x();
                     target_pos_.pose.position.y = m_multi_vehicle_.uuv1.current_local_pos.pose.position.y +
                                                 follow_slave_first_local_.y();
 
-                    util_log("uuv1 leader target pos x = %.2f, y = %.2f, z = %.2f",
-                             m_multi_vehicle_.uuv1.target_local_pos_sp.pose.position.x,
-                             m_multi_vehicle_.uuv1.target_local_pos_sp.pose.position.y,
-                             m_multi_vehicle_.uuv1.target_local_pos_sp.pose.position.z);
+                    util_log("uav1 fallow uuv1 target pos x = %.2f, y = %.2f, z = %.2f",
+                             target_pos_.pose.position.x,
+                             target_pos_.pose.position.y,
+                             target_pos_.pose.position.z);
                 }
                 break;
             }
@@ -340,15 +340,16 @@ bool MultiDroneControl::pos_reached(M_Drone &current_drone, geometry_msgs::PoseS
         if (current_drone.current_state.mode != "OFFBOARD")
             return false;
     }
+
+    util_log("drone id = %d", current_drone.drone_id);
+    util_log("current_drone = (%.2f, %.2f, %.2f)", current_drone.current_local_pos.pose.position.x, current_drone.current_local_pos.pose.position.y
+            ,current_drone.current_local_pos.pose.position.z);
+    util_log("target_drone = (%.2f, %.2f, %.2f)", target_pos.pose.position.x, target_pos.pose.position.y
+            ,target_pos.pose.position.z);
     float err_px = current_drone.current_local_pos.pose.position.x - target_pos.pose.position.x;
     float err_py = current_drone.current_local_pos.pose.position.y - target_pos.pose.position.y;
     float err_pz = current_drone.current_local_pos.pose.position.z - target_pos.pose.position.z;
 
-    util_log("drone id = %d", current_drone.drone_id);
-    util_log("current_drone = (%.2f, %.2f, %.2f)", current_drone.current_local_pos.pose.position.x, current_drone.current_local_pos.pose.position.y
-                                        ,current_drone.current_local_pos.pose.position.z);
-    util_log("target_drone = (%.2f, %.2f, %.2f)", target_pos.pose.position.x, target_pos.pose.position.y
-                                        ,target_pos.pose.position.z);
     return sqrt(err_px * err_px + err_py * err_py + err_pz * err_pz) < err_allow;
 }
 

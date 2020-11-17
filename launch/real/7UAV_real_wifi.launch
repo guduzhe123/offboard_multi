@@ -1,0 +1,15 @@
+<launch>
+    <arg name="pluginlists_yaml" default="$(find mavros)/launch/px4_pluginlists.yaml" />
+    <arg name="config_yaml" default="$(find mavros)/launch/px4_config.yaml" />
+
+    <arg name="formation_distance" value="5" />
+    <arg name="point_num" value="6" />
+    <arg name="danger_distance" value="2" />
+
+    <node pkg = "offboard" name = "offboard" type="7vehicles" output="screen">
+        <param name="formation_distance" value="$(arg formation_distance)" />
+        <param name="waypoint_num" value="$(arg point_num)" type="int"/>
+        <param name="danger_distance" value="$(arg danger_distance)" type="double"/>
+    </node>
+    <include file="$(find offboard)/launch/rosbag_log.launch"/>
+</launch>
