@@ -157,6 +157,7 @@ void MultiDroneControl::DoProgress() {
                     pos_reached(m_multi_vehicle_.uav4, m_multi_vehicle_.uav4.droneControl.target_pose, K_pos_target_arrived_len_)  ) {
                     uav_state_ = FALLOW_UUV;
                     state_changed_ = false;
+                    leader_reset_home_ = m_multi_vehicle_.uuv1.current_local_pos;
                 }
                 break;
             }
@@ -164,10 +165,10 @@ void MultiDroneControl::DoProgress() {
             case FALLOW_USV: {
                 m_multi_vehicle_.leader_usv.current_state.armed = true; // TODO for test.
                 if (m_multi_vehicle_.leader_usv.current_state.armed) {
-                    target_pos_.pose.position.x = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.x +
-                                                follow_slave_first_local_.x();
-                    target_pos_.pose.position.y = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.y +
-                                                follow_slave_first_local_.y();
+                    target_pos_.pose.position.x = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.x -
+                                                  leader_reset_home_.pose.position.x + follow_slave_first_local_.x();
+                    target_pos_.pose.position.y = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.y -
+                                                  leader_reset_home_.pose.position.y + follow_slave_first_local_.y();
 
                     util_log("usv leader target pos x = %.2f, y = %.2f, z = %.2f",
                              m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x,
@@ -182,15 +183,15 @@ void MultiDroneControl::DoProgress() {
 
             case FALLOW_UUV: {
                 if (m_multi_vehicle_.uuv1.drone_id != 0) {
-                    target_pos_.pose.position.x = m_multi_vehicle_.uuv1.current_local_pos.pose.position.x +
-                                                follow_slave_first_local_.x();
-                    target_pos_.pose.position.y = m_multi_vehicle_.uuv1.current_local_pos.pose.position.y +
-                                                follow_slave_first_local_.y();
+                    target_pos_.pose.position.x = m_multi_vehicle_.uuv1.current_local_pos.pose.position.x -
+                                                  leader_reset_home_.pose.position.x + follow_slave_first_local_.x();
+                    target_pos_.pose.position.y = m_multi_vehicle_.uuv1.current_local_pos.pose.position.y -
+                                                  leader_reset_home_.pose.position.y + follow_slave_first_local_.y();
 
-                    util_log("uav1 fallow uuv1 target pos x = %.2f, y = %.2f, z = %.2f",
-                             target_pos_.pose.position.x,
-                             target_pos_.pose.position.y,
-                             target_pos_.pose.position.z);
+                    util_log("uuv1 current pos x = %.2f, y = %.2f, z = %.2f",
+                             m_multi_vehicle_.uuv1.current_local_pos.pose.position.x,
+                             m_multi_vehicle_.uuv1.current_local_pos.pose.position.y,
+                             m_multi_vehicle_.uuv1.current_local_pos.pose.position.z);
                 }
                 break;
             }

@@ -47,6 +47,7 @@ private:
     multi_vehicle m_multi_vehicle_;
     M_Drone drone_uav_leader_;
     geometry_msgs::PoseStamped target_pos_;
+    geometry_msgs::PoseStamped leader_reset_home_;
     geometry_msgs::PoseStamped body_pos_;
     vector<geometry_msgs::PoseStamped> uav_way_points_;
     vector<geometry_msgs::PoseStamped> uav_way_points_init_;
