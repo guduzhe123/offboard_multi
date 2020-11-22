@@ -29,6 +29,7 @@ void MultiUAVFormation::Oninit(const int config) {
             Drone_uav3_ = TVec3(-K_multi_formation_distance, -K_multi_formation_distance, m_multi_vehicle_.uav3.current_local_pos.pose.position.z);
             Drone_uav4_ = TVec3(0, -K_multi_formation_distance , m_multi_vehicle_.uav4.current_local_pos.pose.position.z);
 
+            changeToLocalTarget();
             calcFollowUAVPos();
             util_log("uav2 target local pos x= %.2f, y = %.2f", follow_uav1_.x(), follow_uav1_.y());
             util_log("uav3 target local pos x= %.2f, y = %.2f", follow_uav2_.x(), follow_uav2_.y());
@@ -40,11 +41,12 @@ void MultiUAVFormation::Oninit(const int config) {
             is_formation_ = true;
             util_log("Formation call! Triangle!");
             leader_drone_ = m_multi_vehicle_.uav1;
-            Drone_uav2_ = TVec3(-K_multi_formation_distance, -K_multi_formation_distance , m_multi_vehicle_.uav2.current_local_pos.pose.position.z);
-            Drone_uav3_ = TVec3(0, -K_multi_formation_distance, m_multi_vehicle_.uav3.current_local_pos.pose.position.z);
-            Drone_uav4_ = TVec3(K_multi_formation_distance, -K_multi_formation_distance , m_multi_vehicle_.uav4.current_local_pos.pose.position.z);
-            calcFollowUAVPos();
+            Drone_uav2_ = TVec3(-K_multi_formation_distance, K_multi_formation_distance , m_multi_vehicle_.uav2.current_local_pos.pose.position.z);
+            Drone_uav3_ = TVec3(-K_multi_formation_distance, 0, m_multi_vehicle_.uav3.current_local_pos.pose.position.z);
+            Drone_uav4_ = TVec3(-K_multi_formation_distance, -K_multi_formation_distance , m_multi_vehicle_.uav4.current_local_pos.pose.position.z);
 
+            changeToLocalTarget();
+            calcFollowUAVPos();
         }
             break;
 
@@ -56,8 +58,9 @@ void MultiUAVFormation::Oninit(const int config) {
             Drone_uav2_ = TVec3(0, -K_multi_formation_distance , m_multi_vehicle_.uav2.current_local_pos.pose.position.z);
             Drone_uav3_ = TVec3(0, -2 * K_multi_formation_distance, m_multi_vehicle_.uav3.current_local_pos.pose.position.z);
             Drone_uav4_ = TVec3(0, -3 * K_multi_formation_distance , m_multi_vehicle_.uav4.current_local_pos.pose.position.z);
-            calcFollowUAVPos();
 
+            changeToLocalTarget();
+            calcFollowUAVPos();
         }
             break;
 
@@ -65,11 +68,12 @@ void MultiUAVFormation::Oninit(const int config) {
             is_formation_ = true;
             util_log("Formation call! Line Vertical!");
             leader_drone_ = m_multi_vehicle_.uav1;
-            Drone_uav2_ = TVec3(K_multi_formation_distance, 0 , m_multi_vehicle_.uav2.current_local_pos.pose.position.z);
-            Drone_uav3_ = TVec3(2* K_multi_formation_distance, 0, m_multi_vehicle_.uav3.current_local_pos.pose.position.z);
-            Drone_uav4_ = TVec3(3 * K_multi_formation_distance, 0 , m_multi_vehicle_.uav4.current_local_pos.pose.position.z);
-            calcFollowUAVPos();
+            Drone_uav2_ = TVec3(-K_multi_formation_distance, 0 , m_multi_vehicle_.uav2.current_local_pos.pose.position.z);
+            Drone_uav3_ = TVec3(-2* K_multi_formation_distance, 0, m_multi_vehicle_.uav3.current_local_pos.pose.position.z);
+            Drone_uav4_ = TVec3(-3 * K_multi_formation_distance, 0 , m_multi_vehicle_.uav4.current_local_pos.pose.position.z);
 
+            changeToLocalTarget();
+            calcFollowUAVPos();
         }
             break;
 
@@ -82,9 +86,39 @@ void MultiUAVFormation::Oninit(const int config) {
 
         default:
             break;
-
     }
 }
+
+ void MultiUAVFormation::changeToLocalTarget() {
+     geometry_msgs::PoseStamped body_uav2, body_uav3, body_uav4, local_uav2, local_uav3, local_uav4;
+     body_uav2.pose.position.x = Drone_uav2_.x();
+     body_uav2.pose.position.y = Drone_uav2_.y();
+     body_uav2.pose.position.z = Drone_uav2_.z();
+
+     body_uav3.pose.position.x = Drone_uav3_.x();
+     body_uav3.pose.position.y = Drone_uav3_.y();
+     body_uav3.pose.position.z = Drone_uav3_.z();
+
+     body_uav4.pose.position.x = Drone_uav4_.x();
+     body_uav4.pose.position.y = Drone_uav4_.y();
+     body_uav4.pose.position.z = Drone_uav4_.z();
+
+     Calculate::getInstance()->bodyFrame2LocalFrame(body_uav2, local_uav2, m_multi_vehicle_.uav1.yaw * M_PI / 180.0);
+     Calculate::getInstance()->bodyFrame2LocalFrame(body_uav3, local_uav3, m_multi_vehicle_.uav1.yaw * M_PI / 180.0);
+     Calculate::getInstance()->bodyFrame2LocalFrame(body_uav4, local_uav4, m_multi_vehicle_.uav1.yaw * M_PI / 180.0);
+
+     Drone_uav2_.x() = local_uav2.pose.position.x;
+     Drone_uav2_.y() = local_uav2.pose.position.y;
+     Drone_uav2_.z() = local_uav2.pose.position.z;
+
+     Drone_uav3_.x() = local_uav3.pose.position.x;
+     Drone_uav3_.y() = local_uav3.pose.position.y;
+     Drone_uav3_.z() = local_uav3.pose.position.z;
+
+     Drone_uav4_.x() = local_uav4.pose.position.x;
+     Drone_uav4_.y() = local_uav4.pose.position.y;
+     Drone_uav4_.z() = local_uav4.pose.position.z;
+ }
 
 MultiUAVFormation* MultiUAVFormation::getInstance() {
     if (multi_formation == NULL) {

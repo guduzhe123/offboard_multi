@@ -35,6 +35,9 @@ void MultiUSVFormation::Oninit(const int config) {
             leader_drone_ = m_multi_vehicle_.usv1;
             Drone_usv2_ = TVec3(-K_multi_usv_formation_distance, -K_multi_usv_formation_distance , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
             Drone_usv3_ = TVec3(K_multi_usv_formation_distance, -K_multi_usv_formation_distance , m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
+
+            changeToLocalTarget();
+            calcFollowUSVPos();
         }
             break;
 
@@ -46,6 +49,8 @@ void MultiUSVFormation::Oninit(const int config) {
             Drone_usv2_ = TVec3(0, -K_multi_usv_formation_distance , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
             Drone_usv3_ = TVec3(0, -2 * K_multi_usv_formation_distance, m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
 //            calcFollowUSVPos();
+            changeToLocalTarget();
+            calcFollowUSVPos();
         }
             break;
 
@@ -56,12 +61,16 @@ void MultiUSVFormation::Oninit(const int config) {
             Drone_usv2_ = TVec3(K_multi_usv_formation_distance, 0 , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
             Drone_usv3_ = TVec3(2* K_multi_usv_formation_distance, 0, m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
 //            calcFollowUSVPos();
+            changeToLocalTarget();
+            calcFollowUSVPos();
         }
             break;
 
         case VF_USV_ALL_RETURN: {
             is_formation_ = true;
             util_log("usv Formation call! All USVs Return!");
+            changeToLocalTarget();
+            calcFollowUSVPos();
 
         }
             break;
@@ -71,8 +80,6 @@ void MultiUSVFormation::Oninit(const int config) {
 
     }
 
-    changeToLocalTarget();
-    calcFollowUSVPos();
 }
 
 void MultiUSVFormation::changeToLocalTarget() {

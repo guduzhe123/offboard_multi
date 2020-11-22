@@ -77,10 +77,6 @@ void MultiDroneControl::DoProgress() {
                 /*
                 Calculate::getInstance()->getTakeoffPos(m_multi_vehicle_.usv1, m_multi_vehicle_.uav1,
                                                         follow_slave_first_local_);*/
-                if (m_multi_vehicle_.uuv1.drone_id != 0) {
-                    Calculate::getInstance()->getTakeoffPos(m_multi_vehicle_.uuv1, m_multi_vehicle_.uav1,
-                                                            follow_slave_first_local_);
-                }
                 target_pos_.pose.position.x = 0;
                 target_pos_.pose.position.y = 0;
                 target_pos_.pose.position.z = K_uav_height;
@@ -98,6 +94,8 @@ void MultiDroneControl::DoProgress() {
                     if (m_multi_vehicle_.uuv1.drone_id != 0) {
                         util_log("uuv1 drone id = %d", m_multi_vehicle_.uuv1.drone_id);
                         is_uav_follow_ = true;
+                        Calculate::getInstance()->getTakeoffPos(m_multi_vehicle_.uuv1, m_multi_vehicle_.uav1,
+                                                                follow_slave_first_local_);
                     }
 
                     if (is_uav_follow_) {
