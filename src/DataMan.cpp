@@ -157,6 +157,7 @@ void DataMan::SetUSVFormationData(const multi_vehicle &m_multi_vehicles, bool is
         multi_vehicle_.usv2.follower_keep_pos = m_multi_vehicles.usv2.follower_keep_pos;
         multi_vehicle_.usv3.follower_keep_pos = m_multi_vehicles.usv3.follower_keep_pos;
         multi_vehicle_.leader_usv.is_formation = is_formation;
+        util_log("data man is lead usv in formation %d", is_formation);
     }
 }
 
@@ -324,11 +325,11 @@ void DataMan::PrintDroneFormationKeep() {
 
 void DataMan::PrintUSVFormationData() {
     util_log("is usv formation = %d, usv formation leader = %d,", multi_vehicle_.leader_usv.is_formation, multi_vehicle_.leader_usv.drone_id);
-    util_log("uav1 follow to leader = (%.2f, %.2f, %.2f) ", multi_vehicle_.usv1.follower_to_leader_pos(0),
+    util_log("usv1 follow to leader = (%.2f, %.2f, %.2f) ", multi_vehicle_.usv1.follower_to_leader_pos(0),
             multi_vehicle_.usv1.follower_to_leader_pos(1), multi_vehicle_.usv1.follower_to_leader_pos(2));
-    util_log("uav2 follow to leader = (%.2f, %.2f, %.2f) ",  multi_vehicle_.usv2.follower_to_leader_pos(0),
+    util_log("usv2 follow to leader = (%.2f, %.2f, %.2f) ",  multi_vehicle_.usv2.follower_to_leader_pos(0),
              multi_vehicle_.usv2.follower_to_leader_pos(1), multi_vehicle_.usv2.follower_to_leader_pos(2));
-    util_log("uav3 follow to leader = (%.2f, %.2f, %.2f) ",  multi_vehicle_.usv3.follower_to_leader_pos(0),
+    util_log("usv3 follow to leader = (%.2f, %.2f, %.2f) ",  multi_vehicle_.usv3.follower_to_leader_pos(0),
              multi_vehicle_.usv3.follower_to_leader_pos(1), multi_vehicle_.usv3.follower_to_leader_pos(2));
 }
 

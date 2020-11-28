@@ -83,7 +83,7 @@ void usv2_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     dronePosPub.publish(dronepos_);
 //    usv_.yaw = dronepos_.m_heading;
     usv_.yaw = current_vfr_hud.heading;
-    util_log("usv1 heading = %.2f, usv_.yaw = %.2f", dronepos_.m_heading, usv_.yaw);
+    util_log("usv2 heading = %.2f, usv_.yaw = %d", dronepos_.m_heading, usv_.yaw);
 }
 
 void usv2_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {

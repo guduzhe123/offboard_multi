@@ -35,9 +35,10 @@ void MultiBoatControl::getData() {
 }
 
 void MultiBoatControl::DoProgress() {
-/*    if (is_formation_) {
+    util_log("is usv in formation = %d", is_formation_);
+    if (is_formation_) {
         return;
-    }*/
+    }
 
     util_log("leader usv movement_state = %d", usv_state_);
     util_log("leader usv armed = %d", m_multi_vehicle_.leader_usv.current_state.armed);
@@ -234,6 +235,7 @@ geometry_msgs::PoseStamped MultiBoatControl::CalculateTargetPos(geometry_msgs::P
 }
 
 void MultiBoatControl::setVehicleCtrlData() {
+    util_log("usv set vehicle control !!!!!");
     m_multi_vehicle_.usv1.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.target_local_pos_sp, m_multi_vehicle_.usv1.follower_keep_pos);
     m_multi_vehicle_.usv2.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.current_local_pos, m_multi_vehicle_.usv2.follower_keep_pos);
     m_multi_vehicle_.usv3.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.current_local_pos, m_multi_vehicle_.usv3.follower_keep_pos);
@@ -260,7 +262,7 @@ void MultiBoatControl::USVManualControl() {
     m_multi_vehicle_.usv2.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
     m_multi_vehicle_.usv3.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
 
-    util_log("!!!!!!manual control output = (%.2f, %.2f, %.2f)", m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x,
+    util_log("!!!!!!usv manual control output = (%.2f, %.2f, %.2f)", m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x,
              m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y, m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z);
 
     DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);

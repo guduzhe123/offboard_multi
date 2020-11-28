@@ -62,6 +62,7 @@ void usv1_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {
 
 void usv1_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
     current_vfr_hud = *msg;
+    util_log("current_vfr_hud heading = %d, header seq = %d", current_vfr_hud.heading, current_vfr_hud.header.seq);
 }
 
 void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
@@ -85,7 +86,7 @@ void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     dronePosPub.publish(dronepos_);
 //    usv_.yaw = dronepos_.m_heading;
     usv_.yaw = current_vfr_hud.heading;
-    util_log("usv1 heading = %.2f, usv_.yaw = %.2f", dronepos_.m_heading, usv_.yaw);
+    util_log("usv1 heading = %.2f, usv_.yaw = %d", dronepos_.m_heading, usv_.yaw);
     
 }
 

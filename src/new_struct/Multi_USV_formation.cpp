@@ -36,6 +36,18 @@ void MultiUSVFormation::Oninit(const int config) {
             Drone_usv2_ = TVec3(-K_multi_usv_formation_distance, -K_multi_usv_formation_distance , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
             Drone_usv3_ = TVec3(K_multi_usv_formation_distance, -K_multi_usv_formation_distance , m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
 
+//            changeToLocalTarget();
+            calcFollowUSVPos();
+        }
+            break;
+
+        case VF_USV_INVERSION_TRIANGLE: {
+            is_formation_ = true;
+            util_log("usv Formation call! INVERSION Triangle!");
+            leader_drone_ = m_multi_vehicle_.usv1;
+            Drone_usv2_ = TVec3(-K_multi_usv_formation_distance, K_multi_usv_formation_distance , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
+            Drone_usv3_ = TVec3(K_multi_usv_formation_distance, K_multi_usv_formation_distance , m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
+
             changeToLocalTarget();
             calcFollowUSVPos();
         }
@@ -120,15 +132,18 @@ void MultiUSVFormation::GetData() {
 void
 MultiUSVFormation::calcFollowUSVPos() {
     // 目标相对位置-当前相对位置+当前在该飞机坐标系下的绝对位置
-    follow_usv1_.x() = m_multi_vehicle_.usv1.current_local_pos.pose.position.x + Drone_usv2_.x() + follow_usv1_first_local_.x();
-    follow_usv1_.y() = m_multi_vehicle_.usv1.current_local_pos.pose.position.y + Drone_usv2_.y() + follow_usv1_first_local_.y();
+    follow_usv1_.x() = m_multi_vehicle_.usv2.current_local_pos.pose.position.x + Drone_usv2_.x() + follow_usv1_first_local_.x();
+    follow_usv1_.y() = m_multi_vehicle_.usv2.current_local_pos.pose.position.y + Drone_usv2_.y() + follow_usv1_first_local_.y();
     follow_usv1_.z() = leader_drone_.current_local_pos.pose.position.z;
     follow_usv1_keep_local_ = TVec3 (Drone_usv2_.x() + follow_usv1_first_local_.x(), Drone_usv2_.y() + follow_usv1_first_local_.y(), 0);
 
-    follow_usv2_.x() = m_multi_vehicle_.usv1.current_local_pos.pose.position.x + Drone_usv3_.x() + follow_usv2_first_local_.x();
-    follow_usv2_.y() = m_multi_vehicle_.usv1.current_local_pos.pose.position.y + Drone_usv3_.y() + follow_usv2_first_local_.y();
+    follow_usv2_.x() = m_multi_vehicle_.usv3.current_local_pos.pose.position.x + Drone_usv3_.x() + follow_usv2_first_local_.x();
+    follow_usv2_.y() = m_multi_vehicle_.usv3.current_local_pos.pose.position.y + Drone_usv3_.y() + follow_usv2_first_local_.y();
     follow_usv2_.z() = leader_drone_.current_local_pos.pose.position.z;
     follow_usv2_keep_local_ = TVec3 (Drone_usv3_.x() + follow_usv2_first_local_.x(), Drone_usv3_.y() + follow_usv2_first_local_.y(), 0);
+    util_log("m_multi_vehicle_.usv2.current_local_pos.pose.position.x = %.2f, y = %.2f",
+            m_multi_vehicle_.usv2.current_local_pos.pose.position.x,
+             m_multi_vehicle_.usv2.current_local_pos.pose.position.y);
 
 }
 
@@ -145,12 +160,14 @@ void MultiUSVFormation::OnCheckFormationArrived() {
 /*        arm_cmd.request.value = false;
         DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv2.drone_id);
         util_log("usv6 disarm at one point");*/
+        util_log("usv6 disarm at one point");
     }
     if (pos_reached(m_multi_vehicle_.usv3.current_local_pos, follow_usv2_, usv_position_allow_reached_)) {
         usv3_reached_ = true;
 /*        arm_cmd.request.value = false;
         DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv3.drone_id);
         util_log("usv7 disarm at one point");*/
+        util_log("usv7 disarm at one point");
     }
 
     if (usv1_reached_ && usv2_reached_ && usv3_reached_ && config_ != VF_USV_ALL_RETURN) {
@@ -171,7 +188,7 @@ MultiUSVFormation::pos_reached(geometry_msgs::PoseStamped &current_pos, TVec3 &f
 }
 
 void MultiUSVFormation::GetTakeoffPos() {
-    if (m_multi_vehicle_.leader_usv.current_state.armed) {
+    if (m_multi_vehicle_.usv1.drone_id != 0 && m_multi_vehicle_.usv1.homePosition.geo.latitude != 0) {
 
         usv1_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv1.homePosition.geo.latitude,
                                                m_multi_vehicle_.usv1.homePosition.geo.longitude,0};
@@ -185,16 +202,19 @@ void MultiUSVFormation::GetTakeoffPos() {
 
         Calculate::getInstance()->GetLocalPos(usv1_takeoff_gps_pos_, usv2_takeoff_gps_pos_, follow_usv1_first_local_);
         Calculate::getInstance()->GetLocalPos(usv1_takeoff_gps_pos_, usv3_takeoff_gps_pos_, follow_usv2_first_local_);
+        util_log("follow_usv1_first_local_ x = %.2f, y = %.2f", follow_usv1_first_local_.x(), follow_usv1_first_local_.y());
 
     }
 }
 
 void MultiUSVFormation::DoProgress() {
     GetTakeoffPos();
+/*
     if (!config_ && !is_formation_) {
         changeToLocalTarget();
         calcFollowUSVPos();
     }
+*/
 
     OnCheckFormationArrived();
     SetFunctionOutPut();
@@ -226,7 +246,7 @@ void MultiUSVFormation::SetFunctionOutPut() {
             geometry_msgs::PoseStamped leader_curr{};
             leader_curr.pose.position.z = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.z;
 
-            m_multi_vehicle_.usv1.target_local_pos_sp = CalculateTargetPos(leader_curr, TVec3{0,0,0});
+            m_multi_vehicle_.usv1.target_local_pos_sp = CalculateTargetPos(leader_curr, leader_curr_pos_);
             m_multi_vehicle_.usv2.target_local_pos_sp = CalculateTargetPos(leader_curr, follow_usv1_);
             m_multi_vehicle_.usv3.target_local_pos_sp = CalculateTargetPos(leader_curr, follow_usv2_);
             m_multi_vehicle_.leader_usv.target_local_pos_sp = m_multi_vehicle_.usv1.target_local_pos_sp;

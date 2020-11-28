@@ -315,7 +315,7 @@ geometry_msgs::PoseStamped MultiDroneControl::CalculateTargetPos(geometry_msgs::
 }
 
 void MultiDroneControl::setVehicleCtrlData() {
-    util_log("set vehicle control !!!!!");
+    util_log("uav set vehicle control !!!!!");
     m_multi_vehicle_.uav1.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav1.follower_keep_pos);
     m_multi_vehicle_.uav2.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav2.follower_keep_pos);
     m_multi_vehicle_.uav3.target_local_pos_sp = CalculateTargetPos(drone_uav_leader_.target_local_pos_sp, m_multi_vehicle_.uav3.follower_keep_pos);
@@ -358,7 +358,7 @@ void MultiDroneControl::droneManualControl() {
     m_multi_vehicle_.uav3.target_local_pos_sp = drone_uav_leader_.target_local_pos_sp;
     m_multi_vehicle_.uav4.target_local_pos_sp = drone_uav_leader_.target_local_pos_sp;
 
-    util_log("!!!!!!manual control output = (%.2f, %.2f, %.2f)", drone_uav_leader_.target_local_pos_sp.pose.position.x,
+    util_log("!!!!!!uav manual control output = (%.2f, %.2f, %.2f)", drone_uav_leader_.target_local_pos_sp.pose.position.x,
              drone_uav_leader_.target_local_pos_sp.pose.position.y, drone_uav_leader_.target_local_pos_sp.pose.position.z);
 
     DataMan::getInstance()->SetDroneControlData(m_multi_vehicle_);

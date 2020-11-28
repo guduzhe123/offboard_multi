@@ -43,9 +43,9 @@ typedef Eigen::Quaternionf TQuat;
 static const bool K_Param_local_global = true;
 static const float K_err_allow = 0.5;
 static const float K_multi_formation_distance = 6;
-static const float K_multi_usv_formation_distance = 3;
+static const float K_multi_usv_formation_distance = 6;
 static const float K_uav_height = 15;
-static const float usv_position_allow_reached_ = 3;
+static const float usv_position_allow_reached_ = 2;
 
 typedef struct GlobalPosition
 {
@@ -76,7 +76,7 @@ struct M_Drone {
     bool is_formation;
     float pitch ;
     float roll ;
-    float yaw ;
+    int16_t yaw ;
     double latitude;
     double longtitude;
     double altitude;
@@ -191,7 +191,8 @@ enum COMMAND_TYPE {
     VF_UAV_CIRCLE = 18,
     VF_USV_CIRCLE = 19,
     VF_UUV_ALL_START = 20,
-    VF_SET_HOME = 21
+    VF_SET_HOME = 21,
+    VF_USV_INVERSION_TRIANGLE = 22,
 };
 
 
