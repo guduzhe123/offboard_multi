@@ -59,13 +59,13 @@ void uuv1_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
 
 void uuv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
     usv_.current_local_pos = *msg;
-    util_log("usv1 current_local_pos = %2f", usv_.current_local_pos.pose.position.x);
+    util_log("uuv1 current_local_pos = %2f", usv_.current_local_pos.pose.position.x);
 }
 
 void uuv1_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
     current_mavlink = *msg;
     usv_.drone_id = current_mavlink.sysid;
-    util_log("sys_id = %d", current_mavlink.sysid);
+    util_log("uuv sys_id = %d", current_mavlink.sysid);
 }
 
 void uuv1_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg) {
@@ -77,7 +77,7 @@ void uuv1_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg
 void uuv1_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg) {
     mavros_msgs::DebugValue debugValue;
     debugValue = *msg;
-    util_log("usv5 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1],
+    util_log("uuv1 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1],
              debugValue.data[2]);
     int config = (int) debugValue.data[0];
 

@@ -333,7 +333,7 @@ void MultiDroneControl::setVehicleCtrlData() {
 
 bool MultiDroneControl::pos_reached(M_Drone &current_drone, geometry_msgs::PoseStamped &target_pos,
                                     float err_allow) {
-    if (current_drone.drone_id == 0 && !current_drone.current_state.armed) {
+    if (current_drone.homePosition.geo.latitude < 0.08 && !current_drone.current_state.armed) {
         return true;
     } else {
         if (current_drone.current_state.mode != "OFFBOARD")
