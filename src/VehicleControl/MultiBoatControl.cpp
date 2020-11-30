@@ -227,7 +227,7 @@ void MultiBoatControl::chooseLeader() {
 
 geometry_msgs::PoseStamped MultiBoatControl::CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, TVec3 &formation_target) {
     geometry_msgs::PoseStamped target_local_pos_sp;
-    util_log("formation_target (%.2f, %.2f, %.2f)", formation_target(0), formation_target(1));
+    util_log("not use formation_target (%.2f, %.2f, %.2f)", formation_target(0), formation_target(1), formation_target(2));
     target_local_pos_sp.pose.position.x = target_local_pos.pose.position.x + formation_target(0);
     target_local_pos_sp.pose.position.y = target_local_pos.pose.position.y + formation_target(1);
     target_local_pos_sp.pose.position.z = target_local_pos.pose.position.z;
