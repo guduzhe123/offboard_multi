@@ -333,6 +333,15 @@ void DataMan::PrintUSVFormationData() {
              multi_vehicle_.usv3.follower_to_leader_pos(1), multi_vehicle_.usv3.follower_to_leader_pos(2));
 }
 
+void DataMan::PrintUSVFormationKeep() {
+    util_log("usv1 follow to keep = (%.2f, %.2f, %.2f) ", multi_vehicle_.usv1.follower_keep_pos(0),
+             multi_vehicle_.usv1.follower_keep_pos(1), multi_vehicle_.usv1.follower_keep_pos(2));
+    util_log("usv2 follow to keep = (%.2f, %.2f, %.2f) ",  multi_vehicle_.usv2.follower_keep_pos(0),
+             multi_vehicle_.usv2.follower_keep_pos(1), multi_vehicle_.usv2.follower_keep_pos(2));
+    util_log("usv3 follow to keep = (%.2f, %.2f, %.2f) ",  multi_vehicle_.usv3.follower_keep_pos(0),
+             multi_vehicle_.usv3.follower_keep_pos(1), multi_vehicle_.usv3.follower_keep_pos(2));
+}
+
 void DataMan::PrintData() {
     util_log("\n");
     util_log("---------------flight data-------------");
@@ -347,6 +356,7 @@ void DataMan::PrintData() {
         PrintDroneFormationKeep();
     }
     PrintUSVFormationData();
+    PrintUSVFormationKeep();
     util_log("---------------data end-----------------");
 }
 

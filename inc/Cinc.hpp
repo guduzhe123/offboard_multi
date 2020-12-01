@@ -27,6 +27,7 @@
 #include <mavros_msgs/VFR_HUD.h>
 #include <mavros_msgs/WaypointList.h>
 #include <mavros_msgs/HomePosition.h>
+#include <mavros_msgs/WaypointReached.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include "pid.hpp"
@@ -90,6 +91,7 @@ struct M_Drone {
     mavros_msgs::PositionTarget current_local_pos_sp;
     DroneControl droneControl;
     mavros_msgs::WaypointList  waypointList;
+    mavros_msgs::WaypointReached waypointReached;
     mavros_msgs::HomePosition homePosition;
 };
 
@@ -160,7 +162,9 @@ enum {
     USV_DISARM,
     USV_FORMATION,
     USV_CIRCLE_INIT,
-    USV_CIRCLE
+    USV_CIRCLE,
+    USV_FOLLOW_UUV,
+    USV_FOLLOW_UUV_FORMATION
 };
 
 enum {

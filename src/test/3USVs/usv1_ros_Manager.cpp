@@ -31,6 +31,8 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/debug_value/debug_vector", 10, &usv1_ros_Manager::debug_value_cb, this);
     way_point_sub = nh.subscribe<mavros_msgs::WaypointList>
             ("mavros/mission/waypoints", 10, &usv1_ros_Manager::wayPointCB, this);
+    way_point_reached_sub = nh.subscribe<mavros_msgs::WaypointReached>
+            ("mavros/mission/reached", 10, &usv1_ros_Manager::wayPointReachedCB, this);
     homePos_sub = nh.subscribe<mavros_msgs::HomePosition>
             ("mavros/home_position/home", 10, &usv1_ros_Manager::homePositionCB, this);
 
@@ -188,9 +190,13 @@ void usv1_ros_Manager::usvPosSp(const DroneControl& droneControl) {
 
 void usv1_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg) {
     usv_.waypointList = *msg;
-    util_log("usv1 waypoint size = %d", usv_.waypointList.waypoints.size());
+    util_log("usv1 waypoint size = %d, current_seq = %d", usv_.waypointList.waypoints.size(), usv_.waypointList.current_seq);
 }
 
+void usv1_ros_Manager::wayPointReachedCB(const mavros_msgs::WaypointReached::ConstPtr &msg) {
+    usv_.waypointReached = *msg;
+    util_log("usv1 wayPoint reached num = %d", usv_.waypointReached.wp_seq);
+}
 
 void usv1_ros_Manager::homePositionCB(const mavros_msgs::HomePosition::ConstPtr& msg){
     usv_.homePosition = *msg;

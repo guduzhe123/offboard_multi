@@ -79,6 +79,7 @@ public:
 
 private:
     void PrintUSVFormationData();
+    void PrintUSVFormationKeep();
 
     static DataMan* l_singleton;
 

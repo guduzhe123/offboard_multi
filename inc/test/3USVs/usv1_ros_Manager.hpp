@@ -28,13 +28,15 @@ private:
     void global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg);
     void debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
     void wayPointCB(const mavros_msgs::WaypointList::ConstPtr& msg);
+    void wayPointReachedCB(const mavros_msgs::WaypointReached::ConstPtr& msg);
     void homePositionCB(const mavros_msgs::HomePosition::ConstPtr& msg);
 
     void drone_pos_update(const ros::TimerEvent& e);
     void commander_update(const ros::TimerEvent& e);
     void publishDronePosControl(const ros::TimerEvent& e);
 
-    ros::Subscriber state_sub, vfr_hud_sub, local_position_sub, mavlink_from_sub, global_pos_sub, commander_sub, way_point_sub, homePos_sub;
+    ros::Subscriber state_sub, vfr_hud_sub, local_position_sub, mavlink_from_sub, global_pos_sub, commander_sub, way_point_sub, homePos_sub,
+            way_point_reached_sub;
     ros::Publisher local_pos_pub, gps_global_pos_pub, global_pos_pub, g_speed_control_pub, dronePosPub, home_pos_pub;
     ros::ServiceClient arming_client, set_mode_client;
     ros::Timer exec_timer_, commander_timer_, publish_timer_;

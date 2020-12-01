@@ -193,8 +193,37 @@ void MultiBoatControl::DoProgress() {
             }
         }
     } else {
-        m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position =
-                m_multi_vehicle_.leader_usv.current_local_pos.pose.position;
+
+        if (m_multi_vehicle_.usv1.waypointReached.wp_seq == m_multi_vehicle_.usv1.waypointList.current_seq ) {
+            if (m_multi_vehicle_.uuv1.longtitude > 0) {
+                util_log("usv1 finish all waypoints! Follow usv");
+                usv_state_ = USV_FOLLOW_UUV_FORMATION;
+            } else {
+                usv_state_ = USV_FOLLOW_UUV;
+            }
+        } else {
+
+            m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position =
+                    m_multi_vehicle_.leader_usv.current_local_pos.pose.position;
+        }
+
+        switch (usv_state_) {
+            case USV_FOLLOW_UUV_FORMATION: {
+                float way_bear;
+
+                break;
+            }
+
+            case USV_FOLLOW_UUV: {
+                m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position =
+                        m_multi_vehicle_.uuv1.current_local_pos.pose.position;
+                break;
+            }
+
+            default:
+                break;
+        }
+
 //        USVManualControl();
     }
     setVehicleCtrlData();
