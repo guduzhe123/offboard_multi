@@ -132,13 +132,13 @@ void MultiUSVFormation::GetData() {
 void
 MultiUSVFormation::calcFollowUSVPos() {
     // 目标相对位置-当前相对位置+当前在该飞机坐标系下的绝对位置
-    follow_usv1_.x() = m_multi_vehicle_.usv2.current_local_pos.pose.position.x + Drone_usv2_.x() + follow_usv1_first_local_.x();
-    follow_usv1_.y() = m_multi_vehicle_.usv2.current_local_pos.pose.position.y + Drone_usv2_.y() + follow_usv1_first_local_.y();
+    follow_usv1_.x() = m_multi_vehicle_.usv1.current_local_pos.pose.position.x + Drone_usv2_.x() + follow_usv1_first_local_.x();
+    follow_usv1_.y() = m_multi_vehicle_.usv1.current_local_pos.pose.position.y + Drone_usv2_.y() + follow_usv1_first_local_.y();
     follow_usv1_.z() = leader_drone_.current_local_pos.pose.position.z;
     follow_usv1_keep_local_ = TVec3 (Drone_usv2_.x() + follow_usv1_first_local_.x(), Drone_usv2_.y() + follow_usv1_first_local_.y(), 0);
 
-    follow_usv2_.x() = m_multi_vehicle_.usv3.current_local_pos.pose.position.x + Drone_usv3_.x() + follow_usv2_first_local_.x();
-    follow_usv2_.y() = m_multi_vehicle_.usv3.current_local_pos.pose.position.y + Drone_usv3_.y() + follow_usv2_first_local_.y();
+    follow_usv2_.x() = m_multi_vehicle_.usv1.current_local_pos.pose.position.x + Drone_usv3_.x() + follow_usv2_first_local_.x();
+    follow_usv2_.y() = m_multi_vehicle_.usv1.current_local_pos.pose.position.y + Drone_usv3_.y() + follow_usv2_first_local_.y();
     follow_usv2_.z() = leader_drone_.current_local_pos.pose.position.z;
     follow_usv2_keep_local_ = TVec3 (Drone_usv3_.x() + follow_usv2_first_local_.x(), Drone_usv3_.y() + follow_usv2_first_local_.y(), 0);
     util_log("m_multi_vehicle_.usv2.current_local_pos.pose.position.x = %.2f, y = %.2f",

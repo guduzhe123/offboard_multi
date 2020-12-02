@@ -192,6 +192,8 @@ void MultiBoatControl::DoProgress() {
                 break;
             }
         }
+
+        setVehicleCtrlData();
     } else {
 
         if (m_multi_vehicle_.usv1.waypointReached.wp_seq == m_multi_vehicle_.usv1.waypointList.current_seq ) {
@@ -209,14 +211,26 @@ void MultiBoatControl::DoProgress() {
 
         switch (usv_state_) {
             case USV_FOLLOW_UUV_FORMATION: {
-                float way_bear;
+                way_bear_ = Calculate::getInstance()->get_bearing_to_next_waypoint(m_multi_vehicle_.usv1.latitude, m_multi_vehicle_.usv1.longtitude
+                , m_multi_vehicle_.uuv1.latitude, m_multi_vehicle_.uuv1.longtitude);
+                geometry_msgs::PoseStamped local_usv1, local_usv2, local_usv3;
+                follow_usv1_ = TVec3(-K_multi_usv_formation_distance, 0 , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
+                follow_usv2_ = TVec3(K_multi_usv_formation_distance, 0 , m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
+                follow_usv3_ = TVec3(0, -K_multi_usv_formation_distance , m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
 
+                changeToLocalTarget();
+                calcFollowUUVPos();
+                SetFunctionOutPut();
                 break;
             }
 
             case USV_FOLLOW_UUV: {
                 m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position =
                         m_multi_vehicle_.uuv1.current_local_pos.pose.position;
+                m_multi_vehicle_.leader_usv.current_local_pos.pose.position =
+                        m_multi_vehicle_.uuv1.current_local_pos.pose.position;
+
+                setVehicleCtrlData();
                 break;
             }
 
@@ -226,8 +240,100 @@ void MultiBoatControl::DoProgress() {
 
 //        USVManualControl();
     }
-    setVehicleCtrlData();
 
+}
+
+ void MultiBoatControl::changeToLocalTarget() {
+    geometry_msgs::PoseStamped body_usv1, body_usv2, body_usv3, local_usv1, local_usv2, local_usv3;
+    body_usv1.pose.position.x = follow_usv1_.x();
+    body_usv1.pose.position.y = follow_usv1_.y();
+    body_usv1.pose.position.z = follow_usv1_.z();
+
+    body_usv2.pose.position.x = follow_usv2_.x();
+    body_usv2.pose.position.y = follow_usv2_.y();
+    body_usv2.pose.position.z = follow_usv2_.z();
+
+    body_usv3.pose.position.x = follow_usv3_.x();
+    body_usv3.pose.position.y = follow_usv3_.y();
+    body_usv3.pose.position.z = follow_usv3_.z();
+
+     Calculate::getInstance()->bodyFrame2LocalFrame(body_usv1, local_usv1, way_bear_);
+    Calculate::getInstance()->bodyFrame2LocalFrame(body_usv2, local_usv2, way_bear_);
+    Calculate::getInstance()->bodyFrame2LocalFrame(body_usv3, local_usv3, way_bear_);
+
+     follow_usv1_.x() = local_usv1.pose.position.x;
+     follow_usv1_.y() = local_usv1.pose.position.y;
+     follow_usv1_.z() = local_usv1.pose.position.z;
+
+     follow_usv2_.x() = local_usv2.pose.position.x;
+     follow_usv2_.y() = local_usv2.pose.position.y;
+     follow_usv2_.z() = local_usv2.pose.position.z;
+
+     follow_usv3_.x() = local_usv3.pose.position.x;
+     follow_usv3_.y() = local_usv3.pose.position.y;
+     follow_usv3_.z() = local_usv3.pose.position.z;
+}
+
+void MultiBoatControl::GetTakeoffPos() {
+    if (m_multi_vehicle_.uuv1.drone_id != 0 && m_multi_vehicle_.uuv1.homePosition.geo.latitude != 0) {
+
+        usv1_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv1.homePosition.geo.latitude,
+                                               m_multi_vehicle_.usv1.homePosition.geo.longitude,0};
+        usv2_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv2.homePosition.geo.latitude,
+                                               m_multi_vehicle_.usv2.homePosition.geo.longitude,0};
+        usv3_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv3.homePosition.geo.latitude,
+                                               m_multi_vehicle_.usv3.homePosition.geo.longitude,0};
+        uuv1_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.uuv1.homePosition.geo.latitude,
+                                               m_multi_vehicle_.uuv1.homePosition.geo.longitude,0};
+
+        Calculate::getInstance()->GetLocalPos(uuv1_takeoff_gps_pos_, usv1_takeoff_gps_pos_, follow_usv1_to_uuv1_);
+        Calculate::getInstance()->GetLocalPos(uuv1_takeoff_gps_pos_, usv2_takeoff_gps_pos_, follow_usv2_to_uuv1_);
+        Calculate::getInstance()->GetLocalPos(uuv1_takeoff_gps_pos_, usv3_takeoff_gps_pos_, follow_usv3_to_uuv1_);
+
+    }
+}
+
+void MultiBoatControl::calcFollowUUVPos() {
+    // 目标相对位置-当前相对位置+当前在该飞机坐标系下的绝对位置
+    target_usv1_.x() = m_multi_vehicle_.uuv1.current_local_pos.pose.position.x + follow_usv1_.x() + follow_usv1_to_uuv1_.x();
+    target_usv1_.y() = m_multi_vehicle_.uuv1.current_local_pos.pose.position.y + follow_usv1_.y() + follow_usv1_to_uuv1_.y();
+    target_usv1_.z() = 0;
+    follow_usv1_keep_local_ = TVec3 (follow_usv1_.x() + follow_usv1_to_uuv1_.x(), follow_usv1_.y() + follow_usv1_to_uuv1_.y(), 0);
+
+    target_usv2_.x() = m_multi_vehicle_.uuv1.current_local_pos.pose.position.x + follow_usv2_.x() + follow_usv2_to_uuv1_.x();
+    target_usv2_.y() = m_multi_vehicle_.uuv1.current_local_pos.pose.position.y + follow_usv2_.y() + follow_usv2_to_uuv1_.y();
+    target_usv2_.z() = 0;
+    follow_usv2_keep_local_ = TVec3 (follow_usv2_.x() + follow_usv2_to_uuv1_.x(), follow_usv2_.y() + follow_usv2_to_uuv1_.y(), 0);
+
+    target_usv3_.x() = m_multi_vehicle_.uuv1.current_local_pos.pose.position.x + follow_usv3_.x() + follow_usv3_to_uuv1_.x();
+    target_usv3_.y() = m_multi_vehicle_.uuv1.current_local_pos.pose.position.y + follow_usv3_.y() + follow_usv3_to_uuv1_.y();
+    target_usv3_.z() = 0;
+    follow_usv3_keep_local_ = TVec3 (follow_usv3_.x() + follow_usv3_to_uuv1_.x(), follow_usv3_.y() + follow_usv3_to_uuv1_.y(), 0);
+}
+
+void MultiBoatControl::SetFunctionOutPut() {
+    m_multi_vehicle_.usv1.follower_to_leader_pos = target_usv1_;
+    m_multi_vehicle_.usv2.follower_to_leader_pos = target_usv2_;
+    m_multi_vehicle_.usv3.follower_to_leader_pos = target_usv3_;
+
+    m_multi_vehicle_.usv1.follower_keep_pos = follow_usv1_keep_local_;
+    m_multi_vehicle_.usv2.follower_keep_pos = follow_usv2_keep_local_;
+    m_multi_vehicle_.usv3.follower_keep_pos = follow_usv3_keep_local_;
+    DataMan::getInstance()->SetUSVFormationData(m_multi_vehicle_, 0);
+
+    m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.x = target_usv1_.x();
+    m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.y = target_usv1_.y();
+    m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.z = target_usv1_.z();
+
+    m_multi_vehicle_.usv2.target_local_pos_sp.pose.position.x = target_usv2_.x();
+    m_multi_vehicle_.usv2.target_local_pos_sp.pose.position.y = target_usv2_.y();
+    m_multi_vehicle_.usv2.target_local_pos_sp.pose.position.z = target_usv2_.z();
+
+    m_multi_vehicle_.usv3.target_local_pos_sp.pose.position.x = target_usv3_.x();
+    m_multi_vehicle_.usv3.target_local_pos_sp.pose.position.y = target_usv3_.y();
+    m_multi_vehicle_.usv3.target_local_pos_sp.pose.position.z = target_usv3_.z();
+
+    DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);
 }
 
 void MultiBoatControl::chooseLeader() {

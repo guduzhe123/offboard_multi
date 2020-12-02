@@ -114,6 +114,54 @@ void Calculate::getMeterScaleHere(double &meterPerLatUnit, double &meterPerLongt
 
 }
 
+float Calculate::get_bearing_to_next_waypoint(double lat_now, double lon_now, double lat_next, double lon_next)
+{
+    double lat_now_rad = lat_now * M_DEG_TO_RAD;
+    double lon_now_rad = lon_now * M_DEG_TO_RAD;
+    double lat_next_rad = lat_next * M_DEG_TO_RAD;
+    double lon_next_rad = lon_next * M_DEG_TO_RAD;
+
+    double d_lon = lon_next_rad - lon_now_rad;
+
+    /* conscious mix of double and float trig function to maximize speed and efficiency */
+    float theta = atan2f(sin(d_lon) * cos(lat_next_rad),
+                         cos(lat_now_rad) * sin(lat_next_rad) - sin(lat_now_rad) * cos(lat_next_rad) * cos(d_lon));
+
+    theta = wrap_pi(theta);
+
+    return theta;
+}
+
+float Calculate::wrap_pi(float bearing)
+{
+    /* value is inf or NaN */
+    if (!isfinite(bearing)) {
+        return bearing;
+    }
+
+    int c = 0;
+
+    while (bearing >= M_PI) {
+        bearing -= 2* M_PI;
+
+        if (c++ > 3) {
+            return NAN;
+        }
+    }
+
+    c = 0;
+
+    while (bearing < -M_PI) {
+        bearing += 2 * M_PI;
+
+        if (c++ > 3) {
+            return NAN;
+        }
+    }
+
+    return bearing;
+}
+
 void Calculate::quaternion_to_rpy(geometry_msgs::Quaternion orientation, double &roll, double &pitch, double &yaw) {
     /*Frame	|                     ROS	                                       | PX4
     Body	|FLU (X Forward, Y Left, Z Up), usually named base_link	           |FRD (X Forward, Y Right and Z Down)

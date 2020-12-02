@@ -60,6 +60,8 @@ public:
     void bodyFrame2LocalFrame(geometry_msgs::PoseStamped &body, geometry_msgs::PoseStamped &local, float yaw);
     void localFrame2BodyFrame(geometry_msgs::PoseStamped &body, geometry_msgs::PoseStamped &local, float yaw);
     TQuat EulerAngle2QuatNED(const float ned_yaw, const float ned_pitch, const float ned_roll);
+    float get_bearing_to_next_waypoint(double lat_now, double lon_now, double lat_next, double lon_next);
+    float wrap_pi(float bearing);
     static Calculate* getInstance();
 
 private:

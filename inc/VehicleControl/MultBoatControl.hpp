@@ -34,6 +34,11 @@ private:
 
     geometry_msgs::PoseStamped CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, TVec3 &formation_target);
 
+    void changeToLocalTarget();
+    void GetTakeoffPos();
+    void calcFollowUUVPos();
+    void SetFunctionOutPut();
+
     void USVManualControl();
     static MultiBoatControl* l_lint;
 
@@ -48,7 +53,13 @@ private:
     bool is_formation_;
     bool update_takeoff_;
     bool state_changed_;
+    float way_bear_;
+    TVec3 follow_usv1_, follow_usv2_, follow_usv3_;
 
+    GlobalPosition usv1_takeoff_gps_pos_, usv2_takeoff_gps_pos_, usv3_takeoff_gps_pos_, uuv1_takeoff_gps_pos_;
+    TVec3 follow_usv1_to_uuv1_, follow_usv2_to_uuv1_, follow_usv3_to_uuv1_;
+    TVec3 target_usv1_, target_usv2_, target_usv3_;
+    TVec3 follow_usv1_keep_local_, follow_usv2_keep_local_, follow_usv3_keep_local_;
     geometry_msgs::PoseStamped target_pos_;
     geometry_msgs::PoseStamped body_pos_;
     float init_yaw_;
