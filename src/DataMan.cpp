@@ -166,7 +166,7 @@ void DataMan::SetUAVState(mavros_msgs::SetMode &m_mode) {
     msg_config_->SetUAVState(m_mode);
 }
 
-void DataMan::SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) {
+void DataMan::SetUSVState(mavros_msgs::SetMode &arm_command, int usv_id) {
     msg_config_->SetUSVState(arm_command, usv_id);
 }
 

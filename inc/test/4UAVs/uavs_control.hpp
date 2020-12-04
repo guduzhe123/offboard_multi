@@ -27,7 +27,7 @@ public:
     void PublishBoatPosControl(const multi_vehicle &multi_vehicles) override ;
     void PublishUUVPosControl(const multi_vehicle &multi_vehicles) override;
     void SetUAVState(mavros_msgs::SetMode &m_mode) override ;
-    void SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) override ;
+    void SetUSVState(mavros_msgs::SetMode &arm_command, int usv_id) override ;
 
 private:
     uav1_ros_Manager::Ptr uav1_control_;

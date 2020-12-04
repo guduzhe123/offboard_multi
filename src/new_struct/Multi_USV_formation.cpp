@@ -155,7 +155,7 @@ void MultiUSVFormation::OnCheckFormationArrived() {
         usv3_reached_ = true;
 
         arm_cmd.request.value = false;
-        DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv1.drone_id);
+//        DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv1.drone_id);
     }
 
     if (pos_reached(m_multi_vehicle_.usv2.current_local_pos, m_multi_vehicle_.usv2.target_local_pos_sp, usv_position_allow_reached_)) {

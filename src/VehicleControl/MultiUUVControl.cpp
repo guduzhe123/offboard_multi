@@ -41,7 +41,7 @@ void MultiUUVControl::DoProgress() {
                 util_log("leader uuv armed = %d", m_multi_vehicle_.leader_uuv.current_state.armed);
                 if (!m_multi_vehicle_.leader_uuv.current_state.armed) {
                     arm_cmd.request.value = true;
-                    DataMan::getInstance()->SetUSVState(arm_cmd, 0);
+//                    DataMan::getInstance()->SetUSVState(arm_cmd, 0);
                     setVehicleCtrlData(); // keep leader usv offboard
                     init_yaw_ = (float)m_multi_vehicle_.usv1.yaw * M_PI / 180.0f;
                     return;
@@ -86,7 +86,7 @@ void MultiUUVControl::DoProgress() {
                     if (pos_reached(m_multi_vehicle_.uuv1.current_local_pos, target_pos_, usv_position_allow_reached_)) {
                         arm_cmd.request.value = false;
                         uuv1_reached_ = true;
-                        DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv1.drone_id);
+//                        DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv1.drone_id);
                         util_log("uuv1 disarm at one point");
                     }
 
@@ -115,7 +115,7 @@ void MultiUUVControl::DoProgress() {
             case UUV_DISARM:
                 // disarm all.
                 arm_cmd.request.value = false;
-                DataMan::getInstance()->SetUSVState(arm_cmd, 0);
+//                DataMan::getInstance()->SetUSVState(arm_cmd, 0);
                 util_log("Disarm all usv");
                 break;
 

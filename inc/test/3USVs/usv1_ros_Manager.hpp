@@ -17,7 +17,7 @@ public:
 
     void usvOnInit(ros::NodeHandle &nh);
     void usvPosSp(const DroneControl& droneControl);
-    void usvCallService(mavros_msgs::CommandBool &m_mode);
+    void usvCallService(mavros_msgs::SetMode &m_mode);
     typedef shared_ptr<usv1_ros_Manager> Ptr;
 
 private:
@@ -54,6 +54,7 @@ private:
     int arm_i_;
     bool is_arm_;
     bool is_offboard_;
+    bool is_offboard_called_;
     bool is_takeoff_;
     bool is_land_;
     bool is_speed_ctrl_;

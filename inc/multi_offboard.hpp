@@ -79,7 +79,7 @@ public:
     void PublishBoatPosControl(const multi_vehicle &multi_vehicles) override;
     void PublishUUVPosControl(const multi_vehicle &multi_vehicles) override;
     void SetUAVState(mavros_msgs::SetMode &m_mode) override ;
-    void SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) override;
+    void SetUSVState(mavros_msgs::SetMode &arm_command, int usv_id) override;
 
     static  MultiOffboard* getInstance();
 

@@ -8,6 +8,7 @@ usv1_ros_Manager::usv1_ros_Manager() :
         arm_i_(5),
         is_arm_(false),
         is_offboard_(false),
+        is_offboard_called_(false),
         is_takeoff_(false),
         is_land_(false),
         home_pos_updated_(false)
@@ -203,8 +204,19 @@ void usv1_ros_Manager::homePositionCB(const mavros_msgs::HomePosition::ConstPtr&
     util_log("usv1 home position lat = %.8f, lon = %.8f", msg->geo.latitude, msg->geo.longitude);
 }
 
-void usv1_ros_Manager::usvCallService(mavros_msgs::CommandBool &m_mode) {
-    util_log("usv1 call for arm mode = %d", m_mode);
+void usv1_ros_Manager::usvCallService(mavros_msgs::SetMode &m_mode) {
+
+    if (current_state.mode != "OFFBOARD" && !is_offboard_called_) {
+        static int offboard_j;
+        for (offboard_j = 10; ros::ok() && offboard_j > 0; --offboard_j) {
+            if (set_mode_client.call(m_mode) &&
+                m_mode.response.mode_sent) {
+                util_log("usv1 called Offboard enabled");
+                is_offboard_called_ = true;
+            }
+        }
+    }
+
 //    arming_client.call(m_mode);
 }
 

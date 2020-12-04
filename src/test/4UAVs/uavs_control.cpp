@@ -91,7 +91,7 @@ void uavs_control::SetUAVState(mavros_msgs::SetMode &m_mode) {
     uav4_control_->uavCallService(m_mode);
 }
 
-void uavs_control::SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id) {
+void uavs_control::SetUSVState(mavros_msgs::SetMode &arm_command, int usv_id) {
 
 }
 

@@ -58,7 +58,7 @@ public:
 
     void SetUAVState(mavros_msgs::SetMode &m_mode);
 
-    void SetUSVState(mavros_msgs::CommandBool &arm_command, int usv_id);
+    void SetUSVState(mavros_msgs::SetMode &arm_command, int usv_id);
 
     void SetUAVLeader(M_Drone &leader_uav);
 
