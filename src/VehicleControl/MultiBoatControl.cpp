@@ -198,9 +198,9 @@ void MultiBoatControl::DoProgress() {
 
             case USV_FOLLOW_UUV_FORMATION: {
                 geometry_msgs::PoseStamped local_usv1, local_usv2, local_usv3;
-                follow_usv1_ = TVec3(0, -15, m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
-                follow_usv2_ = TVec3(0, 15,  m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
-                follow_usv3_ = TVec3(-15, 0 , m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
+                follow_usv1_ = TVec3(0, -1.5* K_multi_usv_formation_distance, m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
+                follow_usv2_ = TVec3(0, 1.5*K_multi_usv_formation_distance,  m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
+                follow_usv3_ = TVec3(-1.5*K_multi_usv_formation_distance, 0 , m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
 
                 GetTakeoffPos();
                 changeToLocalTarget();
