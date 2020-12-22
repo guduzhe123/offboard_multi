@@ -1,6 +1,6 @@
 <launch>
     <node pkg="rosbag" type="play" name="rosbag" required="true"
-          args="/home/zhouhua/log/real_flight/multi_data_2020-12-06-15-29-50_0.bag"/>
+          args="/home/zhouhua/log/real_flight/20201215/multi_data_2020-12-15-14-04-17_0.bag"/>
           <!--args="-r 5 /home/eric/Desktop/DemarkDemoRosbag/data_big_2018-10-12-18-55-40_0.bag"/>-->
 
     <node name="extract" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen"
