@@ -32,6 +32,7 @@
 #include <boost/thread/thread.hpp>
 #include "pid.hpp"
 #include "offboard/DronePosUpdate.h"
+#include <visualization_msgs/Marker.h>
 using namespace std;
 
 typedef Eigen::Vector2f TVec2;

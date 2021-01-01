@@ -49,14 +49,17 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("drone/PosUpDate", 100);
     home_pos_pub = nh.advertise<mavros_msgs::HomePosition>
             ("mavros/home_position/home", 100);
+    marker_target_pub_ = nh.advertise<visualization_msgs::Marker>("target_point", 100);
+    heading_vec_ = nh.advertise<visualization_msgs::Marker>("heading_vis", 100); // mark
+    marker_cur_pos_ = nh.advertise<visualization_msgs::Marker>("cur_pos", 100); // mark
 
     arming_client = nh.serviceClient<mavros_msgs::CommandBool>
             ("mavros/cmd/arming");
     set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
             ("mavros/set_mode");
-    exec_timer_ = nh.createTimer(ros::Duration(0.01), &usv1_ros_Manager::drone_pos_update, this);
-    commander_timer_ = nh.createTimer(ros::Duration(0.01), &usv1_ros_Manager::commander_update, this);
-    publish_timer_ = nh.createTimer(ros::Duration(0.01), &usv1_ros_Manager::publishDronePosControl, this);
+    exec_timer_ = nh.createTimer(ros::Duration(0.05), &usv1_ros_Manager::drone_pos_update, this);
+    commander_timer_ = nh.createTimer(ros::Duration(0.05), &usv1_ros_Manager::commander_update, this);
+    publish_timer_ = nh.createTimer(ros::Duration(0.05), &usv1_ros_Manager::publishDronePosControl, this);
 }
 
 void usv1_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {
@@ -90,7 +93,18 @@ void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
 //    usv_.yaw = dronepos_.m_heading;
     usv_.yaw = current_vfr_hud.heading;
     util_log("usv1 heading = %.2f, usv_.yaw = %d", dronepos_.m_heading, usv_.yaw);
-    
+
+    geometry_msgs::Point p;
+    p.x = usv_.current_local_pos.pose.position.x;
+    p.y = usv_.current_local_pos.pose.position.y;
+    p.z = usv_.current_local_pos.pose.position.z;
+    TVec4 color = TVec4{1, 0.1, 1, 1};
+
+    TVec3 dir(cos((current_vfr_hud.heading + 90) * M_PI / 180), sin((current_vfr_hud.heading + 90) * M_PI / 180), 0.0);
+    TVec3 pos = TVec3{p.x, p.y, p.z};
+    DrawTrajCommand(pos, 2 * dir, color);
+
+    poublisMarker(p, color, marker_cur_pos_);
 }
 
 void usv1_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
@@ -178,7 +192,75 @@ void usv1_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
         g_speed_control_pub.publish(vel_ctrl_sp_);
     } else {
         local_pos_pub.publish(target_local_pos_sp_);
+
+        geometry_msgs::Point p;
+        p.x = target_local_pos_sp_.pose.position.x;
+        p.y = target_local_pos_sp_.pose.position.y;
+        p.z = target_local_pos_sp_.pose.position.z;
+        TVec4 color = TVec4{0.1, 1, 1, 1};
+        util_log("draw usv1 target pos = %.2f, %.2f, %.2f", p.x, p.y, p.z);
+        poublisMarker(p, color, marker_target_pub_);
     }
+}
+
+void
+usv1_ros_Manager::poublisMarker(const geometry_msgs::Point &p, const TVec4 &color, const ros::Publisher &publisher) {
+    visualization_msgs::Marker target_marker;
+    target_marker.header.frame_id = "world";
+    target_marker.header.stamp =ros::Time::now();
+    target_marker.ns = "points_and_lines";
+    target_marker.action = visualization_msgs::Marker::ADD;
+    target_marker.pose.orientation.w = 1.0;
+    target_marker.id = 1;
+    target_marker.type = visualization_msgs::Marker::SPHERE;
+    publisher.publish(target_marker);
+
+    // LINE_STRIP/LINE_LIST markers use only the x component of scale, for the line width
+    target_marker.scale.x = 1;
+    target_marker.scale.y = 1;
+    target_marker.scale.z = 1;
+    // Line strip is blue
+    target_marker.color.a = color(1);
+    target_marker.color.b = color(2);
+    target_marker.color.g = color(3);
+    target_marker.pose.position.x = p.x;
+    target_marker.pose.position.y = p.y;
+    target_marker.pose.position.z = p.z;
+    target_marker.points.push_back(p);
+
+    publisher.publish(target_marker);
+}
+
+void usv1_ros_Manager::DrawTrajCommand(const TVec3 &pos, const TVec3 &vec, const TVec4 &color) {
+    visualization_msgs::Marker mk_state;
+    mk_state.header.frame_id = "world";
+    mk_state.header.stamp = ros::Time::now();
+    mk_state.id = 1;
+    mk_state.type = visualization_msgs::Marker::ARROW;
+    mk_state.action = visualization_msgs::Marker::ADD;
+
+    mk_state.pose.orientation.w = 1.0;
+    mk_state.scale.x = 0.2;
+    mk_state.scale.y = 0.4;
+    mk_state.scale.z = 1;
+
+    geometry_msgs::Point pt;
+    pt.x = pos(0);
+    pt.y = pos(1);
+    pt.z = pos(2);
+    mk_state.points.push_back(pt);
+
+    pt.x = pos(0) + 2 *vec(0);
+    pt.y = pos(1) + 2 *vec(1);
+    pt.z = pos(2) + 2 *vec(2);
+    mk_state.points.push_back(pt);
+
+    mk_state.color.r = color(0);
+    mk_state.color.g = color(1);
+    mk_state.color.b = color(2);
+    mk_state.color.a = color(3);
+
+    heading_vec_.publish(mk_state);
 }
 
 void usv1_ros_Manager::usvPosSp(const DroneControl& droneControl) {

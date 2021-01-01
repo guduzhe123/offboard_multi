@@ -50,9 +50,9 @@ void usv2_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/cmd/arming");
     set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
             ("mavros/set_mode");
-    exec_timer_ = nh.createTimer(ros::Duration(0.01), &usv2_ros_Manager::drone_pos_update, this);
-    commander_timer_ = nh.createTimer(ros::Duration(0.01), &usv2_ros_Manager::commander_update, this);
-    publish_timer_ = nh.createTimer(ros::Duration(0.01), &usv2_ros_Manager::publishDronePosControl, this);
+    exec_timer_ = nh.createTimer(ros::Duration(0.05), &usv2_ros_Manager::drone_pos_update, this);
+    commander_timer_ = nh.createTimer(ros::Duration(0.05), &usv2_ros_Manager::commander_update, this);
+    publish_timer_ = nh.createTimer(ros::Duration(0.05), &usv2_ros_Manager::publishDronePosControl, this);
 }
 
 void usv2_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {

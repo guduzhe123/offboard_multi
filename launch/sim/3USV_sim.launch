@@ -12,4 +12,5 @@
         <param name="danger_distance" value="$(arg danger_distance)" type="double"/>
     </node>
     <include file="$(find offboard)/launch/rosbag_log.launch"/>
+    <include file="$(find offboard)/launch/rviz.launch"/>
 </launch>
