@@ -98,13 +98,12 @@ void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     p.x = usv_.current_local_pos.pose.position.x;
     p.y = usv_.current_local_pos.pose.position.y;
     p.z = usv_.current_local_pos.pose.position.z;
-    TVec4 color = TVec4{1, 0.1, 1, 1};
 
     TVec3 dir(cos((current_vfr_hud.heading + 90) * M_PI / 180), sin((current_vfr_hud.heading + 90) * M_PI / 180), 0.0);
     TVec3 pos = TVec3{p.x, p.y, p.z};
-    DrawTrajCommand(pos, 2 * dir, color);
+    DrawTrajCommand(pos, 2 * dir, usv1_color_);
 
-    poublisMarker(p, color, marker_cur_pos_);
+    poublisMarker(p, usv1_color_, marker_cur_pos_);
 }
 
 void usv1_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
@@ -197,9 +196,8 @@ void usv1_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
         p.x = target_local_pos_sp_.pose.position.x;
         p.y = target_local_pos_sp_.pose.position.y;
         p.z = target_local_pos_sp_.pose.position.z;
-        TVec4 color = TVec4{0.1, 1, 1, 1};
         util_log("draw usv1 target pos = %.2f, %.2f, %.2f", p.x, p.y, p.z);
-        poublisMarker(p, color, marker_target_pub_);
+        poublisMarker(p, usv1_color_, marker_target_pub_);
     }
 }
 
@@ -220,9 +218,10 @@ usv1_ros_Manager::poublisMarker(const geometry_msgs::Point &p, const TVec4 &colo
     target_marker.scale.y = 1;
     target_marker.scale.z = 1;
     // Line strip is blue
-    target_marker.color.a = color(1);
+    target_marker.color.r = color(0);
+    target_marker.color.g = color(1);
     target_marker.color.b = color(2);
-    target_marker.color.g = color(3);
+    target_marker.color.a = color(3);
     target_marker.pose.position.x = p.x;
     target_marker.pose.position.y = p.y;
     target_marker.pose.position.z = p.z;

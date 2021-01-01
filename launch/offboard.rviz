@@ -13,6 +13,9 @@ Panels:
         - /usv11/cur_pos1
         - /usv11/heading1
         - /usv21
+        - /usv21/cur_pos1
+        - /usv21/target_pos1
+        - /usv21/heading1
       Splitter Ratio: 0.587570608
     Tree Height: 674
   - Class: rviz/Selection
@@ -342,7 +345,7 @@ Visualization Manager:
           Marker Topic: /usv1/target_point
           Name: target_pos
           Namespaces:
-            points_and_lines: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -350,7 +353,7 @@ Visualization Manager:
           Marker Topic: /usv1/cur_pos
           Name: cur_pos
           Namespaces:
-            points_and_lines: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -358,7 +361,7 @@ Visualization Manager:
           Marker Topic: /usv1/heading_vis
           Name: heading
           Namespaces:
-            "": true
+            {}
           Queue Size: 100
           Value: true
       Enabled: true
@@ -366,23 +369,59 @@ Visualization Manager:
     - Class: rviz/Group
       Displays:
         - Class: rviz/Marker
-          Enabled: false
-          Marker Topic: /dynamic/obj
+          Enabled: true
+          Marker Topic: /usv2/cur_pos
           Name: cur_pos
           Namespaces:
             {}
           Queue Size: 100
-          Value: false
+          Value: true
         - Class: rviz/Marker
           Enabled: true
-          Marker Topic: /planning_vis/prediction
+          Marker Topic: /usv2/target_point
           Name: target_pos
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+        - Class: rviz/Marker
+          Enabled: true
+          Marker Topic: /usv2/heading_vis
+          Name: heading
           Namespaces:
             {}
           Queue Size: 100
           Value: true
       Enabled: true
       Name: usv2
+    - Class: rviz/Group
+      Displays:
+        - Class: rviz/Marker
+          Enabled: true
+          Marker Topic: /usv3/cur_pos
+          Name: cur_pos
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+        - Class: rviz/Marker
+          Enabled: true
+          Marker Topic: /usv3/target_point
+          Name: target_pos
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+        - Class: rviz/Marker
+          Enabled: true
+          Marker Topic: /usv3/heading_vis
+          Name: heading
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+      Enabled: true
+      Name: usv3
     - Class: rviz/Image
       Enabled: false
       Image Topic: /pcl_render_node/depth
@@ -462,10 +501,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 1.01979661
+      Pitch: 0.699796617
       Target Frame: <Fixed Frame>
       Value: ThirdPersonFollower (rviz)
-      Yaw: 5.32948017
+      Yaw: 4.3394804
     Saved:
       - Class: rviz/ThirdPersonFollower
         Distance: 17.4853859
