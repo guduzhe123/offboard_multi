@@ -36,7 +36,7 @@ void MultiUSVFormation::Oninit(const int config) {
             Drone_usv2_ = TVec3(-K_multi_usv_formation_distance, -K_multi_usv_formation_distance , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
             Drone_usv3_ = TVec3(K_multi_usv_formation_distance, -K_multi_usv_formation_distance , m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
 
-//            changeToLocalTarget();
+            changeToLocalTarget();
             calcFollowUSVPos();
         }
             break;
@@ -192,6 +192,8 @@ MultiUSVFormation::pos_reached(geometry_msgs::PoseStamped &current_pos, geometry
 }
 
 void MultiUSVFormation::GetTakeoffPos() {
+    util_log("m_multi_vehicle_.usv1.drone_id = %d, usv1.homePosition.geo.latitude = %.6f", m_multi_vehicle_.usv1.drone_id,
+             m_multi_vehicle_.usv1.homePosition.geo.latitude);
     if (m_multi_vehicle_.usv1.drone_id != 0 && m_multi_vehicle_.usv1.homePosition.geo.latitude != 0) {
 
         usv1_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv1.homePosition.geo.latitude,
@@ -213,10 +215,10 @@ void MultiUSVFormation::GetTakeoffPos() {
 
 void MultiUSVFormation::DoProgress() {
     GetTakeoffPos();
-/*    if (!config_ && !is_formation_) {
+    if (!config_ && !is_formation_) {
         changeToLocalTarget();
         calcFollowUSVPos();
-    }*/
+    }
 
     OnCheckFormationArrived();
     SetFunctionOutPut();

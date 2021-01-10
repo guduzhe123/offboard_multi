@@ -270,6 +270,12 @@ void usv1_ros_Manager::usvPosSp(const DroneControl& droneControl) {
     target_heading_ = droneControl.target_heading;
     vel_ctrl_sp_ = droneControl.g_vel_sp;
     yaw_rate_ = droneControl.yaw_rate;
+    TVec3 cur_target_err;
+    cur_target_err.x() = target_local_pos_sp_.pose.position.x - usv_.current_local_pos.pose.position.x;
+    cur_target_err.y() = target_local_pos_sp_.pose.position.y - usv_.current_local_pos.pose.position.y;
+    cur_target_err.z() = target_local_pos_sp_.pose.position.z - usv_.current_local_pos.pose.position.z;
+    float len = cur_target_err.norm();
+    util_log("usv1 target and current local pos error = %.2f", len);
 }
 
 void usv1_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg) {

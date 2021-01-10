@@ -32,8 +32,8 @@ void usv3_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/mission/waypoints", 10, &usv3_ros_Manager::wayPointCB, this);
     homePos_sub = nh.subscribe<mavros_msgs::HomePosition>
             ("mavros/home_position/home", 10, &usv3_ros_Manager::homePositionCB, this);
-    usv1_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
-            ("/usv1/mavros/global_position/global", 10, &usv3_ros_Manager::usv1_local_pos_cb, this);
+    usv1_pos_sub = nh.subscribe<mavros_msgs::HomePosition>
+            ("/usv1/mavros/home_position/home", 10, &usv3_ros_Manager::usv1_home_pos_cb, this);
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
             ("mavros/setpoint_position/local", 100);
@@ -56,9 +56,9 @@ void usv3_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
     set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
             ("mavros/set_mode");
 
-    exec_timer_ = nh.createTimer(ros::Duration(0.01), &usv3_ros_Manager::drone_pos_update, this);
-    commander_timer_ = nh.createTimer(ros::Duration(0.01), &usv3_ros_Manager::commander_update, this);
-    publish_timer_ = nh.createTimer(ros::Duration(0.01), &usv3_ros_Manager::publishDronePosControl, this);
+    exec_timer_ = nh.createTimer(ros::Duration(0.05), &usv3_ros_Manager::drone_pos_update, this);
+    commander_timer_ = nh.createTimer(ros::Duration(0.05), &usv3_ros_Manager::commander_update, this);
+    publish_timer_ = nh.createTimer(ros::Duration(0.05), &usv3_ros_Manager::publishDronePosControl, this);
 }
 
 void usv3_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {
@@ -90,33 +90,22 @@ void usv3_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
 //    uav_.yaw = dronepos_.m_heading;
     uav_.yaw = current_vfr_hud.heading;
     util_log("usv3 heading = %.2f, uav_.yaw = %d", dronepos_.m_heading, uav_.yaw);
+
+    geometry_msgs::Point p;
+    p.x = uav_.current_local_pos.pose.position.x - follow_leader_offset.x();
+    p.y = uav_.current_local_pos.pose.position.y - follow_leader_offset.y();
+    p.z = uav_.current_local_pos.pose.position.z;
+
+    TVec3 dir(cos((current_vfr_hud.heading + 90) * M_PI / 180), sin((current_vfr_hud.heading + 90) * M_PI / 180),
+              0.0);
+    TVec3 pos = TVec3{p.x, p.y, p.z};
+    DrawTrajCommand(pos, 2 * dir, usv3_color_);
+    poublisMarker(p, usv3_color_, marker_cur_pos_);
 }
 
 
-void usv3_ros_Manager::usv1_local_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg) {
-    usv1_current_local_pos_ = *msg;
-    if (uav_.longtitude > 0.08) {
-        GlobalPosition loc_usv1, loc_usv2;
-        loc_usv1.longitude = usv1_current_local_pos_.longitude;
-        loc_usv1.latitude = usv1_current_local_pos_.latitude;
-        loc_usv2.longitude = uav_.longtitude;
-        loc_usv2.latitude = uav_.latitude;
-        TVec3 follow_leader_offset;
-        Calculate::getInstance()->GetLocalPos(loc_usv1, loc_usv2, follow_leader_offset);
-        util_log("usv3 follow usv1 local offset = (%.2f, %.2f, %.2f)", follow_leader_offset.x(), follow_leader_offset.y(),
-                 follow_leader_offset.z());
-
-        geometry_msgs::Point p;
-        p.x = uav_.current_local_pos.pose.position.x - follow_leader_offset.x();
-        p.y = uav_.current_local_pos.pose.position.y - follow_leader_offset.y();
-        p.z = uav_.current_local_pos.pose.position.z;
-
-        TVec3 dir(cos((current_vfr_hud.heading + 90) * M_PI / 180), sin((current_vfr_hud.heading + 90) * M_PI / 180),
-                  0.0);
-        TVec3 pos = TVec3{p.x, p.y, p.z};
-        DrawTrajCommand(pos, 2 * dir, usv3_color_);
-        poublisMarker(p, usv3_color_, marker_cur_pos_);
-    }
+void usv3_ros_Manager::usv1_home_pos_cb(const mavros_msgs::HomePosition::ConstPtr& msg) {
+    usv1_home_pos_ = *msg;
 }
 
 void
@@ -268,7 +257,12 @@ void usv3_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
         p.x = target_local_pos_sp_.pose.position.x - follow_leader_offset.x();
         p.y = target_local_pos_sp_.pose.position.y - follow_leader_offset.y();
         p.z = target_local_pos_sp_.pose.position.z;
-        util_log("draw usv1 target pos = %.2f, %.2f, %.2f", p.x, p.y, p.z);
+        util_log("draw usv3 target pos = %.2f, %.2f, %.2f", p.x, p.y, p.z);
+        util_log("draw usv3 target pos local = %.2f, %.2f, %.2f", target_local_pos_sp_.pose.position.x,
+                 target_local_pos_sp_.pose.position.y, target_local_pos_sp_.pose.position.z);
+        util_log("draw usv3 follow_leader_offset = %.2f, %.2f, %.2f", follow_leader_offset.x(), follow_leader_offset.y(),
+                 follow_leader_offset.z());
+
         poublisMarker(p, usv3_color_, marker_target_pub_);
     }
 }
@@ -279,6 +273,12 @@ void usv3_ros_Manager::usvPosSp(const DroneControl& droneControl) {
     target_heading_ = droneControl.target_heading;
     vel_ctrl_sp_ = droneControl.g_vel_sp;
     yaw_rate_ = droneControl.yaw_rate;
+    TVec3 cur_target_err;
+    cur_target_err.x() = target_local_pos_sp_.pose.position.x - uav_.current_local_pos.pose.position.x;
+    cur_target_err.y() = target_local_pos_sp_.pose.position.y - uav_.current_local_pos.pose.position.y;
+    cur_target_err.z() = target_local_pos_sp_.pose.position.z - uav_.current_local_pos.pose.position.z;
+    float len = cur_target_err.norm();
+    util_log("usv3 target and current local pos error = %.2f", len);
 }
 
 void usv3_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg) {
@@ -288,6 +288,17 @@ void usv3_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg
 void usv3_ros_Manager::homePositionCB(const mavros_msgs::HomePosition::ConstPtr& msg){
     uav_.homePosition = *msg;
     util_log("usv3 home position lat = %.8f, lon = %.8f", msg->geo.latitude, msg->geo.longitude);
+    if (usv1_home_pos_.geo.longitude > 0.08) {
+        GlobalPosition loc_usv1, loc_usv2;
+        loc_usv1.longitude = usv1_home_pos_.geo.longitude;
+        loc_usv1.latitude = usv1_home_pos_.geo.latitude;
+        loc_usv2.longitude = uav_.homePosition.geo.longitude;
+        loc_usv2.latitude = uav_.homePosition.geo.latitude;
+//        TVec3 follow_leader_offset;
+        Calculate::getInstance()->GetLocalPos(loc_usv1, loc_usv2, follow_leader_offset);
+        util_log("usv3 follow usv1 local offset = (%.2f, %.2f, %.2f)", follow_leader_offset.x(), follow_leader_offset.y(),
+                 follow_leader_offset.z());
+    }
 }
 void usv3_ros_Manager::usvCallService(mavros_msgs::CommandBool &m_mode) {
     util_log("usv3 call for arm mode = %d", m_mode);

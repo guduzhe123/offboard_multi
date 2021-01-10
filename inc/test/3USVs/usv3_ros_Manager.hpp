@@ -29,7 +29,7 @@ private:
     void debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg);
     void wayPointCB(const mavros_msgs::WaypointList::ConstPtr& msg);
     void homePositionCB(const mavros_msgs::HomePosition::ConstPtr& msg);
-    void usv1_local_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg);
+    void usv1_home_pos_cb(const mavros_msgs::HomePosition::ConstPtr& msg);
 
     void poublisMarker(const geometry_msgs::Point &p, const TVec4 &color, const ros::Publisher &publisher);
     void DrawTrajCommand(const TVec3 &pos, const TVec3 &vec, const TVec4 &color);
@@ -53,7 +53,7 @@ private:
     geometry_msgs::PoseStamped target_local_pos_sp_;
     offboard::DronePosUpdate dronepos_;
     geometry_msgs::TwistStamped vel_ctrl_sp_;
-    sensor_msgs::NavSatFix usv1_current_local_pos_;
+    mavros_msgs::HomePosition usv1_home_pos_;
 
     int arm_i_;
     bool is_arm_;
