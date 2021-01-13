@@ -93,7 +93,7 @@ void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     dronepos_.m_pitch = pitch * 180 / M_PI;
     dronePosPub.publish(dronepos_);
 //    usv_.yaw = dronepos_.m_heading;
-    usv_.yaw = current_vfr_hud.heading;
+//    usv_.yaw = current_vfr_hud.heading;
     util_log("vir_hub usv1 heading = %.2f, usv_.yaw = %d", dronepos_.m_heading, usv_.yaw);
 
 }
@@ -103,9 +103,19 @@ void usv1_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
     Calculate::getInstance()->quaternion_to_rpy(msg->orientation, r, p, y);
     static int i = 0;
     if (i++ % 10 == 0) {
-        usv_.yaw = Calculate::getInstance()->dgrIn180s(static_cast<float>(Calculate::getInstance()->rad2deg(y) - 90));//??? Todo
+        usv_.yaw = Calculate::getInstance()->dgrIn180s(static_cast<float>(Calculate::getInstance()->rad2deg(y) /*- 90*/));//??? Todo
         util_log("IMU usv1 heading = %.2f, usv_.yaw = %d", dronepos_.m_heading, usv_.yaw);
     }
+
+    geometry_msgs::Point pnt;
+    pnt.x = usv_.current_local_pos.pose.position.x;
+    pnt.y = usv_.current_local_pos.pose.position.y;
+    pnt.z = usv_.current_local_pos.pose.position.z;
+
+    TVec3 dir(cos(usv_.yaw * M_PI / 180), sin(usv_.yaw * M_PI / 180), 0.0);
+    TVec3 pos = TVec3{pnt.x, pnt.y, pnt.z};
+    DrawTrajCommand(pos, 2 * dir, usv1_color_);
+    poublisMarker(pnt, usv1_color_, marker_cur_pos_);
 }
 
 void usv1_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {

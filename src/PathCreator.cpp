@@ -52,23 +52,23 @@ void PathCreator::usv_add_way_points(vector<geometry_msgs::PoseStamped> &usv_way
     geometry_msgs::PoseStamped way_point;
 
     way_point.pose.position.x = 0;
-    way_point.pose.position.y = 20;
+    way_point.pose.position.y = 5;
     way_point.pose.position.z = 0;
     usv_way_points.push_back(way_point);
 
-    way_point.pose.position.x = -30;
+    way_point.pose.position.x = -20;
+    way_point.pose.position.y = 10;
+    way_point.pose.position.z = 0;
+    usv_way_points.push_back(way_point);
+
+
+    way_point.pose.position.x = -20;
     way_point.pose.position.y = 30;
     way_point.pose.position.z = 0;
     usv_way_points.push_back(way_point);
 
-
-    way_point.pose.position.x = -50;
-    way_point.pose.position.y = 50;
-    way_point.pose.position.z = 0;
-    usv_way_points.push_back(way_point);
-
-    way_point.pose.position.x = 100;
-    way_point.pose.position.y = 100;
+    way_point.pose.position.x = -20;
+    way_point.pose.position.y = 10;
     way_point.pose.position.z = 0;
     usv_way_points.push_back(way_point);
 

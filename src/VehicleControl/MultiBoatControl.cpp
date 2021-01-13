@@ -9,7 +9,10 @@ MultiBoatControl::MultiBoatControl() :
         usv_state_(USV_INIT),
         is_formation_(false),
         update_takeoff_(false),
-        state_changed_(false){
+        state_changed_(false),
+        usv1_reached_(false),
+        usv2_reached_(false),
+        usv3_reached_(false){
 
 }
 
@@ -93,25 +96,26 @@ void MultiBoatControl::DoProgress() {
                     if (pos_reached(m_multi_vehicle_.usv1.current_local_pos, target_pos_,
                                     usv_position_allow_reached_)) {
                         usv1_reached_ = true;
-                        arm_cmd.request.value = false;
-//                        DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv1.drone_id);
                         util_log("usv1 disarm at one point");
+                    } else {
+                        usv1_reached_ = false;
                     }
                     if (pos_reached(m_multi_vehicle_.usv2.current_local_pos, m_multi_vehicle_.usv2.target_local_pos_sp,
                                     usv_position_allow_reached_)) {
                         usv2_reached_ = true;
-                        arm_cmd.request.value = false;
-//                        DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv2.drone_id);
                         util_log("usv2 disarm at one point");
+                    } else {
+                        usv2_reached_ = false;
                     }
                     if (pos_reached(m_multi_vehicle_.usv3.current_local_pos, m_multi_vehicle_.usv3.target_local_pos_sp,
                                     usv_position_allow_reached_)) {
                         usv3_reached_ = true;
-                        arm_cmd.request.value = false;
-//                        DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv3.drone_id);
                         util_log("usv3 disarm at one point");
+                    } else {
+                        usv3_reached_ = false;
                     }
 
+                    util_log("usv1_reached_ = %d, usv2_reached_ = %d, usv3_reached_ = %d", usv1_reached_, usv2_reached_ ,usv3_reached_);
                     if (usv1_reached_ && usv2_reached_ && usv3_reached_) {
                         util_log("Finished one way point = (%.2f, %.2f, %.2f)",
                                  usv_way_points_.back().pose.position.x, usv_way_points_.back().pose.position.y,

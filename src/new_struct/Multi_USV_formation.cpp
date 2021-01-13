@@ -104,8 +104,8 @@ void MultiUSVFormation::changeToLocalTarget() {
     body_usv3.pose.position.y = Drone_usv3_.y();
     body_usv3.pose.position.z = Drone_usv3_.z();
 
-    Calculate::getInstance()->bodyFrame2LocalFrame(body_usv2, local_usv2, m_multi_vehicle_.usv1.yaw * M_PI / 180.0);
-    Calculate::getInstance()->bodyFrame2LocalFrame(body_usv3, local_usv3, m_multi_vehicle_.usv1.yaw * M_PI / 180.0);
+    Calculate::getInstance()->bodyFrame2LocalFrame(body_usv2, local_usv2, (m_multi_vehicle_.usv1.yaw - 90) * M_PI / 180.0);
+    Calculate::getInstance()->bodyFrame2LocalFrame(body_usv3, local_usv3, (m_multi_vehicle_.usv1.yaw - 90) * M_PI / 180.0);
 
     Drone_usv2_.x() = local_usv2.pose.position.x;
     Drone_usv2_.y() = local_usv2.pose.position.y;
