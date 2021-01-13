@@ -30,6 +30,7 @@
 #include <mavros_msgs/WaypointReached.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
+#include <sensor_msgs/Imu.h>
 #include "pid.hpp"
 #include "offboard/DronePosUpdate.h"
 #include <visualization_msgs/Marker.h>

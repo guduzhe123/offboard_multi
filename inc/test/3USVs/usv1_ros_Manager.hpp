@@ -32,13 +32,14 @@ private:
     void homePositionCB(const mavros_msgs::HomePosition::ConstPtr& msg);
     void poublisMarker(const geometry_msgs::Point &p, const TVec4 &color, const ros::Publisher &publisher);
     void DrawTrajCommand(const TVec3 &pos, const TVec3 &vec, const TVec4 &color);
-
+    void imuCB(const sensor_msgs::Imu::ConstPtr& msg);
+    
     void drone_pos_update(const ros::TimerEvent& e);
     void commander_update(const ros::TimerEvent& e);
     void publishDronePosControl(const ros::TimerEvent& e);
 
     ros::Subscriber state_sub, vfr_hud_sub, local_position_sub, mavlink_from_sub, global_pos_sub, commander_sub, way_point_sub, homePos_sub,
-            way_point_reached_sub;
+            way_point_reached_sub, imu_sub;
     ros::Publisher local_pos_pub, gps_global_pos_pub, global_pos_pub, g_speed_control_pub, dronePosPub,
                     home_pos_pub, marker_target_pub_, heading_vec_, marker_cur_pos_;
     ros::ServiceClient arming_client, set_mode_client;
