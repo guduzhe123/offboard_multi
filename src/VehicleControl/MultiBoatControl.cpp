@@ -32,6 +32,7 @@ void MultiBoatControl::onInit(vector<geometry_msgs::PoseStamped> way_points, boo
 void MultiBoatControl::getData() {
     m_multi_vehicle_ = DataMan::getInstance()->GetData();
     is_formation_ = m_multi_vehicle_.leader_usv.is_formation;
+    config_ = m_multi_vehicle_.user_command;
     if (m_multi_vehicle_.user_command == VF_USV_CIRCLE && !state_changed_) {
         usv_state_ = USV_CIRCLE_INIT;
     }
@@ -94,25 +95,25 @@ void MultiBoatControl::DoProgress() {
 //                    Calculate::getInstance()->bodyFrame2LocalFrame(body_pos_, target_pos_,init_yaw_);
 
                     if (pos_reached(m_multi_vehicle_.usv1.current_local_pos, target_pos_,
-                                    usv_position_allow_reached_)) {
+                                    usv_position_allow_reached_) && !usv1_reached_) {
                         usv1_reached_ = true;
                         util_log("usv1 disarm at one point");
-                    } else {
-                        usv1_reached_ = false;
                     }
-                    if (pos_reached(m_multi_vehicle_.usv2.current_local_pos, m_multi_vehicle_.usv2.target_local_pos_sp,
-                                    usv_position_allow_reached_)) {
+
+                    util_log("usv2 local (x = %.2f, y = %.2f, z = %.2f)", m_multi_vehicle_.usv2.current_local_pos.pose.position.x,
+                             m_multi_vehicle_.usv2.current_local_pos.pose.position.y, m_multi_vehicle_.usv2.current_local_pos.pose.position.y);
+                    util_log("target_usv2 = (%.2f, %.2f, %.2f)", target_usv2_init_.pose.position.x,
+                            target_usv2_init_.pose.position.y, target_usv2_init_.pose.position.z);
+                    if (pos_reached(m_multi_vehicle_.usv2.current_local_pos, target_usv2_init_,
+                                    usv_position_allow_reached_) && !usv2_reached_) {
                         usv2_reached_ = true;
                         util_log("usv2 disarm at one point");
-                    } else {
-                        usv2_reached_ = false;
                     }
-                    if (pos_reached(m_multi_vehicle_.usv3.current_local_pos, m_multi_vehicle_.usv3.target_local_pos_sp,
-                                    usv_position_allow_reached_)) {
+
+                    if (pos_reached(m_multi_vehicle_.usv3.current_local_pos, target_usv3_init_,
+                                    usv_position_allow_reached_) && !usv3_reached_) {
                         usv3_reached_ = true;
                         util_log("usv3 disarm at one point");
-                    } else {
-                        usv3_reached_ = false;
                     }
 
                     util_log("usv1_reached_ = %d, usv2_reached_ = %d, usv3_reached_ = %d", usv1_reached_, usv2_reached_ ,usv3_reached_);
@@ -133,6 +134,7 @@ void MultiBoatControl::DoProgress() {
                         usv1_reached_ = false;
                         usv2_reached_ = false;
                         usv3_reached_ = false;
+
                     }
 
 
@@ -396,6 +398,8 @@ void MultiBoatControl::setVehicleCtrlData() {
     m_multi_vehicle_.usv2.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.current_local_pos, m_multi_vehicle_.usv2.follower_keep_pos);
     m_multi_vehicle_.usv3.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.current_local_pos, m_multi_vehicle_.usv3.follower_keep_pos);
     m_multi_vehicle_.leader_usv.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
+    target_usv2_init_ = m_multi_vehicle_.usv2.target_local_pos_sp;
+    target_usv3_init_ = m_multi_vehicle_.usv3.target_local_pos_sp;
 
     if (m_multi_vehicle_.leader_usv.droneControl.speed_ctrl) {
         m_multi_vehicle_.usv1.droneControl = m_multi_vehicle_.leader_usv.droneControl;
@@ -408,9 +412,8 @@ bool MultiBoatControl::pos_reached(geometry_msgs::PoseStamped &current_pos, geom
                                 float err_allow){
     float err_px = current_pos.pose.position.x - target_pos.pose.position.x;
     float err_py = current_pos.pose.position.y - target_pos.pose.position.y;
-    float err_pz = current_pos.pose.position.z - target_pos.pose.position.z;
 
-    return sqrt(err_px * err_px + err_py * err_py /*+ err_pz * err_pz*/) < err_allow;
+    return sqrt(err_px * err_px + err_py * err_py ) < err_allow;
 }
 
 void MultiBoatControl::USVManualControl() {

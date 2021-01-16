@@ -100,15 +100,14 @@ void usv3_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
         util_log("IMU usv2 heading = %.2f, uav_.yaw = %d", dronepos_.m_heading, uav_.yaw);
     }
 
-    geometry_msgs::Point pnt;
-    pnt.x = uav_.current_local_pos.pose.position.x - follow_leader_offset.x();
-    pnt.y = uav_.current_local_pos.pose.position.y - follow_leader_offset.y();
-    pnt.z = uav_.current_local_pos.pose.position.z;
+    pnt_.x = uav_.current_local_pos.pose.position.x - follow_leader_offset.x();
+    pnt_.y = uav_.current_local_pos.pose.position.y - follow_leader_offset.y();
+    pnt_.z = uav_.current_local_pos.pose.position.z;
 
     TVec3 dir(cos(uav_.yaw * M_PI / 180), sin(uav_.yaw * M_PI / 180), 0.0);
-    TVec3 pos = TVec3{pnt.x, pnt.y, pnt.z};
+    TVec3 pos = TVec3{pnt_.x, pnt_.y, pnt_.z};
     DrawTrajCommand(pos, 2 * dir, usv3_color_);
-    poublisMarker(pnt, usv3_color_, marker_cur_pos_);
+    poublisMarker(pnt_, usv3_color_, marker_cur_pos_);
 }
 
 
@@ -255,23 +254,37 @@ void usv3_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
 }
 
 void usv3_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
+    geometry_msgs::Point p;
+    p.x = target_local_pos_sp_.pose.position.x - follow_leader_offset.x();
+    p.y = target_local_pos_sp_.pose.position.y - follow_leader_offset.y();
+    p.z = target_local_pos_sp_.pose.position.z;
+    util_log("draw usv3 target pos = %.2f, %.2f, %.2f", p.x, p.y, p.z);
+    util_log("draw usv3 target pos local = %.2f, %.2f, %.2f", target_local_pos_sp_.pose.position.x,
+             target_local_pos_sp_.pose.position.y, target_local_pos_sp_.pose.position.z);
+    util_log("draw usv3 follow_leader_offset = %.2f, %.2f, %.2f", follow_leader_offset.x(), follow_leader_offset.y(),
+             follow_leader_offset.z());
+
+    poublisMarker(p, usv3_color_, marker_target_pub_);
+
     util_log("usv3 is_speed_ctrl_ = %d", is_speed_ctrl_);
     if (is_speed_ctrl_) {
         g_speed_control_pub.publish(vel_ctrl_sp_);
     } else {
+/*
+        TVec3 target_pos(p.x, p.y, p.z);
+        TVec3 cur_pos(pnt_.x, pnt_.y,pnt_.z);
+        TVec3 target_vec = cur_pos - target_pos;
+        TVec3 heading_vec = Calculate::getInstance()->toVec(0,0,(uav_.yaw - 90) * M_PI / 180);
+        if (target_vec.dot(heading_vec) > 0) {
+            local_pos_pub.publish(target_local_pos_sp_);
+            util_log("usv3 same vec!");
+        } else {
+            util_log("usv3 different vec!");
+            local_pos_pub.publish(uav_.current_local_pos);
+        }
+*/
+
         local_pos_pub.publish(target_local_pos_sp_);
-
-        geometry_msgs::Point p;
-        p.x = target_local_pos_sp_.pose.position.x - follow_leader_offset.x();
-        p.y = target_local_pos_sp_.pose.position.y - follow_leader_offset.y();
-        p.z = target_local_pos_sp_.pose.position.z;
-        util_log("draw usv3 target pos = %.2f, %.2f, %.2f", p.x, p.y, p.z);
-        util_log("draw usv3 target pos local = %.2f, %.2f, %.2f", target_local_pos_sp_.pose.position.x,
-                 target_local_pos_sp_.pose.position.y, target_local_pos_sp_.pose.position.z);
-        util_log("draw usv3 follow_leader_offset = %.2f, %.2f, %.2f", follow_leader_offset.x(), follow_leader_offset.y(),
-                 follow_leader_offset.z());
-
-        poublisMarker(p, usv3_color_, marker_target_pub_);
     }
 }
 

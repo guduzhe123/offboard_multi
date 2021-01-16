@@ -21,7 +21,6 @@ int main(int argc, char **argv)
     lead_node->OnInit();
     DataMan::getInstance()->OnInit(lead_node);
     PathCreator::geInstance()->onInit(lead_node, true);
-    PathCreator::geInstance()->CreateUSVFormationInit(VF_USV_LINE_VERTICAL);
 
 //    avoidance::getInstance()->Oninit();
 

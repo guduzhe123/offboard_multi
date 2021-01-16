@@ -298,6 +298,14 @@ TQuat Calculate::EulerAngle2QuatNED(const float ned_yaw, const float ned_pitch, 
     return q;//!!!
 }
 
+TVec3 Calculate::toVec(const float r, const float p, const float h) {
+    TVec3 v;
+    v.x() = cos(h);
+    v.y() = sin(h);
+    v.z() = 1;
+    return v;
+}
+
 Calculate* Calculate::getInstance() {
     if (l_pInst == NULL) {
         l_pInst = new Calculate();

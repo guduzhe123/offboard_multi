@@ -10,6 +10,7 @@
 #include "DataMan.hpp"
 #include "Calculate.hpp"
 #include "ActionCircle.hpp"
+#include "PathCreator.hpp"
 
 class MultiBoatControl : public IVehicleControl {
 public:
@@ -46,6 +47,7 @@ private:
     vector<geometry_msgs::PoseStamped> usv_way_points_;
     vector<geometry_msgs::PoseStamped> uav_way_points_init_;
     int usv_state_;
+    int config_;
 
     bool usv1_reached_;
     bool usv2_reached_;
@@ -63,6 +65,9 @@ private:
     geometry_msgs::PoseStamped target_pos_;
     geometry_msgs::PoseStamped body_pos_;
     float init_yaw_;
+
+    geometry_msgs::PoseStamped target_usv2_init_;
+    geometry_msgs::PoseStamped target_usv3_init_;
 
 };
 

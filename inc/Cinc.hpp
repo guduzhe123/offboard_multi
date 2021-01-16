@@ -83,6 +83,7 @@ struct M_Drone {
     double latitude;
     double longtitude;
     double altitude;
+    TQuat q;
     geometry_msgs::PoseStamped current_local_pos;
     mavros_msgs::State current_state;
     TVec3 follower_to_leader_pos;

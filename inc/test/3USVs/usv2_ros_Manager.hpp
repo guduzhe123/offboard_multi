@@ -68,5 +68,6 @@ private:
 
     TVec4 usv2_color_ = TVec4{1, 1, 0, 0.7};
     TVec3 follow_leader_offset;
+    geometry_msgs::Point pnt_;
 };
 #endif //OFFBOARD_UAV2_ROS_MANAGER_HPP

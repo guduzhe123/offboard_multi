@@ -69,6 +69,8 @@ private:
 
     TVec4 usv3_color_ = TVec4{1, 0.7, 0.5, 0.8};
     TVec3 follow_leader_offset;
+
+    geometry_msgs::Point pnt_;
 };
 
 
