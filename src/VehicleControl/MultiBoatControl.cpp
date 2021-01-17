@@ -82,13 +82,13 @@ void MultiBoatControl::DoProgress() {
                         Calculate::getInstance()->bodyFrame2LocalFrame(i, target_body,
                                                                        (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
                         usv_way_points_.push_back(target_body);
-                        util_log("boat local size = %d", usv_way_points_.size());
                     }
                 }
                 usv_state_ = USV_WAYPOINT;
                 break;
 
             case USV_WAYPOINT: {
+                util_log("boat local size = %d", usv_way_points_.size());
                 if (!usv_way_points_.empty()) {
                     m_multi_vehicle_.leader_usv.target_local_pos_sp = usv_way_points_.back();
                     target_pos_ = usv_way_points_.back();
@@ -117,7 +117,7 @@ void MultiBoatControl::DoProgress() {
                     }
 
                     util_log("usv1_reached_ = %d, usv2_reached_ = %d, usv3_reached_ = %d", usv1_reached_, usv2_reached_ ,usv3_reached_);
-                    if (usv1_reached_ && usv2_reached_ && usv3_reached_) {
+                    if (usv1_reached_ && usv2_reached_ /*&& usv3_reached_*/) {
                         util_log("Finished one way point = (%.2f, %.2f, %.2f)",
                                  usv_way_points_.back().pose.position.x, usv_way_points_.back().pose.position.y,
                                  usv_way_points_.back().pose.position.z);

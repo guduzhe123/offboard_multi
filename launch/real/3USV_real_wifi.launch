@@ -3,8 +3,10 @@
     <arg name="config_yaml" default="$(find mavros)/launch/px4_config.yaml" />
 
     <include file="$(find offboard)/launch/rosbag_log.launch"/>
+    <include file="$(find offboard)/launch/rviz.launch"/>
     <arg name="formation_distance" default="10" />
     <node pkg = "offboard" name = "offboard" type="3usv" output="screen">
         <param name="formation_distance" value="$(arg formation_distance)" />
     </node>
 </launch>
+<!--roslaunch usb_cam usb_cam-test.launch -->

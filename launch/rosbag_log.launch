@@ -124,6 +124,16 @@
             /usv3/mavros/setpoint_velocity/cmd_vel
 
             usb_cam/image_raw/compressed
+
+            /usv1/target_point
+            /usv1/cur_pos
+            /usv1/heading_vis
+            /usv2/target_point
+            /usv2/cur_pos
+            /usv2/heading_vis
+            /usv3/target_point
+            /usv3/cur_pos
+            /usv3/heading_vis
 "
     />
 </launch>
