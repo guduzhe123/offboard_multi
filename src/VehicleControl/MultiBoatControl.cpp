@@ -117,7 +117,7 @@ void MultiBoatControl::DoProgress() {
                     }
 
                     util_log("usv1_reached_ = %d, usv2_reached_ = %d, usv3_reached_ = %d", usv1_reached_, usv2_reached_ ,usv3_reached_);
-                    if (usv1_reached_ && usv2_reached_ /*&& usv3_reached_*/) {
+                    if (usv1_reached_ && usv2_reached_ && usv3_reached_) {
                         util_log("Finished one way point = (%.2f, %.2f, %.2f)",
                                  usv_way_points_.back().pose.position.x, usv_way_points_.back().pose.position.y,
                                  usv_way_points_.back().pose.position.z);

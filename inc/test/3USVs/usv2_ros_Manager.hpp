@@ -27,6 +27,7 @@ private:
     void state_cb(const mavros_msgs::State::ConstPtr& msg);
     void vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr& msg);
     void local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg);
+    void usv1_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg);
 //    void usv1_local_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg);
     void mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg);
     void global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg);
@@ -39,7 +40,7 @@ private:
     void imuCB(const sensor_msgs::Imu::ConstPtr& msg);
 
     ros::Subscriber state_sub, vfr_hud_sub, local_position_sub, mavlink_from_sub, global_pos_sub, commander_sub, way_point_sub, homePos_sub
-                    , usv1_pos_sub, imu_sub;
+                    , usv1_pos_sub, imu_sub, usv1_local_position_sub;
     ros::Publisher local_pos_pub, gps_global_pos_pub, global_pos_pub, g_speed_control_pub, dronePosPub, home_pos_pub,
                     marker_target_pub_, heading_vec_, marker_cur_pos_;
     ros::ServiceClient arming_client, set_mode_client;
@@ -69,5 +70,6 @@ private:
     TVec4 usv2_color_ = TVec4{1, 1, 0, 0.7};
     TVec3 follow_leader_offset;
     geometry_msgs::Point pnt_;
+    geometry_msgs::PoseStamped usv1_current_local_pos_;
 };
 #endif //OFFBOARD_UAV2_ROS_MANAGER_HPP

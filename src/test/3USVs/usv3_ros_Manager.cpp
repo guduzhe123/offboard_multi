@@ -36,6 +36,8 @@ void usv3_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("/usv1/mavros/home_position/home", 10, &usv3_ros_Manager::usv1_home_pos_cb, this);
     imu_sub = nh.subscribe<sensor_msgs::Imu>
             ("mavros/imu/data", 10, &usv3_ros_Manager::imuCB, this);
+    usv1_local_position_sub = nh.subscribe<geometry_msgs::PoseStamped>
+            ("/usv1/mavros/local_position/pose", 20, &usv3_ros_Manager::usv1_local_pos_cb, this);
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
             ("mavros/setpoint_position/local", 100);
@@ -69,6 +71,10 @@ void usv3_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {
 
 void usv3_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
     current_vfr_hud = *msg;
+}
+
+void usv3_ros_Manager::usv1_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg) {
+    usv1_current_local_pos_ = *msg;
 }
 
 void usv3_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
@@ -283,6 +289,21 @@ void usv3_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
             local_pos_pub.publish(uav_.current_local_pos);
         }
 */
+        TVec3 target_pos(p.x, p.y, 0);
+        TVec3 cur_pos(pnt_.x, pnt_.y,0);
+        TVec3 target_vec = cur_pos - target_pos;
+        TVec3 usv1_cur_pos = TVec3(usv1_current_local_pos_.pose.position.x, usv1_current_local_pos_.pose.position.y,
+                                   0);
+        float usv1_usv3_cur_dist = (usv1_cur_pos - cur_pos).norm();
+        float usv1_usv3_target_dist = (usv1_cur_pos - target_pos).norm();
+        util_log("usv1_cur_pos = (%.2f, %.2f, %.2f), usv3 cur_pos = (%.2f, %.2f, %.2f), target_pos = (%.2f, %.2f, %.2f)", usv1_cur_pos.x(),
+                 usv1_cur_pos.y(), usv1_cur_pos.z(), cur_pos.x(), cur_pos.y(), cur_pos.z(), target_pos.x(), target_pos.y(), target_pos.z());
+        if (usv1_usv3_cur_dist > usv1_usv3_target_dist) {
+            local_pos_pub.publish(target_local_pos_sp_);
+        } else {
+            local_pos_pub.publish(uav_.current_local_pos);
+            util_log("disable the target");
+        }
 
         local_pos_pub.publish(target_local_pos_sp_);
     }

@@ -34,6 +34,8 @@ void usv2_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/home_position/home", 10, &usv2_ros_Manager::homePositionCB, this);
     usv1_pos_sub = nh.subscribe<mavros_msgs::HomePosition>
             ("/usv1/mavros/home_position/home", 10, &usv2_ros_Manager::usv1_home_pos_cb, this);
+    usv1_local_position_sub = nh.subscribe<geometry_msgs::PoseStamped>
+            ("/usv1/mavros/local_position/pose", 20, &usv2_ros_Manager::usv1_local_pos_cb, this);
     imu_sub = nh.subscribe<sensor_msgs::Imu>
             ("mavros/imu/data", 10, &usv2_ros_Manager::imuCB, this);
 
@@ -92,6 +94,10 @@ void usv2_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     dronepos_.m_roll = roll * 180 / M_PI;
     dronepos_.m_pitch = pitch * 180 / M_PI;
     dronePosPub.publish(dronepos_);
+}
+
+void usv2_ros_Manager::usv1_local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg) {
+    usv1_current_local_pos_ = *msg;
 }
 
 void usv2_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
@@ -280,7 +286,24 @@ void usv2_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
             util_log("usv2 different vec!");
             local_pos_pub.publish(usv_.current_local_pos);
         }*/
-        local_pos_pub.publish(target_local_pos_sp_);
+        /*TODO to calculate if the target is in the front of the current usv.
+         * If true publish the target position to let the usv run,
+         * else publish the current position to let the usv stop.*/
+        TVec3 target_pos(p.x, p.y, 0);
+        TVec3 cur_pos(pnt_.x, pnt_.y,0);
+        TVec3 target_vec = cur_pos - target_pos;
+        TVec3 usv1_cur_pos = TVec3(usv1_current_local_pos_.pose.position.x, usv1_current_local_pos_.pose.position.y,
+                                   0);
+        float usv1_usv2_cur_dist = (usv1_cur_pos - cur_pos).norm();
+        float usv1_usv2_target_dist = (usv1_cur_pos - target_pos).norm();
+        util_log("usv1_cur_pos = (%.2f, %.2f, %.2f), usv2 cur_pos = (%.2f, %.2f, %.2f), target_pos = (%.2f, %.2f, %.2f)", usv1_cur_pos.x(),
+                 usv1_cur_pos.y(), usv1_cur_pos.z(), cur_pos.x(), cur_pos.y(), cur_pos.z(), target_pos.x(), target_pos.y(), target_pos.z());
+        if (usv1_usv2_cur_dist > usv1_usv2_target_dist) {
+            local_pos_pub.publish(target_local_pos_sp_);
+        } else {
+            local_pos_pub.publish(usv_.current_local_pos);
+            util_log("disable the target");
+        }
 
     }
 }
