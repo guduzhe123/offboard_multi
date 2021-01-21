@@ -137,6 +137,16 @@ void MultiBoatControl::DoProgress() {
 
                     }
 
+                    TVec3 usv1_target = TVec3(target_pos_.pose.position.x, target_pos_.pose.position.y, 0);
+                    TVec3 usv1_cur = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x,
+                                           m_multi_vehicle_.usv1.current_local_pos.pose.position.y,
+                                           0);
+                    TVec3 vec = (usv1_cur - usv1_target).normalized();
+                    float target_yaw = atan2(vec.y(), vec.x());
+                    if (fabs(target_yaw - m_multi_vehicle_.usv1.yaw) < 10 ) {
+                        PathCreator::geInstance()->CreateUSVFormationInit(config_);
+                    }
+                    util_log("targte yaw = %.2f", target_yaw);
 
                 } else {
                     usv_state_ = USV_DISARM;
