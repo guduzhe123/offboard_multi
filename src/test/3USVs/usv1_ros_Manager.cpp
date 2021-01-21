@@ -96,6 +96,7 @@ void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
 //    usv_.yaw = current_vfr_hud.heading;
     util_log("vir_hub usv1 heading = %.2f, usv_.yaw = %d", dronepos_.m_heading, usv_.yaw);
 
+
 }
 
 void usv1_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
@@ -318,4 +319,6 @@ void usv1_ros_Manager::usvCallService(mavros_msgs::SetMode &m_mode) {
 
 //    arming_client.call(m_mode);
 }
+
+
 

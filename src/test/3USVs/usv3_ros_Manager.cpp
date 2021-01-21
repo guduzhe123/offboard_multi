@@ -296,13 +296,13 @@ void usv3_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
                                    0);
         float usv1_usv3_cur_dist = (usv1_cur_pos - cur_pos).norm();
         float usv1_usv3_target_dist = (usv1_cur_pos - target_pos).norm();
-        util_log("usv1_cur_pos = (%.2f, %.2f, %.2f), usv3 cur_pos = (%.2f, %.2f, %.2f), target_pos = (%.2f, %.2f, %.2f)", usv1_cur_pos.x(),
+        util_log("usv1_cur_pos = (%.2f, %.2f, %.2f), usv3 cur_pos = (%.2f, %.2f, %.2f), usv3 target_pos = (%.2f, %.2f, %.2f)", usv1_cur_pos.x(),
                  usv1_cur_pos.y(), usv1_cur_pos.z(), cur_pos.x(), cur_pos.y(), cur_pos.z(), target_pos.x(), target_pos.y(), target_pos.z());
         if (usv1_usv3_cur_dist > usv1_usv3_target_dist) {
             local_pos_pub.publish(target_local_pos_sp_);
         } else {
             local_pos_pub.publish(uav_.current_local_pos);
-            util_log("disable the target");
+            util_log("usv3 disable the target");
         }
 
         local_pos_pub.publish(target_local_pos_sp_);

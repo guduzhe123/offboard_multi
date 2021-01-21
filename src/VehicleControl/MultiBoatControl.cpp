@@ -50,13 +50,6 @@ void MultiBoatControl::DoProgress() {
         mavros_msgs::CommandBool arm_cmd;
         switch (usv_state_) {
             case USV_INIT:
-/*                if (!m_multi_vehicle_.leader_usv.current_state.armed) {
-                    arm_cmd.request.value = true;
-                    DataMan::getInstance()->SetUSVState(arm_cmd, 0);
-                    setVehicleCtrlData(); // keep leader usv offboard
-                    init_yaw_ = (float)m_multi_vehicle_.usv1.yaw * M_PI / 180.0f;
-                    return;
-                }*/
                 util_log("control: usv1 waypoint size = %d", m_multi_vehicle_.usv1.waypointList.waypoints.size());
                 if (!m_multi_vehicle_.usv1.waypointList.waypoints.empty()) {
                     for (auto &i : m_multi_vehicle_.leader_usv.waypointList.waypoints) {
@@ -141,12 +134,12 @@ void MultiBoatControl::DoProgress() {
                     TVec3 usv1_cur = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x,
                                            m_multi_vehicle_.usv1.current_local_pos.pose.position.y,
                                            0);
-                    TVec3 vec = (usv1_cur - usv1_target).normalized();
-                    float target_yaw = atan2(vec.y(), vec.x());
+                    TVec3 vec = (usv1_target - usv1_cur).normalized();
+                    float target_yaw = atan2(vec.y(), vec.x()) * 180 / M_PI;
                     if (fabs(target_yaw - m_multi_vehicle_.usv1.yaw) < 10 ) {
                         PathCreator::geInstance()->CreateUSVFormationInit(config_);
                     }
-                    util_log("targte yaw = %.2f", target_yaw);
+                    util_log("targte yaw = %.2f, m_multi_vehicle_.usv1.yaw = %.2f", target_yaw, m_multi_vehicle_.usv1.yaw);
 
                 } else {
                     usv_state_ = USV_DISARM;

@@ -187,7 +187,7 @@ void usv2_ros_Manager::DrawTrajCommand(const TVec3 &pos, const TVec3 &vec, const
 void usv2_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
     current_mavlink = *msg;
     usv_.drone_id = current_mavlink.sysid;
-    util_log("usv2 sys_id = %d", current_mavlink.sysid);
+//    util_log("usv2 sys_id = %d", current_mavlink.sysid);
 }
 
 void usv2_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg) {
@@ -296,13 +296,13 @@ void usv2_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
                                    0);
         float usv1_usv2_cur_dist = (usv1_cur_pos - cur_pos).norm();
         float usv1_usv2_target_dist = (usv1_cur_pos - target_pos).norm();
-        util_log("usv1_cur_pos = (%.2f, %.2f, %.2f), usv2 cur_pos = (%.2f, %.2f, %.2f), target_pos = (%.2f, %.2f, %.2f)", usv1_cur_pos.x(),
+        util_log("usv1_cur_pos = (%.2f, %.2f, %.2f), usv2 cur_pos = (%.2f, %.2f, %.2f), usv2 target_pos = (%.2f, %.2f, %.2f)", usv1_cur_pos.x(),
                  usv1_cur_pos.y(), usv1_cur_pos.z(), cur_pos.x(), cur_pos.y(), cur_pos.z(), target_pos.x(), target_pos.y(), target_pos.z());
         if (usv1_usv2_cur_dist > usv1_usv2_target_dist) {
             local_pos_pub.publish(target_local_pos_sp_);
         } else {
             local_pos_pub.publish(usv_.current_local_pos);
-            util_log("disable the target");
+            util_log("usv2 disable the target");
         }
 
     }
