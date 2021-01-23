@@ -23,5 +23,6 @@ public:
 
     virtual void SetUSVState(mavros_msgs::SetMode &arm_command, int usv_id) = 0;
 
+    virtual void SetUSVAvoData(const bool usv1_usv2_crash, const bool usv1_usv3_crash, const bool usv2_usv3_crash) = 0;
 };
 #endif //OFFBOARD_IMSGROSMANAGER_HPP

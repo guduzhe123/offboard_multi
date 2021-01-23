@@ -73,6 +73,13 @@ void usvs_control::PublishBoatPosControl(const multi_vehicle &multi_vehicles) {
     usv3_control_->usvPosSp(usv3);
 }
 
+void usvs_control::SetUSVAvoData(const bool usv1_crash, const bool usv2_crash, const bool usv3_crash) {
+    usv1_control_->usvCrash(usv1_crash);
+    usv2_control_->usvCrash(usv2_crash);
+    usv3_control_->usvCrash(usv3_crash);
+    util_log("usv1_crash = %d, usv2_crash = %d, usv3_crash = %d", usv1_crash, usv2_crash, usv3_crash);
+}
+
 void usvs_control::SetUAVState(mavros_msgs::SetMode &m_mode) {
 
 }

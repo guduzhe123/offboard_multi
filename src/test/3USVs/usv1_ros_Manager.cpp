@@ -11,7 +11,8 @@ usv1_ros_Manager::usv1_ros_Manager() :
         is_offboard_called_(false),
         is_takeoff_(false),
         is_land_(false),
-        home_pos_updated_(false)
+        home_pos_updated_(false),
+        usv_crash_(false)
 {
 
 }
@@ -319,6 +320,10 @@ void usv1_ros_Manager::usvCallService(mavros_msgs::SetMode &m_mode) {
 
 //    arming_client.call(m_mode);
 }
+
+void usv1_ros_Manager::usvCrash(bool usv1_crash) {
+    usv_crash_ = usv1_crash;
+};
 
 
 

@@ -96,8 +96,10 @@ void PathCreator::CreatFunction() {
     MultiUAVFormationFactory UAVFormationFactory;
     MultiUSVFormationFactory USVFormationFactory;
     AvoidanceFactory avoidanceFactory;
+    USVAvoidanceFactory usv_avo_factory;
 
     FlightManager::getInstance()->AddFunctionProgress(&avoidanceFactory);
+    FlightManager::getInstance()->AddFunctionProgress(&usv_avo_factory);
     FlightManager::getInstance()->AddFunctionProgress(&UAVFormationFactory);
     FlightManager::getInstance()->AddFunctionProgress(&USVFormationFactory);
 

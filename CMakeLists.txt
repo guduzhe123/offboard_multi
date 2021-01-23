@@ -81,6 +81,7 @@ add_library(
         src/PathCreator.cpp
         src/FlightManager.cpp
         src/new_struct/Avoidance.cpp
+        src/new_struct/USV_Avoidance.cpp
         src/new_struct/Multi_UAV_formation.cpp
         src/new_struct/Multi_USV_formation.cpp
         src/util.cpp

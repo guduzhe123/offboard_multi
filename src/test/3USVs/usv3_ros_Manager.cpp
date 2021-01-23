@@ -10,7 +10,8 @@ usv3_ros_Manager::usv3_ros_Manager() :
         is_offboard_(false),
         is_takeoff_(false),
         is_land_(false),
-        home_pos_updated_(false)
+        home_pos_updated_(false),
+        usv_crash_(false)
 {
 
 }
@@ -298,7 +299,7 @@ void usv3_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
         float usv1_usv3_target_dist = (usv1_cur_pos - target_pos).norm();
         util_log("usv1_cur_pos = (%.2f, %.2f, %.2f), usv3 cur_pos = (%.2f, %.2f, %.2f), usv3 target_pos = (%.2f, %.2f, %.2f)", usv1_cur_pos.x(),
                  usv1_cur_pos.y(), usv1_cur_pos.z(), cur_pos.x(), cur_pos.y(), cur_pos.z(), target_pos.x(), target_pos.y(), target_pos.z());
-        if (usv1_usv3_cur_dist > usv1_usv3_target_dist) {
+        if (usv1_usv3_cur_dist > usv1_usv3_target_dist && !usv_crash_) {
             local_pos_pub.publish(target_local_pos_sp_);
         } else {
             local_pos_pub.publish(uav_.current_local_pos);
@@ -346,3 +347,9 @@ void usv3_ros_Manager::usvCallService(mavros_msgs::CommandBool &m_mode) {
     util_log("usv3 call for arm mode = %d", m_mode);
 //    arming_client.call(m_mode);
 }
+
+void usv3_ros_Manager::usvCrash(bool usv3_crash) {
+    usv_crash_ = usv3_crash;
+    if (usv_crash_)
+    util_log("usv3 crash!");
+};

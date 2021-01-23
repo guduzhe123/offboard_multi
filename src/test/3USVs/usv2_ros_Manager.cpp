@@ -10,7 +10,8 @@ usv2_ros_Manager::usv2_ros_Manager()  :
         is_offboard_(false),
         is_takeoff_(false),
         is_land_(false),
-        home_pos_updated_(false)
+        home_pos_updated_(false),
+        usv_crash_(false)
 {
 
 }
@@ -278,14 +279,8 @@ void usv2_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
 /*        TVec3 target_pos(p.x, p.y, p.z);
         TVec3 cur_pos(pnt_.x, pnt_.y,pnt_.z);
         TVec3 target_vec = cur_pos - target_pos;
-        TVec3 heading_vec = Calculate::getInstance()->toVec(0,0,(usv_.yaw - 90)* M_PI / 180);
-        if (target_vec.dot(heading_vec) > 0) {
-            local_pos_pub.publish(target_local_pos_sp_);
-            util_log("usv2 same vec!");
-        } else {
-            util_log("usv2 different vec!");
-            local_pos_pub.publish(usv_.current_local_pos);
-        }*/
+        TVec3 heading_vec = Calculate::getInstance()->toVec(0,0,(usv_.yaw - 90)* M_PI / 180);*/
+
         /*TODO to calculate if the target is in the front of the current usv.
          * If true publish the target position to let the usv run,
          * else publish the current position to let the usv stop.*/
@@ -296,9 +291,10 @@ void usv2_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
                                    0);
         float usv1_usv2_cur_dist = (usv1_cur_pos - cur_pos).norm();
         float usv1_usv2_target_dist = (usv1_cur_pos - target_pos).norm();
+
         util_log("usv1_cur_pos = (%.2f, %.2f, %.2f), usv2 cur_pos = (%.2f, %.2f, %.2f), usv2 target_pos = (%.2f, %.2f, %.2f)", usv1_cur_pos.x(),
                  usv1_cur_pos.y(), usv1_cur_pos.z(), cur_pos.x(), cur_pos.y(), cur_pos.z(), target_pos.x(), target_pos.y(), target_pos.z());
-        if (usv1_usv2_cur_dist > usv1_usv2_target_dist) {
+        if (usv1_usv2_cur_dist > usv1_usv2_target_dist && !usv_crash_) {
             local_pos_pub.publish(target_local_pos_sp_);
         } else {
             local_pos_pub.publish(usv_.current_local_pos);
@@ -345,3 +341,9 @@ void usv2_ros_Manager::usvCallService(mavros_msgs::CommandBool &m_mode) {
     util_log("usv2 call for arm mode = %d", m_mode);
 //    arming_client.call(m_mode);
 }
+
+void usv2_ros_Manager::usvCrash(bool usv2_crash) {
+    usv_crash_ = usv2_crash;
+    if (usv_crash_)
+    util_log("usv2 crash!");
+};

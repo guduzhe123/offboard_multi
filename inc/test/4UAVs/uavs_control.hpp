@@ -28,7 +28,7 @@ public:
     void PublishUUVPosControl(const multi_vehicle &multi_vehicles) override;
     void SetUAVState(mavros_msgs::SetMode &m_mode) override ;
     void SetUSVState(mavros_msgs::SetMode &arm_command, int usv_id) override ;
-
+    void SetUSVAvoData(const bool usv1_usv2_crash, const bool usv1_usv3_crash, const bool usv2_usv3_crash) override ;
 private:
     uav1_ros_Manager::Ptr uav1_control_;
     uav2_ros_Manager::Ptr uav2_control_;

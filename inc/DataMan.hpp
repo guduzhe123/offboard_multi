@@ -56,6 +56,8 @@ public:
 
     void SetUUVControlData(const multi_vehicle &m_multi_vehicles);
 
+    void SetUSVAvoData(const bool usv1_usv2_crash, const bool usv1_usv3_crash, const bool usv2_usv3_crash);
+
     void SetUAVState(mavros_msgs::SetMode &m_mode);
 
     void SetUSVState(mavros_msgs::SetMode &arm_command, int usv_id);

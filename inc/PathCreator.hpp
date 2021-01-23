@@ -14,6 +14,7 @@
 #include "Multi_USV_formation.hpp"
 #include "MultUUVControl.hpp"
 #include "Avoidance.hpp"
+#include "USV_Avoidance.hpp"
 #include "MultDroneControl.hpp"
 #include "MultBoatControl.hpp"
 

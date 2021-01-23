@@ -470,3 +470,7 @@ void MultiOffboard::SetUSVState(mavros_msgs::SetMode &arm_command, int usv_id) {
 void MultiOffboard::PublishUUVPosControl(const multi_vehicle &multi_vehicles) {
 
 }
+
+void MultiOffboard::SetUSVAvoData(const bool usv1_usv2_crash, const bool usv1_usv3_crash, const bool usv2_usv3_crash) {
+
+}

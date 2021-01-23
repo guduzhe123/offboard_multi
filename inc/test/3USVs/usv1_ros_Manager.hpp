@@ -18,6 +18,7 @@ public:
     void usvOnInit(ros::NodeHandle &nh);
     void usvPosSp(const DroneControl& droneControl);
     void usvCallService(mavros_msgs::SetMode &m_mode);
+    void usvCrash(bool usv1_carsh);
     typedef shared_ptr<usv1_ros_Manager> Ptr;
 
 private:
@@ -63,6 +64,7 @@ private:
     bool is_land_;
     bool is_speed_ctrl_;
     bool home_pos_updated_;
+    bool usv_crash_;
 
     float target_heading_;
     float yaw_rate_;

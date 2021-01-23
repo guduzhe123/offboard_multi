@@ -221,6 +221,10 @@ void DataMan::SetUUVControlData(const multi_vehicle &m_multi_vehicles) {
     msg_config_->PublishUUVPosControl(m_multi_vehicles);
 }
 
+void DataMan::SetUSVAvoData(const bool usv1_crash, const bool usv2_crash, const bool usv3_crash) {
+    msg_config_->SetUSVAvoData(usv1_crash, usv2_crash, usv3_crash);
+}
+
 void DataMan::SetUAVLeader(M_Drone &leader_uav) {
     boost::unique_lock<boost::mutex> lock(m_mutex);
     multi_vehicle_.leader_uav = leader_uav;
