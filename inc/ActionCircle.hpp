@@ -29,6 +29,7 @@ public:
 private:
     float rad2dgr(float d) { return d * 180.0 / M_PI; };
     float dgrIn180s(float d);
+    void getCircleTarget(float angle);
 
     TCircleOutput m_output;
     TCircleConfig m_cfg;

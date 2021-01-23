@@ -239,6 +239,7 @@ struct TCircleConfig{
     bool is_clockWise = true;
     TVec3 m_target_pos = TVec3(NAN, NAN, NAN); ///< target position to move at
     TVec3 m_circle_pos = TVec3(NAN, NAN, NAN); ///< circle point
+    TVec3 m_start_pos = TVec3(NAN, NAN, NAN); ///< start point
     float m_speed = NAN;  ///< total speed
     float m_radius = NAN; ///< circle radius;
     float target_heading = NAN; //< target head
@@ -253,6 +254,8 @@ struct TCircleOutput {
     bool m_drone_circle_finished;
     float m_speed = NAN;  ///< total speed
     float m_yaw_rate = NAN;
+    vector<TVec3> circle_target;
+    vector<geometry_msgs::PoseStamped> usv_way_points_;
 };
 
 /// This struct defines status of drone during circle point tracking

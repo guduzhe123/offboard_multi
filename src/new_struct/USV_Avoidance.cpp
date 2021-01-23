@@ -75,6 +75,10 @@ void USV_Avoidance::DoProgress() {
                 usv3_crash_ = false;
             }
 
+        } else {
+            usv1_crash_ = false;
+            usv2_crash_ = false;
+            usv3_crash_ = false;
         }
 
     SetFunctionOutPut();

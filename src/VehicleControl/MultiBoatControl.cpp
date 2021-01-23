@@ -110,7 +110,7 @@ void MultiBoatControl::DoProgress() {
                     }
 
                     util_log("usv1_reached_ = %d, usv2_reached_ = %d, usv3_reached_ = %d", usv1_reached_, usv2_reached_ ,usv3_reached_);
-                    if (usv1_reached_ && usv2_reached_ && usv3_reached_) {
+                    if (usv1_reached_ /*&& usv2_reached_ && usv3_reached_*/) {
                         util_log("Finished one way point = (%.2f, %.2f, %.2f)",
                                  usv_way_points_.back().pose.position.x, usv_way_points_.back().pose.position.y,
                                  usv_way_points_.back().pose.position.z);
@@ -159,44 +159,39 @@ void MultiBoatControl::DoProgress() {
 
             case USV_CIRCLE_INIT: {
                 TCircleConfig circle_config;
-                circle_config.target_heading = m_multi_vehicle_.uav1.yaw;
+                circle_config.target_heading = m_multi_vehicle_.usv1.yaw;
                 circle_config.m_radius = 10;
-                circle_config.m_circle_pos = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x,
-                                                   m_multi_vehicle_.usv1.current_local_pos.pose.position.y +
-                                                   circle_config.m_radius,
-                                                   m_multi_vehicle_.usv1.current_local_pos.pose.position.z);
+                geometry_msgs::PoseStamped target_local;
+                geometry_msgs::PoseStamped body;
+                body.pose.position.x = circle_config.m_radius;
+                body.pose.position.y = 0;
+                body.pose.position.z = 0;
+                Calculate::getInstance()->bodyFrame2LocalFrame(body, target_local,
+                                                               (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
+
+                circle_config.m_circle_pos = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x + target_local.pose.position.x,
+                                                   m_multi_vehicle_.usv1.current_local_pos.pose.position.y + target_local.pose.position.y,
+                                                   m_multi_vehicle_.usv1.current_local_pos.pose.position.z + target_local.pose.position.z);
+
+
+                circle_config.m_start_pos = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x,
+                                                  m_multi_vehicle_.usv1.current_local_pos.pose.position.y,
+                                                  m_multi_vehicle_.usv1.current_local_pos.pose.position.z);
                 circle_config.m_speed = 2.0;
 
                 ActionCircle::getInstance()->onInit(circle_config);
                 usv_state_ = USV_CIRCLE;
                 util_log("USV Circle init!!!!");
-                state_changed_ = true;
-                setVehicleCtrlData();
-                break;
-            }
-            case USV_CIRCLE: {
-                TVec3 usv1_pos;
-                usv1_pos.x() = m_multi_vehicle_.usv1.current_local_pos.pose.position.x;
-                usv1_pos.y() = m_multi_vehicle_.usv1.current_local_pos.pose.position.y;
-                usv1_pos.z() = m_multi_vehicle_.usv1.current_local_pos.pose.position.z;
-
-                ActionCircle::getInstance()->doProgress(usv1_pos, m_multi_vehicle_.usv1.yaw);
+                ActionCircle::getInstance()->doProgress(circle_config.m_start_pos, m_multi_vehicle_.usv1.yaw);
                 TCircleOutput circle_output;
                 ActionCircle::getInstance()->GetOutput(circle_output);
-                m_multi_vehicle_.leader_usv.droneControl.speed_ctrl = true;
-//                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.x = circle_output.v_out.x();
-                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.x = 1;
-                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.linear.y = 1;
-                m_multi_vehicle_.leader_usv.droneControl.g_vel_sp.twist.angular.z = circle_output.m_target_heading * M_PI / 180.0f;
-                /*float dt = 2.0;
-                m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x = usv1_pos.x() + circle_output.v_out.x() * dt;
-                m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y = usv1_pos.y() + circle_output.v_out.y() * dt;
-                m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z = usv1_pos.z() + circle_output.v_out.z() * dt;*/
-                util_log("usv circle result: (%.2f, %.2f, %.2f)", circle_output.v_out.x(), circle_output.v_out.y(), circle_output.v_out.z());
-
-                setVehicleCtrlData();
+                usv_way_points_.clear();
+                usv_way_points_ = circle_output.usv_way_points_;
+                usv_state_ = USV_WAYPOINT;
+                state_changed_ = true;
                 break;
             }
+
 
             case USV_FOLLOW_UUV_FORMATION_INIT: {
                 way_bear_ = Calculate::getInstance()->get_bearing_to_next_waypoint(m_multi_vehicle_.usv1.latitude, m_multi_vehicle_.usv1.longtitude

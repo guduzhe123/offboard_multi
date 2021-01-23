@@ -21,44 +21,37 @@ void ActionCircle::onInit(const TCircleConfig &config) {
 
 void ActionCircle::doProgress(TVec3 &m_curPos, float cur_heading) {
 // velocity to control radius
-    float c_radius = TVec3(m_curPos - m_cfg.m_circle_pos).norm();
-    float dt = 0.05; // 20HZ
-    if (dt > 0.5) {
-        dt = 0.5;
-    }
-    TVec3 p0 = m_curPos - m_cfg.m_circle_pos;
-    util_log("circle m_curPos = (%.2f, %.2f, %.2f), m_circle_pos = (%.2f, %.2f, %.2f)", m_curPos.x(), m_curPos.y(), m_curPos.z()
-            , m_cfg.m_circle_pos.x(), m_cfg.m_circle_pos.y(), m_cfg.m_circle_pos.z());
 
-    float r_speed = K_max_vr * m_K_r.calculate(m_cfg.m_radius, c_radius, dt);
-    TVec3 v_r = p0;
-    v_r.z() = 0;
-    v_r = r_speed * v_r.normalized();
+    getCircleTarget(M_PI *1 / 4);
+    getCircleTarget(M_PI * 1 / 2);
+    getCircleTarget(M_PI *3 / 4);
+    getCircleTarget(M_PI );
+    getCircleTarget(M_PI * 5 / 4);
+    getCircleTarget(M_PI * 6 / 4);
+    getCircleTarget(M_PI * 7 / 4);
+    getCircleTarget(M_PI * 8 / 4);
+    getCircleTarget(M_PI * 9 / 4);
+    getCircleTarget(M_PI * 10 / 4);
+    getCircleTarget(M_PI * 11 / 4);
+    getCircleTarget(M_PI * 12 / 4);
+    getCircleTarget(M_PI * 13 / 4);
+    getCircleTarget(M_PI * 14 / 4);
+    getCircleTarget(M_PI * 15 / 4);
+    getCircleTarget(M_PI * 16 / 4);
 
-    // velocity to control height
-    float c_height = m_curPos.z();
-    float h_speed = K_max_vh * m_K_h.calculate(m_cfg.m_target_pos.z(), c_height, dt);
-//    TVec3 v_h(0, 0, h_speed);
-    TVec3 v_h(0, 0, 0);
+}
 
-    // velocity to circle
-    //get the 2 vector angle
-    float rot = m_cfg.is_clockWise ? 90 : -90;
-    TQuat quatNED = Calculate::getInstance()->EulerAngle2QuatNED(rot, 0, 0);
-    TVec3 dv = m_cfg.m_speed  * (quatNED * p0).normalized();
-    dv.z() = 0;
-    util_log("dv = (%.2f, %.2f, %.2f)", dv.x(), dv.y(), dv.z());
-    m_output.v_out = v_r + v_h + dv;
-
-    TVec3 nv = p0.normalized();
-    util_log("nv = (%.2f, %.2f, %.2f)", nv.x(), nv.y(), nv.z());
-    float heading = rad2dgr(atan2(-nv.y(), nv.x()));
-//    m_output.m_target_heading = dgrIn180s(heading);
-    float rate = K_max_va * m_K_a.calculate(90, cur_heading, dt);
-    m_output.m_yaw_rate = rate;
-    util_log("m_output.m_target_heading = %.2f, cur_heading = %.2f, rate = %.2f",
-            m_output.m_target_heading, cur_heading, rate);
-
+void ActionCircle::getCircleTarget(float angle) {
+    TVec3 center_start_vec = m_cfg.m_circle_pos - m_cfg.m_start_pos;
+    Eigen::AngleAxisf rotation_vector(angle, Eigen::Vector3f(0, 0, 1));
+    cout << "Rotation_vector1" << endl << rotation_vector.matrix() << endl;
+    TVec3 target = m_cfg.m_circle_pos - rotation_vector.matrix().inverse() * center_start_vec ;
+    m_output.circle_target.push_back(target);
+    geometry_msgs::PoseStamped wp;
+    wp.pose.position.x = target.x();
+    wp.pose.position.y = target.y();
+    wp.pose.position.z = target.z();
+    m_output.usv_way_points_.push_back(wp);
 }
 
 ActionCircle* ActionCircle::getInstance() {
