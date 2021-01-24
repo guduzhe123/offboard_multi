@@ -10,7 +10,7 @@
 #include "IControlFunction.hpp"
 #include "Calculate.hpp"
 
-static float K_usv_avodiance_dist = 2;
+static float K_usv_avodiance_dist = 4;
 class USV_Avoidance : public IControlFunction {
 public:
     USV_Avoidance();

@@ -7,7 +7,6 @@
 #include <Calculate.hpp>
 #include "Multi_USV_formation.hpp"
 
-MultiUSVFormation* MultiUSVFormation::multi_formation = NULL;
 
 MultiUSVFormation::MultiUSVFormation() :
         config_(0),
@@ -117,7 +116,8 @@ void MultiUSVFormation::changeToLocalTarget() {
 }
 
 MultiUSVFormation* MultiUSVFormation::getInstance() {
-    if (multi_formation == NULL) {
+    static MultiUSVFormation* multi_formation = nullptr;
+    if (!multi_formation) {
         multi_formation = new MultiUSVFormation();
     }
     return multi_formation;

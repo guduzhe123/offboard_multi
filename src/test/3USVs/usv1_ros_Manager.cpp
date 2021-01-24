@@ -12,7 +12,8 @@ usv1_ros_Manager::usv1_ros_Manager() :
         is_takeoff_(false),
         is_land_(false),
         home_pos_updated_(false),
-        usv_crash_(false)
+        usv_crash_(false),
+        yaw_cur_(0)
 {
 
 }
@@ -93,21 +94,18 @@ void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     dronepos_.m_roll = roll * 180 / M_PI;
     dronepos_.m_pitch = pitch * 180 / M_PI;
     dronePosPub.publish(dronepos_);
-//    usv_.yaw = dronepos_.m_heading;
-//    usv_.yaw = current_vfr_hud.heading;
     util_log("vir_hub usv1 heading = %.2f, usv_.yaw = %d", dronepos_.m_heading, usv_.yaw);
-
-
 }
 
 void usv1_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
     double r, p, y;
     Calculate::getInstance()->quaternion_to_rpy(msg->orientation, r, p, y);
-    static int i = 0;
-    if (i++ % 10 == 0) {
-        usv_.yaw = Calculate::getInstance()->dgrIn180s(static_cast<float>(Calculate::getInstance()->rad2deg(y) /*- 90*/));//??? Todo
-        util_log("IMU usv1 heading = %.2f, usv_.yaw = %d", dronepos_.m_heading, usv_.yaw);
-    }
+//    static int i = 0;
+//    if (i++ % 10 == 0) {
+    usv_.yaw = Calculate::getInstance()->dgrIn180s(static_cast<float>(Calculate::getInstance()->rad2deg(y) /*- 90*/));//??? Todo
+    yaw_cur_ = usv_.yaw;
+    util_log("IMU usv1 heading = %.2f, usv_.yaw = %.2f", dronepos_.m_heading, usv_.yaw);
+//    }
 
     geometry_msgs::Point pnt;
     pnt.x = usv_.current_local_pos.pose.position.x;
@@ -196,6 +194,7 @@ void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {
 
 void usv1_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
 //    DataMan::getInstance()->SetDroneData(usv_);
+    util_log("m_multi_vehicle_.usv1.yaw = %.2f, dronepos_.m_heading = %.2f, yaw_cur_ = %.2f", usv_.yaw, dronepos_.m_heading, yaw_cur_);
     DataMan::getInstance()->SetDroneData(usv_);
 }
 
@@ -281,7 +280,6 @@ void usv1_ros_Manager::usvPosSp(const DroneControl& droneControl) {
     is_speed_ctrl_ = droneControl.speed_ctrl;
     target_heading_ = droneControl.target_heading;
     vel_ctrl_sp_ = droneControl.g_vel_sp;
-    yaw_rate_ = droneControl.yaw_rate;
     TVec3 cur_target_err;
     cur_target_err.x() = target_local_pos_sp_.pose.position.x - usv_.current_local_pos.pose.position.x;
     cur_target_err.y() = target_local_pos_sp_.pose.position.y - usv_.current_local_pos.pose.position.y;

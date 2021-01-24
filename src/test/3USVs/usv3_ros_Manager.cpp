@@ -104,7 +104,7 @@ void usv3_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
     static int i = 0;
     if (i++ % 10 == 0) {
         uav_.yaw = Calculate::getInstance()->dgrIn180s(static_cast<float>(Calculate::getInstance()->rad2deg(y) /*- 90*/));//??? Todo
-        util_log("IMU usv2 heading = %.2f, uav_.yaw = %d", dronepos_.m_heading, uav_.yaw);
+        util_log("IMU usv3 heading = %.2f, uav_.yaw = %.2f", dronepos_.m_heading, uav_.yaw);
     }
 
     pnt_.x = uav_.current_local_pos.pose.position.x - follow_leader_offset.x();
@@ -265,11 +265,6 @@ void usv3_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
     p.x = target_local_pos_sp_.pose.position.x - follow_leader_offset.x();
     p.y = target_local_pos_sp_.pose.position.y - follow_leader_offset.y();
     p.z = target_local_pos_sp_.pose.position.z;
-    util_log("draw usv3 target pos = %.2f, %.2f, %.2f", p.x, p.y, p.z);
-    util_log("draw usv3 target pos local = %.2f, %.2f, %.2f", target_local_pos_sp_.pose.position.x,
-             target_local_pos_sp_.pose.position.y, target_local_pos_sp_.pose.position.z);
-    util_log("draw usv3 follow_leader_offset = %.2f, %.2f, %.2f", follow_leader_offset.x(), follow_leader_offset.y(),
-             follow_leader_offset.z());
 
     poublisMarker(p, usv3_color_, marker_target_pub_);
 
@@ -297,13 +292,17 @@ void usv3_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
                                    0);
         float usv1_usv3_cur_dist = (usv1_cur_pos - cur_pos).norm();
         float usv1_usv3_target_dist = (usv1_cur_pos - target_pos).norm();
+
+        TVec3 usv3_cur_usv1_cur = (cur_pos - usv1_cur_pos).normalized();
+        TVec3 usv3_cur_usv2_target = target_vec.normalized();
+        float ang = acos(usv3_cur_usv1_cur.dot(usv3_cur_usv2_target));
         util_log("usv1_cur_pos = (%.2f, %.2f, %.2f), usv3 cur_pos = (%.2f, %.2f, %.2f), usv3 target_pos = (%.2f, %.2f, %.2f)", usv1_cur_pos.x(),
                  usv1_cur_pos.y(), usv1_cur_pos.z(), cur_pos.x(), cur_pos.y(), cur_pos.z(), target_pos.x(), target_pos.y(), target_pos.z());
-        if (usv1_usv3_cur_dist > usv1_usv3_target_dist && !usv_crash_) {
+        if (ang * 180 / M_PI < 90 && !usv_crash_) {
             local_pos_pub.publish(target_local_pos_sp_);
         } else {
             local_pos_pub.publish(uav_.current_local_pos);
-            util_log("usv3 disable the target");
+            util_log("usv3 disable the target, ang = %.2f, usv3 crash = %d", ang * 180 / M_PI, usv_crash_);
         }
 
         local_pos_pub.publish(target_local_pos_sp_);

@@ -73,11 +73,11 @@ void FlightManager::OnFlightDataUpdate(FDATA_TYPE data_type) {
     if (data_type == FDATA_DRONE_TARGTE) {
         if (drone_avodiance_update_) {
             GetData();
-            util_log("uav targte .z = %.2f", m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z);
-            util_log(
+//            util_log("uav targte .z = %.2f", m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z);
+/*            util_log(
                     "height_avoidance_uav1_ = %.2f, height_avoidance_uav2_ = %.2f, height_avoidance_uav3_ = %.2f, height_avoidance_uav4_ = %.2f",
                     m_multi_vehicle_.uav1.avoidance_pos.z(), m_multi_vehicle_.uav2.avoidance_pos.z(),
-                    m_multi_vehicle_.uav3.avoidance_pos.z(), m_multi_vehicle_.uav4.avoidance_pos.z());
+                    m_multi_vehicle_.uav3.avoidance_pos.z(), m_multi_vehicle_.uav4.avoidance_pos.z());*/
 
             if (!isnan(m_multi_vehicle_.uav1.avoidance_pos.z()) && !isnan(m_multi_vehicle_.uav2.avoidance_pos.z()) &&
                 !isnan(m_multi_vehicle_.uav3.avoidance_pos.z()) && !isnan(m_multi_vehicle_.uav4.avoidance_pos.z())) {

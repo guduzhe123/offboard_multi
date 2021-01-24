@@ -48,6 +48,8 @@ private:
     vector<geometry_msgs::PoseStamped> uav_way_points_init_;
     int usv_state_;
     int config_;
+    int formation_config_;
+    int usv_waypoints_size_init_;
 
     bool usv1_reached_;
     bool usv2_reached_;

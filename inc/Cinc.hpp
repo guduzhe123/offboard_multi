@@ -79,7 +79,7 @@ struct M_Drone {
     bool is_formation;
     float pitch ;
     float roll ;
-    int16_t yaw ;
+    float yaw ;
     double latitude;
     double longtitude;
     double altitude;

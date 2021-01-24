@@ -12,7 +12,9 @@ MultiBoatControl::MultiBoatControl() :
         state_changed_(false),
         usv1_reached_(false),
         usv2_reached_(false),
-        usv3_reached_(false){
+        usv3_reached_(false),
+        formation_config_(0),
+        usv_waypoints_size_init_(0){
 
 }
 
@@ -33,6 +35,10 @@ void MultiBoatControl::getData() {
     m_multi_vehicle_ = DataMan::getInstance()->GetData();
     is_formation_ = m_multi_vehicle_.leader_usv.is_formation;
     config_ = m_multi_vehicle_.user_command;
+    if (config_ == VF_USV_TRIANGLE || config_ == VF_USV_INVERSION_TRIANGLE || config_ == VF_USV_LINE_HORIZONTAL
+        || config_ == VF_USV_LINE_VERTICAL) {
+        formation_config_ = config_;
+    }
     if (m_multi_vehicle_.user_command == VF_USV_CIRCLE && !state_changed_) {
         usv_state_ = USV_CIRCLE_INIT;
     }
@@ -73,10 +79,11 @@ void MultiBoatControl::DoProgress() {
                     for (auto & i : uav_way_points_init_) {
                         geometry_msgs::PoseStamped target_body;
                         Calculate::getInstance()->bodyFrame2LocalFrame(i, target_body,
-                                                                       (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
+                                                                       (float)(m_multi_vehicle_.usv1.yaw * M_PI / 180.0f));
                         usv_way_points_.push_back(target_body);
                     }
                 }
+                usv_waypoints_size_init_ = usv_way_points_.size();
                 usv_state_ = USV_WAYPOINT;
                 break;
 
@@ -110,11 +117,16 @@ void MultiBoatControl::DoProgress() {
                     }
 
                     util_log("usv1_reached_ = %d, usv2_reached_ = %d, usv3_reached_ = %d", usv1_reached_, usv2_reached_ ,usv3_reached_);
-                    if (usv1_reached_ /*&& usv2_reached_ && usv3_reached_*/) {
+                    if (usv1_reached_) {
+                        if (usv_way_points_.size() > usv_waypoints_size_init_ - 2
+                            && usv2_reached_ && usv3_reached_) {
+                            usv_way_points_.pop_back();
+                        } else if (usv_way_points_.size() <= usv_waypoints_size_init_ - 2) {
+                            usv_way_points_.pop_back();
+                        }
                         util_log("Finished one way point = (%.2f, %.2f, %.2f)",
                                  usv_way_points_.back().pose.position.x, usv_way_points_.back().pose.position.y,
                                  usv_way_points_.back().pose.position.z);
-                        usv_way_points_.pop_back();
 
                         if (!usv_way_points_.empty()) {
                             util_log("Goto next way point = (%.2f, %.2f, %.2f)",
@@ -137,7 +149,7 @@ void MultiBoatControl::DoProgress() {
                     TVec3 vec = (usv1_target - usv1_cur).normalized();
                     float target_yaw = atan2(vec.y(), vec.x()) * 180 / M_PI;
                     if (fabs(target_yaw - m_multi_vehicle_.usv1.yaw) < 10 ) {
-                        PathCreator::geInstance()->CreateUSVFormationInit(config_);
+                        PathCreator::geInstance()->CreateUSVFormationInit(formation_config_);
                     }
                     util_log("targte yaw = %.2f, m_multi_vehicle_.usv1.yaw = %.2f", target_yaw, m_multi_vehicle_.usv1.yaw);
 
@@ -160,14 +172,14 @@ void MultiBoatControl::DoProgress() {
             case USV_CIRCLE_INIT: {
                 TCircleConfig circle_config;
                 circle_config.target_heading = m_multi_vehicle_.usv1.yaw;
-                circle_config.m_radius = 10;
+                circle_config.m_radius = 20;
                 geometry_msgs::PoseStamped target_local;
                 geometry_msgs::PoseStamped body;
                 body.pose.position.x = circle_config.m_radius;
                 body.pose.position.y = 0;
                 body.pose.position.z = 0;
                 Calculate::getInstance()->bodyFrame2LocalFrame(body, target_local,
-                                                               (float)(m_multi_vehicle_.uav1.yaw * M_PI / 180.0f));
+                                                               (float)(m_multi_vehicle_.usv1.yaw * M_PI / 180.0f));
 
                 circle_config.m_circle_pos = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x + target_local.pose.position.x,
                                                    m_multi_vehicle_.usv1.current_local_pos.pose.position.y + target_local.pose.position.y,
@@ -187,6 +199,7 @@ void MultiBoatControl::DoProgress() {
                 ActionCircle::getInstance()->GetOutput(circle_output);
                 usv_way_points_.clear();
                 usv_way_points_ = circle_output.usv_way_points_;
+                usv_waypoints_size_init_ = usv_way_points_.size();
                 usv_state_ = USV_WAYPOINT;
                 state_changed_ = true;
                 break;
@@ -383,7 +396,7 @@ void MultiBoatControl::chooseLeader() {
 
 geometry_msgs::PoseStamped MultiBoatControl::CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, TVec3 &formation_target) {
     geometry_msgs::PoseStamped target_local_pos_sp;
-    util_log("not use formation_target (%.2f, %.2f, %.2f)", formation_target(0), formation_target(1), formation_target(2));
+//    util_log("not use formation_target (%.2f, %.2f, %.2f)", formation_target(0), formation_target(1), formation_target(2));
     target_local_pos_sp.pose.position.x = target_local_pos.pose.position.x + formation_target(0);
     target_local_pos_sp.pose.position.y = target_local_pos.pose.position.y + formation_target(1);
     target_local_pos_sp.pose.position.z = target_local_pos.pose.position.z;
@@ -391,7 +404,7 @@ geometry_msgs::PoseStamped MultiBoatControl::CalculateTargetPos(geometry_msgs::P
 }
 
 void MultiBoatControl::setVehicleCtrlData() {
-    util_log("usv set vehicle control !!!!!");
+//    util_log("usv set vehicle control !!!!!");
     m_multi_vehicle_.usv1.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.target_local_pos_sp, m_multi_vehicle_.usv1.follower_keep_pos);
     m_multi_vehicle_.usv2.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.current_local_pos, m_multi_vehicle_.usv2.follower_keep_pos);
     m_multi_vehicle_.usv3.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.current_local_pos, m_multi_vehicle_.usv3.follower_keep_pos);

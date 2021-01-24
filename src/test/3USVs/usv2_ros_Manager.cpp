@@ -107,7 +107,7 @@ void usv2_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
     static int i = 0;
     if (i++ % 10 == 0) {
         usv_.yaw = Calculate::getInstance()->dgrIn180s(static_cast<float>(Calculate::getInstance()->rad2deg(y) /*- 90*/));//??? Todo
-        util_log("IMU usv2 heading = %.2f, usv_.yaw = %d", dronepos_.m_heading, usv_.yaw);
+        util_log("IMU usv2 heading = %.2f, usv_.yaw = %.2f", dronepos_.m_heading, usv_.yaw);
     }
     usv_.q.w() = msg->orientation.w;
     usv_.q.x() = msg->orientation.x;
@@ -289,16 +289,17 @@ void usv2_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
         TVec3 target_vec = cur_pos - target_pos;
         TVec3 usv1_cur_pos = TVec3(usv1_current_local_pos_.pose.position.x, usv1_current_local_pos_.pose.position.y,
                                    0);
-        float usv1_usv2_cur_dist = (usv1_cur_pos - cur_pos).norm();
-        float usv1_usv2_target_dist = (usv1_cur_pos - target_pos).norm();
+        TVec3 usv2_cur_usv1_cur = (cur_pos - usv1_cur_pos).normalized();
+        TVec3 usv2_cur_usv2_target = target_vec.normalized();
+        float ang = acos(usv2_cur_usv1_cur.dot(usv2_cur_usv2_target));
 
         util_log("usv1_cur_pos = (%.2f, %.2f, %.2f), usv2 cur_pos = (%.2f, %.2f, %.2f), usv2 target_pos = (%.2f, %.2f, %.2f)", usv1_cur_pos.x(),
                  usv1_cur_pos.y(), usv1_cur_pos.z(), cur_pos.x(), cur_pos.y(), cur_pos.z(), target_pos.x(), target_pos.y(), target_pos.z());
-        if (usv1_usv2_cur_dist > usv1_usv2_target_dist && !usv_crash_) {
+        if (ang * 180 / M_PI < 90 && !usv_crash_) {
             local_pos_pub.publish(target_local_pos_sp_);
         } else {
             local_pos_pub.publish(usv_.current_local_pos);
-            util_log("usv2 disable the target");
+            util_log("usv2 disable the target, ang = %.2f, usv2 crash = %d", ang * 180 / M_PI, usv_crash_);
         }
 
     }

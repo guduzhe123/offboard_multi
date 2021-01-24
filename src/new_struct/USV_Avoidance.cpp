@@ -122,8 +122,8 @@ void USV_Avoidance::checkDistance(const M_Drone &vehicle1, const M_Drone &vehicl
         }
     }
 
-    util_log("2222  is_usv1_usv2_crash_ = %d, is_usv1_usv3_crash_ = %d, is_usv2_usv3_crash_ = %d",
-             is_usv1_usv2_crash_, is_usv1_usv3_crash_, is_usv2_usv3_crash_);
+/*    util_log("2222  is_usv1_usv2_crash_ = %d, is_usv1_usv3_crash_ = %d, is_usv2_usv3_crash_ = %d",
+             is_usv1_usv2_crash_, is_usv1_usv3_crash_, is_usv2_usv3_crash_);*/
 }
 
 void USV_Avoidance::Getvehicledistance(const M_Drone &vehicle1, const M_Drone &vehicle2, float &distance) {

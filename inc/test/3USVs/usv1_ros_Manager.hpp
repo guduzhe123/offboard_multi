@@ -67,7 +67,7 @@ private:
     bool usv_crash_;
 
     float target_heading_;
-    float yaw_rate_;
+    float yaw_cur_;
 
     TVec4 usv1_color_ = TVec4{1, 0.1, 1, 1};
 };
