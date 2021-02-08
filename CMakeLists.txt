@@ -99,59 +99,6 @@ target_link_libraries(multi_offboard multi_offboard_lib)
 add_executable(USVOffboard src/test/USVOffboard/main.cpp)
 target_link_libraries(USVOffboard ${catkin_LIBRARIES})
 
-#[[usv lead uav function]]
-add_executable(usv_lead_uav src/test/1UAV_1USV/main.cpp)
-add_library(usv_lead_uav_lib
-        STATIC
-        src/test/1UAV_1USV/uav_ros_Manager.cpp
-        src/test/1UAV_1USV/usv_ros_Manager.cpp
-        src/test/1UAV_1USV/usv_lead_uav.cpp
-        src/util.cpp
-        src/PID.cpp
-        src/ActionCircle.cpp
-        src/DataMan.cpp
-        src/Calculate.cpp
-        )
-
-target_link_libraries(usv_lead_uav usv_lead_uav_lib)
-target_link_libraries(usv_lead_uav ${catkin_LIBRARIES})
-
-#[[uav lead one uav]]
-add_executable(uav_lead_uav src/test/2uavs/main.cpp)
-add_library(uavs_lib
-        STATIC
-        src/test/2uavs/uav1_ros_Manager.cpp
-        src/test/2uavs/uav2_ros_Manager.cpp
-        src/test/2uavs/uav_lead_uav.cpp
-        src/test/2uavs/dataMan.cpp
-        src/test/2uavs/avoidance.cpp
-        src/util.cpp
-        src/DataMan.cpp
-        src/PID.cpp
-        src/ActionCircle.cpp
-        src/Calculate.cpp)
-target_link_libraries(uav_lead_uav uavs_lib)
-target_link_libraries(uav_lead_uav ${catkin_LIBRARIES})
-add_dependencies(uav_lead_uav ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-#[[uav lead one uav and follow usv]]
-add_executable(usv_lead_2uav src/test/2uavs-1usv/main.cpp)
-add_library(usv_lead_2uav_lib
-        STATIC
-        src/test/2uavs-1usv/uav1_ros_Manager.cpp
-        src/test/2uavs-1usv/uav2_ros_Manager.cpp
-        src/test/2uavs-1usv/usv1_ros_Manager.cpp
-        src/test/2uavs-1usv/uav_lead_uav.cpp
-        src/test/2uavs-1usv/dataMan.cpp
-        src/test/2uavs-1usv/avoidance.cpp
-        src/util.cpp
-        src/PID.cpp
-        src/ActionCircle.cpp
-        src/DataMan.cpp
-        src/Calculate.cpp)
-target_link_libraries(usv_lead_2uav usv_lead_2uav_lib)
-target_link_libraries(usv_lead_2uav ${catkin_LIBRARIES})
-add_dependencies(usv_lead_2uav ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #[[3usv control]]
 add_executable(3usv src/test/3USVs/main.cpp inc/ActionCircle.hpp)

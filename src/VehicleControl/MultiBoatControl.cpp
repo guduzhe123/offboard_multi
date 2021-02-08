@@ -118,12 +118,13 @@ void MultiBoatControl::DoProgress() {
 
                     util_log("usv1_reached_ = %d, usv2_reached_ = %d, usv3_reached_ = %d", usv1_reached_, usv2_reached_ ,usv3_reached_);
                     if (usv1_reached_) {
-                        if (usv_way_points_.size() > usv_waypoints_size_init_ - 2
+/*                        if (usv_way_points_.size() > usv_waypoints_size_init_ - 2
                             && usv2_reached_ && usv3_reached_) {
                             usv_way_points_.pop_back();
                         } else if (usv_way_points_.size() <= usv_waypoints_size_init_ - 2) {
                             usv_way_points_.pop_back();
-                        }
+                        }*/
+                        usv_way_points_.pop_back();
                         util_log("Finished one way point = (%.2f, %.2f, %.2f)",
                                  usv_way_points_.back().pose.position.x, usv_way_points_.back().pose.position.y,
                                  usv_way_points_.back().pose.position.z);
@@ -148,7 +149,7 @@ void MultiBoatControl::DoProgress() {
                                            0);
                     TVec3 vec = (usv1_target - usv1_cur).normalized();
                     float target_yaw = atan2(vec.y(), vec.x()) * 180 / M_PI;
-                    if (fabs(target_yaw - m_multi_vehicle_.usv1.yaw) < 10 ) {
+                    if (fabs(target_yaw - m_multi_vehicle_.usv1.yaw) < 20 ) {
                         PathCreator::geInstance()->CreateUSVFormationInit(formation_config_);
                     }
                     util_log("targte yaw = %.2f, m_multi_vehicle_.usv1.yaw = %.2f", target_yaw, m_multi_vehicle_.usv1.yaw);
@@ -172,7 +173,7 @@ void MultiBoatControl::DoProgress() {
             case USV_CIRCLE_INIT: {
                 TCircleConfig circle_config;
                 circle_config.target_heading = m_multi_vehicle_.usv1.yaw;
-                circle_config.m_radius = 20;
+                circle_config.m_radius = 10;
                 geometry_msgs::PoseStamped target_local;
                 geometry_msgs::PoseStamped body;
                 body.pose.position.x = circle_config.m_radius;
@@ -180,6 +181,7 @@ void MultiBoatControl::DoProgress() {
                 body.pose.position.z = 0;
                 Calculate::getInstance()->bodyFrame2LocalFrame(body, target_local,
                                                                (float)(m_multi_vehicle_.usv1.yaw * M_PI / 180.0f));
+                target_local = body;
 
                 circle_config.m_circle_pos = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x + target_local.pose.position.x,
                                                    m_multi_vehicle_.usv1.current_local_pos.pose.position.y + target_local.pose.position.y,

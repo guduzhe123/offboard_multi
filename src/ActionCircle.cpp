@@ -22,7 +22,7 @@ void ActionCircle::onInit(const TCircleConfig &config) {
 void ActionCircle::doProgress(TVec3 &m_curPos, float cur_heading) {
 // velocity to control radius
     int j = 6;
-    for (int i = 1; i < 4 * j + 1; i++) {
+    for (int i = 1; i < 8 * j + 1; i++) {
         getCircleTarget(M_PI * i / j);
     }
 }

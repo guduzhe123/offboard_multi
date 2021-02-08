@@ -6,7 +6,6 @@
 #define OFFBOARD_UUV1_ROS_MANAGER_HPP
 
 #include "Cinc.hpp"
-#include "dataMan.hpp"
 #include "DataMan.hpp"
 #include "PathCreator.hpp"
 
