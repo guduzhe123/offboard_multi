@@ -63,6 +63,9 @@ void usv2_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
     exec_timer_ = nh.createTimer(ros::Duration(0.05), &usv2_ros_Manager::drone_pos_update, this);
     commander_timer_ = nh.createTimer(ros::Duration(0.05), &usv2_ros_Manager::commander_update, this);
     publish_timer_ = nh.createTimer(ros::Duration(0.05), &usv2_ros_Manager::publishDronePosControl, this);
+
+    pcl_manager_.reset(new PCLROSMessageManager);
+    pcl_manager_->OnInit(nh);
 }
 
 void usv2_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {

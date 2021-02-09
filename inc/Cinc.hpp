@@ -34,6 +34,12 @@
 #include "pid.hpp"
 #include "offboard/DronePosUpdate.h"
 #include <visualization_msgs/Marker.h>
+#include <octomap_msgs/Octomap.h>
+#include <octomap_msgs/conversions.h>
+#include <octomap_ros/conversions.h>
+#include <octomap/octomap.h>
+
+#include "PCL/IMap.hpp"
 using namespace std;
 
 typedef Eigen::Vector2f TVec2;
@@ -96,6 +102,8 @@ struct M_Drone {
     mavros_msgs::WaypointList  waypointList;
     mavros_msgs::WaypointReached waypointReached;
     mavros_msgs::HomePosition homePosition;
+    octomap_msgs::Octomap octomap;
+    shared_ptr<IMap> Imap;
 };
 
 struct multi_vehicle{

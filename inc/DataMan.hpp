@@ -77,6 +77,8 @@ public:
 
     void setUSVHomePosition();
 
+    void setOctomap(const octomap_msgs::Octomap &octmsg);
+
     multi_vehicle &GetData();
 
 private:

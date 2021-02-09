@@ -9,6 +9,8 @@
 #include "dataMan.hpp"
 #include "DataMan.hpp"
 #include "PathCreator.hpp"
+#include "PCL/PCLROSMessageManager.hpp"
+#include "PCL/OctoMap.hpp"
 
 class usv1_ros_Manager {
 public:
@@ -34,6 +36,7 @@ private:
     void poublisMarker(const geometry_msgs::Point &p, const TVec4 &color, const ros::Publisher &publisher);
     void DrawTrajCommand(const TVec3 &pos, const TVec3 &vec, const TVec4 &color);
     void imuCB(const sensor_msgs::Imu::ConstPtr& msg);
+    void getOctomap();
     
     void drone_pos_update(const ros::TimerEvent& e);
     void commander_update(const ros::TimerEvent& e);
@@ -70,6 +73,9 @@ private:
     float yaw_cur_;
 
     TVec4 usv1_color_ = TVec4{1, 0.1, 1, 1};
+
+
+    unique_ptr<PCLROSMessageManager> pcl_manager_;
 };
 
 

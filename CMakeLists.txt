@@ -9,10 +9,29 @@ find_package(catkin REQUIRED COMPONENTS
         cv_bridge
         image_transport
         message_generation
+        pcl_ros
+        tf
+        octomap_msgs
 )
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 message(STATUS "CE30 OpenCV version: ${OpenCV_VERSION}, OpenCV_DIR: ${OpenCV_DIR}")
+
+find_package(octomap REQUIRED)
+include_directories(${OCTOMAP_INCLUDE_DIRS})
+
+find_package(OMPL REQUIRED)
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBFCL REQUIRED fcl)
+find_path(LIBFCL_INCLUDE_DIRS fcl/config.h HINTS ${LIBFCL_INCLUDE_DIR} ${LIBFCL_INCLUDE_DIRS})
+find_library(LIBFCL_LIBRARIES fcl HINTS ${LIBFCL_LIBRARY_DIRS})
+#message("LIBFCL_INCLUDE_DIRS: ${LIBFCL_INCLUDE_DIRS}")
+if (LIBFCL_FOUND)
+    #    message("=========== FCL LIB: ${LIBFCL_LIBRARIES} ===========")
+else ()
+    message("=========== 请按装fcl: sudo apt install libfcl-0.5-dev ===========")
+endif ()
 
 add_message_files(
         FILES
@@ -31,6 +50,7 @@ catkin_package(
         std_msgs
         cv_bridge
         image_transport
+        octomap_msgs
         #DEPENDS system_lib
 )
 
@@ -92,12 +112,14 @@ add_library(
         src/Calculate.cpp
         src/PID.cpp
         src/ActionCircle.cpp
+        src/PCL/PCLROSMessageManager.cpp
         #[[src/serial/serialConnection.cpp]])
 
 target_link_libraries(multi_offboard multi_offboard_lib)
 
 add_executable(USVOffboard src/test/USVOffboard/main.cpp)
-target_link_libraries(USVOffboard ${catkin_LIBRARIES})
+target_link_libraries(USVOffboard ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
+        ${LIBFCL_LIBRARIES})
 
 
 #[[3usv control]]
@@ -117,9 +139,11 @@ add_library(3usvs_lib
         src/PID.cpp
         src/ActionCircle.cpp
         src/new_struct/
-        src/FlightManager.cpp)
+        src/PCL/PCLROSMessageManager.cpp
+        src/FlightManager.cpp src/PCL/OctoMap.cpp)
 target_link_libraries(3usv 3usvs_lib multi_offboard_lib)
-target_link_libraries(3usv ${catkin_LIBRARIES})
+target_link_libraries(3usv ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
+        ${LIBFCL_LIBRARIES})
 add_dependencies(3usv ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #[[4uav]]
@@ -137,10 +161,11 @@ add_library(4uavs_lib
         src/ActionCircle.cpp
         src/test/4UAVs/uavs_control.cpp
         src/PathCreator.cpp
-        src/new_struct/)
+        src/new_struct/ src/PCL/OctoMap.cpp)
 target_link_libraries(4uav 4uavs_lib multi_offboard_lib)
-target_link_libraries(4uavs_lib ${catkin_LIBRARIES})
-add_dependencies(4uav ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(4uavs_lib ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
+        ${LIBFCL_LIBRARIES})
+add_dependencies(4uav ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} )
 
 
 #[[4uav]]
@@ -164,9 +189,11 @@ add_library(7vehicles_lib
         src/test/4UAVs/uavs_control.cpp
         src/test/7Vehicles/7vechicles_control.cpp
         src/PathCreator.cpp
-        src/new_struct/)
+        src/PCL/PCLROSMessageManager.cpp
+        src/new_struct/ src/PCL/OctoMap.cpp)
 target_link_libraries(7vehicles 7vehicles_lib multi_offboard_lib)
-target_link_libraries(7vehicles ${catkin_LIBRARIES})
+target_link_libraries(7vehicles ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
+        ${LIBFCL_LIBRARIES})
 
 add_executable(CompressedToRaw src/CompressedToRaw.cpp)
-TARGET_LINK_LIBRARIES(CompressedToRaw ${OpenCV_LIBS} ${catkin_LIBRARIES})
+TARGET_LINK_LIBRARIES(CompressedToRaw ${OpenCV_LIBS} ${catkin_LIBRARIES} )

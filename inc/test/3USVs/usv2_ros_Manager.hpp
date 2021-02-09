@@ -9,6 +9,7 @@
 #include "dataMan.hpp"
 #include "DataMan.hpp"
 #include "PathCreator.hpp"
+#include "PCL/PCLROSMessageManager.hpp"
 
 class usv2_ros_Manager {
 public:
@@ -73,5 +74,7 @@ private:
     TVec3 follow_leader_offset;
     geometry_msgs::Point pnt_;
     geometry_msgs::PoseStamped usv1_current_local_pos_;
+
+    unique_ptr<PCLROSMessageManager> pcl_manager_;
 };
 #endif //OFFBOARD_UAV2_ROS_MANAGER_HPP

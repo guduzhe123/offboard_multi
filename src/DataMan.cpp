@@ -253,6 +253,10 @@ void DataMan::SetUserCommand(const int value) {
     }*/
 }
 
+void DataMan::setOctomap(const octomap_msgs::Octomap &octmsg) {
+
+}
+
 void DataMan::PrinrDorneFlightDate() {
     util_log("uav1 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.uav1.current_local_pos.pose.position.x,
              multi_vehicle_.uav1.current_local_pos.pose.position.y, multi_vehicle_.uav1.current_local_pos.pose.position.z);
