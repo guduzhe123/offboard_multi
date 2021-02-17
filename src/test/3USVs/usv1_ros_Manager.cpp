@@ -84,7 +84,9 @@ void usv1_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
 
 void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
     usv_.current_local_pos = *msg;
-    util_log("usv1 current_local_pos = %2f", usv_.current_local_pos.pose.position.x);
+    util_log("usv1 current_local_pos = (%.2f, %.2f, %.2f)", usv_.current_local_pos.pose.position.x,
+             usv_.current_local_pos.pose.position.y,
+             usv_.current_local_pos.pose.position.z);
 
     double yaw, roll, pitch;
     EulerAngles angles;
@@ -102,6 +104,9 @@ void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     dronepos_.m_pitch = pitch * 180 / M_PI;
     dronePosPub.publish(dronepos_);
     util_log("vir_hub usv1 heading = %.2f, usv_.yaw = %d", dronepos_.m_heading, usv_.yaw);
+    dronepos_.m_heading = usv_.yaw;
+    usv_.roll = dronepos_.m_roll;
+    usv_.pitch = dronepos_.m_pitch;
 }
 
 void usv1_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
@@ -203,6 +208,7 @@ void usv1_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
 //    DataMan::getInstance()->SetDroneData(usv_);
     util_log("m_multi_vehicle_.usv1.yaw = %.2f, dronepos_.m_heading = %.2f, yaw_cur_ = %.2f", usv_.yaw, dronepos_.m_heading, yaw_cur_);
     DataMan::getInstance()->SetDroneData(usv_);
+    pcl_manager_->setVehicleMessage(usv_);
     getOctomap();
 }
 
@@ -225,7 +231,7 @@ void usv1_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
 void
 usv1_ros_Manager::poublisMarker(const geometry_msgs::Point &p, const TVec4 &color, const ros::Publisher &publisher) {
     visualization_msgs::Marker target_marker;
-    target_marker.header.frame_id = "world";
+    target_marker.header.frame_id = "map";
     target_marker.header.stamp =ros::Time::now();
     target_marker.ns = "points_and_lines";
     target_marker.action = visualization_msgs::Marker::ADD;
@@ -253,7 +259,7 @@ usv1_ros_Manager::poublisMarker(const geometry_msgs::Point &p, const TVec4 &colo
 
 void usv1_ros_Manager::DrawTrajCommand(const TVec3 &pos, const TVec3 &vec, const TVec4 &color) {
     visualization_msgs::Marker mk_state;
-    mk_state.header.frame_id = "world";
+    mk_state.header.frame_id = "map";
     mk_state.header.stamp = ros::Time::now();
     mk_state.id = 1;
     mk_state.type = visualization_msgs::Marker::ARROW;

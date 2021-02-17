@@ -130,7 +130,7 @@ void usv2_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
 void
 usv2_ros_Manager::poublisMarker(const geometry_msgs::Point &p, const TVec4 &color, const ros::Publisher &publisher) {
     visualization_msgs::Marker target_marker;
-    target_marker.header.frame_id = "world";
+    target_marker.header.frame_id = "map";
     target_marker.header.stamp =ros::Time::now();
     target_marker.ns = "points_and_lines";
     target_marker.action = visualization_msgs::Marker::ADD;
@@ -158,7 +158,7 @@ usv2_ros_Manager::poublisMarker(const geometry_msgs::Point &p, const TVec4 &colo
 
 void usv2_ros_Manager::DrawTrajCommand(const TVec3 &pos, const TVec3 &vec, const TVec4 &color) {
     visualization_msgs::Marker mk_state;
-    mk_state.header.frame_id = "world";
+    mk_state.header.frame_id = "map";
     mk_state.header.stamp = ros::Time::now();
     mk_state.id = 1;
     mk_state.type = visualization_msgs::Marker::ARROW;
