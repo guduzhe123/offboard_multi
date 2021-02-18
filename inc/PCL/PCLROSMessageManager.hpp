@@ -17,6 +17,10 @@
 #include <octomap/OcTreeKey.h>
 #include <pcl/filters/conditional_removal.h>
 #include <pcl/filters/radius_outlier_removal.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/extract_indices.h>
 
 class PCLROSMessageManager {
 public:
@@ -30,7 +34,7 @@ public:
 
 private:
     ros::Subscriber lidar_point_sub_;
-    ros::Publisher octomap_pub_, transformed_cloud_pub_;
+    ros::Publisher octomap_pub_, transformed_cloud_pub_, ground_removal_pub_;
 
     M_Drone usv_;
 
@@ -39,8 +43,13 @@ private:
 
     void PubOctomap(octomap::OcTree *tree, const ros::Publisher &pub);
     void radiusRemoval(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,
-                         const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud,
-                         float radius, int min_neighbors);
+                       const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud,
+                       float radius, int min_neighbors,
+                       pcl::IndicesConstPtr &cloud_filtered_indices);
+
+    void groundRemove(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,
+                      const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud,
+                      const pcl::IndicesConstPtr &cloud_filtered_indices);
     Eigen::Isometry3f get_transformation_matrix();
     void PubPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &o_cloud, const ros::Publisher &pub,
                        string frame = "map");

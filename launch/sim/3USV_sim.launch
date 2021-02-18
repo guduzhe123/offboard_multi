@@ -1,5 +1,5 @@
 <launch>
-    <include file="$(find px4)/launch/mavros_3usvs_sitl.launch"/>
+<!--    <include file="$(find px4)/launch/mavros_3usvs_sitl.launch"/>-->
 <!--    <include file="$(find px4)/launch/multi_umv_mavros_sitl.launch"/>-->
 
     <arg name="formation_distance" value="15" />
