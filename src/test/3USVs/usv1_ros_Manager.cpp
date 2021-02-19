@@ -70,7 +70,7 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
 
     usv_.Imap.reset(new OctoMap);
     usv_.Imap->onInit();
-
+    usv_.Imap->setSafeRaduis(10);
 }
 
 void usv1_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {
@@ -340,6 +340,12 @@ void usv1_ros_Manager::usvCrash(bool usv1_crash) {
 void usv1_ros_Manager::getOctomap() {
     pcl_manager_->getOctomap(usv_.octomap);
     usv_.Imap->updateOctomap(usv_.octomap);
+    TVec3 drone_pos = TVec3(usv_.current_local_pos.pose.position.x,
+                            usv_.current_local_pos.pose.position.y,
+                            usv_.current_local_pos.pose.position.z);
+    if (!usv_.Imap->isStateValid(drone_pos)) {
+        util_log("usv1 is in collision!");
+    }
 }
 
 

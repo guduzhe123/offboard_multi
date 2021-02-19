@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
         pcl_ros
         tf
         octomap_msgs
+        geometry_msgs
 )
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
@@ -34,11 +35,13 @@ else ()
 endif ()
 
 add_message_files(
+        DIRECTORY msg
         FILES
+        Bspline.msg
         DronePosUpdate.msg
 )
 
-generate_messages(DEPENDENCIES  std_msgs)
+generate_messages(DEPENDENCIES  std_msgs geometry_msgs)
 
 catkin_package(
         INCLUDE_DIRS inc
@@ -71,6 +74,45 @@ include_directories( "/usr/include/eigen3" )
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/offboard.cpp
 # )
+
+
+add_library(
+        chlog_lib
+        STATIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/log/ChLog.cpp
+)
+
+add_library(
+        motion_plan_lib
+        # Sets the library as a STATIC library.
+        STATIC
+        #---ROS or RTPS
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/bspline/non_uniform_bspline.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/bspline_opt/bspline_optimizer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/path_searching/kinodynamic_astar.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/plan_env/edt_environment.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/plan_env/obj_generator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/plan_env/obj_predictor.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/plan_env/raycast.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/plan_env/sdf_map.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/poly_traj/polynomial_traj.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/traj_utils/planning_visualization.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/mp_core/FastPathFinder.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/mp_core/MPManager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/mp_core/MPPublisher.cpp
+)
+
+target_link_libraries(
+        motion_plan_lib
+
+        ${OpenCV_LIBS}
+        ${PCL_LIBRARIES}
+        ${LIBFCL_LIBRARIES}
+        /usr/local/lib/libnlopt.so
+        ${${LINK_LIB}}
+        chlog_lib
+)
+
 add_executable(offboard src/offboard.cpp)
 target_link_libraries(offboard ${catkin_LIBRARIES})
 
@@ -115,7 +157,10 @@ add_library(
         src/PCL/PCLROSMessageManager.cpp
         #[[src/serial/serialConnection.cpp]])
 
-target_link_libraries(multi_offboard multi_offboard_lib)
+target_link_libraries(multi_offboard
+        multi_offboard_lib
+        chlog_lib
+        motion_plan_lib)
 
 add_executable(USVOffboard src/test/USVOffboard/main.cpp)
 target_link_libraries(USVOffboard ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
@@ -142,8 +187,12 @@ add_library(3usvs_lib
         src/PCL/PCLROSMessageManager.cpp
         src/FlightManager.cpp src/PCL/OctoMap.cpp)
 target_link_libraries(3usv 3usvs_lib multi_offboard_lib)
-target_link_libraries(3usv ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
-        ${LIBFCL_LIBRARIES})
+target_link_libraries(3usv
+        ${catkin_LIBRARIES}
+        ${OCTOMAP_LIBRARIES}
+        ${LIBFCL_LIBRARIES}
+        chlog_lib
+        motion_plan_lib)
 add_dependencies(3usv ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #[[4uav]]
@@ -191,7 +240,11 @@ add_library(7vehicles_lib
         src/PathCreator.cpp
         src/PCL/PCLROSMessageManager.cpp
         src/new_struct/ src/PCL/OctoMap.cpp)
-target_link_libraries(7vehicles 7vehicles_lib multi_offboard_lib)
+target_link_libraries(7vehicles
+        7vehicles_lib
+        multi_offboard_lib
+        chlog_lib
+        motion_plan_lib)
 target_link_libraries(7vehicles ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
         ${LIBFCL_LIBRARIES})
 

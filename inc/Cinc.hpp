@@ -40,7 +40,9 @@
 #include <octomap/octomap.h>
 
 #include "PCL/IMap.hpp"
+#include "log/Chlog.hpp"
 using namespace std;
+using namespace chlog;
 
 typedef Eigen::Vector2f TVec2;
 typedef Eigen::Vector3f TVec3;

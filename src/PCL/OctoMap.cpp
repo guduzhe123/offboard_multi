@@ -31,7 +31,7 @@ void OctoMap::setSafeRaduis(const float &raduis) {
     safety_radius_ = raduis;
 }
 
-bool OctoMap::isStateValid(const Eigen::Vector3f &PosENU, float &min_dist)
+bool OctoMap::isStateValid(const Eigen::Vector3f &PosENU)
 {
     // cast the abstract state type to the type we expect
     Quadcopter_ = std::shared_ptr<fcl::CollisionGeometry>(new fcl::Sphere(safety_radius_));
@@ -44,8 +44,6 @@ bool OctoMap::isStateValid(const Eigen::Vector3f &PosENU, float &min_dist)
     fcl::CollisionRequest requestType(1,false,1,false);
     fcl::CollisionResult collisionResult;
     fcl::collide(&aircraftObject, &treeObj, requestType, collisionResult);
-
-    min_dist = 5.5;
 
     return(!collisionResult.isCollision());
 }
