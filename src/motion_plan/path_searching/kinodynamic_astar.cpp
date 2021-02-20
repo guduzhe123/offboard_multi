@@ -47,19 +47,6 @@ namespace fast_planner {
                                    ", " + to_string2(start_point(2)) + ")");
     }
 
-    void KinodynamicAstar::setCirclePoint(const TVec3 &mp_circle_point) {
-        circle_pos_ = mp_circle_point.cast<double>();
-        chlog::info("motion_plan", "[Kino Astar]: Circle! circle center point = " + toStr(mp_circle_point));
-    }
-
-    void
-    KinodynamicAstar::calcDistToCenter(double &dist, const Eigen::Vector3d &cur_pos, const Eigen::Vector3d &start_pos, bool show) {
-        // start_pos 目标曲线的起始点
-        // cur_pos  A*生成的点
-        TLine start_end(start_pos.cast<float>(), target_pos_.cast<float>());
-
-        dist = start_end.dist(cur_pos.cast<float>());
-    }
 
     int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, Eigen::Vector3d start_a,
                                  Eigen::Vector3d end_pt, Eigen::Vector3d end_v,
@@ -160,18 +147,6 @@ namespace fast_planner {
             vector<Eigen::Vector3d> inputs;
             vector<double>          durations;
 
-
-            float max_time;
-            if (afc_state == MotionPlanState::CIRCLE && !search_successed) {
-                max_acc_ = 5.0;
-                max_time = 2.0;
-                res = 1 /5.0, time_res = 1 / 10.0;
-                chlog::info("motion_plan", "[Kino Astar]: blade circle big step! ");
-            } else {
-                max_acc_ = 1.5;
-                max_time = max_tau_;
-            }
-
             {
                 for (double ax = -max_acc_; ax <= max_acc_ + 1e-3; ax += max_acc_ * res)
                     for (double ay = -max_acc_; ay <= max_acc_ + 1e-3; ay += max_acc_ * res)
@@ -179,7 +154,7 @@ namespace fast_planner {
                             um << ax, ay, az;
                             inputs.push_back(um);
                         }
-                for (double tau = time_res * max_time; tau <= max_time; tau += time_res * max_time)
+                for (double tau = time_res * max_tau_; tau <= max_tau_; tau += time_res * max_tau_)
                     durations.push_back(tau);
             }
 
@@ -194,23 +169,6 @@ namespace fast_planner {
                     total_tried_num_++;
                     /* ---------- check if in free space ---------- */
 
-                    double dist_to_center = 0/*, cur_dist*/;
-                    if ( afc_state == MotionPlanState::TRACKING || afc_state == MotionPlanState::ROOTTURN
-                        || afc_state == MotionPlanState::POINTTOPOINT) {
-                        calcDistToCenter(dist_to_center, pro_state.head(3), start_pos_, true);
-                        if (dist_to_center > check_radius_ ) {
-                            outof_corridor_mum_++;
-                            continue;
-                        }
-                    }
-
-                    if (afc_state == MotionPlanState::CIRCLE) {
-                        double dist_to_tip = (circle_pos_ - pro_state.head(3)).norm();
-                        if (dist_to_tip < safe_dist_tip_) {
-                            outof_corridor_mum_++;
-                            continue;
-                        }
-                    }
 
                     /* not in close set */
                     Eigen::Vector3i pro_id   = posToIndex(pro_state.head(3));
@@ -235,30 +193,17 @@ namespace fast_planner {
                     }
 
                     /*check turbine obstacle distance*/
-                    float min_dist;
-                    if(afc_state == MotionPlanState::ROOTTURN
-                       || afc_state == MotionPlanState::CIRCLE) {
-                        if (!map_->isStateValid(pro_state.head(3).cast<float>(), min_dist)) {
-                            // chlog::info("motion_plan", "the state is in collision!");
-                            in_collision_num_++;
-                            continue;
-                        }
-                    }
-                    /* ---------- compute cost ---------- */
-                    double time_to_goal, tmp_g_score, tmp_f_score, dist = 0;
-                    if (afc_state == MotionPlanState::TRACKING || afc_state == MotionPlanState::ROOTTURN
-                         || afc_state == MotionPlanState::POINTTOPOINT) {
-                        calcDistToCenter(dist, pro_state.head(3), start_pos_, false);
-                    } else if (afc_state == MotionPlanState::CIRCLE){
-//                        double radius = (start_pt - circle_pos_).norm();
-                        if ((circle_pos_ - pro_state.head(3)).norm() < 8) {
-                            dist = fabs((circle_pos_ - pro_state.head(3)).norm() - 8);
-                        }
-                    } else {
-                        dist = 0;
+
+                    if (!map_->isStateValid(pro_state.head(3).cast<float>())) {
+                        // chlog::info("motion_plan", "the state is in collision!");
+                        in_collision_num_++;
+                        continue;
                     }
 
-                    tmp_g_score = (um.squaredNorm() + w_time_) * tau + cur_node->g_score + dist_lambda_ * dist;
+                    /* ---------- compute cost ---------- */
+                    double time_to_goal, tmp_g_score, tmp_f_score;
+
+                    tmp_g_score = (um.squaredNorm() + w_time_) * tau + cur_node->g_score;
                     tmp_f_score = tmp_g_score + lambda_heu_ * estimateHeuristic(pro_state, end_state, time_to_goal);
 
                     /* ---------- compare expanded node in this loop ---------- */
@@ -277,7 +222,6 @@ namespace fast_planner {
                                 expand_node->state    = pro_state;
                                 expand_node->input    = um;
                                 expand_node->duration = tau;
-                                expand_node->dist_center = dist_to_center;
                             }
 
                             feasible_num_++;
@@ -297,7 +241,6 @@ namespace fast_planner {
                             pro_node->input      = um;
                             pro_node->duration   = tau;
                             pro_node->parent     = cur_node;
-                            pro_node->dist_center     = dist_to_center;
                             pro_node->node_state = IN_OPEN_SET;
 
                             open_set_.push(pro_node);
@@ -325,7 +268,6 @@ namespace fast_planner {
                                 pro_node->input    = um;
                                 pro_node->duration = tau;
                                 pro_node->parent   = cur_node;
-                                pro_node->dist_center     = dist_to_center;
                             }
                             open_count_ ++;
                         } else {

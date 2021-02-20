@@ -188,11 +188,11 @@ namespace fast_planner {
 
         for (double t = tm; t <= tmp; t += 0.01) {
             Eigen::Vector3d pt = bspline.evaluateDeBoor(t);
-            Eigen::Vector3f pnt = pt.cast<float >();
+/*            Eigen::Vector3f pnt = pt.cast<float >();
             Eigen::Vector3f pos_in_Local_EUS =
                     FrameTransform::GetInstance()->TransFrame(pnt, TurbineEUS, LocalEUS);
             Eigen::Vector3f pos_in_Local_ENU = EUS2ENU(pos_in_Local_EUS);
-            pt = pos_in_Local_ENU.cast<double>();
+            pt = pos_in_Local_ENU.cast<double>();*/
 
             traj_pts.push_back(pt);
         }
@@ -305,11 +305,7 @@ namespace fast_planner {
 
     void PlanningVisualization::drawDroneSpere(Eigen::Vector3d goal, double resolution,
                                                 const Eigen::Vector4d& color, int id, int pub_id) {
-        Eigen::Vector3f pnt = goal.cast<float >();
-        Eigen::Vector3f pos_in_Local_EUS =
-                FrameTransform::GetInstance()->TransFrame(pnt, TurbineEUS, LocalEUS);
-        Eigen::Vector3f pos_in_Local_ENU = EUS2ENU(pos_in_Local_EUS);
-        vector<Eigen::Vector3d> drone = {pos_in_Local_ENU.cast<double>()};
+        vector<Eigen::Vector3d> drone = {goal};
         displaySphereList(drone, resolution, color, id, pub_id);
     }
 

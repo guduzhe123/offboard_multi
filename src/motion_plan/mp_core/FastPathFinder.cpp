@@ -41,9 +41,6 @@ namespace fast_planner {
         kino_path_finder_->setEnvironment(map, edt_environment_);
         kino_path_finder_->setSpeedLimit(pp_.max_vel_, pp_.max_acc_);
         kino_path_finder_->init();
-        if (config.mp_plan_state == MotionPlanState::CIRCLE) {
-            kino_path_finder_->setCirclePoint(mp_config_.m_toward_point);
-        }
 
         bspline_optimizers_.resize(2);
         for (int i = 0; i < 2; ++i) {
@@ -177,14 +174,8 @@ namespace fast_planner {
 
         int cost_function;
         chlog::info("motion_plan", "[plan man]: mp_config_.mp_plan_state = ", mp_config_.mp_plan_state);
-        if (mp_config_.mp_plan_state == MotionPlanState::TRACKING ||
-            mp_config_.mp_plan_state == MotionPlanState::ROOTTURN ||
-            mp_config_.mp_plan_state == MotionPlanState::POINTTOPOINT) {
-            cost_function = BsplineOptimizer::NORMAL_PHASE;
-        } else {
-            cost_function = BsplineOptimizer::SAFE;
-        }
 
+        cost_function = BsplineOptimizer::SAFE;
         if (status != KinodynamicAstar::REACH_END) {
             cost_function |= BsplineOptimizer::ENDPOINT;
         }

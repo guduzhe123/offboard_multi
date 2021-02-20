@@ -11,6 +11,7 @@
 #include <sys/time.h>
 #include <chrono>
 #include <mutex>
+#include <Eigen/Core>
 
 #ifndef OFFBOARD_CHLOG_HPP
 #define OFFBOARD_CHLOG_HPP
@@ -131,6 +132,10 @@ namespace chlog {
     inline void dbg(const string &sCh, const Types &...args) {
         log(sCh, CHDBG, my_to_string(args...));
     }
+
+    inline string toStr(const Eigen::Vector3f &v) {
+        return "(" + to_string2(v.x()) + ", " + to_string2(v.y()) + ", " + to_string2(v.z()) + ")";
+    };
 }
 
 #endif //OFFBOARD_CHLOG_HPP

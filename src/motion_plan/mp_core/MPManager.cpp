@@ -20,25 +20,17 @@ MPManager::MPManager(const MP_Config &config) :
     mp_publisher_->OnInit(mp_config_.mp_plan_state);
 
     path_finder_ = makeSp<FastPathFinder>();
-    fp_config_.max_vel = mp_config_.max_vel;
-    fp_config_.max_acc = mp_config_.max_acc;
-    fp_config_.mp_plan_state = mp_config_.mp_plan_state;
-    fp_config_.m_toward_point = mp_config_.m_toward_point;
-    path_finder_->initPlanModules(fp_config_, mp_config_.mp_map);
+    path_finder_->initPlanModules(mp_config_, mp_config_.mp_map);
     receive_traj_ = false;
     mp_publisher_->drawGoal(mp_config_.end_pos, 1, Eigen::Vector4d(1, 0, 0, 1.0));
 
     chlog::info("motion_plan", "[MP Mananger]: Triggered! end_pt_ = " + toStr(mp_config_.end_pos), "max_vel = "
-                                                                                                   + to_string(fp_config_.max_vel));
+                                                                                                   + to_string(mp_config_.max_vel));
     ChangeExecState(WAIT_TARGET, "FSM");
     end_vel_.setZero();
     init_target_pos_ = mp_config_.end_pos;
 }
 
-void MPManager::updateFlightData(const TFlightData &data) {
-    flight_data_ = data;
-    OnUpdateBladeFittingLine(data.m_mp_data.fitting_line_dots);
-}
 
 void MPManager::SetMpEnable(bool is_enable) {
     mp_config_.is_enable = is_enable;
@@ -86,98 +78,6 @@ void MPManager::updateMotionPlan(const float dist, const TVec3 &insp_vec,
                 toStr(insp_vec_ENU_));
 }
 
-void MPManager::OnUpdateBladeFittingLine(const wa_ros_msgs::BezierCurvePnts &line_dot) {
-//        chlog::info("motion_plan", "line_dot.bezier_curve_points.size() = ", line_dot.bezier_curve_points.size());
-    if (line_dot.bezier_curve_points.size() > 0 && mp_state_ > WAIT_TARGET) {
-        wa_ros_msgs::BezierCurvePnts path;
-        wa_ros_msgs::FittedPoints pnt1, pnt2;
-        wa_ros_msgs::FittedPoints pnt;
-        chlog::info("motion_plan", "[MP Manager]: update blade fitting line!");
-
-        for (auto &bezier_curve_point : line_dot.bezier_curve_points) {
-            TVec3 pos_cur;
-            pos_cur.x() = bezier_curve_point.x;
-            pos_cur.y() = bezier_curve_point.y;
-            pos_cur.z() = bezier_curve_point.z;
-            TVec3 pos_in_turbine_EUS;
-            changeToTurbineFrame(pos_cur, pos_in_turbine_EUS);
-
-            TVec3 pos = pos_in_turbine_EUS - dist_config_ * insp_vec_ENU_; // TODO update + -
-            pnt.x = pos.x();
-            pnt.y = pos.y();
-            pnt.z = pos.z();
-            path.bezier_curve_points.push_back(pnt);
-        }
-
-        mp_publisher_->DrawBladePath(line_dot);
-        mp_publisher_->DrawDronePath(path);
-        if (!mp_publisher_->checkPathAvailable(path)) {
-            chlog::info("motion_plan", "[MP Manager]: blade line false!!!!!!!");
-            return;
-        }
-
-        pnt1 = path.bezier_curve_points.front();
-        pnt2 = path.bezier_curve_points.back();
-        fitting_line_.m_p0.x() = pnt1.x;
-        fitting_line_.m_p0.y() = pnt1.y;
-        fitting_line_.m_p0.z() = pnt1.z;
-
-        fitting_line_.m_p1.x() = pnt2.x;
-        fitting_line_.m_p1.y() = pnt2.y;
-        fitting_line_.m_p1.z() = pnt2.z;
-        TVec3 dir = fitting_line_.dv();
-        TLine cur_tar_origin(drone_st_.drone_pos, init_target_pos_);
-        float angle = acos(cur_tar_origin.normal().dot(fitting_line_.normal()));
-        chlog::info("motion_plan", "[MP Manager]: init_target_pos_ = ", toStr(init_target_pos_), ", angle = ",
-                    angle * RAD2DEG);
-        if (angle * RAD2DEG > 90) {
-            dir = -dir;
-            swap(fitting_line_.m_p0, fitting_line_.m_p1);
-        }/* else if (angle * RAD2DEG > 40 && angle * RAD2DEG < 90) {
-                chlog::info("motion_plan", "[MPManger]: return for large angle");
-                return;
-            }*/
-
-        float dist = 100000;
-        int min_i = 0;
-        TVec3 cur_point;
-        for (int i = 0; i < (int) path.bezier_curve_points.size(); i++) {
-            cur_point = TVec3(path.bezier_curve_points[i].x, path.bezier_curve_points[i].y,
-                              path.bezier_curve_points[i].z);
-
-            if ((cur_point - drone_st_.drone_pos).norm() < dist) {
-                dist = (cur_point - drone_st_.drone_pos).norm();
-                min_i = i;
-            }
-        }
-
-        TLine start_end(fitting_line_.m_p0, fitting_line_.m_p1);
-        min_dist_to_line_ = start_end.dist(drone_st_.drone_pos);
-
-        TVec3 min_to_cur = TVec3(path.bezier_curve_points[min_i].x, path.bezier_curve_points[min_i].y,
-                                 path.bezier_curve_points[min_i].z);
-
-        float target_length;
-        if (min_dist_to_line_ > 2) {
-            target_length = 7;
-        } else {
-            target_length = 15;
-        }
-
-        if (mp_config_.mp_plan_state == ROOTTURN) {
-            target_length = 3;
-        }
-
-        mp_config_.end_pos = min_to_cur + target_length * dir.normalized();
-        chlog::info("motion_plan", "[MP Manager]: line fitting update end_pos = " + toStr(mp_config_.end_pos));
-        mp_publisher_->drawGoal(mp_config_.end_pos, 1, Eigen::Vector4d(1, 0, 0, 1.0));
-
-        end_vel_ = mp_config_.max_vel * fitting_line_.normal();
-        path_finder_->setGlobalWaypoints(fitting_line_.m_p1, fitting_line_.m_p0, drone_st_.drone_pos);
-    } else {
-        min_dist_to_line_ = 0;
-    }
-}
 
 bool MPManager::CallKinodynamicReplan() {
     bool plan_success = path_finder_->replan(start_pt_.cast<double>(), start_vel_.cast<double>(),
@@ -192,7 +92,7 @@ bool MPManager::CallKinodynamicReplan() {
         auto info = &path_finder_->getLocaldata();
 
         /* get traj result */
-        wa_ros_msgs::Bspline bspline;
+        offboard::Bspline bspline;
         bspline.order = 3;
         bspline.start_time = info->start_time_;
         bspline.traj_id = info->traj_id_;
@@ -235,7 +135,7 @@ bool MPManager::CallKinodynamicReplan() {
     }
 }
 
-void MPManager::bsplineResult(const wa_ros_msgs::Bspline &msg) {
+void MPManager::bsplineResult(const offboard::Bspline &msg) {
     // parse pos traj
 
     Eigen::MatrixXd pos_pts(msg.pos_pts.size(), 3);
@@ -291,7 +191,7 @@ bool MPManager::GetControlOutput(TVec3 &vector_eus) {
     double t_cur = (time_now - start_time_).toSec();
 
     Eigen::Vector3d pos = {0, 0, 0}, vel = {0, 0, 0}, acc = {0, 0, 0};
-    double yaw = (flight_data_.m_drone.drone_heading + flight_data_.m_turbine.heading) * M_PI / 180.0f;
+    double yaw = 0;
 
     if (t_cur < traj_duration_ && t_cur >= 0.0) {
         pos = plan_traj_[0].evaluateDeBoorT(t_cur);
@@ -331,11 +231,6 @@ void MPManager::OnUpdateDroneHeading(float drone_heading) {
     mp_config_.m_drone_heading = drone_heading;
 }
 
-void MPManager::changeToTurbineFrame(TVec3 &pnt, TVec3 &pos_in_turbine_EUS) {
-    TVec3 pos_in_local_EUS = ENU2EUS(pnt); // pos in local EUS
-    pos_in_turbine_EUS =
-            FrameTransform::GetInstance()->TransFrame(pos_in_local_EUS, LocalEUS, TurbineEUS);
-}
 
 void MPManager::ProcessState() {
 //        chlog::info("motion_plan", "[MP Manager]: mp_state_ = " , mp_state_);
@@ -350,12 +245,6 @@ void MPManager::ProcessState() {
             if (!mp_config_.is_enable || !has_drone_update_)
                 return;
             else {
-                if (mp_config_.mp_plan_state == TRACKING ||
-                    mp_config_.mp_plan_state == ROOTTURN || mp_config_.mp_plan_state == POINTTOPOINT) {
-                    path_finder_->setGlobalWaypoints(mp_config_.end_pos, drone_st_.drone_pos, drone_st_.drone_pos);
-                    chlog::info("motion_plan", "[MP Manager]: update flight corridor!");
-                }
-
                 ChangeExecState(GEN_NEW_TRAJ, "FSM");
             }
             break;
@@ -365,11 +254,7 @@ void MPManager::ProcessState() {
             start_pt_ = drone_st_.drone_pos;
             start_vel_ = drone_st_.drone_vel;
             start_acc_.setZero();
-            if ((min_dist_to_line_ > 1.3 && mp_config_.mp_plan_state == TRACKING) ||
-                mp_config_.mp_plan_state == ROOTTURN || mp_config_.mp_plan_state == POINTTOPOINT) {
-                path_finder_->setGlobalWaypoints(mp_config_.end_pos, drone_st_.drone_pos, drone_st_.drone_pos);
-                chlog::info("motion_plan", "[MP Manager]: update flight corridor!");
-            }
+
             bool success = CallKinodynamicReplan();
             if (success) {
                 ChangeExecState(EXEC_TRAJ, "FSM");
@@ -404,8 +289,7 @@ void MPManager::ProcessState() {
                 ChangeExecState(GEN_NEW_TRAJ, "FSM");
                 chlog::info("motion_plan", "[MP Manager]: motion plan time out!");
                 return;
-            } else if ((info->start_pos_ - pos).norm() < 1.5 &&
-                       mp_config_.mp_plan_state != MotionPlanState::ROOTTURN) {
+            } else if ((info->start_pos_ - pos).norm() < 1.5 ) {
                 chlog::info("motion_plan", "[MP Manager]: close to start pos!");
                 return;
 
@@ -438,11 +322,6 @@ void MPManager::ProcessState() {
 
             start_acc_ = info->acceleration_traj_.evaluateDeBoorT(t_cur).cast<float>();
 
-//                planner_manager_->setGlobalWaypoints(end_pt_, start_pt_);
-            if (min_dist_to_line_ > 2 &&
-                (mp_config_.mp_plan_state == TRACKING || mp_config_.mp_plan_state == ROOTTURN)) {
-                path_finder_->setGlobalWaypoints(mp_config_.end_pos, drone_st_.drone_pos, drone_st_.drone_pos);
-            }
             bool success = CallKinodynamicReplan();
             if (success) {
                 ChangeExecState(EXEC_TRAJ, "FSM");

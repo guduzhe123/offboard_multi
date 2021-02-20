@@ -5,7 +5,8 @@
 #ifndef WINDAPPCORE_IMAP_HPP
 #define WINDAPPCORE_IMAP_HPP
 
-#include "Cinc.hpp"
+#include <Eigen/Core>
+#include <octomap_msgs/Octomap.h>
 
 class IMap {
 public:

@@ -24,31 +24,6 @@ enum REPLAN_MODE {
     VELOCITY_WITHOUT_CUR = 3
 };
 
-struct MP_Config{
-    TVec3 start_pos;
-    TVec3 end_pos;
-    float exp_vel;
-    float max_vel;
-    float max_acc;
-    float safe_zone_r; // the flight corrider radius.
-    float m_drone_heading;
-    float target_heading;
-    float turn_rate;
-    bool is_enable = false;
-    int control_mode;
-//    MotionPlanState mp_plan_state;
-    double safe_dist;
-    double replan_thresh;
-    double plan_horizon; // fitting line planning length
-    TVec3 m_toward_point;
-    bool is_track_point = false;
-    bool is_speed_mode = false;
-    bool is_gazebo_sim = false;
-    int m_blade_id;
-    int m_path_id;
-    Sp<IMap> mp_map;
-};
-
 struct Drone_State{
     TVec3 drone_pos;
     TVec3 drone_vel;
@@ -94,8 +69,7 @@ private:
     };
 
     ros::NodeHandle nh_;
-//    afcore::MP_Config mp_config_;
-    fast_planner::MP_Config fp_config_;
+    MP_Config mp_config_;
     Drone_State drone_st_;
     MP_EXEC_STATE mp_state_;
     TVec3 start_pt_,start_vel_,start_acc_, end_pos_, end_vel_;

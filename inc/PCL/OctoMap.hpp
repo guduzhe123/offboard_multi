@@ -36,7 +36,7 @@ public:
     void updateOctomap(const octomap_msgs::Octomap &msg) override;
     bool isStateValid(const Eigen::Vector3f &PosENU) override ;
     void setSafeRaduis(const float &raduis) override;
-
+    typedef unique_ptr<OctoMap> Ptr;
 private:
 
     float safety_radius_;

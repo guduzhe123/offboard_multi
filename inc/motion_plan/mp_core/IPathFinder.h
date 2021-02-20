@@ -11,26 +11,6 @@
 #include "PCL/IMap.hpp"
 
 namespace fast_planner{
-    struct MP_Config{
-        TVec3 start_pos;
-        TVec3 end_pos;
-        float exp_vel;
-        float max_vel;
-        float max_acc;
-        float safe_zone_r; // the flight corrider radius.
-        float m_drone_heading;
-        float target_heading;
-        bool is_enable = false;
-        int control_mode;
-        MotionPlanState mp_plan_state;
-        double safe_dist;
-        double replan_thresh;
-        double plan_horizon; // fitting line planning length
-        TVec3 m_toward_point;
-        bool is_track_point = false;
-        bool is_speed_mode = false;
-    };
-
     class IPathFinder{
     public:
         IPathFinder() = default;

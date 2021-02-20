@@ -60,7 +60,7 @@ catkin_package(
 include_directories(
         inc/
         SYSTEM
-        ${CMAKE_CURRENT_SOURCE_DIR}/inc/new_struct/
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc/action/
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/VehicleControl/
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/serial/
         ${CMAKE_CURRENT_SOURCE_DIR}/inc/test/1UAV_1USV/
@@ -142,10 +142,10 @@ add_library(
         src/multi_offboard.cpp
         src/PathCreator.cpp
         src/FlightManager.cpp
-        src/new_struct/Avoidance.cpp
-        src/new_struct/USV_Avoidance.cpp
-        src/new_struct/Multi_UAV_formation.cpp
-        src/new_struct/Multi_USV_formation.cpp
+        src/action/Avoidance.cpp
+        src/action/USV_Avoidance.cpp
+        src/action/Multi_UAV_formation.cpp
+        src/action/Multi_USV_formation.cpp
         src/util.cpp
         src/DataMan.cpp inc/DataMan.hpp
         src/VehicleControl/MultiBoatControl.cpp
@@ -153,7 +153,7 @@ add_library(
         src/VehicleControl/MultiUUVControl.cpp
         src/Calculate.cpp
         src/PID.cpp
-        src/ActionCircle.cpp
+        src/action/ActionCircle.cpp
         src/PCL/PCLROSMessageManager.cpp
         #[[src/serial/serialConnection.cpp]])
 
@@ -168,7 +168,7 @@ target_link_libraries(USVOffboard ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
 
 
 #[[3usv control]]
-add_executable(3usv src/test/3USVs/main.cpp inc/ActionCircle.hpp)
+add_executable(3usv src/test/3USVs/main.cpp inc/action/ActionCircle.hpp)
 add_library(3usvs_lib
         STATIC
         src/test/3USVs/usv1_ros_Manager.cpp
@@ -182,8 +182,8 @@ add_library(3usvs_lib
         src/Calculate.cpp
         src/PathCreator.cpp
         src/PID.cpp
-        src/ActionCircle.cpp
-        src/new_struct/
+        src/action/ActionCircle.cpp
+        src/action/
         src/PCL/PCLROSMessageManager.cpp
         src/FlightManager.cpp src/PCL/OctoMap.cpp)
 target_link_libraries(3usv 3usvs_lib multi_offboard_lib)
@@ -207,10 +207,10 @@ add_library(4uavs_lib
         src/DataMan.cpp
         src/Calculate.cpp
         src/PID.cpp
-        src/ActionCircle.cpp
+        src/action/ActionCircle.cpp
         src/test/4UAVs/uavs_control.cpp
         src/PathCreator.cpp
-        src/new_struct/ src/PCL/OctoMap.cpp)
+        src/action/ src/PCL/OctoMap.cpp)
 target_link_libraries(4uav 4uavs_lib multi_offboard_lib)
 target_link_libraries(4uavs_lib ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
         ${LIBFCL_LIBRARIES})
@@ -233,13 +233,13 @@ add_library(7vehicles_lib
         src/DataMan.cpp
         src/Calculate.cpp
         src/PID.cpp
-        src/ActionCircle.cpp
+        src/action/ActionCircle.cpp
         src/test/3USVs/usvs_control.cpp
         src/test/4UAVs/uavs_control.cpp
         src/test/7Vehicles/7vechicles_control.cpp
         src/PathCreator.cpp
         src/PCL/PCLROSMessageManager.cpp
-        src/new_struct/ src/PCL/OctoMap.cpp)
+        src/action/ src/PCL/OctoMap.cpp)
 target_link_libraries(7vehicles
         7vehicles_lib
         multi_offboard_lib

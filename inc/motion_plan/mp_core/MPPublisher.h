@@ -21,6 +21,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <std_msgs/Int8.h>
 #include "motion_plan/traj_utils/planning_visualization.h"
+#include "Cinc.hpp"
 
 #ifndef rad2deg
 #define rad2deg                      57.295779513
@@ -41,10 +42,6 @@ public:
 
     void DrawTrajCommand(const TVec3 &pos, const TVec3 &vec, const Eigen::Vector4d &color, int id);
 
-    void DrawBladePath(const wa_ros_msgs::BezierCurvePnts &bezier_curve_points);
-
-    void DrawDronePath(const wa_ros_msgs::BezierCurvePnts &bezier_curve_points);
-
     void DrawFlightCorridor(TVec3 &start_point, TVec3 &end_point);
 
     bool updateMPTarget(const float dist, const vector<TVec3> &waypoints);
@@ -59,7 +56,6 @@ public:
 
     void drawBspline(NonUniformBspline& bspline);
 
-    bool checkPathAvailable(wa_ros_msgs::BezierCurvePnts &path);
 
 private:
     void calcDistToCenter(float &dist, const TVec3 &cur_pos, TVec3 start_pos, TVec3 end_pos);
@@ -69,11 +65,6 @@ private:
             marker_path_pub_, fitting_path_pub_, flight_corridor_pub_, path_update_pub_;
 
     Sp<PlanningVisualization> visualization_;
-
-    void onInitKF();
-    void getPathVec(wa_ros_msgs::BezierCurvePnts &path, TVec3 &dir);
-    void updatePath(TVec3 &drone_cur, TVec3 &dir, wa_ros_msgs::BezierCurvePnts &path);
-    void changeToTurbineFrame(TVec3 &pnt, TVec3 &pos_in_Local_ENU);
 
     float dist_config_;
 
@@ -85,4 +76,4 @@ private:
     TVec3 drone_pos_;
     vector<TVec3> wayPoints_;
 
-}
+};

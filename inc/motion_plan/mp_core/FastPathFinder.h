@@ -3,12 +3,10 @@
 
 #include "motion_plan/bspline_opt/bspline_optimizer.h"
 #include "motion_plan/bspline/non_uniform_bspline.h"
-
 #include "motion_plan/path_searching/kinodynamic_astar.h"
-
 #include "motion_plan/plan_env/edt_environment.h"
-
 #include "motion_plan/plan_manage/plan_container.hpp"
+#include "PCL/OctoMap.hpp"
 #include <ros/ros.h>
 #include "IPathFinder.h"
 
@@ -54,7 +52,7 @@ namespace fast_planner {
 
         unique_ptr<KinodynamicAstar> kino_path_finder_;
         vector<BsplineOptimizer::Ptr> bspline_optimizers_;
-        TurbineMap::Ptr turbine_map_;
+        OctoMap::Ptr octo_map_;
         MP_Config mp_config_;
 
         void updateTrajInfo();
