@@ -74,6 +74,16 @@ struct DroneControl {
     geometry_msgs::TwistStamped g_vel_sp{};
 };
 
+struct TDroneOutput {
+    TVec3 m_vector = TVec3(0, 0, 0); ///< speed control vector or position control vector
+    float target_heading = 0; ///< Target heading
+    float turn_rate = 0;   ///< heading turn rate
+    bool is_turn_heading = false;
+    bool is_speed_mode = true;
+    float m_pos_ctrl_speed = 1.5f;
+    float pid_delta = 0;
+};
+
 typedef struct EulerAngles {
     double roll;
     double pitch;

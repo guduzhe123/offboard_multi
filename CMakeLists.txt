@@ -100,6 +100,7 @@ add_library(
         ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/mp_core/FastPathFinder.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/mp_core/MPManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/mp_core/MPPublisher.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/action/ActionMotionPlan.cpp
 )
 
 target_link_libraries(
