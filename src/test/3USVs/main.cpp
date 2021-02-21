@@ -10,11 +10,18 @@
 #include "test/3USVs/usv3_ros_Manager.hpp"
 #include "FlightManager.hpp"
 #include "PathCreator.hpp"
+#include "log/Chlog.hpp"
 
 int main(int argc, char **argv)
 {
+    chlog::initChannel("motion_plan");
+    chlog::setEnCout("motion_plan", true);
+
+    chlog::initChannel("data");
+    chlog::setEnCout("data", false);
+
     ros::init(argc, argv, "usvs");
-    util_daemonize ();
+//    util_daemonize ();
 
     usvs_control* lead_node;
     lead_node = usvs_control::getInstance();

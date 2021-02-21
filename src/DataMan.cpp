@@ -79,7 +79,6 @@ void
 DataMan::SetAvoidanceData(const M_Drone_Avoidace& uav1, const M_Drone_Avoidace& uav2,
         const M_Drone_Avoidace& uav3, const M_Drone_Avoidace& uav4) {
     {
-//        boost::unique_lock<boost::mutex> lock(m_mutex);
 
         multi_vehicle_.uav1.avoidance_pos = uav1.local_target_pos_avo;
         multi_vehicle_.uav2.avoidance_pos = uav2.local_target_pos_avo;
@@ -157,7 +156,7 @@ void DataMan::SetUSVFormationData(const multi_vehicle &m_multi_vehicles, bool is
         multi_vehicle_.usv2.follower_keep_pos = m_multi_vehicles.usv2.follower_keep_pos;
         multi_vehicle_.usv3.follower_keep_pos = m_multi_vehicles.usv3.follower_keep_pos;
         multi_vehicle_.leader_usv.is_formation = is_formation;
-        util_log("data man is lead usv in formation %d", is_formation);
+        chlog::info("data", "data man is lead usv in formation %d", is_formation);
     }
 }
 
@@ -258,101 +257,126 @@ void DataMan::setOctomap(const octomap_msgs::Octomap &octmsg) {
 }
 
 void DataMan::PrinrDorneFlightDate() {
-    util_log("uav1 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.uav1.current_local_pos.pose.position.x,
-             multi_vehicle_.uav1.current_local_pos.pose.position.y, multi_vehicle_.uav1.current_local_pos.pose.position.z);
-    util_log("uav2 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.uav2.current_local_pos.pose.position.x,
-             multi_vehicle_.uav2.current_local_pos.pose.position.y, multi_vehicle_.uav2.current_local_pos.pose.position.z);
-    util_log("uav3 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.uav3.current_local_pos.pose.position.x,
-             multi_vehicle_.uav3.current_local_pos.pose.position.y, multi_vehicle_.uav3.current_local_pos.pose.position.z);
-    util_log("uav4 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.uav4.current_local_pos.pose.position.x,
-             multi_vehicle_.uav4.current_local_pos.pose.position.y, multi_vehicle_.uav4.current_local_pos.pose.position.z);
-    util_log("leader uav current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.leader_uav.current_local_pos.pose.position.x,
-             multi_vehicle_.leader_uav.current_local_pos.pose.position.y, multi_vehicle_.leader_uav.current_local_pos.pose.position.z);
-
+    chlog::info("data","uav1 current pos = (", multi_vehicle_.uav1.current_local_pos.pose.position.x, ", ",
+             multi_vehicle_.uav1.current_local_pos.pose.position.y, ", ",
+             multi_vehicle_.uav1.current_local_pos.pose.position.z , ")");
+    chlog::info("data","uav2 current pos = (", multi_vehicle_.uav2.current_local_pos.pose.position.x,", ",
+             multi_vehicle_.uav2.current_local_pos.pose.position.y, ", ",
+             multi_vehicle_.uav2.current_local_pos.pose.position.z, ")");
+    chlog::info("data","uav3 current pos = (", multi_vehicle_.uav3.current_local_pos.pose.position.x,", ",
+             multi_vehicle_.uav3.current_local_pos.pose.position.y, ", ",
+             multi_vehicle_.uav3.current_local_pos.pose.position.z, ")");
+    chlog::info("data","uav4 current pos = (", multi_vehicle_.uav4.current_local_pos.pose.position.x,", ",
+             multi_vehicle_.uav4.current_local_pos.pose.position.y, ", ",
+             multi_vehicle_.uav4.current_local_pos.pose.position.z, ")");
+    chlog::info("data","leader uav current pos = (", multi_vehicle_.leader_uav.current_local_pos.pose.position.x,", ",
+             multi_vehicle_.leader_uav.current_local_pos.pose.position.y, ", ",
+             multi_vehicle_.leader_uav.current_local_pos.pose.position.z, ")");
 }
 
 void DataMan::PrintBoatData() {
-    util_log("usv1 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv1.current_local_pos.pose.position.x,
-             multi_vehicle_.usv1.current_local_pos.pose.position.y, multi_vehicle_.usv1.current_local_pos.pose.position.z);
-    util_log("usv2 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv2.current_local_pos.pose.position.x,
-             multi_vehicle_.usv2.current_local_pos.pose.position.y, multi_vehicle_.usv2.current_local_pos.pose.position.z);
-    util_log("usv3 current pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv3.current_local_pos.pose.position.x,
-             multi_vehicle_.usv3.current_local_pos.pose.position.y, multi_vehicle_.usv3.current_local_pos.pose.position.z);
+    chlog::info("data", "usv1 current pos = (", multi_vehicle_.usv1.current_local_pos.pose.position.x, ", ",
+             multi_vehicle_.usv1.current_local_pos.pose.position.y, ", ",
+             multi_vehicle_.usv1.current_local_pos.pose.position.z, ")");
+    chlog::info("data", "usv2 current pos = (", multi_vehicle_.usv2.current_local_pos.pose.position.x,", ",
+             multi_vehicle_.usv2.current_local_pos.pose.position.y, ", ",
+             multi_vehicle_.usv2.current_local_pos.pose.position.z, ")");
+    chlog::info("data", "usv3 current pos = (", multi_vehicle_.usv3.current_local_pos.pose.position.x, ", ",
+             multi_vehicle_.usv3.current_local_pos.pose.position.y, ", ",
+             multi_vehicle_.usv3.current_local_pos.pose.position.z, ")");
+
 }
 
 void DataMan::PrintDroneTargetPosData() {
-    util_log("uav1 target local pos = (%.2f, %.2f, %.2f)", multi_vehicle_.uav1.target_local_pos_sp.pose.position.x,
-             multi_vehicle_.uav1.target_local_pos_sp.pose.position.y, multi_vehicle_.uav1.target_local_pos_sp.pose.position.z);
-    util_log("uav2 target local pos = (%.2f, %.2f, %.2f)", multi_vehicle_.uav2.target_local_pos_sp.pose.position.x,
-             multi_vehicle_.uav2.target_local_pos_sp.pose.position.y, multi_vehicle_.uav2.target_local_pos_sp.pose.position.z);
-    util_log("uav3 target local pos = (%.2f, %.2f, %.2f)", multi_vehicle_.uav3.target_local_pos_sp.pose.position.x,
-             multi_vehicle_.uav3.target_local_pos_sp.pose.position.y, multi_vehicle_.uav3.target_local_pos_sp.pose.position.z);
-    util_log("uav4 target local pos = (%.2f, %.2f, %.2f)", multi_vehicle_.uav4.target_local_pos_sp.pose.position.x,
-             multi_vehicle_.uav4.target_local_pos_sp.pose.position.y, multi_vehicle_.uav4.target_local_pos_sp.pose.position.z);
+    chlog::info("data", "uav1 current pos = (", multi_vehicle_.uav1.target_local_pos_sp.pose.position.x, ", ",
+                multi_vehicle_.uav1.target_local_pos_sp.pose.position.y, ", ",
+                multi_vehicle_.uav1.target_local_pos_sp.pose.position.z, ")");
+    chlog::info("data", "uav2 current pos = (", multi_vehicle_.uav2.target_local_pos_sp.pose.position.x,", ",
+                multi_vehicle_.uav2.target_local_pos_sp.pose.position.y, ", ",
+                multi_vehicle_.uav2.target_local_pos_sp.pose.position.z, ")");
+    chlog::info("data", "uav3 current pos = (", multi_vehicle_.uav3.target_local_pos_sp.pose.position.x, ", ",
+                multi_vehicle_.uav3.target_local_pos_sp.pose.position.y, ", ",
+                multi_vehicle_.uav3.target_local_pos_sp.pose.position.z, ")");
+    chlog::info("data", "uav4 current pos = (", multi_vehicle_.uav4.target_local_pos_sp.pose.position.x, ", ",
+                multi_vehicle_.uav4.target_local_pos_sp.pose.position.y, ", ",
+                multi_vehicle_.uav4.target_local_pos_sp.pose.position.z, ")");
 }
 
 void DataMan::PrintBoatTargetPosData() {
-    util_log("usv1 target local pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv1.target_local_pos_sp.pose.position.x,
-             multi_vehicle_.usv1.target_local_pos_sp.pose.position.y, multi_vehicle_.usv1.target_local_pos_sp.pose.position.z);
-    util_log("usv2 target local pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv2.target_local_pos_sp.pose.position.x,
-             multi_vehicle_.usv2.target_local_pos_sp.pose.position.y, multi_vehicle_.usv2.target_local_pos_sp.pose.position.z);
-    util_log("usv3 target local pos = (%.2f, %.2f, %.2f)", multi_vehicle_.usv3.target_local_pos_sp.pose.position.x,
-             multi_vehicle_.usv3.target_local_pos_sp.pose.position.y, multi_vehicle_.usv3.target_local_pos_sp.pose.position.z);
+    chlog::info("data", "usv1 target local pos = (", multi_vehicle_.usv1.target_local_pos_sp.pose.position.x, ", ",
+             multi_vehicle_.usv1.target_local_pos_sp.pose.position.y, ", ",
+             multi_vehicle_.usv1.target_local_pos_sp.pose.position.z, ")");
+    chlog::info("data", "usv2 target local pos = (", multi_vehicle_.usv2.target_local_pos_sp.pose.position.x, ", ",
+             multi_vehicle_.usv2.target_local_pos_sp.pose.position.y, ", ",
+             multi_vehicle_.usv2.target_local_pos_sp.pose.position.z, ")");
+    chlog::info("data", "usv3 target local pos = (", multi_vehicle_.usv3.target_local_pos_sp.pose.position.x,", ",
+             multi_vehicle_.usv3.target_local_pos_sp.pose.position.y, ", ",
+             multi_vehicle_.usv3.target_local_pos_sp.pose.position.z, ")");
 }
 
 void DataMan::PrintAvoidanceData() {
-    util_log("get output height_avoidance_uav1_ = %.2f, height_avoidance_uav2_ = %.2f, "
+/*    chlog::info("data", "get output height_avoidance_uav1_ = , height_avoidance_uav2_ = %.2f, "
              "height_avoidance_uav3_ = %.2f, height_avoidance_uav4_ = %.2f",
              multi_vehicle_.uav1.avoidance_pos.z(), multi_vehicle_.uav2.avoidance_pos.z(),
-             multi_vehicle_.uav3.avoidance_pos.z(), multi_vehicle_.uav4.avoidance_pos.z());
+             multi_vehicle_.uav3.avoidance_pos.z(), multi_vehicle_.uav4.avoidance_pos.z());*/
 }
 
 void DataMan::PrintDroneFormationData() {
-    util_log("is uav formation = %d, uav formation leader = %d", multi_vehicle_.leader_uav.is_formation, leader_uav_);
-    util_log("uav1 follow to leader = (%.2f, %.2f, %.2f) ",multi_vehicle_.uav1.follower_to_leader_pos(0),
-             multi_vehicle_.uav1.follower_to_leader_pos(1), multi_vehicle_.uav1.follower_to_leader_pos(2));
-    util_log("uav2 follow to leader = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav2.follower_to_leader_pos(0),
-             multi_vehicle_.uav2.follower_to_leader_pos(1), multi_vehicle_.uav2.follower_to_leader_pos(2));
-    util_log("uav3 follow to leader = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav3.follower_to_leader_pos(0),
-             multi_vehicle_.uav3.follower_to_leader_pos(1), multi_vehicle_.uav3.follower_to_leader_pos(2));
-    util_log("uav4 follow to leader = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav4.follower_to_leader_pos(0),
-             multi_vehicle_.uav4.follower_to_leader_pos(1), multi_vehicle_.uav4.follower_to_leader_pos(2));
+    chlog::info("data", "is uav formation = ", multi_vehicle_.leader_uav.is_formation, ", uav formation leader = ",
+            leader_uav_);
+    chlog::info("data", "uav1 follow to leader = ( ",multi_vehicle_.uav1.follower_to_leader_pos(0),", ",
+             multi_vehicle_.uav1.follower_to_leader_pos(1),", ",
+             multi_vehicle_.uav1.follower_to_leader_pos(2), ")");
+    chlog::info("data", "uav2 follow to leader = ( ", multi_vehicle_.uav2.follower_to_leader_pos(0),", ",
+             multi_vehicle_.uav2.follower_to_leader_pos(1), ", ",
+             multi_vehicle_.uav2.follower_to_leader_pos(2), ")");
+    chlog::info("data", "uav3 follow to leader = ( ", multi_vehicle_.uav3.follower_to_leader_pos(0),", ",
+             multi_vehicle_.uav3.follower_to_leader_pos(1), ", ",
+             multi_vehicle_.uav3.follower_to_leader_pos(2), ")");
+    chlog::info("data", "uav4 follow to leader = ( ", multi_vehicle_.uav4.follower_to_leader_pos(0),", ",
+             multi_vehicle_.uav4.follower_to_leader_pos(1), ", ",
+             multi_vehicle_.uav4.follower_to_leader_pos(2), ")");
 
 }
 
 void DataMan::PrintDroneFormationKeep() {
-    util_log("uav1 formation keep local pos = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav1.follower_keep_pos(0),
-             multi_vehicle_.uav1.follower_keep_pos(1), multi_vehicle_.uav1.follower_keep_pos(2));
-    util_log("uav2 formation keep local pos  = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav2.follower_keep_pos(0),
-             multi_vehicle_.uav2.follower_keep_pos(1), multi_vehicle_.uav2.follower_keep_pos(2));
-    util_log("uav3 formation keep local pos  = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav3.follower_keep_pos(0),
-             multi_vehicle_.uav3.follower_keep_pos(1), multi_vehicle_.uav3.follower_keep_pos(2));
-    util_log("uav4 formation keep local pos  = (%.2f, %.2f, %.2f) ", multi_vehicle_.uav4.follower_keep_pos(0),
-             multi_vehicle_.uav4.follower_keep_pos(1), multi_vehicle_.uav4.follower_keep_pos(2));
+    chlog::info("data", "uav1 formation keep local pos = ( ", multi_vehicle_.uav1.follower_keep_pos(0), ", ",
+             multi_vehicle_.uav1.follower_keep_pos(1),  ", ",multi_vehicle_.uav1.follower_keep_pos(2), ")");
+    chlog::info("data", "uav2 formation keep local pos  = ( ", multi_vehicle_.uav2.follower_keep_pos(0), ", ",
+             multi_vehicle_.uav2.follower_keep_pos(1),  ", ",multi_vehicle_.uav2.follower_keep_pos(2), ")");
+    chlog::info("data", "uav3 formation keep local pos  = ( ", multi_vehicle_.uav3.follower_keep_pos(0), ", ",
+             multi_vehicle_.uav3.follower_keep_pos(1),  ", ",multi_vehicle_.uav3.follower_keep_pos(2), ")");
+    chlog::info("data", "uav4 formation keep local pos  = ( ", multi_vehicle_.uav4.follower_keep_pos(0), ", ",
+             multi_vehicle_.uav4.follower_keep_pos(1),  ", ",multi_vehicle_.uav4.follower_keep_pos(2), ")");
 }
 
 void DataMan::PrintUSVFormationData() {
-    util_log("is usv formation = %d, usv formation leader = %d,", multi_vehicle_.leader_usv.is_formation, multi_vehicle_.leader_usv.drone_id);
-    util_log("usv1 follow to leader = (%.2f, %.2f, %.2f) ", multi_vehicle_.usv1.follower_to_leader_pos(0),
-            multi_vehicle_.usv1.follower_to_leader_pos(1), multi_vehicle_.usv1.follower_to_leader_pos(2));
-    util_log("usv2 follow to leader = (%.2f, %.2f, %.2f) ",  multi_vehicle_.usv2.follower_to_leader_pos(0),
-             multi_vehicle_.usv2.follower_to_leader_pos(1), multi_vehicle_.usv2.follower_to_leader_pos(2));
-    util_log("usv3 follow to leader = (%.2f, %.2f, %.2f) ",  multi_vehicle_.usv3.follower_to_leader_pos(0),
-             multi_vehicle_.usv3.follower_to_leader_pos(1), multi_vehicle_.usv3.follower_to_leader_pos(2));
+    chlog::info("data", "is usv formation = ", multi_vehicle_.leader_usv.is_formation,
+            ", usv formation leader = ", multi_vehicle_.leader_usv.drone_id);
+    chlog::info("data", "usv1 follow to leader = ( ", multi_vehicle_.usv1.follower_to_leader_pos(0), ", ",
+            multi_vehicle_.usv1.follower_to_leader_pos(1),
+            ", ",multi_vehicle_.usv1.follower_to_leader_pos(2), ")");
+    chlog::info("data", "usv2 follow to leader = ( ",  multi_vehicle_.usv2.follower_to_leader_pos(0), ", ",
+             multi_vehicle_.usv2.follower_to_leader_pos(1),
+             ", ",multi_vehicle_.usv2.follower_to_leader_pos(2), ")");
+    chlog::info("data", "usv3 follow to leader = ( ",  multi_vehicle_.usv3.follower_to_leader_pos(0), ", ",
+             multi_vehicle_.usv3.follower_to_leader_pos(1),
+             ", ",multi_vehicle_.usv3.follower_to_leader_pos(2), ")");
 }
 
 void DataMan::PrintUSVFormationKeep() {
-    util_log("usv1 follow to keep = (%.2f, %.2f, %.2f) ", multi_vehicle_.usv1.follower_keep_pos(0),
-             multi_vehicle_.usv1.follower_keep_pos(1), multi_vehicle_.usv1.follower_keep_pos(2));
-    util_log("usv2 follow to keep = (%.2f, %.2f, %.2f) ",  multi_vehicle_.usv2.follower_keep_pos(0),
-             multi_vehicle_.usv2.follower_keep_pos(1), multi_vehicle_.usv2.follower_keep_pos(2));
-    util_log("usv3 follow to keep = (%.2f, %.2f, %.2f) ",  multi_vehicle_.usv3.follower_keep_pos(0),
-             multi_vehicle_.usv3.follower_keep_pos(1), multi_vehicle_.usv3.follower_keep_pos(2));
+    chlog::info("data", "usv1 follow to keep = ( ", multi_vehicle_.usv1.follower_keep_pos(0), ", ",
+             multi_vehicle_.usv1.follower_keep_pos(1),
+             ", ",multi_vehicle_.usv1.follower_keep_pos(2), ")");
+    chlog::info("data", "usv2 follow to keep = ( ",  multi_vehicle_.usv2.follower_keep_pos(0), ", ",
+             multi_vehicle_.usv2.follower_keep_pos(1),  ", ",multi_vehicle_.usv2.follower_keep_pos(2), ")");
+    chlog::info("data", "usv3 follow to keep = ( ",  multi_vehicle_.usv3.follower_keep_pos(0), ", ",
+             multi_vehicle_.usv3.follower_keep_pos(1),  ", ",multi_vehicle_.usv3.follower_keep_pos(2), ")");
 }
 
 void DataMan::PrintData() {
-    util_log("\n");
-    util_log("---------------flight data-------------");
+    chlog::info("data", "\n");
+    chlog::info("data", "---------------flight data-------------");
     PrinrDorneFlightDate();
     PrintDroneTargetPosData();
     PrintAvoidanceData();
@@ -365,7 +389,7 @@ void DataMan::PrintData() {
     }
     PrintUSVFormationData();
     PrintUSVFormationKeep();
-    util_log("---------------data end-----------------");
+    chlog::info("data", "---------------data end-----------------");
 }
 
 multi_vehicle &DataMan::GetData() {
@@ -379,7 +403,7 @@ void DataMan::SetCallBack(IFlightDataCallback *dataCallback) {
 void DataMan::setCommand(int command) {
     command_ = command;
     multi_vehicle_.user_command = command;
-    util_log("set command = %d", multi_vehicle_.user_command);
+    chlog::info("data", "set command = ", multi_vehicle_.user_command);
     if (callback_) {
         callback_->OnFlightDataUpdate(FDATA_MANUAL_COMMAND);
     }

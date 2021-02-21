@@ -25,7 +25,7 @@ int main (int argc, char **argv){
         rate.sleep();
     }
 
-    util_log("is uav5 connected = %d", msg_ros->drone_uav5_.current_state.connected);
+    chlog::info("data","is uav5 connected = %d", msg_ros->drone_uav5_.current_state.connected);
 
     mavros_msgs::SetMode offb_set_mode;
     offb_set_mode.request.custom_mode = "OFFBOARD";
@@ -52,7 +52,7 @@ int main (int argc, char **argv){
                 msg_ros->drone_uav4_.set_mode_client.call(offb_set_mode);
 
                 msg_ros->is_offboard = true;
-                util_log("UAV Offboard enabled");
+                chlog::info("data","UAV Offboard enabled");
             }
 
             last_request = ros::Time::now();
@@ -66,7 +66,7 @@ int main (int argc, char **argv){
                     msg_ros->drone_uav3_.arming_client.call(arm_cmd);
                     msg_ros->drone_uav4_.arming_client.call(arm_cmd);
                     msg_ros->is_armed = true;
-                    util_log("UAV Vehicle armed");
+                    chlog::info("data","UAV Vehicle armed");
                 }
             }
         }
@@ -78,10 +78,10 @@ int main (int argc, char **argv){
                 offb_set_mode.response.mode_sent) {
                 msg_ros->drone_uav6_.set_mode_client.call(offb_set_mode);
                 msg_ros->drone_uav7_.set_mode_client.call(offb_set_mode);
-//                util_log("UAS vehicle calling offboard");
+//                chlog::info("data","UAS vehicle calling offboard");
 //                msg_ros->is_armed = false;
                 if (msg_ros->drone_uav5_.current_state.mode == "OFFBOARD") {
-                    util_log("USA Vehicle offboard");
+                    chlog::info("data","USA Vehicle offboard");
                 }
             }
         }

@@ -79,13 +79,13 @@ void uav2_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     dronepos_.m_pitch = pitch * 180 / M_PI;
     dronePosPub.publish(dronepos_);
     uav_.yaw = dronepos_.m_heading;
-    util_log("uav2 m_heading = %.2f", dronepos_.m_heading);
+    chlog::info("data","uav2 m_heading = %.2f", dronepos_.m_heading);
 }
 
 void uav2_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
     current_mavlink = *msg;
     uav_.drone_id = current_mavlink.sysid;
-    util_log("usv sys_id = %d", current_mavlink.sysid);
+    chlog::info("data","usv sys_id = %d", current_mavlink.sysid);
 }
 
 void uav2_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg) {
@@ -97,7 +97,7 @@ void uav2_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg
 void uav2_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg) {
     mavros_msgs::DebugValue debugValue;
     debugValue = *msg;
-    util_log("usv1 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1],
+    chlog::info("data","usv1 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1],
              debugValue.data[2]);
     int config = (int) debugValue.data[0];
     DataMan::getInstance()->setCommand(config);
@@ -108,16 +108,16 @@ void uav2_ros_Manager::commander_update(const ros::TimerEvent& e) {
     int command;
     DataMan::getInstance()->getCommand(command);
     if (command == VF_UAV_ALL_START /*|| command == SLAVESTART*/) {
-        util_log("uav2 begain to start!");
+        chlog::info("data","uav2 begain to start!");
 
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
-        util_log("uav arm_i = %d, is_arm = %d", arm_i_, is_arm_);
+        chlog::info("data","uav arm_i = %d, is_arm = %d", arm_i_, is_arm_);
         if (!current_state.armed && !is_arm_) {
             while(arm_i_ > 0) {
                 if (arming_client.call(arm_cmd) &&
                     arm_cmd.response.success) {
-                    util_log("uav2 Vehicle armed");
+                    chlog::info("data","uav2 Vehicle armed");
                     is_arm_ = true;
                 }
                 --arm_i_;
@@ -132,24 +132,24 @@ void uav2_ros_Manager::commander_update(const ros::TimerEvent& e) {
                 if (current_state.mode != "AUTO.TAKEOFF") {
                     if (set_mode_client.call(takeoff_set_mode)  &&
                         takeoff_set_mode.response.mode_sent) {
-                        util_log("uav2 Takeoff enabled");
+                        chlog::info("data","uav2 Takeoff enabled");
                         is_takeoff_ = true;
                     }
                 }
             }
         } else {
-            util_log("Already in the air!");
+            chlog::info("data","Already in the air!");
         }
 
         mavros_msgs::SetMode offb_set_mode;
         offb_set_mode.request.custom_mode = "OFFBOARD";
-        util_log("is_offboard = %d", is_offboard_);
+        chlog::info("data","is_offboard = %d", is_offboard_);
         if (current_state.mode != "OFFBOARD" && !is_offboard_) {
             static int offboard_i;
             for (offboard_i = 10; ros::ok() && offboard_i > 0; --offboard_i) {
                 if (set_mode_client.call(offb_set_mode) &&
                     offb_set_mode.response.mode_sent) {
-                    util_log("uav2 Offboard enabled");
+                    chlog::info("data","uav2 Offboard enabled");
                     is_offboard_ = true;
                 }
             }
@@ -168,7 +168,7 @@ void uav2_ros_Manager::commander_update(const ros::TimerEvent& e) {
             for (land_i = 10; ros::ok() && land_i > 0; --land_i) {
                 if (set_mode_client.call(land_set_mode) &&
                     land_set_mode.response.mode_sent) {
-                    util_log("uav2 Return enabled");
+                    chlog::info("data","uav2 Return enabled");
                     is_land_ = true;
                 }
             }
@@ -215,7 +215,7 @@ void uav2_ros_Manager::drone_yaw_control() {
     int g_yaw_rate_sign = delta_heading / fabs(delta_heading);
     float yaw_rate = g_yaw_rate_sign * 2;
     vel_ctrl_sp_.twist.angular.z = yaw_rate;
-    util_log("yaw_rate = %.2f, target_heading_ = %.2f, dronepos_.m_heading = %.2f", yaw_rate, target_heading_,
+    chlog::info("data","yaw_rate = %.2f, target_heading_ = %.2f, dronepos_.m_heading = %.2f", yaw_rate, target_heading_,
              dronepos_.m_heading);
 }
 
@@ -225,10 +225,10 @@ void uav2_ros_Manager::uavCallService(mavros_msgs::SetMode &m_mode) {
 
 void uav2_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg) {
     uav_.waypointList = *msg;
-    util_log("uav2 mission waypoint size = %d", uav_.waypointList.waypoints.size());
+    chlog::info("data","uav2 mission waypoint size = %d", uav_.waypointList.waypoints.size());
 }
 
 void uav2_ros_Manager::homePositionCB(const mavros_msgs::HomePosition::ConstPtr& msg){
     uav_.homePosition = *msg;
-    util_log("uav4 home position lat = %.8f, lon = %.8f", msg->geo.latitude, msg->geo.longitude);
+    chlog::info("data","uav4 home position lat = %.8f, lon = %.8f", msg->geo.latitude, msg->geo.longitude);
 }

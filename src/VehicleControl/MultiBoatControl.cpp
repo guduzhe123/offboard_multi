@@ -26,7 +26,7 @@ MultiBoatControl* MultiBoatControl::getInstance() {
 }
 
 void MultiBoatControl::onInit(vector<geometry_msgs::PoseStamped> way_points, bool is_uav_follow) {
-    util_log("boat control start! sizeof usv waypoints = %d", way_points.size());
+    chlog::info("data","boat control start! sizeof usv waypoints = ", way_points.size());
     uav_way_points_init_ = way_points;
 
 }
@@ -45,18 +45,18 @@ void MultiBoatControl::getData() {
 }
 
 void MultiBoatControl::DoProgress() {
-    util_log("is usv in formation = %d", is_formation_);
+    chlog::info("data","is usv in formation = ", is_formation_);
     if (is_formation_) {
         return;
     }
 
-    util_log("leader usv movement_state = %d", usv_state_);
-    util_log("leader usv armed = %d", m_multi_vehicle_.leader_usv.current_state.armed);
+    chlog::info("data","leader usv movement_state = ", usv_state_);
+    chlog::info("data","leader usv armed = ", m_multi_vehicle_.leader_usv.current_state.armed);
     if (m_multi_vehicle_.leader_usv.current_state.mode == "OFFBOARD" /*&& m_multi_vehicle_.leader_uav.movement_state == FALLOW_USV*/) {
         mavros_msgs::CommandBool arm_cmd;
         switch (usv_state_) {
             case USV_INIT:
-                util_log("control: usv1 waypoint size = %d", m_multi_vehicle_.usv1.waypointList.waypoints.size());
+                chlog::info("data","control: usv1 waypoint size = ", m_multi_vehicle_.usv1.waypointList.waypoints.size());
                 if (!m_multi_vehicle_.usv1.waypointList.waypoints.empty()) {
                     for (auto &i : m_multi_vehicle_.leader_usv.waypointList.waypoints) {
                         GlobalPosition takeoff, waypnt;
@@ -71,10 +71,10 @@ void MultiBoatControl::DoProgress() {
                         target_init.pose.position.y = -target_local.y();
                         target_init.pose.position.z = 0;
                         usv_way_points_.push_back(target_init);
-                        util_log("target_local = (%.2f, %.2f)", target_local.x(), target_local.y());
+                        chlog::info("data","target_local = (", target_local.x(), ", ", target_local.y(), ")");
                     }
                     std::reverse(usv_way_points_.begin(), usv_way_points_.end());
-                    util_log("boat mission waypoint size = %d", usv_way_points_.size());
+                    chlog::info("data","boat mission waypoint size = ", usv_way_points_.size());
                 } else {
                     for (auto & i : uav_way_points_init_) {
                         geometry_msgs::PoseStamped target_body;
@@ -88,7 +88,7 @@ void MultiBoatControl::DoProgress() {
                 break;
 
             case USV_WAYPOINT: {
-                util_log("boat local size = %d", usv_way_points_.size());
+                chlog::info("data","boat local size = ", usv_way_points_.size());
                 if (!usv_way_points_.empty()) {
                     m_multi_vehicle_.leader_usv.target_local_pos_sp = usv_way_points_.back();
                     target_pos_ = usv_way_points_.back();
@@ -97,44 +97,40 @@ void MultiBoatControl::DoProgress() {
                     if (pos_reached(m_multi_vehicle_.usv1.current_local_pos, target_pos_,
                                     usv_position_allow_reached_) && !usv1_reached_) {
                         usv1_reached_ = true;
-                        util_log("usv1 disarm at one point");
+                        chlog::info("data","usv1 disarm at one point");
                     }
 
-                    util_log("usv2 local (x = %.2f, y = %.2f, z = %.2f)", m_multi_vehicle_.usv2.current_local_pos.pose.position.x,
-                             m_multi_vehicle_.usv2.current_local_pos.pose.position.y, m_multi_vehicle_.usv2.current_local_pos.pose.position.y);
-                    util_log("target_usv2 = (%.2f, %.2f, %.2f)", target_usv2_init_.pose.position.x,
-                            target_usv2_init_.pose.position.y, target_usv2_init_.pose.position.z);
+                    chlog::info("data","usv2 local (", m_multi_vehicle_.usv2.current_local_pos.pose.position.x, ", ",
+                             m_multi_vehicle_.usv2.current_local_pos.pose.position.y, ", ",
+                             m_multi_vehicle_.usv2.current_local_pos.pose.position.z, ")");
+                    chlog::info("data","target_usv2 = (", target_usv2_init_.pose.position.x, ", ",
+                            target_usv2_init_.pose.position.y, ", ", target_usv2_init_.pose.position.z, ")");
                     if (pos_reached(m_multi_vehicle_.usv2.current_local_pos, target_usv2_init_,
                                     usv_position_allow_reached_) && !usv2_reached_) {
                         usv2_reached_ = true;
-                        util_log("usv2 disarm at one point");
+                        chlog::info("data","usv2 disarm at one point");
                     }
 
                     if (pos_reached(m_multi_vehicle_.usv3.current_local_pos, target_usv3_init_,
                                     usv_position_allow_reached_) && !usv3_reached_) {
                         usv3_reached_ = true;
-                        util_log("usv3 disarm at one point");
+                        chlog::info("data","usv3 disarm at one point");
                     }
 
-                    util_log("usv1_reached_ = %d, usv2_reached_ = %d, usv3_reached_ = %d", usv1_reached_, usv2_reached_ ,usv3_reached_);
+                    chlog::info("data","usv1_reached_ = ", usv1_reached_, ", usv2_reached_ = ",
+                            usv2_reached_ , ", usv3_reached_ = ", usv3_reached_);
                     if (usv1_reached_) {
-/*                        if (usv_way_points_.size() > usv_waypoints_size_init_ - 2
-                            && usv2_reached_ && usv3_reached_) {
-                            usv_way_points_.pop_back();
-                        } else if (usv_way_points_.size() <= usv_waypoints_size_init_ - 2) {
-                            usv_way_points_.pop_back();
-                        }*/
                         usv_way_points_.pop_back();
-                        util_log("Finished one way point = (%.2f, %.2f, %.2f)",
-                                 usv_way_points_.back().pose.position.x, usv_way_points_.back().pose.position.y,
-                                 usv_way_points_.back().pose.position.z);
+                        chlog::info("data","Finished one way point = (",
+                                 usv_way_points_.back().pose.position.x, ", ", usv_way_points_.back().pose.position.y,
+                                 ", ", usv_way_points_.back().pose.position.z);
 
                         if (!usv_way_points_.empty()) {
-                            util_log("Goto next way point = (%.2f, %.2f, %.2f)",
-                                     usv_way_points_.back().pose.position.x, usv_way_points_.back().pose.position.y,
-                                     usv_way_points_.back().pose.position.z);
+                            chlog::info("data","Goto next way point = (",
+                                     usv_way_points_.back().pose.position.x, ", ", usv_way_points_.back().pose.position.y,
+                                     ", ", usv_way_points_.back().pose.position.z);
                         } else {
-                            util_log("Finish all target points!");
+                            chlog::info("data","Finish all target points!");
                             usv_state_ = USV_DISARM;
                         }
                         usv1_reached_ = false;
@@ -152,7 +148,8 @@ void MultiBoatControl::DoProgress() {
                     if (fabs(target_yaw - m_multi_vehicle_.usv1.yaw) < 20 ) {
                         PathCreator::geInstance()->CreateUSVFormationInit(formation_config_);
                     }
-                    util_log("targte yaw = %.2f, m_multi_vehicle_.usv1.yaw = %.2f", target_yaw, m_multi_vehicle_.usv1.yaw);
+                    chlog::info("data","targte yaw = ", target_yaw, ", , m_multi_vehicle_.usv1.yaw = ",
+                            m_multi_vehicle_.usv1.yaw);
 
                 } else {
                     usv_state_ = USV_DISARM;
@@ -164,7 +161,7 @@ void MultiBoatControl::DoProgress() {
 
             case USV_DISARM:
                 // disarm all.
-                util_log("Disarm all usv");
+                chlog::info("data","Disarm all usv");
                 target_pos_.pose.position.x = 0;
                 target_pos_.pose.position.y = 0;
                 target_pos_.pose.position.z = 0;
@@ -195,7 +192,7 @@ void MultiBoatControl::DoProgress() {
 
                 ActionCircle::getInstance()->onInit(circle_config);
                 usv_state_ = USV_CIRCLE;
-                util_log("USV Circle init!!!!");
+                chlog::info("data","USV Circle init!!!!");
                 ActionCircle::getInstance()->doProgress(circle_config.m_start_pos, m_multi_vehicle_.usv1.yaw);
                 TCircleOutput circle_output;
                 ActionCircle::getInstance()->GetOutput(circle_output);
@@ -227,7 +224,7 @@ void MultiBoatControl::DoProgress() {
                 SetFunctionOutPut();
 
                 if (pos_reached(m_multi_vehicle_.usv1.current_local_pos, m_multi_vehicle_.usv1.target_local_pos_sp, usv_position_allow_reached_)) {
-                    util_log("arrived at target position and uuv is at center!");
+                    chlog::info("data","arrived at target position and uuv is at center!");
                     usv_state_ = USV_FOLLOW_UUV;
                 }
                 break;
@@ -255,7 +252,7 @@ void MultiBoatControl::DoProgress() {
         if (m_multi_vehicle_.usv1.waypointReached.wp_seq == m_multi_vehicle_.usv1.waypointList.current_seq &&
             m_multi_vehicle_.usv1.waypointReached.wp_seq > 0) {
             if (m_multi_vehicle_.uuv1.longtitude > 0) {
-                util_log("usv1 finish all waypoints! Follow usv");
+                chlog::info("data","usv1 finish all waypoints! Follow usv");
                 usv_state_ = USV_FOLLOW_UUV_FORMATION_INIT;
             } else {
                 usv_state_ = USV_FOLLOW_UUV;
@@ -305,12 +302,9 @@ void MultiBoatControl::DoProgress() {
 }
 
 void MultiBoatControl::GetTakeoffPos() {
-    util_log("xxxxxxxxxxxxxxxxxxx, m_multi_vehicle_.uuv1.drone_id = %d, m_multi_vehicle_.uuv1.homePosition.geo.latitude = %.8f",
-             m_multi_vehicle_.uuv1.drone_id, m_multi_vehicle_.uuv1.homePosition.geo.latitude);
-
     if (m_multi_vehicle_.uuv1.drone_id != 0 && m_multi_vehicle_.uuv1.homePosition.geo.latitude != 0) {
 
-        util_log("calculate uuv and usvs home position");
+        chlog::info("data","calculate uuv and usvs home position");
         usv1_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv1.homePosition.geo.latitude,
                                                m_multi_vehicle_.usv1.homePosition.geo.longitude,0};
         usv2_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv2.homePosition.geo.latitude,
@@ -353,7 +347,7 @@ void MultiBoatControl::SetFunctionOutPut() {
     m_multi_vehicle_.usv1.follower_keep_pos = follow_usv1_keep_local_;
     m_multi_vehicle_.usv2.follower_keep_pos = follow_usv2_keep_local_;
     m_multi_vehicle_.usv3.follower_keep_pos = follow_usv3_keep_local_;
-    util_log("target_usv1_ = (%.2f, %.2f, %.2f)", target_usv1_.x(), target_usv1_.y(), target_usv1_.z());
+    chlog::info("data","target_usv1_ = " + toStr(target_usv1_));
 
     DataMan::getInstance()->SetUSVFormationData(m_multi_vehicle_, 0);
 
@@ -393,12 +387,12 @@ void MultiBoatControl::chooseLeader() {
     m_multi_vehicle_.leader_usv.movement_state = usv_state_;
     m_multi_vehicle_.leader_uav.is_formation = is_formation_;
     DataMan::getInstance()->SetUSVLeader(m_multi_vehicle_.leader_usv);
-    util_log("usv leader = %d" , m_multi_vehicle_.leader_usv.drone_id);
+    chlog::info("data","usv leader = " , m_multi_vehicle_.leader_usv.drone_id);
 }
 
 geometry_msgs::PoseStamped MultiBoatControl::CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, TVec3 &formation_target) {
     geometry_msgs::PoseStamped target_local_pos_sp;
-//    util_log("not use formation_target (%.2f, %.2f, %.2f)", formation_target(0), formation_target(1), formation_target(2));
+//    chlog::info("data","not use formation_target (%.2f, %.2f, %.2f)", formation_target(0), formation_target(1), formation_target(2));
     target_local_pos_sp.pose.position.x = target_local_pos.pose.position.x + formation_target(0);
     target_local_pos_sp.pose.position.y = target_local_pos.pose.position.y + formation_target(1);
     target_local_pos_sp.pose.position.z = target_local_pos.pose.position.z;
@@ -406,7 +400,7 @@ geometry_msgs::PoseStamped MultiBoatControl::CalculateTargetPos(geometry_msgs::P
 }
 
 void MultiBoatControl::setVehicleCtrlData() {
-//    util_log("usv set vehicle control !!!!!");
+//    chlog::info("data","usv set vehicle control !!!!!");
     m_multi_vehicle_.usv1.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.target_local_pos_sp, m_multi_vehicle_.usv1.follower_keep_pos);
     m_multi_vehicle_.usv2.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.current_local_pos, m_multi_vehicle_.usv2.follower_keep_pos);
     m_multi_vehicle_.usv3.target_local_pos_sp = CalculateTargetPos(m_multi_vehicle_.leader_usv.current_local_pos, m_multi_vehicle_.usv3.follower_keep_pos);
@@ -416,7 +410,7 @@ void MultiBoatControl::setVehicleCtrlData() {
 
     if (m_multi_vehicle_.leader_usv.droneControl.speed_ctrl) {
         m_multi_vehicle_.usv1.droneControl = m_multi_vehicle_.leader_usv.droneControl;
-        util_log("usv speed_ctrl!!!!!");
+        chlog::info("data","usv speed_ctrl!!!!!");
     }
     DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);
 }
@@ -434,8 +428,10 @@ void MultiBoatControl::USVManualControl() {
     m_multi_vehicle_.usv2.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
     m_multi_vehicle_.usv3.target_local_pos_sp = m_multi_vehicle_.leader_usv.target_local_pos_sp;
 
-    util_log("!!!!!!usv manual control output = (%.2f, %.2f, %.2f)", m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x,
-             m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y, m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z);
+    chlog::info("data","!!!!!!usv manual control output = (",
+            m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.x, ", ",
+             m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.y, ", ",
+             m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position.z, ")");
 
     DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);
 }

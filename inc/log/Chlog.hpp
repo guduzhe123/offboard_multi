@@ -49,7 +49,10 @@ namespace chlog {
 
     extern bool runTest();
 
-    extern void logFileErr(const string &sFile);
+/*    extern void logFileErr(const string &sFile) {
+        //chlog::err("cu", string("Fail to open file [") + sFile + "]");
+        cerr << (string("Fail to open file [") + sFile + "]");
+    }*/
 
     extern string
     getTimeStamp(bool get_time_and_date = false, bool get_millisecond = false, bool format_for_windows = false);

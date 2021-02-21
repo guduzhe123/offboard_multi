@@ -54,7 +54,7 @@ public:
     ~MultiUUVControlFactory() {};
 
     IVehicleControl* VehicleControlCreator() {
-        util_log("UUV factory~");
+        chlog::info("data","UUV factory~");
         return  MultiUUVControl::getInstance();
     }
 };

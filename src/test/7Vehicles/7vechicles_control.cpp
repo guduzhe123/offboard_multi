@@ -60,7 +60,7 @@ void seven_vehicle_control::OnInit() {
     nh.param<double>("formation_distance", formation_distance_, 5);
     nh.param("waypoint_num", waypoint_num_, -1);
     nh.param("danger_distance", danger_distance_, 0.0);
-    util_log("formation distance = %.2f, waypoint_num_ = %d", formation_distance_, waypoint_num_);
+    chlog::info("data","formation distance = ", formation_distance_, ", waypoint_num_ = ", waypoint_num_);
 
 //    PathCreator::geInstance()->onInit(msgRos_);
 //    usvLocalPositionSp();
@@ -99,7 +99,7 @@ void seven_vehicle_control::PublishBoatPosControl(const multi_vehicle &multi_veh
     usv3.target_pose = multi_vehicles.usv3.target_local_pos_sp;
 
     if (multi_vehicles.usv1.droneControl.speed_ctrl) {
-        util_log("usv1 send vel control = %.d", multi_vehicles.usv1.droneControl.speed_ctrl);
+        chlog::info("data","usv1 send vel control = %.d", multi_vehicles.usv1.droneControl.speed_ctrl);
         usv1 = multi_vehicles.usv1.droneControl;
     }
 

@@ -14,11 +14,11 @@ void Calculate::GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &lo
 
     float x, y;
     get_vector_to_next_waypoint_fast(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude, x, y);
-    util_log("takeoff lat = %.8f, lon = %.8f, way lat = %.8f, way lon = %.8f", loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude);
+    chlog::info("data","takeoff lat = %.8f, lon = %.8f, way lat = %.8f, way lon = %.8f", loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude);
 
     follow_uav_local_pos.x() = -y;
     follow_uav_local_pos.y() = -x;
-    util_log("distance orig x= %.2f, distance orig y= %.2f, x new = %.2f, y new = %.2f",
+    chlog::info("data","distance orig x= %.2f, distance orig y= %.2f, x new = %.2f, y new = %.2f",
             follow_uav_local_pos.x(), follow_uav_local_pos.y(), x, y);
 }
 
@@ -261,11 +261,11 @@ void Calculate::getTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_sla
     if (slave.current_state.armed && !is_get_takeoff_pos_) {
         master_start_gps = GlobalPosition{master.latitude, master.longtitude, 0};
         slave_takeoff_gps = GlobalPosition{slave.latitude, slave.longtitude, 0};
-        util_log("master_start_gps_ = ( %.9f, %.9f)", master_start_gps.latitude, master_start_gps.longitude);
-        util_log("slave_takeoff_gps_ = ( %.9f, %.9f)", slave_takeoff_gps.latitude, slave_takeoff_gps.longitude);
+        chlog::info("data","master_start_gps_ = ( %.9f, %.9f)", master_start_gps.latitude, master_start_gps.longitude);
+        chlog::info("data","slave_takeoff_gps_ = ( %.9f, %.9f)", slave_takeoff_gps.latitude, slave_takeoff_gps.longitude);
 
         GetLocalPos(master_start_gps, slave_takeoff_gps, follow_slave_first_local);
-        util_log("follow_slave_first_local = ( %.2f, %.2f, %.2f)", follow_slave_first_local.x(), follow_slave_first_local.y(),
+        chlog::info("data","follow_slave_first_local = ( %.2f, %.2f, %.2f)", follow_slave_first_local.x(), follow_slave_first_local.y(),
                  follow_slave_first_local.z());
 
         is_get_takeoff_pos_ = true;
@@ -277,7 +277,7 @@ void Calculate::bodyFrame2LocalFrame(geometry_msgs::PoseStamped &body, geometry_
     local.pose.position.x = body.pose.position.x * cos(yaw) - body.pose.position.y * sin(yaw);
     local.pose.position.y = body.pose.position.x * sin(yaw) + body.pose.position.y * cos(yaw);
     local.pose.position.z = body.pose.position.z;
-    util_log("body to local cos(%.2f) = %.2f, sin(%.2f) = %.2f" , yaw, cos(yaw), yaw, sin(yaw));
+    chlog::info("data","body to local cos(%.2f) = %.2f, sin(%.2f) = %.2f" , yaw, cos(yaw), yaw, sin(yaw));
 }
 
 
@@ -285,7 +285,7 @@ void Calculate::localFrame2BodyFrame(geometry_msgs::PoseStamped &local, geometry
     body.pose.position.x = local.pose.position.x * cos(yaw) + local.pose.position.y * sin(yaw);
     body.pose.position.y = -local.pose.position.x * sin(yaw) + local.pose.position.y * cos(yaw);
     body.pose.position.z = local.pose.position.z;
-    util_log("local to body cos(%.2f) = %.2f, sin(%.2f) = %.2f" , yaw, cos(yaw), yaw, sin(yaw));
+    chlog::info("data","local to body cos(%.2f) = %.2f, sin(%.2f) = %.2f" , yaw, cos(yaw), yaw, sin(yaw));
 }
 
 //rad!!! 注意这个接口是NED，不能和EUS直接相乘！！！

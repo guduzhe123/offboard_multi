@@ -44,7 +44,7 @@ void uavs_control::OnInit() {
     nh.param<double>("formation_distance", formation_distance_, 5);
     nh.param("waypoint_num", waypoint_num_, -1);
     nh.param("danger_distance", danger_distance_, 0.0);
-    util_log("formation distance = %.2f, waypoint_num_ = %d", formation_distance_, waypoint_num_);
+    chlog::info("data","formation distance = %.2f, waypoint_num_ = %d", formation_distance_, waypoint_num_);
 
 //    PathCreator::geInstance()->onInit(msgRos_);
 //    usvLocalPositionSp();
@@ -71,7 +71,7 @@ void uavs_control::PublishDronePosControl(const multi_vehicle &multi_vehicles) {
     uav4.target_pose.pose.position.z = multi_vehicles.uav4.target_local_pos_sp.pose.position.z + 6;
 
     if (multi_vehicles.uav1.droneControl.speed_ctrl) {
-        util_log("ua1 send vel control = %.d", multi_vehicles.uav1.droneControl.speed_ctrl);
+        chlog::info("data","ua1 send vel control = %.d", multi_vehicles.uav1.droneControl.speed_ctrl);
         uav1 = multi_vehicles.uav1.droneControl;
     }
     uav1_control_->uavPosSp(uav1);

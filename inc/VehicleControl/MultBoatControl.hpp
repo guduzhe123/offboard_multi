@@ -78,7 +78,7 @@ public:
     ~MultiBoatControlFactory() {};
 
     IVehicleControl* VehicleControlCreator() {
-        util_log("boat factory~");
+        chlog::info("data","boat factory~");
         return  MultiBoatControl::getInstance();
     }
 };

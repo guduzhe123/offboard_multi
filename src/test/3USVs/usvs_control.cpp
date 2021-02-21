@@ -41,7 +41,7 @@ void usvs_control::OnInit() {
     nh.param<double>("formation_distance", formation_distance_, 5);
     nh.param("waypoint_num", waypoint_num_, -1);
     nh.param("danger_distance", danger_distance_, 0.0);
-    util_log("formation distance = %.2f, waypoint_num_ = %d", formation_distance_, waypoint_num_);
+    chlog::info("data","formation distance = ", formation_distance_, ", waypoint_num_ = ", waypoint_num_);
 //    usvLocalPositionSp();
 }
 
@@ -64,7 +64,7 @@ void usvs_control::PublishBoatPosControl(const multi_vehicle &multi_vehicles) {
     usv3.target_pose = multi_vehicles.usv3.target_local_pos_sp;
 
     if (multi_vehicles.usv1.droneControl.speed_ctrl) {
-        util_log("usv1 send vel control = %.d", multi_vehicles.usv1.droneControl.speed_ctrl);
+        chlog::info("data","usv1 send vel control = %.d", multi_vehicles.usv1.droneControl.speed_ctrl);
         usv1 = multi_vehicles.usv1.droneControl;
     }
 
@@ -77,7 +77,7 @@ void usvs_control::SetUSVAvoData(const bool usv1_crash, const bool usv2_crash, c
     usv1_control_->usvCrash(usv1_crash);
     usv2_control_->usvCrash(usv2_crash);
     usv3_control_->usvCrash(usv3_crash);
-    util_log("usv1_crash = %d, usv2_crash = %d, usv3_crash = %d", usv1_crash, usv2_crash, usv3_crash);
+    chlog::info("data","usv1_crash = %d, usv2_crash = %d, usv3_crash = %d", usv1_crash, usv2_crash, usv3_crash);
 }
 
 void usvs_control::SetUAVState(mavros_msgs::SetMode &m_mode) {

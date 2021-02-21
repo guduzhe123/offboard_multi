@@ -95,7 +95,7 @@ void PCLROSMessageManager::groundRemove(const pcl::PointCloud<pcl::PointXYZ>::Pt
     extract.setIndices (inliers);
     extract.setNegative (true);
     extract.filter (*output_cloud);
-    util_log("input_cloud size = %d, output cloud size = %d, cloud_filtered_indices size = %d",
+    chlog::info("data","input_cloud size = %d, output cloud size = %d, cloud_filtered_indices size = %d",
             input_cloud->points.size(), output_cloud->points.size(), cloud_filtered_indices->size());
 }
 

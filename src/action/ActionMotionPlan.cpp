@@ -10,7 +10,7 @@ ActionMotionPlan::ActionMotionPlan()
 }
 
 bool ActionMotionPlan::OnInit(const MP_Config &mpConfig) {
-    chlog::info("af_core", "motion_plan init! target_pos = " + toStr(mpConfig.end_pos)
+    chlog::info("motion_plan", "motion_plan init! target_pos = " + toStr(mpConfig.end_pos)
                            + ", target_heading = " + to_string2(mpConfig.target_heading));
     mp_config_ = mpConfig;
     mp_manager_ = makeSp<MPManager>(mp_config_);
@@ -71,12 +71,12 @@ void ActionMotionPlan::SetFunctionOutPut() {
 void ActionMotionPlan::updateSpeedLimit(const float &speed_limit) {
     mp_config_.max_vel = speed_limit;
     mp_manager_->OnUpdateMaxSpeed(speed_limit);
-    //chlog::info("af_core", "motion plan update speed limit = " + to_string2(speed_limit));
+    //chlog::info("motion_plan", "motion plan update speed limit = " + to_string2(speed_limit));
 }
 
 void ActionMotionPlan::OnUpdateTargetPoint(const TVec3 &new_target_point) {
     TVec3 end_pos = new_target_point;
-    chlog::info("af_core", "motion_plan init! new_target_point = " + toStr(end_pos));
+    chlog::info("motion_plan", "motion_plan init! new_target_point = " + toStr(end_pos));
     mp_manager_->OnUpdateTargetPos(end_pos);
 }
 

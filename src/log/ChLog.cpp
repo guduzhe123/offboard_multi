@@ -86,7 +86,7 @@ namespace chlog {
             if (m_ofs.is_open()) {
                 //chlog::info("cu", "Chlog Opened log file:'" + sFile + "'");
             } else {
-                logFileErr(sFile);
+//                logFileErr(sFile);
             }
         };
 

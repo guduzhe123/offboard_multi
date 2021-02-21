@@ -16,14 +16,14 @@ MultiUAVFormation::MultiUAVFormation() :
 }
 
 void MultiUAVFormation::Oninit(const int config) {
-    util_log("formation config = %d", config );
+    chlog::info("data","formation config = %d", config );
     config_ = config;
     leader_curr_pos_ = TVec3(m_multi_vehicle_.uav1.current_local_pos.pose.position.x, m_multi_vehicle_.uav1.current_local_pos.pose.position.y,
                             m_multi_vehicle_.uav1.current_local_pos.pose.position.z);
     switch (config) {
         case VF_UAV_SQUARE: {
             is_formation_ = true;
-            util_log("Formation call! Square!");
+            chlog::info("data","Formation call! Square!");
             leader_drone_ = m_multi_vehicle_.uav1;
             Drone_uav2_ = TVec3(-K_multi_formation_distance, 0 , m_multi_vehicle_.uav2.current_local_pos.pose.position.z);
             Drone_uav3_ = TVec3(-K_multi_formation_distance, -K_multi_formation_distance, m_multi_vehicle_.uav3.current_local_pos.pose.position.z);
@@ -31,15 +31,15 @@ void MultiUAVFormation::Oninit(const int config) {
 
             changeToLocalTarget();
             calcFollowUAVPos();
-            util_log("uav2 target local pos x= %.2f, y = %.2f", follow_uav1_.x(), follow_uav1_.y());
-            util_log("uav3 target local pos x= %.2f, y = %.2f", follow_uav2_.x(), follow_uav2_.y());
-            util_log("uav4 target local pos x= %.2f, y = %.2f", follow_uav3_.x(), follow_uav3_.y());
+            chlog::info("data","uav2 target local pos x= %.2f, y = %.2f", follow_uav1_.x(), follow_uav1_.y());
+            chlog::info("data","uav3 target local pos x= %.2f, y = %.2f", follow_uav2_.x(), follow_uav2_.y());
+            chlog::info("data","uav4 target local pos x= %.2f, y = %.2f", follow_uav3_.x(), follow_uav3_.y());
         }
             break;
 
         case VF_UAV_TRIANGLE: {
             is_formation_ = true;
-            util_log("Formation call! Triangle!");
+            chlog::info("data","Formation call! Triangle!");
             leader_drone_ = m_multi_vehicle_.uav1;
             Drone_uav2_ = TVec3(-K_multi_formation_distance, K_multi_formation_distance , m_multi_vehicle_.uav2.current_local_pos.pose.position.z);
             Drone_uav3_ = TVec3(-K_multi_formation_distance, 0, m_multi_vehicle_.uav3.current_local_pos.pose.position.z);
@@ -53,7 +53,7 @@ void MultiUAVFormation::Oninit(const int config) {
 
         case VF_UAV_LINE_HORIZONTAL : {
             is_formation_ = true;
-            util_log("Formation call! Line horizontal!");
+            chlog::info("data","Formation call! Line horizontal!");
             leader_drone_ = m_multi_vehicle_.uav1;
             Drone_uav2_ = TVec3(0, -K_multi_formation_distance , m_multi_vehicle_.uav2.current_local_pos.pose.position.z);
             Drone_uav3_ = TVec3(0, -2 * K_multi_formation_distance, m_multi_vehicle_.uav3.current_local_pos.pose.position.z);
@@ -66,7 +66,7 @@ void MultiUAVFormation::Oninit(const int config) {
 
         case VF_UAV_LINE_VERTICAL : {
             is_formation_ = true;
-            util_log("Formation call! Line Vertical!");
+            chlog::info("data","Formation call! Line Vertical!");
             leader_drone_ = m_multi_vehicle_.uav1;
             Drone_uav2_ = TVec3(-K_multi_formation_distance, 0 , m_multi_vehicle_.uav2.current_local_pos.pose.position.z);
             Drone_uav3_ = TVec3(-2* K_multi_formation_distance, 0, m_multi_vehicle_.uav3.current_local_pos.pose.position.z);
@@ -79,7 +79,7 @@ void MultiUAVFormation::Oninit(const int config) {
 
 /*        case VF_UAV_RETURN: {
             is_formation_ = true;
-            util_log("Formation call! ALL Return!");
+            chlog::info("data","Formation call! ALL Return!");
             leader_drone_ = m_multi_vehicle_.uav1;
             break;
         }*/
@@ -180,10 +180,10 @@ void MultiUAVFormation::GetTakeoffPos() {
                                                m_multi_vehicle_.uav3.homePosition.geo.longitude,0};
         uav4_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.uav4.homePosition.geo.latitude,
                                                m_multi_vehicle_.uav4.homePosition.geo.longitude,0};
-        util_log("uav1_takeoff_gps_pos_ = ( %.9f, %.9f)", uav1_takeoff_gps_pos_.latitude, uav1_takeoff_gps_pos_.longitude);
-        util_log("uav2_takeoff_gps_pos_ = ( %.9f, %.9f)", uav2_takeoff_gps_pos_.latitude, uav2_takeoff_gps_pos_.longitude);
-        util_log("uav3_takeoff_gps_pos_ = ( %.9f, %.9f)", uav3_takeoff_gps_pos_.latitude, uav3_takeoff_gps_pos_.longitude);
-        util_log("uav4_takeoff_gps_pos_ = ( %.9f, %.9f)", uav4_takeoff_gps_pos_.latitude, uav4_takeoff_gps_pos_.longitude);
+        chlog::info("data","uav1_takeoff_gps_pos_ = ( %.9f, %.9f)", uav1_takeoff_gps_pos_.latitude, uav1_takeoff_gps_pos_.longitude);
+        chlog::info("data","uav2_takeoff_gps_pos_ = ( %.9f, %.9f)", uav2_takeoff_gps_pos_.latitude, uav2_takeoff_gps_pos_.longitude);
+        chlog::info("data","uav3_takeoff_gps_pos_ = ( %.9f, %.9f)", uav3_takeoff_gps_pos_.latitude, uav3_takeoff_gps_pos_.longitude);
+        chlog::info("data","uav4_takeoff_gps_pos_ = ( %.9f, %.9f)", uav4_takeoff_gps_pos_.latitude, uav4_takeoff_gps_pos_.longitude);
 
         Calculate::getInstance()->GetLocalPos(uav1_takeoff_gps_pos_, uav2_takeoff_gps_pos_, follow_uav1_first_local_);
         Calculate::getInstance()->GetLocalPos(uav1_takeoff_gps_pos_, uav3_takeoff_gps_pos_, follow_uav2_first_local_);
@@ -200,7 +200,7 @@ void MultiUAVFormation::DoProgress() {
 
 geometry_msgs::PoseStamped MultiUAVFormation::CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, Eigen::Matrix<float, 3, 1> formation_target) {
     geometry_msgs::PoseStamped target_local_pos_sp;
-    util_log("formation_target (%.2f, %.2f, %.2f)", formation_target(0), formation_target(1), formation_target(2));
+    chlog::info("data","formation_target (%.2f, %.2f, %.2f)", formation_target(0), formation_target(1), formation_target(2));
     target_local_pos_sp.pose.position.x = target_local_pos.pose.position.x + formation_target(0);
     target_local_pos_sp.pose.position.y = target_local_pos.pose.position.y + formation_target(1);
     target_local_pos_sp.pose.position.z = target_local_pos.pose.position.z;
@@ -215,7 +215,7 @@ void MultiUAVFormation::SetFunctionOutPut() {
                                                     follow_uav2_keep_local_, follow_uav3_keep_local_);
 
     if (is_formation_) {
-        util_log("formation drone output!!!!! config_ = %d" , config_);
+        chlog::info("data","formation drone output!!!!! config_ = %d" , config_);
         if (config_ != VF_UAV_RETURN) {
             geometry_msgs::PoseStamped leader_curr{};
             leader_curr.pose.position.z = m_multi_vehicle_.leader_uav.current_local_pos.pose.position.z;

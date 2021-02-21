@@ -64,7 +64,7 @@ public:
     ~MultiDroneControlFactory() {};
 
     IVehicleControl* VehicleControlCreator() override {
-        util_log("vehicle factory~");
+        chlog::info("data","vehicle factory~");
         return MultiDroneControl::getInstance();
     }
 };

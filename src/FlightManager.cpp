@@ -55,7 +55,7 @@ void FlightManager::DoProgress() {
 void FlightManager::AddVehicleControlProgress(IVehicleControlFactory *IVehicleControl) {
     cur_f = IVehicleControl->VehicleControlCreator();
     m_vehicle_control_list_.push_back(cur_f);
-    util_log("vehicle control size = %d" , m_vehicle_control_list_.size());
+    chlog::info("data","vehicle control size = %d" , m_vehicle_control_list_.size());
 }
 
 
@@ -73,8 +73,8 @@ void FlightManager::OnFlightDataUpdate(FDATA_TYPE data_type) {
     if (data_type == FDATA_DRONE_TARGTE) {
         if (drone_avodiance_update_) {
             GetData();
-//            util_log("uav targte .z = %.2f", m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z);
-/*            util_log(
+//            chlog::info("data","uav targte .z = %.2f", m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z);
+/*            chlog::info("data",
                     "height_avoidance_uav1_ = %.2f, height_avoidance_uav2_ = %.2f, height_avoidance_uav3_ = %.2f, height_avoidance_uav4_ = %.2f",
                     m_multi_vehicle_.uav1.avoidance_pos.z(), m_multi_vehicle_.uav2.avoidance_pos.z(),
                     m_multi_vehicle_.uav3.avoidance_pos.z(), m_multi_vehicle_.uav4.avoidance_pos.z());*/
@@ -95,7 +95,7 @@ void FlightManager::OnFlightDataUpdate(FDATA_TYPE data_type) {
     }
 
     if (data_type == FDATA_MANUAL_COMMAND) {
-        util_log("get user command = %d", m_multi_vehicle_.user_command);
+        chlog::info("data","get user command = ", m_multi_vehicle_.user_command);
         m_func_->Oninit(m_multi_vehicle_.user_command);
     }
 }

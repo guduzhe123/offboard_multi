@@ -19,7 +19,7 @@ USV_Avoidance::USV_Avoidance() :
 }
 
 void USV_Avoidance::Oninit(const int config) {
-    util_log("usv avoidance init!!!!!");
+    chlog::info("data","usv avoidance init!!!!!");
 }
 
 USV_Avoidance* USV_Avoidance::getInstance() {
@@ -43,7 +43,7 @@ void USV_Avoidance::DoProgress() {
         checkDistance(m_multi_vehicle_.usv1, m_multi_vehicle_.usv3);
         checkDistance(m_multi_vehicle_.usv2, m_multi_vehicle_.usv3);
 
-        util_log("is_usv1_usv2_crash_ = %d, is_usv1_usv3_crash_ = %d, is_usv2_usv3_crash_ = %d",
+        chlog::info("data","is_usv1_usv2_crash_ = %d, is_usv1_usv3_crash_ = %d, is_usv2_usv3_crash_ = %d",
                  is_usv1_usv2_crash_, is_usv1_usv3_crash_, is_usv2_usv3_crash_);
         if (is_usv1_usv2_crash_ && is_usv1_usv3_crash_ && is_usv2_usv3_crash_) {
             usv1_crash_ = false;
@@ -106,7 +106,7 @@ void USV_Avoidance::checkDistance(const M_Drone &vehicle1, const M_Drone &vehicl
             if ( vehicle2.drone_id == UAV1)  is_usv1_usv3_crash_ = true;
             if ( vehicle2.drone_id == USV2)  is_usv2_usv3_crash_ = true;
         }
-        util_log("vehlcie %d and %d distance < 2!!! distance = %.2f", vehicle1.drone_id, vehicle2.drone_id, dist);
+        chlog::info("data","vehlcie %d and %d distance < 2!!! distance = %.2f", vehicle1.drone_id, vehicle2.drone_id, dist);
     } else {
         if (vehicle1.drone_id == USV1) {
             if ( vehicle2.drone_id == USV2)  is_usv1_usv2_crash_ = false;
@@ -122,7 +122,7 @@ void USV_Avoidance::checkDistance(const M_Drone &vehicle1, const M_Drone &vehicl
         }
     }
 
-/*    util_log("2222  is_usv1_usv2_crash_ = %d, is_usv1_usv3_crash_ = %d, is_usv2_usv3_crash_ = %d",
+/*    chlog::info("data","2222  is_usv1_usv2_crash_ = %d, is_usv1_usv3_crash_ = %d, is_usv2_usv3_crash_ = %d",
              is_usv1_usv2_crash_, is_usv1_usv3_crash_, is_usv2_usv3_crash_);*/
 }
 
@@ -139,12 +139,12 @@ void USV_Avoidance::Getvehicledistance(const M_Drone &vehicle1, const M_Drone &v
     float err_px = two_uav_local_pos.x();
     float err_py = two_uav_local_pos.y();
     float err_pz = 0;
-    util_log("vehicle %d %d between length = %.2f, %.2f, %.2f, length = %.2f", vehicle1.drone_id, vehicle2.drone_id,
+    chlog::info("data","vehicle %d %d between length = %.2f, %.2f, %.2f, length = %.2f", vehicle1.drone_id, vehicle2.drone_id,
             err_px, err_py, err_pz, sqrt(err_px * err_px + err_py * err_py + err_pz * err_pz));
 
     distance = sqrt(err_px * err_px + err_py * err_py + err_pz * err_pz);
     if (fabs(distance) > 1000) {
-        util_log("error!");
+        chlog::info("data","error!");
     }
 }
 

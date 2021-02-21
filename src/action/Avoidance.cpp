@@ -51,25 +51,25 @@ void Avoidance::DoProgress() {
         height_avoidance_uav1_.local_target_pos_avo.z() += avo_uav1;
         height_avoidance_uav2_.local_target_pos_avo.z() += avo_uav2;
         if (fabs(avo_uav1) > 0.01 && fabs(avo_uav2) > 0.01)
-        util_log("distance between and uav1 and uav2 < 2m, auv1 move = %.2f, auv2 move = %.2f", avo_uav1, avo_uav2);
+        chlog::info("data","distance between and uav1 and uav2 < 2m, auv1 move = %.2f, auv2 move = %.2f", avo_uav1, avo_uav2);
 
         checkDistance(multi_vehicle_.uav1_vec.back(), multi_vehicle_.uav3_vec.back(), avo_uav1, avo_uav3);
         height_avoidance_uav1_.local_target_pos_avo.z() += avo_uav1;
         height_avoidance_uav3_.local_target_pos_avo.z() += avo_uav3;
         if (fabs(avo_uav1) > 0.01 && fabs(avo_uav3) > 0.01)
-        util_log("distance between and uav1 and uav3 < 2m, auv1 move = %.2f, auv3 move = %.2f", avo_uav1, avo_uav3);
+        chlog::info("data","distance between and uav1 and uav3 < 2m, auv1 move = %.2f, auv3 move = %.2f", avo_uav1, avo_uav3);
 
         checkDistance(multi_vehicle_.uav1_vec.back(), multi_vehicle_.uav4_vec.back(), avo_uav1, avo_uav4);
         height_avoidance_uav1_.local_target_pos_avo.z() += avo_uav1;
         height_avoidance_uav4_.local_target_pos_avo.z() += avo_uav4;
         if (fabs(avo_uav1) > 0.01 && fabs(avo_uav4) > 0.01)
-        util_log("distance between and uav1 and uav4 < 2m, auv1 move = %.2f, auv4 move = %.2f", avo_uav1, avo_uav4);
+        chlog::info("data","distance between and uav1 and uav4 < 2m, auv1 move = %.2f, auv4 move = %.2f", avo_uav1, avo_uav4);
 
         checkDistance(multi_vehicle_.uav2_vec.back(), multi_vehicle_.uav3_vec.back(), avo_uav2, avo_uav3);
         height_avoidance_uav2_.local_target_pos_avo.z() += avo_uav2;
         height_avoidance_uav3_.local_target_pos_avo.z() += avo_uav3;
         if (fabs(avo_uav2) > 0.01 && fabs(avo_uav3) > 0.01)
-        util_log("distance between and uav2 and uav3 < 2m, auv2 move = %.2f, auv3 move = %.2f", avo_uav2, avo_uav3);
+        chlog::info("data","distance between and uav2 and uav3 < 2m, auv2 move = %.2f, auv3 move = %.2f", avo_uav2, avo_uav3);
 
         checkDistance(multi_vehicle_.uav2_vec.back(), multi_vehicle_.uav4_vec.back(), avo_uav2, avo_uav4);
         height_avoidance_uav2_.local_target_pos_avo.z() += avo_uav2;
