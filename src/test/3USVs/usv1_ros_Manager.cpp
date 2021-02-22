@@ -40,6 +40,8 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/home_position/home", 10, &usv1_ros_Manager::homePositionCB, this);
     imu_sub = nh.subscribe<sensor_msgs::Imu>
             ("mavros/imu/data", 10, &usv1_ros_Manager::imuCB, this);
+    rviz_goal_sub = nh.subscribe<geometry_msgs::PoseStamped>
+            ("/move_base_simple/goal", 10, &usv1_ros_Manager::rvizUsv1GoalCB, this);
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
             ("mavros/setpoint_position/local", 100);
@@ -151,6 +153,26 @@ void usv1_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 
     DataMan::getInstance()->setCommand(config);
     PathCreator::geInstance()->CreateUSVFormationInit(config);
+}
+
+void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
+    TVec3 goal;
+    goal.x() = msg->pose.position.x;
+    goal.y() = msg->pose.position.y;
+    goal.z() = msg->pose.position.z;
+    chlog::info("data", "received rviz goal ", toStr(goal));
+
+    MP_Config mp_config;
+    mp_config.is_track_point = true;
+    mp_config.is_speed_mode = false;
+    mp_config.control_mode = POSITION_WITHOUT_CUR;
+    mp_config.is_enable = true;
+    mp_config.max_vel = 1.5;
+    mp_config.max_acc = 2.0;
+    mp_config.mp_map = usv_.Imap;
+    mp_config.end_pos = goal;
+    ActionMotionPlan::getInstance()->initMP(mp_config);
+    ActionMotionPlan::getInstance()->setEnable(true);
 }
 
 void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {

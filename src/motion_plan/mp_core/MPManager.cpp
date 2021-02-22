@@ -233,7 +233,7 @@ void MPManager::OnUpdateDroneHeading(float drone_heading) {
 
 
 void MPManager::ProcessState() {
-//        chlog::info("motion_plan", "[MP Manager]: mp_state_ = " , mp_state_);
+    chlog::info("motion_plan", "[MP Manager]: mp_state_ = " , mp_state_);
     switch (mp_state_) {
         case INIT: {
             ChangeExecState(WAIT_TARGET, "FSM");

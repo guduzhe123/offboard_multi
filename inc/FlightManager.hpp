@@ -34,6 +34,8 @@ public:
 
     void FunctionStateUpdate(IFunctionFactory *factory);
 
+    void ActionMotionPlanUpdate(IFunctionFactory *factory);
+
     void OnFlightDataUpdate(FDATA_TYPE data_type) override ;
 
 private:
@@ -49,6 +51,7 @@ private:
     vector<IControlFunction*> m_control_function_vector_;
 
     IControlFunction* m_func_;
+    IControlFunction* mp_func_;
     IVehicleControl* cur_f;
     multi_vehicle m_multi_vehicle_;
 };

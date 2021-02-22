@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
         tf
         octomap_msgs
         geometry_msgs
+        message_filters
 )
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
@@ -112,6 +113,7 @@ target_link_libraries(
         /usr/local/lib/libnlopt.so
         ${${LINK_LIB}}
         chlog_lib
+
 )
 
 add_executable(offboard src/offboard.cpp)
@@ -133,8 +135,6 @@ target_link_libraries(master_serial
 
 add_dependencies(master_serial ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-add_executable(multi_offboard  src/main.cpp )
-target_link_libraries(multi_offboard ${catkin_LIBRARIES})
 
 add_library(
         multi_offboard_lib
@@ -158,10 +158,19 @@ add_library(
         src/PCL/PCLROSMessageManager.cpp
         #[[src/serial/serialConnection.cpp]])
 
+#[[add_executable(multi_offboard  src/main.cpp )
+target_link_libraries(multi_offboard ${catkin_LIBRARIES})
+
 target_link_libraries(multi_offboard
+
         multi_offboard_lib
         chlog_lib
-        motion_plan_lib)
+        motion_plan_lib
+        ${OCTOMAP_LIBRARIES}
+        ${LIBFCL_LIBRARIES})
+
+add_dependencies(multi_offboard ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})]]
+
 
 add_executable(USVOffboard src/test/USVOffboard/main.cpp)
 target_link_libraries(USVOffboard ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
@@ -212,7 +221,7 @@ add_library(4uavs_lib
         src/test/4UAVs/uavs_control.cpp
         src/PathCreator.cpp
         src/action/ src/PCL/OctoMap.cpp)
-target_link_libraries(4uav 4uavs_lib multi_offboard_lib chlog_lib)
+target_link_libraries(4uav 4uavs_lib multi_offboard_lib chlog_lib motion_plan_lib)
 target_link_libraries(4uavs_lib ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
         ${LIBFCL_LIBRARIES})
 add_dependencies(4uav ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} )

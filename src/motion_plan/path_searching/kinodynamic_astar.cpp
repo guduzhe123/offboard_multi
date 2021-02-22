@@ -150,10 +150,8 @@ namespace fast_planner {
             {
                 for (double ax = -max_acc_; ax <= max_acc_ + 1e-3; ax += max_acc_ * res)
                     for (double ay = -max_acc_; ay <= max_acc_ + 1e-3; ay += max_acc_ * res)
-                        for (double az = -max_acc_; az <= max_acc_ + 1e-3; az += max_acc_ * res) {
-                            um << ax, ay, az;
-                            inputs.push_back(um);
-                        }
+                        um << ax, ay, 0;
+                        inputs.push_back(um);
                 for (double tau = time_res * max_tau_; tau <= max_tau_; tau += time_res * max_tau_)
                     durations.push_back(tau);
             }

@@ -252,7 +252,8 @@ enum FDATA_TYPE {
     FDATA_AVOIDANCE,
     FDATA_BOAT,
     FDATA_BOAT_TARGET,
-    FDATA_MANUAL_COMMAND
+    FDATA_MANUAL_COMMAND,
+    FDATA_RVIZ_GOAL
 };
 
 struct TCircleConfig{
@@ -291,6 +292,13 @@ enum MotionPlanState {
     TRACKING,
     CIRCLE_MP_MP,
     POINTTOPOINT,
+};
+
+enum REPLAN_MODE {
+    POSITION_CUR = 0,
+    POSITION_WITHOUT_CUR = 1,
+    VELOCITY_WITH_CUR = 2,
+    VELOCITY_WITHOUT_CUR = 3
 };
 
 struct MP_Config{

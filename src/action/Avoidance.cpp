@@ -114,10 +114,10 @@ void Avoidance::DoProgress() {
 
         checkVerticalDistance(multi_vehicle_);
         checkHorizontalDistance(multi_vehicle_);
-        util_log(
+/*        util_log(
                 "height_avoidance_uav1_ = %.2f, height_avoidance_uav2_ = %.2f, height_avoidance_uav3_ = %.2f, height_avoidance_uav4_ = %.2f",
                 height_avoidance_uav1_.local_target_pos_avo.z(), height_avoidance_uav2_.local_target_pos_avo.z(),
-                height_avoidance_uav3_.local_target_pos_avo.z(), height_avoidance_uav4_.local_target_pos_avo.z());
+                height_avoidance_uav3_.local_target_pos_avo.z(), height_avoidance_uav4_.local_target_pos_avo.z());*/
 
     }
     SetFunctionOutPut();

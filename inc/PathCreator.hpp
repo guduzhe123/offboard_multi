@@ -17,6 +17,7 @@
 #include "USV_Avoidance.hpp"
 #include "MultDroneControl.hpp"
 #include "MultBoatControl.hpp"
+#include "ActionMotionPlan.hpp"
 
 using namespace Eigen;
 using namespace std;
@@ -29,6 +30,8 @@ public:
     ~PathCreator() = default;
 
     void onInit(IMsgRosManager *msg_manager, const bool is_uav_follow);
+
+    void initMotionPlan();
 
     void uav_add_way_points(vector<geometry_msgs::PoseStamped> &uav_way_points);
 

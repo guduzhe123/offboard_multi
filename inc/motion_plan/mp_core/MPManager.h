@@ -17,13 +17,6 @@
 
 using namespace fast_planner;
 
-enum REPLAN_MODE {
-    POSITION_CUR = 0,
-    POSITION_WITHOUT_CUR = 1,
-    VELOCITY_WITH_CUR = 2,
-    VELOCITY_WITHOUT_CUR = 3
-};
-
 struct Drone_State{
     TVec3 drone_pos;
     TVec3 drone_vel;

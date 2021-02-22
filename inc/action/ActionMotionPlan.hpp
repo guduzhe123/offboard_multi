@@ -5,9 +5,9 @@
 #ifndef WINDAPPCORE_ACTIONMOTIONPLAN_HPP
 #define WINDAPPCORE_ACTIONMOTIONPLAN_HPP
 
-#include <motion_plan/mp_core/MPManager.h>
 #include "IControlFunction.hpp"
 #include "motion_plan/mp_core/MPManager.h"
+#include "DataMan.hpp"
 
 class ActionMotionPlan : public IControlFunction {
 public:
@@ -27,7 +27,10 @@ public:
     ///
     /// Initialize the class members
     /// init and update target position and heading status
-    bool OnInit(const MP_Config& mpConfig);
+
+    void Oninit(const int config) override ;
+
+    bool initMP(const MP_Config& mpConfig);
 
     /// @brief Start the program
     void DoProgress() override;
@@ -61,6 +64,12 @@ public:
 
     void updateCirclePoint(const TVec3& tip_pos);
 
+    void setEnable(bool enable);
+
+    void SetStatus(const TVec3 &drone_pos, const TVec3 &drone_speed, float heading);
+
+    static ActionMotionPlan* getInstance();
+
 
 protected:
     string name_;
@@ -70,6 +79,17 @@ private:
     TDroneOutput output_;
     MP_Config mp_config_;
     M_Drone drone_state_;
+
+    bool is_enable_;
+};
+
+class ActionMotionPlanFactory : public IFunctionFactory {
+public:
+    ~ActionMotionPlanFactory() {};
+
+    IControlFunction* FunctionCreator()  {
+        return ActionMotionPlan::getInstance();
+    }
 };
 
 #endif //WINDAPPCORE_ACTIONMOTIONPLAN_HPP

@@ -17,6 +17,12 @@ void PathCreator::onInit(IMsgRosManager *msg_manager, const bool is_uav_follow) 
     CreatFunction();
 }
 
+void PathCreator::initMotionPlan() {
+    ActionMotionPlanFactory action_mp;
+    FlightManager::getInstance()->AddFunctionProgress(&action_mp);
+
+}
+
 void PathCreator::uav_add_way_points(vector<geometry_msgs::PoseStamped> &uav_way_points) {
     geometry_msgs::PoseStamped way_point;
 

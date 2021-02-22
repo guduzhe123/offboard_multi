@@ -107,20 +107,20 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
     depth_sub_.reset(new message_filters::Subscriber<sensor_msgs::Image>(node_, "/sdf_map/depth", 50));
 
     if (mp_.pose_type_ == POSE_STAMPED) {
-        pose_sub_.reset(
-                new message_filters::Subscriber<geometry_msgs::PoseStamped>(node_, "/sdf_map/pose", 25));
+/*        pose_sub_.reset(
+                new message_filters::Subscriber<geometry_msgs::PoseStamped>(node_, "/sdf_map/pose", 25));*/
 
-        sync_image_pose_.reset(new message_filters::Synchronizer<SyncPolicyImagePose>(
-                SyncPolicyImagePose(100), *depth_sub_, *pose_sub_));
-        sync_image_pose_->registerCallback(boost::bind(&SDFMap::depthPoseCallback, this, _1, _2));
+/*        sync_image_pose_.reset(new message_filters::Synchronizer<SyncPolicyImagePose>(
+                SyncPolicyImagePose(100), *depth_sub_, *pose_sub_));*/
+//        sync_image_pose_->registerCallback(boost::bind(&SDFMap::depthPoseCallback, this, _1, _2));
 
-    } else if (mp_.pose_type_ == ODOMETRY) {
+    } /*else if (mp_.pose_type_ == ODOMETRY) {
         odom_sub_.reset(new message_filters::Subscriber<nav_msgs::Odometry>(node_, "/sdf_map/odom", 100));
 
         sync_image_odom_.reset(new message_filters::Synchronizer<SyncPolicyImageOdom>(
                 SyncPolicyImageOdom(100), *depth_sub_, *odom_sub_));
         sync_image_odom_->registerCallback(boost::bind(&SDFMap::depthOdomCallback, this, _1, _2));
-    }
+    }*/
 
     // use odometry and point cloud
 
@@ -798,7 +798,7 @@ void SDFMap::updateESDFCallback(const ros::TimerEvent& /*event*/) {
 void SDFMap::depthPoseCallback(const sensor_msgs::ImageConstPtr& img,
                                const geometry_msgs::PoseStampedConstPtr& pose) {
     /* get depth image */
-    cv_bridge::CvImagePtr cv_ptr;
+ /*   cv_bridge::CvImagePtr cv_ptr;
     cv_ptr = cv_bridge::toCvCopy(img, img->encoding);
 
     if (img->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
@@ -808,7 +808,7 @@ void SDFMap::depthPoseCallback(const sensor_msgs::ImageConstPtr& img,
 
     // std::cout << "depth: " << md_.depth_image_.cols << ", " << md_.depth_image_.rows << std::endl;
 
-    /* get pose */
+    *//* get pose *//*
     md_.camera_pos_(0) = pose->pose.position.x;
     md_.camera_pos_(1) = pose->pose.position.y;
     md_.camera_pos_(2) = pose->pose.position.z;
@@ -820,7 +820,7 @@ void SDFMap::depthPoseCallback(const sensor_msgs::ImageConstPtr& img,
         md_.occ_need_update_ = true;
     } else {
         md_.occ_need_update_ = false;
-    }
+    }*/
 }
 
 void SDFMap::odomCallback(const nav_msgs::OdometryConstPtr& odom) {
@@ -1261,13 +1261,13 @@ void SDFMap::getSurroundPts(const Eigen::Vector3d& pos, Eigen::Vector3d pts[2][2
 void SDFMap::depthOdomCallback(const sensor_msgs::ImageConstPtr& img,
                                const nav_msgs::OdometryConstPtr& odom) {
     /* get pose */
-    md_.camera_pos_(0) = odom->pose.pose.position.x;
+  /*  md_.camera_pos_(0) = odom->pose.pose.position.x;
     md_.camera_pos_(1) = odom->pose.pose.position.y;
     md_.camera_pos_(2) = odom->pose.pose.position.z;
     md_.camera_q_ = Eigen::Quaterniond(odom->pose.pose.orientation.w, odom->pose.pose.orientation.x,
                                        odom->pose.pose.orientation.y, odom->pose.pose.orientation.z);
 
-    /* get depth image */
+    *//* get depth image *//*
     cv_bridge::CvImagePtr cv_ptr;
     cv_ptr = cv_bridge::toCvCopy(img, img->encoding);
     if (img->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
@@ -1275,7 +1275,7 @@ void SDFMap::depthOdomCallback(const sensor_msgs::ImageConstPtr& img,
     }
     cv_ptr->image.copyTo(md_.depth_image_);
 
-    md_.occ_need_update_ = true;
+    md_.occ_need_update_ = true;*/
 }
 
 void SDFMap::depthCallback(const sensor_msgs::ImageConstPtr& img) {

@@ -427,10 +427,10 @@ namespace fast_planner {
                 for (int j = 0; j < dim_; j++) grad[dim_ * i + j] += lambda5_ * g_guide_[i + order_](j);
         }
         if (cost_function_ & DIST_CENTER) {
-            calcDistCenterCost(g_q_, f_dist_center, g_dist_center_);
+/*            calcDistCenterCost(g_q_, f_dist_center, g_dist_center_);
             f_combine += lambda9_ * f_dist_center;
             for (int i = 0; i < variable_num_ / dim_; i++)
-                for (int j = 0; j < dim_; j++) grad[dim_*i + j] += lambda9_ * g_dist_center_[i + order_](j);
+                for (int j = 0; j < dim_; j++) grad[dim_*i + j] += lambda9_ * g_dist_center_[i + order_](j);*/
         }
 
         if (cost_function_ & WAYPOINTS) {

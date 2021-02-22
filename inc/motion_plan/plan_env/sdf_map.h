@@ -28,6 +28,7 @@
 #define logit(x) (log((x) / (1 - (x))))
 
 using namespace std;
+using namespace message_filters;
 
 // voxel hashing
 template <typename T>

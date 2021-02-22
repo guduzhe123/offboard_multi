@@ -27,7 +27,17 @@ int main(int argc, char **argv)
     lead_node = usvs_control::getInstance();
     lead_node->OnInit();
     DataMan::getInstance()->OnInit(lead_node);
-    PathCreator::geInstance()->onInit(lead_node, true);
+
+    ros::NodeHandle nh("~");
+    bool is_motion_plan;
+    nh.param("is_motion_plan", is_motion_plan, false);
+    chlog::info("data", "~~~~ is motion plan = ", is_motion_plan);
+    is_motion_plan = true;
+    if (!is_motion_plan) {
+        PathCreator::geInstance()->onInit(lead_node, true);
+    } else {
+        PathCreator::geInstance()->initMotionPlan();
+    }
 
 //    avoidance::getInstance()->Oninit();
 

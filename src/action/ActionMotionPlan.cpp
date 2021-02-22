@@ -5,11 +5,16 @@
 #include "ActionMotionPlan.hpp"
 
 
-ActionMotionPlan::ActionMotionPlan()
+ActionMotionPlan::ActionMotionPlan() :
+        is_enable_(false)
 {
 }
 
-bool ActionMotionPlan::OnInit(const MP_Config &mpConfig) {
+void ActionMotionPlan::Oninit(const int config) {
+
+}
+
+bool ActionMotionPlan::initMP(const MP_Config &mpConfig) {
     chlog::info("motion_plan", "motion_plan init! target_pos = " + toStr(mpConfig.end_pos)
                            + ", target_heading = " + to_string2(mpConfig.target_heading));
     mp_config_ = mpConfig;
@@ -19,14 +24,26 @@ bool ActionMotionPlan::OnInit(const MP_Config &mpConfig) {
     return false;
 }
 
-void ActionMotionPlan::DoProgress() {
-/*    if (IsEnable()) {
-    } else {
-        mp_manager_->SetMpEnable(false);
-    }*/
-    mp_manager_->ProcessState();
+void ActionMotionPlan::GetData() {
+
 }
 
+void ActionMotionPlan::DoProgress() {
+    if (mp_manager_ == NULL) return;
+    chlog::info("motion_plan", "is_enable = ", is_enable_);
+    if (is_enable_) {
+        mp_manager_->ProcessState();
+        TVec3 drone_data, drone_speed;
+//        drone_data =
+//        SetStatus()
+    } else {
+        mp_manager_->SetMpEnable(false);
+    }
+}
+
+void ActionMotionPlan::setEnable(bool enable) {
+    is_enable_ = enable;
+}
 
 void ActionMotionPlan::SetFunctionOutPut() {
  /*   if (mp_config_.is_track_point && (!isnan(drone_state_.drone_pos.x())
@@ -61,12 +78,10 @@ void ActionMotionPlan::SetFunctionOutPut() {
                 ", target_heading = ", output.target_heading);*/
 }
 
-/*void ActionMotionPlan::SetStatus(const TVec3 &drone_pos, const TVec3 &drone_speed, float heading) {
-    // c_pos_ = drone_pos;
-    drone_state_.drone_pos = drone_pos;
+void ActionMotionPlan::SetStatus(const TVec3 &drone_pos, const TVec3 &drone_speed, float heading) {
     TVec3 attitude = {0, 0, heading}, acc = {0, 0, 0};
     mp_manager_->OnUpdateDroneStatus(drone_pos, drone_speed, acc, attitude);
-}*/
+}
 
 void ActionMotionPlan::updateSpeedLimit(const float &speed_limit) {
     mp_config_.max_vel = speed_limit;
@@ -93,5 +108,13 @@ void ActionMotionPlan::updateMotionPlan(const float dist,const TVec3 &insp_vec,
 
 void ActionMotionPlan::updateCirclePoint(const TVec3 &tip_pos) {
     mp_config_.m_toward_point = tip_pos;
+}
+
+ActionMotionPlan* ActionMotionPlan::getInstance() {
+    static ActionMotionPlan *action_mp = NULL;
+    if (action_mp == NULL) {
+        action_mp = new ActionMotionPlan();
+    }
+    return action_mp;
 }
 

@@ -23,8 +23,8 @@
 #include "motion_plan/traj_utils/planning_visualization.h"
 #include "Cinc.hpp"
 
-#ifndef rad2deg
-#define rad2deg                      57.295779513
+#ifndef Rad2Deg
+#define Rad2Deg                      57.295779513
 #endif
 
 
