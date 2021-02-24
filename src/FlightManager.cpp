@@ -40,6 +40,15 @@ void FlightManager::DoProgress() {
         }
     }
 
+    auto ifactory_tor = m_control_function_vector_.begin();
+    auto factory_end = m_control_function_vector_.end();
+    for ( ; ifactory_tor != factory_end; ifactory_tor++) {
+        if ((*ifactory_tor) != nullptr) {
+            (*ifactory_tor)->GetData();
+            (*ifactory_tor)->DoProgress();
+        }
+    }
+
     // 运用工厂模式
     auto itor = m_vehicle_control_list_.begin();
     auto end = m_vehicle_control_list_.end();

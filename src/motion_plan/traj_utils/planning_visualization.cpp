@@ -37,7 +37,7 @@ namespace fast_planner {
     void PlanningVisualization::displaySphereList(const vector<Eigen::Vector3d>& list, double resolution,
                                                   const Eigen::Vector4d& color, int id, int pub_id) {
         visualization_msgs::Marker mk;
-        mk.header.frame_id = "world";
+        mk.header.frame_id = "map";
         mk.header.stamp    = ros::Time::now();
         mk.type            = visualization_msgs::Marker::SPHERE_LIST;
         mk.action          = visualization_msgs::Marker::DELETE;
@@ -73,7 +73,7 @@ namespace fast_planner {
     void PlanningVisualization::displayCubeList(const vector<Eigen::Vector3d>& list, double resolution,
                                                 const Eigen::Vector4d& color, int id, int pub_id) {
         visualization_msgs::Marker mk;
-        mk.header.frame_id = "world";
+        mk.header.frame_id = "map";
         mk.header.stamp    = ros::Time::now();
         mk.type            = visualization_msgs::Marker::CUBE_LIST;
         mk.action          = visualization_msgs::Marker::DELETE;
@@ -111,7 +111,7 @@ namespace fast_planner {
                                                 const vector<Eigen::Vector3d>& list2, double line_width,
                                                 const Eigen::Vector4d& color, int id, int pub_id) {
         visualization_msgs::Marker mk;
-        mk.header.frame_id = "world";
+        mk.header.frame_id = "map";
         mk.header.stamp    = ros::Time::now();
         mk.type            = visualization_msgs::Marker::LINE_LIST;
         mk.action          = visualization_msgs::Marker::DELETE;
@@ -212,94 +212,10 @@ namespace fast_planner {
         displaySphereList(ctp, size2, color2, BSPLINE_CTRL_PT + id2 % 100);
     }
 
-    void PlanningVisualization::drawTopoGraph(list<GraphNode::Ptr>& graph, double point_size,
-                                              double line_width, const Eigen::Vector4d& color1,
-                                              const Eigen::Vector4d& color2, const Eigen::Vector4d& color3,
-                                              int id) {
-        // clear exsiting node and edge (drawn last time)
-        vector<Eigen::Vector3d> empty;
-        displaySphereList(empty, point_size, color1, GRAPH_NODE, 1);
-        displaySphereList(empty, point_size, color1, GRAPH_NODE + 50, 1);
-        displayLineList(empty, empty, line_width, color3, GRAPH_EDGE, 1);
-
-        /* draw graph node */
-        vector<Eigen::Vector3d> guards, connectors;
-        for (list<GraphNode::Ptr>::iterator iter = graph.begin(); iter != graph.end(); ++iter) {
-
-            if ((*iter)->type_ == GraphNode::Guard) {
-                guards.push_back((*iter)->pos_);
-            } else if ((*iter)->type_ == GraphNode::Connector) {
-                connectors.push_back((*iter)->pos_);
-            }
-        }
-        displaySphereList(guards, point_size, color1, GRAPH_NODE, 1);
-        displaySphereList(connectors, point_size, color2, GRAPH_NODE + 50, 1);
-
-        /* draw graph edge */
-        vector<Eigen::Vector3d> edge_pt1, edge_pt2;
-        for (list<GraphNode::Ptr>::iterator iter = graph.begin(); iter != graph.end(); ++iter) {
-            for (unsigned int k = 0; k < (*iter)->neighbors_.size(); ++k) {
-
-                edge_pt1.push_back((*iter)->pos_);
-                edge_pt2.push_back((*iter)->neighbors_[k]->pos_);
-            }
-        }
-        displayLineList(edge_pt1, edge_pt2, line_width, color3, GRAPH_EDGE, 1);
-    }
-
-    void PlanningVisualization::drawTopoPathsPhase2(vector<vector<Eigen::Vector3d>>& paths,
-                                                    double                           line_width) {
-        // clear drawn paths
-        Eigen::Vector4d color1(1, 1, 1, 1);
-        for (int i = 0; i < last_topo_path1_num_; ++i) {
-            vector<Eigen::Vector3d> empty;
-            displayLineList(empty, empty, line_width, color1, SELECT_PATH + i % 100, 1);
-            displaySphereList(empty, line_width, color1, PATH + i % 100, 1);
-        }
-
-        last_topo_path1_num_ = paths.size();
-
-        // draw new paths
-        for (unsigned int i = 0; i < paths.size(); ++i) {
-            vector<Eigen::Vector3d> edge_pt1, edge_pt2;
-
-            for (unsigned int j = 0; j < paths[i].size() - 1; ++j) {
-                edge_pt1.push_back(paths[i][j]);
-                edge_pt2.push_back(paths[i][j + 1]);
-            }
-
-            displayLineList(edge_pt1, edge_pt2, line_width, getColor(double(i) / (last_topo_path1_num_)),
-                            SELECT_PATH + i % 100, 1);
-        }
-    }
-
-    void PlanningVisualization::drawTopoPathsPhase1(vector<vector<Eigen::Vector3d>>& paths, double size) {
-        // clear drawn paths
-        Eigen::Vector4d color1(1, 1, 1, 1);
-        for (int i = 0; i < last_topo_path2_num_; ++i) {
-            vector<Eigen::Vector3d> empty;
-            displayLineList(empty, empty, size, color1, FILTERED_PATH + i % 100, 1);
-        }
-
-        last_topo_path2_num_ = paths.size();
-
-        // draw new paths
-        for (unsigned int i = 0; i < paths.size(); ++i) {
-            vector<Eigen::Vector3d> edge_pt1, edge_pt2;
-
-            for (unsigned int j = 0; j < paths[i].size() - 1; ++j) {
-                edge_pt1.push_back(paths[i][j]);
-                edge_pt2.push_back(paths[i][j + 1]);
-            }
-
-            displayLineList(edge_pt1, edge_pt2, size, getColor(double(i) / (last_topo_path2_num_), 0.2),
-                            FILTERED_PATH + i % 100, 1);
-        }
-    }
-
     void PlanningVisualization::drawGoal(Eigen::Vector3d goal, double resolution,
                                          const Eigen::Vector4d& color, int id) {
         vector<Eigen::Vector3d> goal_vec = { goal };
+        chlog::info("motion_plan", "goal_vec = " + toStr(goal.cast<float>()));
         displaySphereList(goal_vec, resolution, color, GOAL + id % 100);
     }
 

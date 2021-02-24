@@ -233,7 +233,7 @@ void MPManager::OnUpdateDroneHeading(float drone_heading) {
 
 
 void MPManager::ProcessState() {
-    chlog::info("motion_plan", "[MP Manager]: mp_state_ = " , mp_state_);
+//    chlog::info("motion_plan", "[MP Manager]: mp_state_ = " , mp_state_);
     switch (mp_state_) {
         case INIT: {
             ChangeExecState(WAIT_TARGET, "FSM");
@@ -290,7 +290,7 @@ void MPManager::ProcessState() {
                 chlog::info("motion_plan", "[MP Manager]: motion plan time out!");
                 return;
             } else if ((info->start_pos_ - pos).norm() < 1.5 ) {
-                chlog::info("motion_plan", "[MP Manager]: close to start pos!");
+//                chlog::info("motion_plan", "[MP Manager]: close to start pos!");
                 return;
 
             } else {

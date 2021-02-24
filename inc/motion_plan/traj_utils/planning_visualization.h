@@ -11,6 +11,7 @@
 #include "motion_plan/plan_env/obj_predictor.h"
 #include "motion_plan/poly_traj/polynomial_traj.h"
 #include "motion_plan/bspline/non_uniform_bspline.h"
+#include <log/Chlog.hpp>
 
 using std::vector;
 

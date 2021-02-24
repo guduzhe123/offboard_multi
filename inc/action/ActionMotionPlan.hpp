@@ -80,6 +80,8 @@ private:
     MP_Config mp_config_;
     M_Drone drone_state_;
 
+    TVec3 usv1_drone_pos_;
+    multi_vehicle m_multi_vehicle_;
     bool is_enable_;
 };
 

@@ -25,12 +25,19 @@ bool ActionMotionPlan::initMP(const MP_Config &mpConfig) {
 }
 
 void ActionMotionPlan::GetData() {
-
+    m_multi_vehicle_ = DataMan::getInstance()->GetData();
+    if (mp_manager_ == NULL) return;
+    usv1_drone_pos_ << m_multi_vehicle_.usv1.current_local_pos.pose.position.x,
+                      m_multi_vehicle_.usv1.current_local_pos.pose.position.y,
+                      m_multi_vehicle_.usv1.current_local_pos.pose.position.z;
+    TVec3 attitude = {0, 0, m_multi_vehicle_.usv1.yaw}, acc = {0, 0, 0};
+    TVec3 drone_speed = m_multi_vehicle_.usv1.velocity;
+    mp_manager_->OnUpdateDroneStatus(usv1_drone_pos_, drone_speed, acc, attitude);
 }
 
 void ActionMotionPlan::DoProgress() {
     if (mp_manager_ == NULL) return;
-    chlog::info("motion_plan", "is_enable = ", is_enable_);
+//    chlog::info("motion_plan", "is_enable = ", is_enable_);
     if (is_enable_) {
         mp_manager_->ProcessState();
         TVec3 drone_data, drone_speed;
@@ -46,41 +53,27 @@ void ActionMotionPlan::setEnable(bool enable) {
 }
 
 void ActionMotionPlan::SetFunctionOutPut() {
- /*   if (mp_config_.is_track_point && (!isnan(drone_state_.drone_pos.x())
-                                      || !isnan(drone_state_.drone_pos.y()) ||
-                                      !isnan(drone_state_.drone_pos.z()))) {
-        TLine line(drone_state_.drone_pos, mp_config_.m_toward_point);
-        TVec3 d_pos = line.dv();
-        TGeoRot geoRot;
-        geoRot.fromVec(d_pos);
-        output_.target_heading = geoRot.h;
-        chlog::info("af_data", "Action motion plan mp_config_.is_track_point = ", mp_config_.is_track_point,
-                    ", mp_config_.m_toward_point = " + toStr(mp_config_.m_toward_point));
-    } else {
+    if (mp_config_.is_track_point && (!isnan(usv1_drone_pos_.x())
+                                      || !isnan(usv1_drone_pos_.y()) ||
+                                      !isnan(usv1_drone_pos_.z())) && mp_manager_ != NULL) {
+
         output_.target_heading = mp_config_.target_heading;
-    }
-    output = output_;
-    output_.is_speed_mode = mp_config_.is_speed_mode;
+        output_.is_speed_mode = mp_config_.is_speed_mode;
 
-    // stop if cannot get motion plan result;
-    if (!mp_manager_->GetControlOutput(output_.m_vector)) {
-        output_.m_vector = TVec3{0, 0, 0};
-        output_.is_speed_mode = true;
-        return;
-    }
+        // stop if cannot get motion plan result;
+        if (!mp_manager_->GetControlOutput(output_.m_vector)) {
+            output_.m_vector = TVec3{0, 0, 0};
+            output_.is_speed_mode = true;
+            return;
+        }
 
-
-    output_.m_pos_ctrl_speed = mp_config_.max_vel;
-    output = output_;
-    chlog::info("af_data",
+        output_.m_pos_ctrl_speed = mp_config_.max_vel;
+        
+/*    chlog::info("af_data",
                 "ActionDroneMotionPlan --- GetOutput m_vector = " + toStr(output.m_vector) + ", is_speed_mode = " +
                 to_string(output.is_speed_mode) + ", m_pos_ctrl_speed = " + to_string2(output.m_pos_ctrl_speed) +
                 ", target_heading = ", output.target_heading);*/
-}
-
-void ActionMotionPlan::SetStatus(const TVec3 &drone_pos, const TVec3 &drone_speed, float heading) {
-    TVec3 attitude = {0, 0, heading}, acc = {0, 0, 0};
-    mp_manager_->OnUpdateDroneStatus(drone_pos, drone_speed, acc, attitude);
+    }
 }
 
 void ActionMotionPlan::updateSpeedLimit(const float &speed_limit) {

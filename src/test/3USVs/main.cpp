@@ -39,8 +39,6 @@ int main(int argc, char **argv)
         PathCreator::geInstance()->initMotionPlan();
     }
 
-//    avoidance::getInstance()->Oninit();
-
     ros::Rate rate(50.0);
     while(ros::ok()){
         FlightManager::getInstance()->GetData();

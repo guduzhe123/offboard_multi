@@ -7,6 +7,8 @@
     <arg name="danger_distance" value="1" />
     <arg name="is_motion_plan" value="true" />
 
+    <include file="$(find offboard)/launch/kino_replan.launch"/>
+
     <node pkg = "offboard" name = "offboard" type="3usv" output="screen">
         <param name="formation_distance" value="$(arg formation_distance)" />
         <param name="waypoint_num" value="$(arg point_num)" type="int"/>

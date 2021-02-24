@@ -228,14 +228,15 @@ void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {
 
 void usv1_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
 //    DataMan::getInstance()->SetDroneData(usv_);
-    chlog::info("data","m_multi_vehicle_.usv1.yaw = %.2f, dronepos_.m_heading = %.2f, yaw_cur_ = %.2f", usv_.yaw, dronepos_.m_heading, yaw_cur_);
+    chlog::info("data","m_multi_vehicle_.usv1.yaw = ", usv_.yaw,
+            ", dronepos_.m_heading =", dronepos_.m_heading,
+            ", yaw_cur_ = ", yaw_cur_);
     DataMan::getInstance()->SetDroneData(usv_);
     pcl_manager_->setVehicleMessage(usv_);
     getOctomap();
 }
 
 void usv1_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
-    chlog::info("data", "usv1 is_speed_ctrl_ = %d", is_speed_ctrl_);
     if (is_speed_ctrl_) {
         g_speed_control_pub.publish(vel_ctrl_sp_);
     } else {

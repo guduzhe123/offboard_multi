@@ -122,7 +122,9 @@ void usv2_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
     pnt_.z = usv_.current_local_pos.pose.position.z;
 
     TVec3 dir(cos(usv_.yaw * M_PI / 180), sin(usv_.yaw * M_PI / 180), 0.0);
-    TVec3 pos = TVec3{pnt_.x, pnt_.y, pnt_.z};
+//    TVec3 pos = TVec3{pnt_.x, pnt_.y, pnt_.z};
+    TVec3 pos ;
+    pos << pnt_.x, pnt_.y, pnt_.z;
     DrawTrajCommand(pos, 2 * dir, usv2_color_);
     poublisMarker(pnt_, usv2_color_, marker_cur_pos_);
 }
@@ -268,12 +270,10 @@ void usv2_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
 }
 
 void usv2_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
-    chlog::info("data","usv2 is_speed_ctrl_ = %d", is_speed_ctrl_);
     geometry_msgs::Point p;
     p.x = target_local_pos_sp_.pose.position.x - follow_leader_offset.x();
     p.y = target_local_pos_sp_.pose.position.y - follow_leader_offset.y();
     p.z = target_local_pos_sp_.pose.position.z;
-    chlog::info("data","draw usv2 target pos = %.2f, %.2f, %.2f", p.x, p.y, p.z);
     poublisMarker(p, usv2_color_, marker_target_pub_);
 
     if (is_speed_ctrl_) {

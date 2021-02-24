@@ -112,7 +112,9 @@ void usv3_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
     pnt_.z = uav_.current_local_pos.pose.position.z;
 
     TVec3 dir(cos(uav_.yaw * M_PI / 180), sin(uav_.yaw * M_PI / 180), 0.0);
-    TVec3 pos = TVec3{pnt_.x, pnt_.y, pnt_.z};
+//    TVec3 pos = TVec3{pnt_.x, pnt_.y, pnt_.z};
+    TVec3 pos ;
+    pos << pnt_.x, pnt_.y, pnt_.z;
     DrawTrajCommand(pos, 2 * dir, usv3_color_);
     poublisMarker(pnt_, usv3_color_, marker_cur_pos_);
 }

@@ -149,13 +149,15 @@ namespace fast_planner {
 
             {
                 for (double ax = -max_acc_; ax <= max_acc_ + 1e-3; ax += max_acc_ * res)
-                    for (double ay = -max_acc_; ay <= max_acc_ + 1e-3; ay += max_acc_ * res)
+                    for (double ay = -max_acc_; ay <= max_acc_ + 1e-3; ay += max_acc_ * res) {
                         um << ax, ay, 0;
                         inputs.push_back(um);
+                    }
                 for (double tau = time_res * max_tau_; tau <= max_tau_; tau += time_res * max_tau_)
                     durations.push_back(tau);
             }
 
+            chlog::info("motion_plan", "input size = ", inputs.size(), ", durations size = ", durations.size());
             /* ---------- state propagation loop ---------- */
             for (unsigned int i = 0; i < inputs.size(); ++i)
                 for (unsigned int j = 0; j < durations.size(); ++j) {

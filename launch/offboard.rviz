@@ -341,6 +341,106 @@ Visualization Manager:
       Name: uav4
     - Class: rviz/Group
       Displays:
+        - Class: rviz/Group
+          Displays:
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /planning_vis/trajectory
+              Name: bspline_traj
+              Namespaces:
+                "": true
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /planning/travel_traj
+              Name: executed_traj
+              Namespaces:
+                "": true
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /planning/position_cmd_vis
+              Name: position_cmd
+              Namespaces:
+                "": true
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /planning/blade_fitting
+              Name: blade_fitting
+              Namespaces:
+                points_and_lines: true
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /planning/path_update
+              Name: path_update
+              Namespaces:
+                points_and_lines: true
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /planning/path_fitting
+              Name: path_fitting
+              Namespaces:
+                points_and_lines: true
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /planning/blade1_map
+              Name: blade1
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /planning/blade2_map
+              Name: blade2
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /planning/blade3_map
+              Name: blade3
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /planning/cabin_map
+              Name: cabin
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /planning/turbine_map
+              Name: turbine
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /planning_vis/drone_sphere
+              Name: drone
+              Namespaces:
+                "": true
+              Queue Size: 100
+              Value: true
+          Enabled: true
+          Name: Planning
         - Class: rviz/Marker
           Enabled: true
           Marker Topic: /usv1/target_point

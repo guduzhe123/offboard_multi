@@ -17,9 +17,6 @@ void MPPublisher::OnInit(const float state) {
     cmd_vis_pub_ = nh.advertise<visualization_msgs::Marker>("/planning/position_cmd_vis", 10); // mark
     traj_pub_ = nh.advertise<visualization_msgs::Marker>("/planning/travel_traj", 10); // mark
     mp_drone_pos_update_pub_ = nh.advertise<nav_msgs::Odometry>("/visual_slam/odom", 100);
-    marker_blade_pub_ = nh.advertise<visualization_msgs::Marker>("/planning/blade_fitting", 10);
-    marker_path_pub_ = nh.advertise<visualization_msgs::Marker>("/planning/path_fitting", 10);
-    path_update_pub_ = nh.advertise<visualization_msgs::Marker>("/planning/path_update", 10);
     flight_corridor_pub_ = nh.advertise<sensor_msgs::PointCloud2>("/tracking/Filter_region", 10);
 
     visualization_ = makeSp<PlanningVisualization>(nh);
