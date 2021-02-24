@@ -35,13 +35,7 @@ void MPPublisher::updateDroneData(const TVec3 &drone_pos) {
     drone_pos_ = drone_pos;
     drone_update_ = true;
     float resolution;
-    if (mp_state_ == MotionPlanState::TRACKING) {
-        resolution = 6;
-    } else if (mp_state_ == MotionPlanState::POINTTOPOINT) {
-        resolution = 2;
-    }  else {
-        resolution = 10;
-    }
+    resolution = 16;
     visualization_->drawDroneSpere(drone_pos.cast<double>(), resolution, Eigen::Vector4d(1, 0.1, 0.1, 0.5), 0, 6);
 }
 

@@ -42,6 +42,8 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/imu/data", 10, &usv1_ros_Manager::imuCB, this);
     rviz_goal_sub = nh.subscribe<geometry_msgs::PoseStamped>
             ("/move_base_simple/goal", 10, &usv1_ros_Manager::rvizUsv1GoalCB, this);
+    velocity_local_sub = nh.subscribe<geometry_msgs::TwistStamped>
+            ("mavros/local_position/velocity_local", 10, &usv1_ros_Manager::velocity_cb, this);
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
             ("mavros/setpoint_position/local", 100);
@@ -72,7 +74,7 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
 
     usv_.Imap.reset(new OctoMap);
     usv_.Imap->onInit();
-    usv_.Imap->setSafeRaduis(10);
+    usv_.Imap->setSafeRaduis(8);
 }
 
 void usv1_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {
@@ -111,6 +113,12 @@ void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     usv_.pitch = dronepos_.m_pitch;
 }
 
+void usv1_ros_Manager::velocity_cb(const geometry_msgs::TwistStamped::ConstPtr& msg) {
+    geometry_msgs::TwistStamped vel;
+    vel = *msg;
+    usv_.velocity << vel.twist.linear.x, vel.twist.linear.y, vel.twist.linear.z;
+}
+
 void usv1_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
     double r, p, y;
     Calculate::getInstance()->quaternion_to_rpy(msg->orientation, r, p, y);
@@ -127,7 +135,9 @@ void usv1_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
     pnt.z = usv_.current_local_pos.pose.position.z;
 
     TVec3 dir(cos(usv_.yaw * M_PI / 180), sin(usv_.yaw * M_PI / 180), 0.0);
-    TVec3 pos = TVec3{pnt.x, pnt.y, pnt.z};
+//    TVec3 pos = TVec3{pnt.x, pnt.y, pnt.z};
+    TVec3 pos ;
+    pos << pnt.x, pnt.y, pnt.z;
     DrawTrajCommand(pos, 2 * dir, usv1_color_);
     poublisMarker(pnt, usv1_color_, marker_cur_pos_);
 }

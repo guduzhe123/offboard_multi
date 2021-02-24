@@ -15,7 +15,7 @@ namespace fast_planner {
         nh.param("search/max_tau", max_tau_, 0.3);
         nh.param("search/init_max_tau", init_max_tau_, 0.4);
         nh.param("search/w_time", w_time_, 10.0);
-        nh.param("search/horizon", horizon_, 7.0);
+        nh.param("search/horizon", horizon_, 10.0);
         nh.param("search/resolution_astar", resolution_, 0.1);
         nh.param("search/time_resolution", time_resolution_, 0.8);
         nh.param("search/lambda_heu", lambda_heu_, 5.0);
@@ -157,7 +157,7 @@ namespace fast_planner {
                     durations.push_back(tau);
             }
 
-            chlog::info("motion_plan", "input size = ", inputs.size(), ", durations size = ", durations.size());
+//            chlog::info("motion_plan", "input size = ", inputs.size(), ", durations size = ", durations.size());
             /* ---------- state propagation loop ---------- */
             for (unsigned int i = 0; i < inputs.size(); ++i)
                 for (unsigned int j = 0; j < durations.size(); ++j) {

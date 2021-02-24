@@ -38,13 +38,14 @@ private:
     void imuCB(const sensor_msgs::Imu::ConstPtr& msg);
     void getOctomap();
     void rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr& msg);
+    void velocity_cb(const geometry_msgs::TwistStamped::ConstPtr& msg);
     
     void drone_pos_update(const ros::TimerEvent& e);
     void commander_update(const ros::TimerEvent& e);
     void publishDronePosControl(const ros::TimerEvent& e);
 
     ros::Subscriber state_sub, vfr_hud_sub, local_position_sub, mavlink_from_sub, global_pos_sub, commander_sub, way_point_sub, homePos_sub,
-            way_point_reached_sub, imu_sub, rviz_goal_sub;
+            way_point_reached_sub, imu_sub, rviz_goal_sub, velocity_local_sub;
     ros::Publisher local_pos_pub, gps_global_pos_pub, global_pos_pub, g_speed_control_pub, dronePosPub,
                     home_pos_pub, marker_target_pub_, heading_vec_, marker_cur_pos_;
     ros::ServiceClient arming_client, set_mode_client;

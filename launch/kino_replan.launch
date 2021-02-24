@@ -11,7 +11,7 @@
   <arg name="odom_topic" value="/state_ukf/odom" />
 
   <!-- main algorithm params -->
-  <include file="$(find px4_ctrl)/launch/kino_algorithm.xml">
+  <include file="$(find offboard)/launch/kino_algorithm.xml">
 
     <arg name="is_wind_application" value="$(arg is_wind_application)"/>
     <arg name="map_size_x_" value="$(arg map_size_x)"/>
@@ -37,7 +37,7 @@
 
     <!-- maximum velocity and acceleration the drone will reach -->
     <arg name="max_vel" value="1.6" />
-    <arg name="max_acc" value="1.5" />
+    <arg name="max_acc" value="3.0" />
 
     <!-- 1: use 2D Nav Goal to select goal  -->
     <!-- 2: use global waypoints below  -->

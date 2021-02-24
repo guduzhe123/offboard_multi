@@ -43,6 +43,7 @@ void ActionMotionPlan::DoProgress() {
         TVec3 drone_data, drone_speed;
 //        drone_data =
 //        SetStatus()
+        SetFunctionOutPut();
     } else {
         mp_manager_->SetMpEnable(false);
     }
@@ -68,11 +69,12 @@ void ActionMotionPlan::SetFunctionOutPut() {
         }
 
         output_.m_pos_ctrl_speed = mp_config_.max_vel;
-        
-/*    chlog::info("af_data",
-                "ActionDroneMotionPlan --- GetOutput m_vector = " + toStr(output.m_vector) + ", is_speed_mode = " +
-                to_string(output.is_speed_mode) + ", m_pos_ctrl_speed = " + to_string2(output.m_pos_ctrl_speed) +
-                ", target_heading = ", output.target_heading);*/
+        m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.x = output_.m_vector.x();
+        m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.y = output_.m_vector.y();
+        m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.z = output_.m_vector.z();
+        DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);
+        chlog::info("af_data",
+                    "ActionDroneMotionPlan --- GetOutput m_vector = " + toStr(output_.m_vector));
     }
 }
 

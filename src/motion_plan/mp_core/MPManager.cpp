@@ -214,8 +214,8 @@ bool MPManager::GetControlOutput(TVec3 &vector_eus) {
 
     TVec3 dir(cos(yaw), sin(yaw), 0.0);
     mp_publisher_->DrawTrajCommand(pos.cast<float>(), 2 * dir, Eigen::Vector4d(1, 1, 0, 0.7), 2);
-    chlog::info("motion_plan", "[MP Manager]: mp pos command = ", pos.x(), ",", pos.y(), ",", pos.z(),
-                ", is speed mode = ", mp_config_.is_speed_mode);
+/*    chlog::info("motion_plan", "[MP Manager]: mp pos command = ", pos.x(), ",", pos.y(), ",", pos.z(),
+                ", is speed mode = ", mp_config_.is_speed_mode);*/
     // drawCmd(pos, pos_err, 3, Eigen::Vector4d(1, 1, 0, 0.7));
     return true;
 }
