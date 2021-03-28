@@ -104,6 +104,7 @@ void PathCreator::CreatFunction() {
     AvoidanceFactory avoidanceFactory;
     USVAvoidanceFactory usv_avo_factory;
 
+
     FlightManager::getInstance()->AddFunctionProgress(&avoidanceFactory);
     FlightManager::getInstance()->AddFunctionProgress(&usv_avo_factory);
     FlightManager::getInstance()->AddFunctionProgress(&UAVFormationFactory);

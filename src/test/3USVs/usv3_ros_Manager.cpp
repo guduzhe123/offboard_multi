@@ -209,7 +209,7 @@ void usv3_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 
 void usv3_ros_Manager::commander_update(const ros::TimerEvent& e) {
     int command;
-//    DataMan::getInstance()->getCommand(command);
+    DataMan::getInstance()->getCommand(command);
     if (command == VF_USV_ALL_START /*|| command == SLAVESTART*/) {
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;

@@ -5,7 +5,7 @@
     <arg name="formation_distance" value="15" />
     <arg name="point_num" value="6" />
     <arg name="danger_distance" value="1" />
-    <arg name="is_motion_plan" value="true" />
+    <arg name="is_motion_plan" value="false" />
 
     <include file="$(find offboard)/launch/kino_replan.launch"/>
 

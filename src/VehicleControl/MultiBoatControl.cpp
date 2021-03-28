@@ -170,7 +170,7 @@ void MultiBoatControl::DoProgress() {
             case USV_CIRCLE_INIT: {
                 TCircleConfig circle_config;
                 circle_config.target_heading = m_multi_vehicle_.usv1.yaw;
-                circle_config.m_radius = 10;
+                circle_config.m_radius = 20;
                 geometry_msgs::PoseStamped target_local;
                 geometry_msgs::PoseStamped body;
                 body.pose.position.x = circle_config.m_radius;

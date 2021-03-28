@@ -49,6 +49,9 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
 
     PubPointCloud(transformed_cloud, transformed_cloud_pub_);
 
+    tree_->clear();
+
+
     for (std::size_t i = 0; i < transformed_cloud->size(); i++) {
         pcl::PointXYZ pnt = transformed_cloud->points[i];
         tree_->updateNode(octomap::point3d(pnt.x, pnt.y, pnt.z), true);

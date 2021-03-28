@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     bool is_motion_plan;
     nh.param("is_motion_plan", is_motion_plan, false);
     chlog::info("data", "~~~~ is motion plan = ", is_motion_plan);
-    is_motion_plan = true;
+//    is_motion_plan = true;
     if (!is_motion_plan) {
         PathCreator::geInstance()->onInit(lead_node, true);
     } else {
