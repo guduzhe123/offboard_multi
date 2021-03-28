@@ -7,13 +7,16 @@
 PCLROSMessageManager::PCLROSMessageManager(){
 
 }
-
+//PCL ROS消息管理
 void PCLROSMessageManager::OnInit(ros::NodeHandle &nh) {
+    //雷达发布数据
     lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("os_cloud_node/points", 500,
                                                                &PCLROSMessageManager::cloudHandler, this);
+    //transformed_cloud_pub_订阅点云数据
     transformed_cloud_pub_ = nh.advertise<sensor_msgs::PointCloud2>("lidar/Transformed_points", 1000);
+    //订阅八叉树
     octomap_pub_ = nh.advertise<octomap_msgs::Octomap>("pcl/Global_octomap", 3);
-
+    //订阅移除地面信息
     ground_removal_pub_ = nh.advertise<sensor_msgs::PointCloud2>("ground_removal_lidar", 1000);
 
 }
@@ -24,6 +27,7 @@ void PCLROSMessageManager::setVehicleMessage(const M_Drone& usv) {
 
 void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr &m) {
     /*ros point cloud to pcl point cloud*/
+    //定义了很多消息
     pcl::PCLPointCloud2 pcl_pc2;
     pcl_conversions::toPCL(*m, pcl_pc2);
     pcl::PointCloud<pcl::PointXYZ>::Ptr raw_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
@@ -64,12 +68,12 @@ void PCLROSMessageManager::radiusRemoval(const pcl::PointCloud<pcl::PointXYZ>::P
     if (input_cloud->empty() || radius <= 0 || min_neighbors <= 0) return;
     pcl::RadiusOutlierRemoval<pcl::PointXYZ> outrem;
     // build the filter
-    outrem.setInputCloud(input_cloud);
-    outrem.setRadiusSearch(radius);
-    outrem.setMinNeighborsInRadius(min_neighbors);
+    outrem.setInputCloud(input_cloud);  //输入
+    outrem.setRadiusSearch(radius);  //设置半径滤波半径
+    outrem.setMinNeighborsInRadius(min_neighbors);  //半径最少需要的点：min_neighbors
     //outrem.setKeepOrganized(true);
     // apply filter
-    outrem.filter(*output_cloud);
+    outrem.filter(*output_cloud);  // 执行滤波
     cloud_filtered_indices = outrem.getIndices();
 }
 

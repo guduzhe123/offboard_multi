@@ -110,7 +110,8 @@ target_link_libraries(
         ${OpenCV_LIBS}
         ${PCL_LIBRARIES}
         ${LIBFCL_LIBRARIES}
-        /usr/local/lib/libnlopt.so
+        #/usr/local/lib/libnlopt.so
+	/usr/lib/x86_64-linux-gnu/libnlopt.so
         ${${LINK_LIB}}
         chlog_lib
 

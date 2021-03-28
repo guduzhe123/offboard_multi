@@ -40,13 +40,14 @@ private:
 
     octomap_msgs::Octomap octomap_;
     octomap::OcTree *tree_ = new octomap::OcTree(0.5);
-
+    //发布八叉树
     void PubOctomap(octomap::OcTree *tree, const ros::Publisher &pub);
+    //半径消除
     void radiusRemoval(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,
                        const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud,
                        float radius, int min_neighbors,
                        pcl::IndicesConstPtr &cloud_filtered_indices);
-
+    //地面消除
     void groundRemove(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,
                       const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud,
                       const pcl::IndicesConstPtr &cloud_filtered_indices);

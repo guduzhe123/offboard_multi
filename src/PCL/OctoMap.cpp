@@ -3,11 +3,12 @@
 //
 
 #include "PCL/OctoMap.hpp"
+//构造函数
 OctoMap::OctoMap() :
         safety_radius_(6) {
 
 }
-
+//初始化
 void OctoMap::onInit() {
 
     //四旋翼的障碍物几何形状
@@ -16,7 +17,7 @@ void OctoMap::onInit() {
     fcl::OcTree* tree = new fcl::OcTree(std::shared_ptr<const octomap::OcTree>(new octomap::OcTree(0.5)));
     tree_obj_ = std::shared_ptr<fcl::CollisionGeometry>(tree);
 }
-
+//更新八叉树地图
 void OctoMap::updateOctomap(const octomap_msgs::Octomap &msg) {
     if (!msg.data.empty()) {
         octomap::OcTree* tree_oct = dynamic_cast<octomap::OcTree*>(octomap_msgs::msgToMap(msg));
@@ -26,11 +27,11 @@ void OctoMap::updateOctomap(const octomap_msgs::Octomap &msg) {
         tree_obj_ = std::shared_ptr<fcl::CollisionGeometry>(tree);
     }
 }
-
+//设置安全半径
 void OctoMap::setSafeRaduis(const float &raduis) {
     safety_radius_ = raduis;
 }
-
+//检测状态是否为空
 bool OctoMap::isStateValid(const Eigen::Vector3f &PosENU)
 {
     // cast the abstract state type to the type we expect

@@ -29,16 +29,7 @@ void FlightManager::GetData() {
 
 void FlightManager::DoProgress() {
     // factory method
-    if (m_multi_vehicle_.leader_uav.current_state.armed || m_multi_vehicle_.usv1.current_state.armed) {
-        auto ifactory_tor = m_control_function_vector_.begin();
-        auto factory_end = m_control_function_vector_.end();
-        for ( ; ifactory_tor != factory_end; ifactory_tor++) {
-            if ((*ifactory_tor) != nullptr) {
-                (*ifactory_tor)->GetData();
-                (*ifactory_tor)->DoProgress();
-            }
-        }
-    }
+
 
     auto ifactory_tor = m_control_function_vector_.begin();
     auto factory_end = m_control_function_vector_.end();
