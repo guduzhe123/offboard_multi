@@ -319,7 +319,7 @@ void usv2_ros_Manager::usvPosSp(const DroneControl& droneControl) {
     cur_target_err.y() = target_local_pos_sp_.pose.position.y - usv_.current_local_pos.pose.position.y;
     cur_target_err.z() = target_local_pos_sp_.pose.position.z - usv_.current_local_pos.pose.position.z;
     float len = cur_target_err.norm();
-    chlog::info("data","usv2 target and current local pos error = %.2f", len);
+    chlog::info("data","usv2 target and current local pos error = ", len);
 }
 
 void usv2_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg) {

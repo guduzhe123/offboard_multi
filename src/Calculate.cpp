@@ -14,12 +14,15 @@ void Calculate::GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &lo
 
     float x, y;
     get_vector_to_next_waypoint_fast(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude, x, y);
-    chlog::info("data","takeoff lat = %.8f, lon = %.8f, way lat = %.8f, way lon = %.8f", loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude);
+    chlog::info("data","takeoff lat = %.8f", loc1.latitude,
+            ", lon = %.8f ", loc1.longitude, ", way lat = %.8f", loc2.latitude,
+            ", , way lon = %.8f ", loc2.longitude);
 
     follow_uav_local_pos.x() = -y;
     follow_uav_local_pos.y() = -x;
-    chlog::info("data","distance orig x= %.2f, distance orig y= %.2f, x new = %.2f, y new = %.2f",
-            follow_uav_local_pos.x(), follow_uav_local_pos.y(), x, y);
+    chlog::info("data","distance orig x= %.2f", follow_uav_local_pos.x(),
+            " , distance orig y= %.2f", follow_uav_local_pos.y(),
+            ", x new = %.2f",x, ", y new = %.2f", y);
 }
 
 void Calculate::get_vector_to_next_waypoint_fast(double lat_now, double lon_now, double lat_next, double lon_next,

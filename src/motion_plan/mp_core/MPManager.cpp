@@ -83,11 +83,6 @@ bool MPManager::CallKinodynamicReplan() {
     bool plan_success = path_finder_->replan(start_pt_.cast<double>(), start_vel_.cast<double>(),
                                              start_acc_.cast<double>(),
                                              mp_config_.end_pos.cast<double>(), end_vel_.cast<double>());
-    if (!plan_success) {
-        start_vel_ = TVec3(0, 0, 0);
-        path_finder_->replan(start_pt_.cast<double>(), start_vel_.cast<double>(), start_acc_.cast<double>(),
-                             mp_config_.end_pos.cast<double>(), end_vel_.cast<double>());
-    }
     if (plan_success) {
         auto info = &path_finder_->getLocaldata();
 
@@ -290,7 +285,7 @@ void MPManager::ProcessState() {
                 chlog::info("motion_plan", "[MP Manager]: motion plan time out!");
                 return;
             } else if ((info->start_pos_ - pos).norm() < 1.5 ) {
-//                chlog::info("motion_plan", "[MP Manager]: close to start pos!");
+                chlog::info("motion_plan", "[MP Manager]: close to start pos!");
                 return;
 
             } else {

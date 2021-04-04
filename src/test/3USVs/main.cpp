@@ -5,9 +5,6 @@
 #include <ros/ros.h>
 #include "util.h"
 #include "test/3USVs/usvs_control.hpp"
-#include "test/3USVs/usv1_ros_Manager.hpp"
-#include "test/3USVs/usv2_ros_Manager.hpp"
-#include "test/3USVs/usv3_ros_Manager.hpp"
 #include "FlightManager.hpp"
 #include "PathCreator.hpp"
 #include "log/Chlog.hpp"
@@ -33,11 +30,8 @@ int main(int argc, char **argv)
     nh.param("is_motion_plan", is_motion_plan, false);
     chlog::info("data", "~~~~ is motion plan = ", is_motion_plan);
 //    is_motion_plan = true;
-    if (!is_motion_plan) {
-        PathCreator::geInstance()->onInit(lead_node, true);
-    } else {
-        PathCreator::geInstance()->initMotionPlan();
-    }
+    PathCreator::geInstance()->onInit(lead_node, true);
+    PathCreator::geInstance()->initMotionPlan();
 
     ros::Rate rate(50.0);
     while(ros::ok()){

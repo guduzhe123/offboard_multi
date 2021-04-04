@@ -21,6 +21,7 @@ public:
     void PublishDronePosControl(const multi_vehicle &multi_vehicles) override ;
     void PublishBoatPosControl(const multi_vehicle &multi_vehicles) override ;
     void PublishUUVPosControl(const multi_vehicle &multi_vehicles) override;
+    void PublishUSV1PosControl(const multi_vehicle &multi_vehicles) override ;
     void SetUAVState(mavros_msgs::SetMode &m_mode) override ;
     void SetUSVState(mavros_msgs::SetMode &arm_command, int usv_id) override ;
     void SetUSVAvoData(const bool usv1_usv2_crash, const bool usv1_usv3_crash, const bool usv2_usv3_crash) override ;
@@ -28,6 +29,8 @@ public:
     void doProgress();
 
 private:
+    void OnInitMotionPlan(const multi_vehicle &multi_vehicles);
+
     usv1_ros_Manager::Ptr usv1_control_;
     usv2_ros_Manager::Ptr usv2_control_;
     usv3_ros_Manager::Ptr usv3_control_;
@@ -40,6 +43,8 @@ private:
     double formation_distance_;
     int command_ ;
     double danger_distance_;
+
+    TVec3 usv1_target_pre_{};
 };
 
 

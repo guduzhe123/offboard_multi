@@ -128,3 +128,7 @@ void seven_vehicle_control::SetUSVState(mavros_msgs::SetMode &arm_command, int u
 void seven_vehicle_control::SetUSVAvoData(const bool usv1_usv2_crash, const bool usv1_usv3_crash, const bool usv2_usv3_crash) {
 
 }
+
+void seven_vehicle_control::PublishUSV1PosControl(const multi_vehicle &multi_vehicles) {
+
+}

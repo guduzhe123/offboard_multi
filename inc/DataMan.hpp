@@ -54,6 +54,8 @@ public:
 
     void SetBoatControlData(const multi_vehicle &m_multi_vehicles);
 
+    void SetUSV1MPControlData(const multi_vehicle & m_multi_vehicles);
+
     void SetUUVControlData(const multi_vehicle &m_multi_vehicles);
 
     void SetUSVAvoData(const bool usv1_usv2_crash, const bool usv1_usv3_crash, const bool usv2_usv3_crash);

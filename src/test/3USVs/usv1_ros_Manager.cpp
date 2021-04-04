@@ -74,7 +74,7 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
 
     usv_.Imap.reset(new OctoMap);
     usv_.Imap->onInit();
-    usv_.Imap->setSafeRaduis(8);
+    usv_.Imap->setSafeRaduis(4);
 }
 
 void usv1_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {
@@ -157,8 +157,7 @@ void usv1_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg
 void usv1_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg) {
     mavros_msgs::DebugValue debugValue;
     debugValue = *msg;
-    chlog::info("data", "usv5 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1],
-             debugValue.data[2]);
+    chlog::info("data", "usv5 debug_value x = ", debugValue.data[0]);
     int config = (int) debugValue.data[0];
 
     DataMan::getInstance()->setCommand(config);

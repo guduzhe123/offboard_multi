@@ -211,6 +211,11 @@ void DataMan::SetBoatControlData(const multi_vehicle &m_multi_vehicles) {
     msg_config_->PublishBoatPosControl(m_multi_vehicles);
 }
 
+void DataMan::SetUSV1MPControlData(const multi_vehicle & m_multi_vehicles) {
+    multi_vehicle_.usv1.target_local_pos_sp = m_multi_vehicles.usv1.target_local_pos_sp;
+    msg_config_->PublishUSV1PosControl(m_multi_vehicles);
+}
+
 void DataMan::SetUUVControlData(const multi_vehicle &m_multi_vehicles) {
     {
         boost::unique_lock<boost::mutex> lock(m_mutex);

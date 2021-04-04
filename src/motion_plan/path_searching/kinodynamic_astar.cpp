@@ -138,6 +138,18 @@ namespace fast_planner {
             /* ---------- init state propagation ---------- */
             double res = 1 / 2.0, time_res = 1 / 2.0/*, time_res_init = 1 / 2.0*/;
 
+            float max_time, max_acc;
+            if (!search_successed) {
+                max_acc = 5.0;
+                max_time = 2.0;
+                res = 1 /5.0, time_res = 1 / 10.0;
+                chlog::info("motion_plan", "[Kino Astar]: blade circle big step! ");
+            } else {
+                max_acc = max_acc_;
+                max_time = max_tau_;
+                time_res = init_max_tau_;
+            }
+
             Eigen::Matrix<double, 6, 1> cur_state = cur_node->state;
             Eigen::Matrix<double, 6, 1> pro_state;
             vector<PathNodePtr>         tmp_expand_nodes;
@@ -341,6 +353,12 @@ namespace fast_planner {
     bool KinodynamicAstar::computeShotTraj(Eigen::VectorXd state1, Eigen::VectorXd state2,
                                            double time_to_goal) {
         /* ---------- get coefficient ---------- */
+
+        if (time_to_goal < 0.001) {
+            chlog::info("motion_plan", "one shot fail!");
+            is_shot_succ_ = false;
+        }
+
         const Vector3d p0  = state1.head(3);
         const Vector3d dp  = state2.head(3) - p0;
         const Vector3d v0  = state1.segment(3, 3);

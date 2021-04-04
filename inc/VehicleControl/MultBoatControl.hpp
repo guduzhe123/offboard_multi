@@ -41,6 +41,8 @@ private:
     void SetFunctionOutPut();
 
     void USVManualControl();
+
+    void MotionPlanInit(const TVec3& target_pos);
     static MultiBoatControl* l_lint;
 
     multi_vehicle m_multi_vehicle_;
