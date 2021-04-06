@@ -143,7 +143,7 @@ void PathCreator::CreateUSVFormationInit(const int config) {
     MultiUSVFormationFactory USVFormationFactory;
     IControlFunction* usv_func = USVFormationFactory.FunctionCreator();
     usv_func->Oninit(config);
-    chlog::info("data","usv formation begin");
+    chlog::info("data","[PathCreator]:usv formation begin");
 }
 
 

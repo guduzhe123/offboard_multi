@@ -14,15 +14,17 @@ void Calculate::GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &lo
 
     float x, y;
     get_vector_to_next_waypoint_fast(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude, x, y);
-    chlog::info("data","takeoff lat = %.8f", loc1.latitude,
-            ", lon = %.8f ", loc1.longitude, ", way lat = %.8f", loc2.latitude,
-            ", , way lon = %.8f ", loc2.longitude);
+    chlog::info("data","[Calculate]:takeoff lat = ", loc1.latitude,
+            ", lon = ", loc1.longitude,
+            ", way lat = ", loc2.latitude,
+            ", way lon = ", loc2.longitude);
 
     follow_uav_local_pos.x() = -y;
     follow_uav_local_pos.y() = -x;
-    chlog::info("data","distance orig x= %.2f", follow_uav_local_pos.x(),
-            " , distance orig y= %.2f", follow_uav_local_pos.y(),
-            ", x new = %.2f",x, ", y new = %.2f", y);
+    chlog::info("data","[Calculate]:distance orig x= ", follow_uav_local_pos.x(),
+            ", distance orig y= ", follow_uav_local_pos.y(),
+            " , x new = ", x,
+            ", y new =", y);
 }
 
 void Calculate::get_vector_to_next_waypoint_fast(double lat_now, double lon_now, double lat_next, double lon_next,
@@ -264,12 +266,12 @@ void Calculate::getTakeoffPos(M_Drone &master, M_Drone &slave, TVec3 &follow_sla
     if (slave.current_state.armed && !is_get_takeoff_pos_) {
         master_start_gps = GlobalPosition{master.latitude, master.longtitude, 0};
         slave_takeoff_gps = GlobalPosition{slave.latitude, slave.longtitude, 0};
-        chlog::info("data","master_start_gps_ = ( %.9f, %.9f)", master_start_gps.latitude, master_start_gps.longitude);
-        chlog::info("data","slave_takeoff_gps_ = ( %.9f, %.9f)", slave_takeoff_gps.latitude, slave_takeoff_gps.longitude);
+        chlog::info("data","[Calculate]:master_start_gps_ = ( %.9f, %.9f)", master_start_gps.latitude, master_start_gps.longitude);
+        chlog::info("data","[Calculate]:slave_takeoff_gps_ = ( %.9f, %.9f)", slave_takeoff_gps.latitude, slave_takeoff_gps.longitude);
 
         GetLocalPos(master_start_gps, slave_takeoff_gps, follow_slave_first_local);
-        chlog::info("data","follow_slave_first_local = ( %.2f, %.2f, %.2f)", follow_slave_first_local.x(), follow_slave_first_local.y(),
-                 follow_slave_first_local.z());
+        chlog::info("data","[Calculate]:follow_slave_first_local = ( ", follow_slave_first_local.x(), ", ", follow_slave_first_local.y(),
+                 ", ", follow_slave_first_local.z(), ")");
 
         is_get_takeoff_pos_ = true;
     }
@@ -280,7 +282,8 @@ void Calculate::bodyFrame2LocalFrame(geometry_msgs::PoseStamped &body, geometry_
     local.pose.position.x = body.pose.position.x * cos(yaw) - body.pose.position.y * sin(yaw);
     local.pose.position.y = body.pose.position.x * sin(yaw) + body.pose.position.y * cos(yaw);
     local.pose.position.z = body.pose.position.z;
-    chlog::info("data","body to local cos(%.2f) = %.2f, sin(%.2f) = %.2f" , yaw, cos(yaw), yaw, sin(yaw));
+    chlog::info("data","[Calculate]:body to local cos(, " , yaw, "),  = ", cos(yaw), "sin(", yaw,
+            ", = ", sin(yaw));
 }
 
 
@@ -288,7 +291,7 @@ void Calculate::localFrame2BodyFrame(geometry_msgs::PoseStamped &local, geometry
     body.pose.position.x = local.pose.position.x * cos(yaw) + local.pose.position.y * sin(yaw);
     body.pose.position.y = -local.pose.position.x * sin(yaw) + local.pose.position.y * cos(yaw);
     body.pose.position.z = local.pose.position.z;
-    chlog::info("data","local to body cos(%.2f) = %.2f, sin(%.2f) = %.2f" , yaw, cos(yaw), yaw, sin(yaw));
+//    chlog::info("data","[Calculate]:local to body cos(%.2f) = %.2f, sin(%.2f) = %.2f" , yaw, cos(yaw), yaw, sin(yaw));
 }
 
 //rad!!! 注意这个接口是NED，不能和EUS直接相乘！！！

@@ -92,29 +92,29 @@ typedef struct EulerAngles {
 
 
 struct M_Drone {
-    int drone_id;
+    int drone_id = 0;
     int movement_state;
-    bool is_formation;
-    float pitch ;
-    float roll ;
-    float yaw ;
-    double latitude;
-    double longtitude;
-    double altitude;
+    bool is_formation = false;
+    float pitch = 0;
+    float roll = 0;
+    float yaw = 0;
+    double latitude= 0;
+    double longtitude= 0;
+    double altitude= 0;
     TQuat q;
-    geometry_msgs::PoseStamped current_local_pos;
-    mavros_msgs::State current_state;
-    TVec3 follower_to_leader_pos;
-    TVec3 follower_keep_pos;
-    TVec3 avoidance_pos;
-    TVec3 velocity;
-    geometry_msgs::PoseStamped target_local_pos_sp;
-    mavros_msgs::PositionTarget current_local_pos_sp;
+    geometry_msgs::PoseStamped current_local_pos = {};
+    mavros_msgs::State current_state = {};
+    TVec3 follower_to_leader_pos = {0,0,0};
+    TVec3 follower_keep_pos = {0,0,0};
+    TVec3 avoidance_pos = {0,0,0};
+    TVec3 velocity = {0,0,0};
+    geometry_msgs::PoseStamped target_local_pos_sp = {};
+    mavros_msgs::PositionTarget current_local_pos_sp = {};
     DroneControl droneControl;
-    mavros_msgs::WaypointList  waypointList;
-    mavros_msgs::WaypointReached waypointReached;
-    mavros_msgs::HomePosition homePosition;
-    octomap_msgs::Octomap octomap;
+    mavros_msgs::WaypointList  waypointList = {};
+    mavros_msgs::WaypointReached waypointReached = {};
+    mavros_msgs::HomePosition homePosition = {};
+    octomap_msgs::Octomap octomap = {};
     shared_ptr<IMap> Imap;
 };
 
@@ -182,6 +182,7 @@ enum  {
 enum {
     USV_INIT,
     USV_WAYPOINT,
+    USV_RETRAY,
     USV_DISARM,
     USV_FORMATION,
     USV_CIRCLE_INIT,

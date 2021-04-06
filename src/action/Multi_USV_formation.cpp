@@ -19,7 +19,7 @@ MultiUSVFormation::MultiUSVFormation() :
 }
 
 void MultiUSVFormation::Oninit(const int config) {
-    chlog::info("data","usv formation config = %d", config );
+    chlog::info("data","[USV Formation]: usv formation config = ", config );
     config_ = config;
     leader_curr_pos_ = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x, m_multi_vehicle_.usv1.current_local_pos.pose.position.y,
                             m_multi_vehicle_.usv1.current_local_pos.pose.position.z);
@@ -30,7 +30,7 @@ void MultiUSVFormation::Oninit(const int config) {
     switch (config) {
         case VF_USV_TRIANGLE: {
             is_formation_ = true;
-            chlog::info("data","usv Formation call! Triangle!");
+            chlog::info("data","[USV Formation]: usv Formation call! Triangle!");
             leader_drone_ = m_multi_vehicle_.usv1;
             Drone_usv2_ = TVec3(-K_multi_usv_formation_distance, -K_multi_usv_formation_distance , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
             Drone_usv3_ = TVec3(K_multi_usv_formation_distance, -K_multi_usv_formation_distance , m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
@@ -42,10 +42,10 @@ void MultiUSVFormation::Oninit(const int config) {
 
         case VF_USV_INVERSION_TRIANGLE: {
             is_formation_ = true;
-            chlog::info("data","usv Formation call! INVERSION Triangle!");
+            chlog::info("data","[USV Formation]: usv Formation call! INVERSION Triangle!");
             leader_drone_ = m_multi_vehicle_.usv1;
-            Drone_usv2_ = TVec3(-K_multi_usv_formation_distance, K_multi_usv_formation_distance , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
-            Drone_usv3_ = TVec3(K_multi_usv_formation_distance, K_multi_usv_formation_distance , m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
+            Drone_usv2_ = TVec3(-1.5 * K_multi_usv_formation_distance, 1.5 * K_multi_usv_formation_distance , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
+            Drone_usv3_ = TVec3(1.5 * K_multi_usv_formation_distance, 1.5 * K_multi_usv_formation_distance , m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
 
             changeToLocalTarget();
             calcFollowUSVPos();
@@ -55,7 +55,7 @@ void MultiUSVFormation::Oninit(const int config) {
 
         case VF_USV_LINE_HORIZONTAL : {
             is_formation_ = true;
-            chlog::info("data","usv Formation call! Line horizontal!");
+            chlog::info("data","[USV Formation]: usv Formation call! Line horizontal!");
             leader_drone_ = m_multi_vehicle_.usv1;
             Drone_usv2_ = TVec3(0, -K_multi_usv_formation_distance , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
             Drone_usv3_ = TVec3(0, -2 * K_multi_usv_formation_distance, m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
@@ -67,7 +67,7 @@ void MultiUSVFormation::Oninit(const int config) {
 
         case VF_USV_LINE_VERTICAL : {
             is_formation_ = true;
-            chlog::info("data","usv Formation call! Line Vertical!");
+            chlog::info("data","[USV Formation]: usv Formation call! Line Vertical!");
             leader_drone_ = m_multi_vehicle_.usv1;
             Drone_usv2_ = TVec3(K_multi_usv_formation_distance, 0 , m_multi_vehicle_.usv2.current_local_pos.pose.position.z);
             Drone_usv3_ = TVec3(2* K_multi_usv_formation_distance, 0, m_multi_vehicle_.usv3.current_local_pos.pose.position.z);
@@ -79,7 +79,7 @@ void MultiUSVFormation::Oninit(const int config) {
 
         case VF_USV_ALL_RETURN: {
             is_formation_ = true;
-            chlog::info("data","usv Formation call! All USVs Return!");
+            chlog::info("data","[USV Formation]: usv Formation call! All USVs Return!");
             changeToLocalTarget();
             calcFollowUSVPos();
 
@@ -141,8 +141,8 @@ MultiUSVFormation::calcFollowUSVPos() {
     follow_usv2_.y() = m_multi_vehicle_.usv1.current_local_pos.pose.position.y + Drone_usv3_.y() + follow_usv2_first_local_.y();
     follow_usv2_.z() = leader_drone_.current_local_pos.pose.position.z;
     follow_usv2_keep_local_ = TVec3 (Drone_usv3_.x() + follow_usv2_first_local_.x(), Drone_usv3_.y() + follow_usv2_first_local_.y(), 0);
-    chlog::info("data","m_multi_vehicle_.usv2.current_local_pos.pose.position.x = %.2f, y = %.2f",
-            m_multi_vehicle_.usv2.current_local_pos.pose.position.x,
+    chlog::info("data","[USV Formation]: m_multi_vehicle_.usv2.current_local_pos.pose.position.x = ",
+            m_multi_vehicle_.usv2.current_local_pos.pose.position.x, ", y = ",
              m_multi_vehicle_.usv2.current_local_pos.pose.position.y);
 
 }
@@ -162,24 +162,28 @@ void MultiUSVFormation::OnCheckFormationArrived() {
         usv2_reached_ = true;
 /*        arm_cmd.request.value = false;
         DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv2.drone_id);
-        chlog::info("data","usv6 disarm at one point");*/
-        chlog::info("data","usv6 disarm at one point");
+        chlog::info("data","[USV Formation]: usv6 disarm at one point");*/
+        chlog::info("data","[USV Formation]: usv6 disarm at one point");
     }
     if (pos_reached(m_multi_vehicle_.usv3.current_local_pos, m_multi_vehicle_.usv2.target_local_pos_sp, usv_position_allow_reached_)) {
         usv3_reached_ = true;
 /*        arm_cmd.request.value = false;
         DataMan::getInstance()->SetUSVState(arm_cmd, m_multi_vehicle_.usv3.drone_id);
         chlog::info("data",usv7 disarm at one point");*/
-        chlog::info("data","usv7 disarm at one point");
+        chlog::info("data","[USV Formation]: usv7 disarm at one point");
     }
 
-    chlog::info("data","is_formation_ = %d, usv1_reached_ = %d, usv2_reached_ = %d, usv3_reached_ = %d", is_formation_, usv1_reached_, usv2_reached_, usv3_reached_);
+    chlog::info("data","[USV Formation]: is_formation_ = ", is_formation_,
+            ", usv1_reached_ = ", usv1_reached_,
+            ", usv2_reached_ = ", usv2_reached_,
+            ", usv3_reached_ = ", usv3_reached_);
     if (usv1_reached_ && usv2_reached_ && usv3_reached_ && config_ != VF_USV_ALL_RETURN) {
         is_formation_ = false;
 
         usv1_reached_ = false;
         usv2_reached_ = false;
         usv3_reached_ = false;
+        chlog::info("data", "[USV Formation]: desable formation!");
     }
 }
 
@@ -192,7 +196,7 @@ MultiUSVFormation::pos_reached(geometry_msgs::PoseStamped &current_pos, geometry
 }
 
 void MultiUSVFormation::GetTakeoffPos() {
-    chlog::info("data","m_multi_vehicle_.usv1.drone_id = %d, usv1.homePosition.geo.latitude = %.6f", m_multi_vehicle_.usv1.drone_id,
+    chlog::info("data","[USV Formation]: m_multi_vehicle_.usv1.drone_id = ", m_multi_vehicle_.usv1.drone_id,
              m_multi_vehicle_.usv1.homePosition.geo.latitude);
     if (m_multi_vehicle_.usv1.drone_id != 0 && m_multi_vehicle_.usv1.homePosition.geo.latitude != 0) {
 
@@ -202,13 +206,13 @@ void MultiUSVFormation::GetTakeoffPos() {
                                                m_multi_vehicle_.usv2.homePosition.geo.longitude,0};
         usv3_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv3.homePosition.geo.latitude,
                                                m_multi_vehicle_.usv3.homePosition.geo.longitude,0};
-        chlog::info("data","usv1_takeoff_gps_pos_ = ( %.9f, %.9f)", usv1_takeoff_gps_pos_.latitude, usv1_takeoff_gps_pos_.longitude);
-        chlog::info("data","usv2_takeoff_gps_pos_ = ( %.9f, %.9f)", usv2_takeoff_gps_pos_.latitude, usv2_takeoff_gps_pos_.longitude);
-        chlog::info("data","usv3_takeoff_gps_pos_ = ( %.9f, %.9f)", usv3_takeoff_gps_pos_.latitude, usv3_takeoff_gps_pos_.longitude);
+        chlog::info("data","[USV Formation]: usv1_takeoff_gps_pos_ = ", usv1_takeoff_gps_pos_.latitude, ", ", usv1_takeoff_gps_pos_.longitude);
+        chlog::info("data","[USV Formation]: usv2_takeoff_gps_pos_ = ", usv2_takeoff_gps_pos_.latitude, ", ", usv2_takeoff_gps_pos_.longitude);
+        chlog::info("data","[USV Formation]: usv3_takeoff_gps_pos_ = ", usv3_takeoff_gps_pos_.latitude, ", ", usv3_takeoff_gps_pos_.longitude);
 
         Calculate::getInstance()->GetLocalPos(usv1_takeoff_gps_pos_, usv2_takeoff_gps_pos_, follow_usv1_first_local_);
         Calculate::getInstance()->GetLocalPos(usv1_takeoff_gps_pos_, usv3_takeoff_gps_pos_, follow_usv2_first_local_);
-        chlog::info("data","follow_usv1_first_local_ x = %.2f, y = %.2f", follow_usv1_first_local_.x(), follow_usv1_first_local_.y());
+        chlog::info("data","[USV Formation]: follow_usv1_first_local_ ", follow_usv1_first_local_.x(),", ",  follow_usv1_first_local_.y());
 
     }
 }
@@ -226,7 +230,8 @@ void MultiUSVFormation::DoProgress() {
 
 geometry_msgs::PoseStamped MultiUSVFormation::CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, Eigen::Matrix<float, 3, 1> formation_target) {
     geometry_msgs::PoseStamped target_local_pos_sp;
-    chlog::info("data","usv formation_target (%.2f, %.2f, %.2f)", formation_target(0), formation_target(1), formation_target(2));
+    chlog::info("data","[USV Formation]: usv formation_target ", formation_target(0),
+            ", ", formation_target(1), ", ", formation_target(2));
     target_local_pos_sp.pose.position.x = target_local_pos.pose.position.x + formation_target(0);
     target_local_pos_sp.pose.position.y = target_local_pos.pose.position.y + formation_target(1);
     target_local_pos_sp.pose.position.z = target_local_pos.pose.position.z;
@@ -245,7 +250,7 @@ void MultiUSVFormation::SetFunctionOutPut() {
     DataMan::getInstance()->SetUSVFormationData(m_multi_vehicle_, is_formation_);
 
     if (is_formation_) {
-        chlog::info("data","formation boat output!!!!!");
+        chlog::info("data","[USV Formation]: formation boat output!!!!!");
         if (config_ != VF_USV_ALL_RETURN) {
             geometry_msgs::PoseStamped leader_curr{};
             leader_curr.pose.position.z = m_multi_vehicle_.leader_usv.current_local_pos.pose.position.z;

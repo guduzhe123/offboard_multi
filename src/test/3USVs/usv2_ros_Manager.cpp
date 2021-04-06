@@ -110,7 +110,7 @@ void usv2_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
     static int i = 0;
     if (i++ % 10 == 0) {
         usv_.yaw = Calculate::getInstance()->dgrIn180s(static_cast<float>(Calculate::getInstance()->rad2deg(y) /*- 90*/));//??? Todo
-        chlog::info("data","IMU usv2 heading = %.2f, usv_.yaw = %.2f", dronepos_.m_heading, usv_.yaw);
+        chlog::info("data","[USV2]: IMU usv2 heading = %.2f, usv_.yaw = %.2f", dronepos_.m_heading, usv_.yaw);
     }
     usv_.q.w() = msg->orientation.w;
     usv_.q.x() = msg->orientation.x;
@@ -193,7 +193,7 @@ void usv2_ros_Manager::DrawTrajCommand(const TVec3 &pos, const TVec3 &vec, const
 void usv2_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
     current_mavlink = *msg;
     usv_.drone_id = current_mavlink.sysid;
-//    chlog::info("data","usv2 sys_id = %d", current_mavlink.sysid);
+//    chlog::info("data","[USV2]: usv2 sys_id = %d", current_mavlink.sysid);
 }
 
 void usv2_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg) {
@@ -205,7 +205,7 @@ void usv2_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg
 void usv2_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg) {
     mavros_msgs::DebugValue debugValue;
     debugValue = *msg;
-    chlog::info("data","usv2 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1],
+    chlog::info("data","[USV2]: usv2 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1],
              debugValue.data[2]);
     int config = (int) debugValue.data[0];
     DataMan::getInstance()->setCommand(config);
@@ -216,7 +216,7 @@ void usv2_ros_Manager::commander_update(const ros::TimerEvent& e) {
     int command;
     DataMan::getInstance()->getCommand(command);
     if (command == VF_USV_ALL_START /*|| command == MASTERSTART*/) {
-        chlog::info("data","usv2 begain to start!");
+        chlog::info("data","[USV2]: usv2 begain to start!");
         mavros_msgs::SetMode offb_set_mode;
         offb_set_mode.request.custom_mode = "OFFBOARD";
 
@@ -228,7 +228,7 @@ void usv2_ros_Manager::commander_update(const ros::TimerEvent& e) {
             while (arm_i_ > 0) {
                 if (arming_client.call(arm_cmd) &&
                     arm_cmd.response.success) {
-                    chlog::info("data","usv2 Vehicle armed");
+                    chlog::info("data","[USV2]: usv2 Vehicle armed");
                     is_arm_ = true;
                     break;
                 }
@@ -241,7 +241,7 @@ void usv2_ros_Manager::commander_update(const ros::TimerEvent& e) {
             for (i = 10; ros::ok() && i > 0; --i) {
                 if (set_mode_client.call(offb_set_mode) &&
                     offb_set_mode.response.mode_sent) {
-                    chlog::info("data","usv2 Offboard enabled");
+                    chlog::info("data","[USV2]: usv2 Offboard enabled");
                     is_offboard_ = true;
                 }
             }
@@ -258,7 +258,7 @@ void usv2_ros_Manager::commander_update(const ros::TimerEvent& e) {
             homepos_manual.geo.latitude = usv_.latitude;
             homepos_manual.geo.longitude = usv_.longtitude;
             home_pos_pub.publish(homepos_manual);
-            chlog::info("data","usv2 homepos_manual.geo.latitude = %.6f", homepos_manual.geo.latitude);
+            chlog::info("data","[USV2]: usv2 homepos_manual.geo.latitude = %.6f", homepos_manual.geo.latitude);
 //            home_pos_updated_ = true;
         }
     }
@@ -295,14 +295,14 @@ void usv2_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
         TVec3 usv2_cur_usv1_cur = (cur_pos - usv1_cur_pos).normalized();
         TVec3 usv2_cur_usv2_target = target_vec.normalized();
         float ang = acos(usv2_cur_usv1_cur.dot(usv2_cur_usv2_target));
-
-        chlog::info("data","usv1_cur_pos = (%.2f, %.2f, %.2f), usv2 cur_pos = (%.2f, %.2f, %.2f), usv2 target_pos = (%.2f, %.2f, %.2f)", usv1_cur_pos.x(),
-                 usv1_cur_pos.y(), usv1_cur_pos.z(), cur_pos.x(), cur_pos.y(), cur_pos.z(), target_pos.x(), target_pos.y(), target_pos.z());
+/*
+        chlog::info("data","[USV2]: usv1_cur_pos = (%.2f, %.2f, %.2f), usv2 cur_pos = (%.2f, %.2f, %.2f), usv2 target_pos = (%.2f, %.2f, %.2f)", usv1_cur_pos.x(),
+                 usv1_cur_pos.y(), usv1_cur_pos.z(), cur_pos.x(), cur_pos.y(), cur_pos.z(), target_pos.x(), target_pos.y(), target_pos.z());*/
         if (ang * 180 / M_PI < 90 && !usv_crash_) {
             local_pos_pub.publish(target_local_pos_sp_);
         } else {
             local_pos_pub.publish(usv_.current_local_pos);
-            chlog::info("data","usv2 disable the target, ang = %.2f, usv2 crash = %d", ang * 180 / M_PI, usv_crash_);
+//            chlog::info("data","[USV2]: usv2 disable the target, ang = %.2f, usv2 crash = %d", ang * 180 / M_PI, usv_crash_);
         }
 
     }
@@ -319,7 +319,7 @@ void usv2_ros_Manager::usvPosSp(const DroneControl& droneControl) {
     cur_target_err.y() = target_local_pos_sp_.pose.position.y - usv_.current_local_pos.pose.position.y;
     cur_target_err.z() = target_local_pos_sp_.pose.position.z - usv_.current_local_pos.pose.position.z;
     float len = cur_target_err.norm();
-    chlog::info("data","usv2 target and current local pos error = ", len);
+    chlog::info("data","[USV2]: usv2 target and current local pos error = ", len);
 }
 
 void usv2_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg) {
@@ -328,7 +328,7 @@ void usv2_ros_Manager::wayPointCB(const mavros_msgs::WaypointList::ConstPtr &msg
 
 void usv2_ros_Manager::homePositionCB(const mavros_msgs::HomePosition::ConstPtr& msg){
     usv_.homePosition = *msg;
-    chlog::info("data","usv2 home position lat = %.8f, lon = %.8f", msg->geo.latitude, msg->geo.longitude);
+    chlog::info("data","[USV2]: usv2 home position lat = %.8f, lon = %.8f", msg->geo.latitude, msg->geo.longitude);
     if (usv1_home_pos_.geo.longitude > 0.08) {
         GlobalPosition loc_usv1, loc_usv2;
         loc_usv1.longitude = usv1_home_pos_.geo.longitude;
@@ -336,7 +336,7 @@ void usv2_ros_Manager::homePositionCB(const mavros_msgs::HomePosition::ConstPtr&
         loc_usv2.longitude = usv_.homePosition.geo.longitude;
         loc_usv2.latitude = usv_.homePosition.geo.latitude;
         Calculate::getInstance()->GetLocalPos(loc_usv1, loc_usv2, follow_leader_offset);
-        chlog::info("data","usv3 follow usv1 local offset = (%.2f, %.2f, %.2f)", follow_leader_offset.x(), follow_leader_offset.y(),
+        chlog::info("data","[USV2]: usv3 follow usv1 local offset = (%.2f, %.2f, %.2f)", follow_leader_offset.x(), follow_leader_offset.y(),
                  follow_leader_offset.z());
     }
 }
@@ -348,5 +348,5 @@ void usv2_ros_Manager::usvCallService(mavros_msgs::CommandBool &m_mode) {
 void usv2_ros_Manager::usvCrash(bool usv2_crash) {
     usv_crash_ = usv2_crash;
     if (usv_crash_)
-    chlog::info("data","usv2 crash!");
+    chlog::info("data","[USV2]: usv2 crash!");
 };

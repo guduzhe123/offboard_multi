@@ -85,7 +85,7 @@ void uav2_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
 void uav2_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
     current_mavlink = *msg;
     uav_.drone_id = current_mavlink.sysid;
-    chlog::info("data","usv sys_id = %d", current_mavlink.sysid);
+    chlog::info("data","usv sys_id = ", current_mavlink.sysid);
 }
 
 void uav2_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg) {

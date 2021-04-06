@@ -61,7 +61,7 @@ void uuv1_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
 
 void uuv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
     usv_.current_local_pos = *msg;
-    chlog::info("data","usv1 current_local_pos = %2f", usv_.current_local_pos.pose.position.x);
+    chlog::info("data","usv1 current_local_pos = ", usv_.current_local_pos.pose.position.x);
 }
 
 void uuv1_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {

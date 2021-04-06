@@ -79,7 +79,7 @@ void uav1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     dronepos_.m_pitch = pitch * 180 / M_PI;
     dronePosPub.publish(dronepos_);
     uav_.yaw = dronepos_.m_heading;
-    chlog::info("data","uav1 m_heading = %.2f", dronepos_.m_heading);
+    chlog::info("data","uav1 m_heading = ", dronepos_.m_heading);
 }
 
 void uav1_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
@@ -97,8 +97,7 @@ void uav1_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg
 void uav1_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg) {
     mavros_msgs::DebugValue debugValue;
     debugValue = *msg;
-    chlog::info("data","uav1 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1],
-             debugValue.data[2]);
+    chlog::info("data","uav1 debug_value x = ", debugValue.data[0]);
     int config = (int) debugValue.data[0];
 
     DataMan::getInstance()->setCommand(config);
@@ -216,7 +215,7 @@ void uav1_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
 void uav1_ros_Manager::drone_yaw_control() {
 
     vel_ctrl_sp_.twist.angular.z = yaw_rate_ * M_PI / 180.0;
-    chlog::info("data","yaw_rate = %.2f, target_heading_ = %.2f, drone_pos_.m_heading = %.2f", yaw_rate_, target_heading_,
+    chlog::info("data","yaw_rate = , ", yaw_rate_, ", target_heading_ = ", target_heading_, ", drone_pos_.m_heading = ",
              dronepos_.m_heading);
 }
 

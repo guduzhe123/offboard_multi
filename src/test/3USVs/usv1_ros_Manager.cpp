@@ -19,7 +19,7 @@ usv1_ros_Manager::usv1_ros_Manager() :
 }
 
 void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
-    chlog::info("data","~~~ init usv1");
+    chlog::info("data","[USV1]: ~~~ init usv1");
     state_sub = nh.subscribe<mavros_msgs::State>
             ("mavros/state", 10, &usv1_ros_Manager::state_cb, this);
     vfr_hud_sub = nh.subscribe<mavros_msgs::VFR_HUD>
@@ -83,14 +83,14 @@ void usv1_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {
 
 void usv1_ros_Manager::vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr &msg) {
     current_vfr_hud = *msg;
-    chlog::info("data","current_vfr_hud heading = %d, header seq = %d", current_vfr_hud.heading, current_vfr_hud.header.seq);
+    chlog::info("data","[USV1]: [USV1]: current_vfr_hud heading = %d, header seq = %d", current_vfr_hud.heading, current_vfr_hud.header.seq);
 }
 
 void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
     usv_.current_local_pos = *msg;
-    chlog::info("data", "usv1 current_local_pos = (%.2f, %.2f, %.2f)", usv_.current_local_pos.pose.position.x,
-             usv_.current_local_pos.pose.position.y,
-             usv_.current_local_pos.pose.position.z);
+    chlog::info("data", "[USV1]: usv1 current_local_pos = (", usv_.current_local_pos.pose.position.x, ", ",
+             usv_.current_local_pos.pose.position.y, ", ",
+             usv_.current_local_pos.pose.position.z, ")");
 
     double yaw, roll, pitch;
     EulerAngles angles;
@@ -107,7 +107,7 @@ void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     dronepos_.m_roll = roll * 180 / M_PI;
     dronepos_.m_pitch = pitch * 180 / M_PI;
     dronePosPub.publish(dronepos_);
-    chlog::info("data","vir_hub usv1 heading = %.2f, usv_.yaw = %d", dronepos_.m_heading, usv_.yaw);
+    chlog::info("data","[USV1]: vir_hub usv1 heading =", dronepos_.m_heading, ", yaw", usv_.yaw);
     dronepos_.m_heading = usv_.yaw;
     usv_.roll = dronepos_.m_roll;
     usv_.pitch = dronepos_.m_pitch;
@@ -126,7 +126,7 @@ void usv1_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
 //    if (i++ % 10 == 0) {
     usv_.yaw = Calculate::getInstance()->dgrIn180s(static_cast<float>(Calculate::getInstance()->rad2deg(y) /*- 90*/));//??? Todo
     yaw_cur_ = usv_.yaw;
-    chlog::info("data","IMU usv1 heading = %.2f, usv_.yaw = %.2f", dronepos_.m_heading, usv_.yaw);
+//    chlog::info("data","[USV1]: IMU usv1 heading = %.2f, usv_.yaw = %.2f", dronepos_.m_heading, usv_.yaw);
 //    }
 
     geometry_msgs::Point pnt;
@@ -145,7 +145,7 @@ void usv1_ros_Manager::imuCB(const sensor_msgs::Imu::ConstPtr& msg) {
 void usv1_ros_Manager::mavlink_from_sb(const mavros_msgs::Mavlink::ConstPtr& msg) {
     current_mavlink = *msg;
     usv_.drone_id = current_mavlink.sysid;
-    chlog::info("data","sys_id = %d", current_mavlink.sysid);
+    chlog::info("data","[USV1]: sys_id =", current_mavlink.sysid);
 }
 
 void usv1_ros_Manager::global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg) {
@@ -205,7 +205,7 @@ void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {
 
         mavros_msgs::SetMode offb_set_mode;
         offb_set_mode.request.custom_mode = "OFFBOARD";
-        chlog::info("data","is_offboard = %d", is_offboard_);
+        chlog::info("data","[USV1]: is_offboard = %d", is_offboard_);
         if (current_state.mode != "OFFBOARD" && !is_offboard_) {
             static int offboard_i;
             for (offboard_i = 10; ros::ok() && offboard_i > 0; --offboard_i) {
@@ -237,7 +237,7 @@ void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {
 
 void usv1_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
 //    DataMan::getInstance()->SetDroneData(usv_);
-    chlog::info("data","m_multi_vehicle_.usv1.yaw = ", usv_.yaw,
+    chlog::info("data","[USV1]: m_multi_vehicle_.usv1.yaw = ", usv_.yaw,
             ", dronepos_.m_heading =", dronepos_.m_heading,
             ", yaw_cur_ = ", yaw_cur_);
     DataMan::getInstance()->SetDroneData(usv_);
@@ -255,7 +255,7 @@ void usv1_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
         p.x = target_local_pos_sp_.pose.position.x;
         p.y = target_local_pos_sp_.pose.position.y;
         p.z = target_local_pos_sp_.pose.position.z;
-        chlog::info("data","draw usv1 target pos = %.2f, %.2f, %.2f", p.x, p.y, p.z);
+        chlog::info("data","[USV1]: draw usv1 target pos = %.2f, %.2f, %.2f", p.x, p.y, p.z);
         poublisMarker(p, usv1_color_, marker_target_pub_);
     }
 }
@@ -346,7 +346,7 @@ void usv1_ros_Manager::wayPointReachedCB(const mavros_msgs::WaypointReached::Con
 
 void usv1_ros_Manager::homePositionCB(const mavros_msgs::HomePosition::ConstPtr& msg){
     usv_.homePosition = *msg;
-    chlog::info("data","usv1 home position lat = ", to_string(msg->geo.latitude), ", , current_seq = ",
+    chlog::info("data","[USV1]: usv1 home position lat = ", to_string(msg->geo.latitude), ", , current_seq = ",
             to_string(msg->geo.longitude));
 }
 
@@ -376,8 +376,8 @@ void usv1_ros_Manager::getOctomap() {
     TVec3 drone_pos = TVec3(usv_.current_local_pos.pose.position.x,
                             usv_.current_local_pos.pose.position.y,
                             usv_.current_local_pos.pose.position.z);
-    if (!usv_.Imap->isStateValid(drone_pos, false)) {
-        chlog::info("data","usv1 is in collision!");
+    if (!usv_.Imap->isStateValid(drone_pos)) {
+        chlog::info("data","[USV1]: usv1 is in collision!");
     }
 }
 

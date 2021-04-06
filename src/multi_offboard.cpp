@@ -203,7 +203,7 @@ void MultiOffboard::uav7_local_pos_sp_cb(const mavros_msgs::PositionTarget::Cons
 void MultiOffboard::uav1_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
     mavros_msgs::DebugValue debugValue;
     debugValue = *msg;
-    chlog::info("data","uav1 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
+    chlog::info("data","uav1 debug_value x = ", debugValue.data[0]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
 //    DataMan::getInstance()->SetUserCommand(config);
@@ -213,7 +213,7 @@ void MultiOffboard::uav1_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
 void MultiOffboard::uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
     mavros_msgs::DebugValue debugValue;
     debugValue = *msg;
-    chlog::info("data","uav2 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
+    chlog::info("data","uav2 debug_value x = ", debugValue.data[0]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
 //    DataMan::getInstance()->SetUserCommand(config);
@@ -223,7 +223,7 @@ void MultiOffboard::uav2_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
 void MultiOffboard::uav3_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
     mavros_msgs::DebugValue debugValue;
     debugValue = *msg;
-    chlog::info("data","uav3 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
+    chlog::info("data","uav3 debug_value x = ", debugValue.data[0]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
 //    DataMan::getInstance()->SetUserCommand(config);
@@ -233,7 +233,7 @@ void MultiOffboard::uav3_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
 void MultiOffboard::uav4_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& msg){
     mavros_msgs::DebugValue debugValue;
     debugValue = *msg;
-    chlog::info("data","uav4 debug_value x = %.2f, y = %.2f, z = %.2f", debugValue.data[0], debugValue.data[1], debugValue.data[2]);
+    chlog::info("data","uav4 debug_value x = ", debugValue.data[0]);
     int config = (int)debugValue.data[0];
     arm_command_ = config;
 //    DataMan::getInstance()->SetUserCommand(config);
