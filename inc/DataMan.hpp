@@ -17,7 +17,7 @@ class DataMan {
 public:
     static DataMan* getInstance();
 
-    void OnInit(IMsgRosManager *msg_ros);
+    void OnInit(IMsgRosManager *msg_ros, bool is_uav, bool is_usv);
 
     void SetDroneData(const M_Drone &mDrone);
 
@@ -96,6 +96,9 @@ private:
     IMsgRosManager * msg_config_;
     IFlightDataCallback *callback_;
     int command_ = -1;
+
+    bool is_uav_;
+    bool is_usv_;
 };
 
 

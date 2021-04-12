@@ -185,6 +185,7 @@ void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr
 }
 
 void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {
+    if (! current_state.connected) return;
     int command;
     DataMan::getInstance()->getCommand(command);
     if (command == VF_USV_ALL_START /*|| command == SLAVESTART*/) {

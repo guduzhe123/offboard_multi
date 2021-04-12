@@ -208,6 +208,7 @@ void usv3_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 }
 
 void usv3_ros_Manager::commander_update(const ros::TimerEvent& e) {
+    if (! current_state.connected) return;
     int command;
     DataMan::getInstance()->getCommand(command);
     if (command == VF_USV_ALL_START /*|| command == SLAVESTART*/) {
@@ -252,7 +253,6 @@ void usv3_ros_Manager::commander_update(const ros::TimerEvent& e) {
             homepos_manual.geo.longitude = uav_.longtitude;
             home_pos_pub.publish(homepos_manual);
             chlog::info("data","[USV3]: usv3 homepos_manual.geo.latitude = %.6f", homepos_manual.geo.latitude);
-//            home_pos_updated_ = true;
         }
     }
 }
@@ -289,7 +289,6 @@ void usv3_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
             local_pos_pub.publish(target_local_pos_sp_);
         } else {
             local_pos_pub.publish(uav_.current_local_pos);
-//            chlog::info("data","[USV3]: usv3 disable the target, ang = %.2f, usv3 crash = %d", ang * 180 / M_PI, usv_crash_);
         }
 
         local_pos_pub.publish(target_local_pos_sp_);

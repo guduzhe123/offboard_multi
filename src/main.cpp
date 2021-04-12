@@ -15,7 +15,7 @@ int main (int argc, char **argv){
 
     MultiOffboard::getInstance()->OnInit();
     auto msg_ros = MultiOffboard::getInstance();
-    DataMan::getInstance()->OnInit(msg_ros);
+    DataMan::getInstance()->OnInit(msg_ros, false, false);
     PathCreator::geInstance()->onInit(msg_ros, follow_usv);
 
     ros::Rate rate(20.0);

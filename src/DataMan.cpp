@@ -14,8 +14,10 @@ DataMan* DataMan::getInstance() {
 }
 
 // initialize config parameters.
-void DataMan::OnInit(IMsgRosManager *msg_ros) {
+void DataMan::OnInit(IMsgRosManager *msg_ros, bool is_uav, bool is_usv) {
     msg_config_ = msg_ros;
+    is_uav_ = is_uav;
+    is_usv_ = is_usv;
 }
 
 void DataMan::SetDroneData(const M_Drone &mDrone) {
@@ -386,18 +388,23 @@ void DataMan::PrintUSVFormationKeep() {
 void DataMan::PrintData() {
     chlog::info("data","[DataMan]:\n");
     chlog::info("data","[DataMan]:---------------flight data-------------");
-    PrinrDorneFlightDate();
-    PrintDroneTargetPosData();
-    PrintAvoidanceData();
-
-    PrintBoatData();
-    PrintBoatTargetPosData();
-    if (leader_uav_) {
-        PrintDroneFormationData();
-        PrintDroneFormationKeep();
+    if (is_uav_) {
+        PrinrDorneFlightDate();
+        PrintDroneTargetPosData();
+        PrintAvoidanceData();
+        if (leader_uav_) {
+            PrintDroneFormationData();
+            PrintDroneFormationKeep();
+        }
     }
-    PrintUSVFormationData();
-    PrintUSVFormationKeep();
+
+    if (is_usv_) {
+        PrintBoatData();
+        PrintBoatTargetPosData();
+        PrintUSVFormationData();
+        PrintUSVFormationKeep();
+    }
+
     chlog::info("data","[DataMan]:---------------data end-----------------");
 }
 

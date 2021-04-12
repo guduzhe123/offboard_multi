@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     nh.param("follow_usv", follow_usv, false);
 
     auto lead_node = seven_vehicle_control::getInstance();
-    DataMan::getInstance()->OnInit(lead_node);
+    DataMan::getInstance()->OnInit(lead_node, false, false);
 
     PathCreator::geInstance()->onInit(lead_node, follow_usv);
 

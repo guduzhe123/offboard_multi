@@ -19,10 +19,18 @@ int main(int argc, char **argv)
 
     ros::init(argc, argv, "usvs");
 //    util_daemonize ();
+    ros::NodeHandle nh("~");
+    bool is_motion_plan, is_usv, is_uav;
+    nh.param("is_motion_plan", is_motion_plan, false);
+    nh.param("is_usv", is_usv, false);
+    nh.param("is_uav", is_uav, false);
+    chlog::info("data", "~~~~ is motion plan = ", is_motion_plan, ", is_usv = ", is_usv, ", is_uav = ", is_uav);
 
     usvs_control* lead_node;
     lead_node = usvs_control::getInstance();
     lead_node->OnInit();
+    DataMan::getInstance()->OnInit(lead_node, is_uav, is_usv);
+
     DataMan::getInstance()->OnInit(lead_node);
 
     ros::NodeHandle nh("~");
