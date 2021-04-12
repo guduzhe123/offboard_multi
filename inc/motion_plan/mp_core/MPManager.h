@@ -61,6 +61,14 @@ private:
         REPLAN_NEW
     };
 
+    enum MP_CHECK_COLLISION {
+        CHECK_COLLISION,
+        COLLOSION_INIT,
+        REPLAN_TARGET,
+        REPLANNING,
+        ORIGINAL_TARGET
+    };
+
     ros::NodeHandle nh_;
     MP_Config mp_config_;
     Drone_State drone_st_;
@@ -89,16 +97,20 @@ private:
     TVec3 init_target_pos_;
     int path_find_fail_timer_;
 
+    MP_CHECK_COLLISION check_collision_state_;
+    bool collide_;
     // private functions
     void CalcDistToCenter(float &dist, const TVec3 &cur_pos, TVec3 start_pos, TVec3 end_pos);
 
-    bool CallKinodynamicReplan();
+    bool CallKinodynamicReplan(int step);
 
     void ChangeExecState(MP_EXEC_STATE new_state, string pos_call);
 
     void initAfterTriggered(const TVec3& target_pos);
 
     void changeToTurbineFrame(TVec3 &pnt, TVec3 &pos_in_turbine_EUS);
+
+    void checkCollisionReplan(TVec3& cur_pos);
 };
 
 #endif //WINDAPPCORE_MPMANAGER_H

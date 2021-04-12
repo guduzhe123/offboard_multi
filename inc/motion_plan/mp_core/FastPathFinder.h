@@ -24,13 +24,13 @@ namespace fast_planner {
 
         /* main planning interface */
         bool replan(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel, Eigen::Vector3d start_acc,
-                               Eigen::Vector3d end_pt, Eigen::Vector3d end_vel) override ;
-        bool planGlobalTraj(const Eigen::Vector3d& start_pos);
+                    Eigen::Vector3d end_pt, Eigen::Vector3d end_vel, bool collide) override ;
+        bool planGlobalTraj(const Eigen::Vector3f &start_pos, const Eigen::Vector3f &end_pos);
 
         void planYaw(const Eigen::Vector3d& start_yaw) override ;
 
         void initPlanModules(const MP_Config &config, Sp<IMap> &map) override ;
-        void setGlobalWaypoints(const TVec3 &waypoints, const TVec3 &start_point, const TVec3 &cur_pos) override;
+        void setGlobalWaypoints(const TVec3 &waypoints) override;
 
         bool checkTrajCollision(double& distance) override ;
 

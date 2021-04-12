@@ -11,7 +11,8 @@ MPManager::MPManager(const MP_Config &config) :
         receive_traj_(false),
         has_drone_update_(false),
         init_target_pos_{},
-        path_find_fail_timer_(0) {
+        path_find_fail_timer_(0),
+        collide_(false){
     chlog::info("motion_plan", "\n");
     chlog::info("motion_plan", "[MP Manager]: mp manager init!");
 
@@ -29,6 +30,7 @@ MPManager::MPManager(const MP_Config &config) :
     ChangeExecState(WAIT_TARGET, "FSM");
     end_vel_.setZero();
     init_target_pos_ = mp_config_.end_pos;
+    path_finder_->setGlobalWaypoints(mp_config_.end_pos);
 }
 
 
@@ -54,6 +56,7 @@ void MPManager::OnUpdateDroneStatus(const TVec3 &drone_pos, const TVec3 &drone_v
 void MPManager::OnUpdateTargetPos(const TVec3 &target_pos) {
     if ((target_pos - mp_config_.end_pos).norm() < 0.5) return;
     mp_config_.end_pos = target_pos;
+    init_target_pos_ = mp_config_.end_pos;
     mp_publisher_->drawGoal(mp_config_.end_pos, 1, Eigen::Vector4d(1, 0, 0, 1.0));
     chlog::info("motion_plan", "[MP Manager]: update motion plan target = ", toStr(mp_config_.end_pos));
     if (mp_state_ == EXEC_TRAJ) {
@@ -79,10 +82,16 @@ void MPManager::updateMotionPlan(const float dist, const TVec3 &insp_vec,
 }
 
 
-bool MPManager::CallKinodynamicReplan() {
-    bool plan_success = path_finder_->replan(start_pt_.cast<double>(), start_vel_.cast<double>(),
-                                             start_acc_.cast<double>(),
-                                             mp_config_.end_pos.cast<double>(), end_vel_.cast<double>());
+bool MPManager::CallKinodynamicReplan(int step) {
+    bool plan_success;
+    if (step == 1) {
+        plan_success = path_finder_->planGlobalTraj(start_pt_, mp_config_.end_pos);
+    } else {
+        plan_success = path_finder_->replan(start_pt_.cast<double>(), start_vel_.cast<double>(),
+                                            start_acc_.cast<double>(),
+                                            mp_config_.end_pos.cast<double>(), end_vel_.cast<double>(), false);
+    }
+
     if (plan_success) {
         auto info = &path_finder_->getLocaldata();
 
@@ -226,6 +235,108 @@ void MPManager::OnUpdateDroneHeading(float drone_heading) {
     mp_config_.m_drone_heading = drone_heading;
 }
 
+void MPManager::checkCollisionReplan(TVec3& cur_pos) {
+    if (!mp_config_.mp_map) return;
+    chlog::info("motion_plan", "check_collision_state_ = ", check_collision_state_);
+    switch (check_collision_state_) {
+        case CHECK_COLLISION: {
+            float min_d;
+            TVec3 pos_ENU;
+            mp_config_.mp_map->getMinDistance(cur_pos, min_d);
+            if (min_d < 0.3) {
+                check_collision_state_ = COLLOSION_INIT;
+            }
+            break;
+        }
+        case COLLOSION_INIT: {
+            check_collision_state_ = REPLAN_TARGET;
+            break;
+        }
+
+        case REPLAN_TARGET: {
+            const double dr = 0.5, dtheta = 30, dz = 0.3;
+            double new_x, new_y, new_z, max_dist = -1.0;
+            TVec3 goal;
+
+            for (double r = dr; r <= 5 * dr + 1e-3; r += dr) {
+                for (double theta = -90; theta <= 270; theta += dtheta) {
+                    for (double nz = 2 * dz; nz >= -2 * dz; nz -= dz) {
+
+                        new_x = mp_config_.end_pos(0) + r * cos(theta / 57.3);
+                        new_z = mp_config_.end_pos(2) + r * sin(theta / 57.3);
+                        new_y = mp_config_.end_pos(1) + nz;
+
+                        TVec3 new_pt(new_x, new_y, new_z); // EUS
+                        float new_min_dist;
+                        TVec3 new_pos_ENU;
+//                        posEUSToPosENU(new_pt, new_pos_ENU);
+                        mp_config_.mp_map->getMinDistance(new_pt, new_min_dist);
+
+                        if (new_min_dist > max_dist) {
+                            /* reset end_pt_ */
+                            goal = new_pt;
+                            max_dist = new_min_dist;
+                        }
+                    }
+                }
+            }
+
+            if (max_dist > 0.3) {
+                chlog::info("motion_plan", "change goal, replan. goal = " + toStr(goal));
+                mp_config_.end_pos = goal;
+                end_vel_.setZero();
+
+                if (mp_state_ == EXEC_TRAJ) {
+                    ChangeExecState(REPLAN_TRAJ, "SAFETY");
+                }
+                check_collision_state_ = REPLANNING;
+                break;
+            }
+            mp_publisher_->drawGoal(mp_config_.end_pos, 1, Eigen::Vector4d(1, 0, 0, 0.70));
+
+            break;
+        }
+
+        case REPLANNING: {
+            float min_d;
+//            TVec3 pos_ENU;
+//            posEUSToPosENU(cur_pos, pos_ENU);
+            mp_config_.mp_map->getMinDistance(cur_pos, min_d);
+
+            if (min_d > 0.3) {
+                check_collision_state_ = ORIGINAL_TARGET;
+            }
+        }
+            break;
+
+        case ORIGINAL_TARGET: {
+            mp_config_.end_pos = init_target_pos_;
+            if (mp_state_ == EXEC_TRAJ) {
+                ChangeExecState(REPLAN_TRAJ, "SAFETY");
+            }
+            check_collision_state_ = CHECK_COLLISION;
+        }
+            break;
+    }
+
+    /* ---------- check trajectory ---------- */
+    if (mp_state_ == EXEC_TRAJ || mp_state_ == REPLAN_TRAJ) {
+        double dist;
+        bool   safe = path_finder_->checkTrajCollision(dist);
+        if (!safe) {
+            if (dist > 0.5) {
+                chlog::info("motion_plan", "current traj: ", dist, "  m to collision" );
+                collide_ = true;
+                ChangeExecState(REPLAN_TRAJ, "SAFETY");
+            } else {
+                chlog::info("motion_plan","current traj ",  dist ," m to collision, emergency stop!");
+                ChangeExecState(WAIT_TARGET, "SAFETY");
+            }
+        } else {
+            collide_ = false;
+        }
+    }
+}
 
 void MPManager::ProcessState() {
 //    chlog::info("motion_plan", "[MP Manager]: mp_state_ = " , mp_state_);
@@ -250,7 +361,7 @@ void MPManager::ProcessState() {
             start_vel_ = drone_st_.drone_vel;
             start_acc_.setZero();
 
-            bool success = CallKinodynamicReplan();
+            bool success = CallKinodynamicReplan(1);
             if (success) {
                 ChangeExecState(EXEC_TRAJ, "FSM");
             } else {
@@ -317,7 +428,7 @@ void MPManager::ProcessState() {
 
             start_acc_ = info->acceleration_traj_.evaluateDeBoorT(t_cur).cast<float>();
 
-            bool success = CallKinodynamicReplan();
+            bool success = CallKinodynamicReplan(2);
             if (success) {
                 ChangeExecState(EXEC_TRAJ, "FSM");
             } else {
