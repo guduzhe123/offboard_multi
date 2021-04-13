@@ -4,6 +4,7 @@
 #include <Eigen/Eigen>
 #include <algorithm>
 #include <iostream>
+#include "../log/Chlog.hpp"
 
 using namespace std;
 

@@ -214,6 +214,7 @@ namespace fast_planner {
             double    time_inc = 0.0;
 
             Eigen::MatrixXd   ctrl_pts = reparamLocalTraj(t_now, local_traj_dt, local_traj_duration);
+            if (ctrl_pts.rows() == 0 || ctrl_pts.cols() == 0) return false;
             NonUniformBspline init_traj(ctrl_pts, 3, local_traj_dt);
             local_data_.start_time_ = time_now;
             refineTraj(init_traj, time_inc);

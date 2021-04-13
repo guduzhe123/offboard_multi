@@ -208,6 +208,10 @@ void DataMan::SetBoatControlData(const multi_vehicle &m_multi_vehicles) {
         multi_vehicle_.leader_usv.target_local_pos_sp = m_multi_vehicles.leader_usv.target_local_pos_sp;
         multi_vehicle_.usv1.droneControl = m_multi_vehicles.usv1.droneControl;
     }
+    TVec3 target_pos{multi_vehicle_.usv1.target_local_pos_sp.pose.position.x,
+                     multi_vehicle_.usv1.target_local_pos_sp.pose.position.y,
+                     0};
+    chlog::info("motion_plan", "222 target_pos = ", toStr(target_pos));
     msg_config_->PublishBoatPosControl(m_multi_vehicles);
 }
 

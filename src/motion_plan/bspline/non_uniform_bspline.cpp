@@ -296,6 +296,7 @@ namespace fast_planner {
     void NonUniformBspline::lengthenTime(const double& ratio) {
         int num1 = 5;
         int num2 = getKnot().rows() - 1 - 5;
+        if (num2 < 0) return;
 
         double delta_t = (ratio - 1.0) * (u_(num2) - u_(num1));
         double t_inc   = delta_t / double(num2 - num1);
@@ -309,17 +310,17 @@ namespace fast_planner {
                                                   const vector<Eigen::Vector3d>& start_end_derivative,
                                                   Eigen::MatrixXd&               ctrl_pts) {
         if (ts <= 0) {
-            cout << "[B-spline]:time step error." << endl;
+            chlog::info("motion_plan", "[B-spline]:time step error.");
             return;
         }
 
         if (point_set.size() < 2) {
-            cout << "[B-spline]:point set have only " << point_set.size() << " points." << endl;
+            chlog::info("motion_plan", "[B-spline]:point set have only ", point_set.size(), " points.");
             return;
         }
 
         if (start_end_derivative.size() != 4) {
-            cout << "[B-spline]:derivatives error." << endl;
+            chlog::info("motion_plan", "[B-spline]:derivatives error.");
         }
 
         int K = point_set.size();

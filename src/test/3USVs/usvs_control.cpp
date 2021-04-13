@@ -12,7 +12,8 @@ usvs_control::usvs_control():
         is_get_takeoff_pos_(false),
         is_avoidance_(false),
         command_(-1),
-        danger_distance_(-1){
+        danger_distance_(-1),
+        usv1_target_pre_(0,0,0){
 
 }
 
@@ -69,9 +70,11 @@ void usvs_control::PublishBoatPosControl(const multi_vehicle &multi_vehicles) {
 
     TVec3 target_pos{multi_vehicles.usv1.target_local_pos_sp.pose.position.x,
                      multi_vehicles.usv1.target_local_pos_sp.pose.position.y,
-                     multi_vehicles.usv1.target_local_pos_sp.pose.position.z};
+                     0};
+    target_pos.z() = 0;
     float pre_cur_err = (target_pos - usv1_target_pre_).norm();
     if (pre_cur_err > 0.8) {
+        chlog::info("motion_plan", "target_pos = ", toStr(target_pos), ", usv1_target_pre_ = ", toStr(usv1_target_pre_));
         OnInitMotionPlan(multi_vehicles);
         usv1_target_pre_ = target_pos;
     }
@@ -98,7 +101,7 @@ void usvs_control::OnInitMotionPlan(const multi_vehicle &multi_vehicles) {
     mp_config.is_speed_mode = false;
     mp_config.control_mode = POSITION_WITHOUT_CUR;
     mp_config.is_enable = true;
-    mp_config.max_vel = 1.5;
+    mp_config.max_vel = 2.0;
     mp_config.max_acc = 2.0;
     mp_config.mp_map = multi_vehicles.usv1.Imap;
     mp_config.end_pos = target_pos;
