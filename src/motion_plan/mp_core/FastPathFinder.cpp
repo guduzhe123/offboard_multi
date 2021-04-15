@@ -205,25 +205,23 @@ namespace fast_planner {
                                        ", " + to_string2(end_vel(1)) +
                                        ", " + to_string2(end_vel(2)) +
                                        ", collide = ", collide);
+        ros::Time t1, t2;
+        ros::Time time_now = ros::Time::now();
+        double    t_now    = (time_now - global_data_.global_start_time_).toSec();
+        double    local_traj_dt, local_traj_duration;
+        double    time_inc = 0.0;
+
+        Eigen::MatrixXd   ctrl_pts = reparamLocalTraj(t_now, local_traj_dt, local_traj_duration);
+        if (ctrl_pts.rows() == 0 || ctrl_pts.cols() == 0) return false;
+        NonUniformBspline init_traj(ctrl_pts, 3, local_traj_dt);
+        local_data_.start_time_ = time_now;
 
         if (!collide) {
             /* truncate a new local segment for replanning */
-            ros::Time time_now = ros::Time::now();
-            double    t_now    = (time_now - global_data_.global_start_time_).toSec();
-            double    local_traj_dt, local_traj_duration;
-            double    time_inc = 0.0;
-
-            Eigen::MatrixXd   ctrl_pts = reparamLocalTraj(t_now, local_traj_dt, local_traj_duration);
-            if (ctrl_pts.rows() == 0 || ctrl_pts.cols() == 0) return false;
-            NonUniformBspline init_traj(ctrl_pts, 3, local_traj_dt);
-            local_data_.start_time_ = time_now;
             refineTraj(init_traj, time_inc);
             local_data_.position_traj_ = init_traj;
             global_data_.setLocalTraj(init_traj, t_now, local_traj_duration + time_inc + t_now, time_inc);
         } else {
-
-            ros::Time t1, t2;
-
             local_data_.start_time_ = ros::Time::now();
             double t_search = 0.0, t_opt = 0.0, t_adjust = 0.0;
 
