@@ -12,7 +12,8 @@ MPManager::MPManager(const MP_Config &config) :
         has_drone_update_(false),
         init_target_pos_{},
         path_find_fail_timer_(0),
-        collide_(false){
+        collide_(false),
+        check_collision_state_(CHECK_COLLISION){
     chlog::info("motion_plan", "\n");
     chlog::info("motion_plan", "[MP Manager]: mp manager init!");
 
@@ -89,7 +90,8 @@ bool MPManager::CallKinodynamicReplan(int step) {
     } else {
         plan_success = path_finder_->replan(start_pt_.cast<double>(), start_vel_.cast<double>(),
                                             start_acc_.cast<double>(),
-                                            mp_config_.end_pos.cast<double>(), end_vel_.cast<double>(), false);
+                                            mp_config_.end_pos.cast<double>(), end_vel_.cast<double>(),
+                                            collide_);
     }
 
     if (plan_success) {
@@ -237,14 +239,15 @@ void MPManager::OnUpdateDroneHeading(float drone_heading) {
 
 void MPManager::checkCollisionReplan(TVec3& cur_pos) {
     if (!mp_config_.mp_map) return;
-    chlog::info("motion_plan", "check_collision_state_ = ", check_collision_state_);
+    //chlog::info("motion_plan", "check_collision_state_ = ", check_collision_state_);
     switch (check_collision_state_) {
         case CHECK_COLLISION: {
-            float min_d;
-            TVec3 pos_ENU;
-            mp_config_.mp_map->getMinDistance(cur_pos, min_d);
-            if (min_d < 0.3) {
+            if (!mp_config_.mp_map->isStateValid(cur_pos, false)) {
                 check_collision_state_ = COLLOSION_INIT;
+/*                if (mp_state_ == EXEC_TRAJ) {
+                    collide_ = true;
+                    ChangeExecState(REPLAN_TRAJ, "SAFETY");
+                }*/
             }
             break;
         }
@@ -257,26 +260,23 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
             const double dr = 0.5, dtheta = 30, dz = 0.3;
             double new_x, new_y, new_z, max_dist = -1.0;
             TVec3 goal;
+            float new_min_dist;
 
             for (double r = dr; r <= 5 * dr + 1e-3; r += dr) {
                 for (double theta = -90; theta <= 270; theta += dtheta) {
-                    for (double nz = 2 * dz; nz >= -2 * dz; nz -= dz) {
 
-                        new_x = mp_config_.end_pos(0) + r * cos(theta / 57.3);
-                        new_z = mp_config_.end_pos(2) + r * sin(theta / 57.3);
-                        new_y = mp_config_.end_pos(1) + nz;
+                    new_x = mp_config_.end_pos(0) + r * cos(theta / 57.3);
+                    new_y = mp_config_.end_pos(1) + r * sin(theta / 57.3);
 
-                        TVec3 new_pt(new_x, new_y, new_z); // EUS
-                        float new_min_dist;
-                        TVec3 new_pos_ENU;
+                    TVec3 new_pt(new_x, new_y, 0); // EUS
+                    TVec3 new_pos_ENU;
 //                        posEUSToPosENU(new_pt, new_pos_ENU);
-                        mp_config_.mp_map->getMinDistance(new_pt, new_min_dist);
+                    mp_config_.mp_map->getMinDistance(new_pt, new_min_dist);
 
-                        if (new_min_dist > max_dist) {
-                            /* reset end_pt_ */
-                            goal = new_pt;
-                            max_dist = new_min_dist;
-                        }
+                    if (new_min_dist > max_dist) {
+                        /* reset end_pt_ */
+                        goal = new_pt;
+                        max_dist = new_min_dist;
                     }
                 }
             }
@@ -298,12 +298,7 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
         }
 
         case REPLANNING: {
-            float min_d;
-//            TVec3 pos_ENU;
-//            posEUSToPosENU(cur_pos, pos_ENU);
-            mp_config_.mp_map->getMinDistance(cur_pos, min_d);
-
-            if (min_d > 0.3) {
+            if (mp_config_.mp_map->isStateValid(cur_pos, false)) {
                 check_collision_state_ = ORIGINAL_TARGET;
             }
         }
@@ -320,17 +315,14 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
     }
 
     /* ---------- check trajectory ---------- */
-    if (mp_state_ == EXEC_TRAJ || mp_state_ == REPLAN_TRAJ) {
+    if (mp_state_ == EXEC_TRAJ /*|| mp_state_ == REPLAN_TRAJ*/) {
         double dist;
         bool   safe = path_finder_->checkTrajCollision(dist);
         if (!safe) {
-            if (dist > 0.5) {
+            if (dist > 1.5) {
                 chlog::info("motion_plan", "current traj: ", dist, "  m to collision" );
                 collide_ = true;
                 ChangeExecState(REPLAN_TRAJ, "SAFETY");
-            } else {
-                chlog::info("motion_plan","current traj ",  dist ," m to collision, emergency stop!");
-                ChangeExecState(WAIT_TARGET, "SAFETY");
             }
         } else {
             collide_ = false;
@@ -339,7 +331,7 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
 }
 
 void MPManager::ProcessState() {
-//    chlog::info("motion_plan", "[MP Manager]: mp_state_ = " , mp_state_);
+    checkCollisionReplan(drone_st_.drone_pos);
     switch (mp_state_) {
         case INIT: {
             ChangeExecState(WAIT_TARGET, "FSM");
@@ -383,7 +375,6 @@ void MPManager::ProcessState() {
             LocalTrajData *info = &path_finder_->getLocaldata();
             ros::Time time_now = ros::Time::now();
             double t_cur = (time_now - info->start_time_).toSec();
-            t_cur = min(info->duration_, t_cur);
 
             Eigen::Vector3d pos = info->position_traj_.evaluateDeBoorT(t_cur);
 
@@ -391,11 +382,7 @@ void MPManager::ProcessState() {
                 ChangeExecState(WAIT_TARGET, "FSM");
                 return;
 
-            } else if (t_cur > info->duration_ - 5e-2 && mp_config_.mp_plan_state == MotionPlanState::TRACKING) {
-                ChangeExecState(GEN_NEW_TRAJ, "FSM");
-                chlog::info("motion_plan", "[MP Manager]: motion plan time out!");
-                return;
-            } else if ((info->start_pos_ - pos).norm() < 1.5 ) {
+            }  else if ((info->start_pos_ - pos).norm() < 1.5 /*&& !collide_*/) {
                 chlog::info("motion_plan", "[MP Manager]: close to start pos!");
                 return;
 

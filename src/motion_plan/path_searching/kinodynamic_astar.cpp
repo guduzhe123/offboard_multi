@@ -206,7 +206,7 @@ namespace fast_planner {
 
                     /*check turbine obstacle distance*/
 
-                    if (!map_->isStateValid(pro_state.head(3).cast<float>())) {
+                    if (!map_->isStateValid(pro_state.head(3).cast<float>(), true)) {
                         // chlog::info("motion_plan", "the state is in collision!");
                         in_collision_num_++;
                         continue;

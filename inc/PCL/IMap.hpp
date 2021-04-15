@@ -15,7 +15,7 @@ public:
 
     virtual void onInit() = 0;
 
-    virtual bool isStateValid(const Eigen::Vector3f &PosENU) = 0;
+    virtual bool isStateValid(const Eigen::Vector3f &PosENU, bool planning) = 0;
 
     virtual void updateOctomap(const octomap_msgs::Octomap &msg) = 0;
 

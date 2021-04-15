@@ -74,7 +74,7 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
 
     usv_.Imap.reset(new OctoMap);
     usv_.Imap->onInit();
-    usv_.Imap->setSafeRaduis(4);
+    usv_.Imap->setSafeRaduis(5);
 }
 
 void usv1_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {
@@ -376,7 +376,7 @@ void usv1_ros_Manager::getOctomap() {
     TVec3 drone_pos = TVec3(usv_.current_local_pos.pose.position.x,
                             usv_.current_local_pos.pose.position.y,
                             usv_.current_local_pos.pose.position.z);
-    if (!usv_.Imap->isStateValid(drone_pos)) {
+    if (!usv_.Imap->isStateValid(drone_pos, false)) {
         chlog::info("data","usv1 is in collision!");
     }
 }

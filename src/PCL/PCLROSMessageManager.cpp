@@ -105,7 +105,7 @@ void PCLROSMessageManager::groundRemove(const pcl::PointCloud<pcl::PointXYZ>::Pt
 void
 PCLROSMessageManager::PubPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &o_cloud, const ros::Publisher &pub,
                                       string frame) {
-    if (pub.getNumSubscribers() <= 0) return;
+//    if (pub.getNumSubscribers() <= 0) return;
     if (o_cloud->empty()) return;
     sensor_msgs::PointCloud2 ros_pcl;
     pcl::toROSMsg(*o_cloud, ros_pcl);
@@ -115,7 +115,7 @@ PCLROSMessageManager::PubPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &o
 }
 
 void PCLROSMessageManager::PubOctomap(octomap::OcTree *tree, const ros::Publisher &pub) {
-    if (pub.getNumSubscribers() <= 0) return;
+//    if (pub.getNumSubscribers() <= 0) return;
     octomap_.header.frame_id = "map";
     octomap_.header.stamp = ros::Time::now();
     octomap_msgs::fullMapToMsg(*tree, octomap_);
@@ -124,6 +124,7 @@ void PCLROSMessageManager::PubOctomap(octomap::OcTree *tree, const ros::Publishe
 }
 
 void PCLROSMessageManager::getOctomap(octomap_msgs::Octomap &octomap) {
+    chlog::info("data", "update octomap!");
     octomap = octomap_;
 }
 

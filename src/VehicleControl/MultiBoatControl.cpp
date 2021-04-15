@@ -415,7 +415,7 @@ void MultiBoatControl::setVehicleCtrlData() {
     TVec3 target_pos{m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.x,
                      m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.y,
                      0};
-    chlog::info("motion_plan", "111 target_pos = ", toStr(target_pos));
+    //chlog::info("motion_plan", "111 target_pos = ", toStr(target_pos));
     DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);
 }
 

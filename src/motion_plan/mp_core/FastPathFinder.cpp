@@ -77,9 +77,7 @@ namespace fast_planner {
 
         while (radius < 6.0 && t_now + fut_t < local_data_.duration_) {
             fut_pt = local_data_.position_traj_.evaluateDeBoor(tm + t_now + fut_t);
-            float dist;
-            mp_config_.mp_map->getMinDistance(fut_pt.cast<float>(), dist);
-            if (dist < 0.3) {
+            if (!mp_config_.mp_map->isStateValid(fut_pt.cast<float>(), false)) {
                 distance = radius;
                 return false;
             }
@@ -198,13 +196,15 @@ namespace fast_planner {
                                        ", " + to_string2(start_pt(2)) + ")" +
                                        ", start_vel, " + to_string2(start_vel(0)) +
                                        ", " + to_string2(start_vel(1)) +
-                                       ", " + to_string2(start_vel(2)) + ")" +
-                                       ", end_pt, " + to_string2(end_pt(0)) +
+                                       ", " + to_string2(start_vel(2)) + ")");
+
+        chlog::info("motion_plan", "[plan man]: , end_pt, " + to_string2(end_pt(0)) +
                                        ", " + to_string2(end_pt(1)) +
                                        ", " + to_string2(end_pt(2)) + ")" +
                                        ", end_vel, " + to_string2(end_vel(0)) +
                                        ", " + to_string2(end_vel(1)) +
-                                       ", " + to_string2(end_vel(2)) );
+                                       ", " + to_string2(end_vel(2)) +
+                                       ", collide = ", collide);
 
         if (!collide) {
             /* truncate a new local segment for replanning */

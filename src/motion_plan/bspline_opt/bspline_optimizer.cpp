@@ -231,7 +231,7 @@ namespace fast_planner {
         for (int i = order_; i < end_idx; i++) {
             if (dist_grad.norm() > 1e-4) dist_grad.normalize();
 
-            if (!map_->isStateValid(q[i].cast<float>())) { // TODO check distance
+            if (!map_->isStateValid(q[i].cast<float>(), true)) { // TODO check distance
                 cost += pow(dist - dist0_, 2);
                 gradient[i] += 2.0 * (dist - dist0_) * dist_grad;
             }

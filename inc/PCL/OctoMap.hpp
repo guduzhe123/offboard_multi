@@ -34,7 +34,7 @@ public:
 
     void onInit() override;
     void updateOctomap(const octomap_msgs::Octomap &msg) override;
-    bool isStateValid(const Eigen::Vector3f &PosENU) override ;
+    bool isStateValid(const Eigen::Vector3f &PosENU, bool planning) override ;
     void setSafeRaduis(const float &raduis) override;
     void getMinDistance(const Eigen::Vector3f& cur_pos, float& min_dist) override ;
     typedef unique_ptr<OctoMap> Ptr;

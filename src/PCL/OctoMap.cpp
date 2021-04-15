@@ -31,10 +31,11 @@ void OctoMap::setSafeRaduis(const float &raduis) {
     safety_radius_ = raduis;
 }
 
-bool OctoMap::isStateValid(const Eigen::Vector3f &PosENU)
+bool OctoMap::isStateValid(const Eigen::Vector3f &PosENU, bool planning)
 {
     // cast the abstract state type to the type we expect
-    Quadcopter_ = std::shared_ptr<fcl::CollisionGeometry>(new fcl::Sphere(safety_radius_));
+    float radius = planning ? safety_radius_ + 1 : safety_radius_;
+    Quadcopter_ = std::shared_ptr<fcl::CollisionGeometry>(new fcl::Sphere(radius));
     fcl::CollisionObject treeObj((tree_obj_));
     fcl::CollisionObject aircraftObject(Quadcopter_);
 
@@ -55,12 +56,17 @@ void OctoMap::getMinDistance(const Eigen::Vector3f& cur_pos, float& min_dist) {
     fcl::CollisionObject aircraftObject(Quadcopter_);
 
     // check validity of state defined by pos & rot
-    fcl::Vec3f translation(cur_pos.x(), cur_pos.y(), cur_pos.z());
-    aircraftObject.setTransform(translation);
+    fcl::Vec3f translation(cur_pos.x(), cur_pos.y(), 0);
+    try{
+        aircraftObject.setTransform(translation);
 
-    fcl::DistanceResult dist_result;
-    fcl::DistanceRequest dist_request;
-    fcl::distance(&aircraftObject, &treeObj, dist_request, dist_result);
-    min_dist = dist_result.min_distance ;
-    chlog::info("motion_plan", "[MAP]: min distance = ", min_dist, ", safety_radius_ = ", safety_radius_);
+        fcl::DistanceResult dist_result;
+        fcl::DistanceRequest dist_request;
+        fcl::distance(&aircraftObject, &treeObj, dist_request, dist_result);
+        min_dist = dist_result.min_distance ;
+        chlog::info("motion_plan", "[MAP]: min distance = ", min_dist, ", safety_radius_ = ", safety_radius_);
+
+    } catch (...) {
+        chlog::err("motion_plan", "bad fcl distance !!!exception: ");
+    }
 }
