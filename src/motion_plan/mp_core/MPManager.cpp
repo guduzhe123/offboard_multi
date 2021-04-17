@@ -85,6 +85,9 @@ void MPManager::updateMotionPlan(const float dist, const TVec3 &insp_vec,
 
 bool MPManager::CallKinodynamicReplan(int step) {
     bool plan_success;
+
+    chlog::info("motion_plan", "step = ", step, ", collide_ = ", collide_);
+    collide_ = true;
     if (step == 1) {
         plan_success = path_finder_->planGlobalTraj(start_pt_, mp_config_.end_pos);
     } else {
@@ -131,8 +134,11 @@ bool MPManager::CallKinodynamicReplan(int step) {
 
         /* visulization */
         auto plan_data = &path_finder_->getPlanData();
+        mp_publisher_->drawPolynomialTraj(path_finder_->global_data_.global_traj_, 0.05,
+                                           Eigen::Vector4d(0, 0, 0, 1), 0);
         mp_publisher_->drawGeometricPath(plan_data->kino_path_);
         mp_publisher_->drawBspline(info->position_traj_);
+        mp_publisher_->drawBsplinesPhase2(plan_data->topo_traj_pos2_, 0.075);
 
         return true;
     } else {
@@ -319,7 +325,7 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
         double dist;
         bool   safe = path_finder_->checkTrajCollision(dist);
         if (!safe) {
-            if (dist > 1.5) {
+            if (dist > 0.1) {
                 chlog::info("motion_plan", "current traj: ", dist, "  m to collision" );
                 collide_ = true;
                 ChangeExecState(REPLAN_TRAJ, "SAFETY");
@@ -383,7 +389,7 @@ void MPManager::ProcessState() {
                 return;
 
             }  else if ((info->start_pos_ - pos).norm() < 1.5 /*&& !collide_*/) {
-                chlog::info("motion_plan", "[MP Manager]: close to start pos!");
+//                chlog::info("motion_plan", "[MP Manager]: close to start pos!");
                 return;
 
             } else {
@@ -419,7 +425,7 @@ void MPManager::ProcessState() {
             if (success) {
                 ChangeExecState(EXEC_TRAJ, "FSM");
             } else {
-                ChangeExecState(GEN_NEW_TRAJ, "FSM");
+                chlog::info("motion_plan", "Replan fail, retrying...");
             }
             break;
         }

@@ -35,6 +35,10 @@ namespace fast_planner{
         virtual void setGlobalWaypoints(const TVec3 &waypoints) = 0;
 
         virtual void updateSpeedLimit(const float max_speed, const float max_acc) = 0;
+
+        LocalTrajData local_data_;
+        GlobalTrajData global_data_;
+        MidPlanData plan_data_;
     };
 }
 

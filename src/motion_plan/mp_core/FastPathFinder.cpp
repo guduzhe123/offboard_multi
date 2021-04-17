@@ -52,6 +52,7 @@ namespace fast_planner {
     }
 
     void FastPathFinder::setGlobalWaypoints(const TVec3 &waypoints) {
+        plan_data_.global_waypoints_.clear();
         plan_data_.global_waypoints_.push_back(waypoints.cast<double>());
     }
 
@@ -160,7 +161,7 @@ namespace fast_planner {
         global_data_.setLocalTraj(bspline, 0.0, duration, 0.0);
         local_data_.position_traj_ = bspline;
         local_data_.start_time_    = time_now;
-        ROS_INFO("global trajectory generated.");
+        chlog::info("motion_plan", "global trajectory generated.");
 
         updateTrajInfo();
 
@@ -208,6 +209,8 @@ namespace fast_planner {
         ros::Time t1, t2;
         ros::Time time_now = ros::Time::now();
         double    t_now    = (time_now - global_data_.global_start_time_).toSec();
+        chlog::info("motion_plan", "time_now = ", time_now.toSec(), ", global_data_.global_start_time_ = ",
+                    global_data_.global_start_time_.toSec(), ", t_now = ", t_now);
         double    local_traj_dt, local_traj_duration;
         double    time_inc = 0.0;
 
@@ -320,6 +323,14 @@ namespace fast_planner {
             pp_.time_search_   = t_search;
             pp_.time_optimize_ = t_opt;
             pp_.time_adjust_   = t_adjust;
+
+            refineTraj(local_data_.position_traj_, time_inc);
+            global_data_.setLocalTraj(local_data_.position_traj_, t_now,
+                                      local_traj_duration /*+ time_inc*/ + t_now, time_inc);
+
+            chlog::info("motion_plan",  "get position, local_start_time_ = ", t_now, ", local_end_time_ = "
+                    , local_traj_duration + time_inc + t_now , ", time_inc = " , time_inc,
+                    ",local_traj_duration = ", local_traj_duration);
         }
 
         updateTrajInfo();
@@ -424,14 +435,14 @@ namespace fast_planner {
 
         best_traj.setPhysicalLimits(pp_.max_vel_, pp_.max_acc_);
         double ratio = best_traj.checkRatio();
-        std::cout << "ratio: " << ratio << std::endl;
+        chlog::info("motion_plan", "[Refine]: ratio: " , ratio );
         reparamBspline(best_traj, ratio, ctrl_pts, dt, t_inc);
         time_inc += t_inc;
 
         ctrl_pts  = bspline_optimizers_[0]->BsplineOptimizeTraj(ctrl_pts, dt, cost_function, 1, 1);
         best_traj = NonUniformBspline(ctrl_pts, 3, dt);
-        ROS_WARN_STREAM("[Refine]: cost " << (ros::Time::now() - t1).toSec()
-                                          << " seconds, time change is: " << time_inc);
+        chlog::info("motion_plan", "[Refine]: cost " ,  (ros::Time::now() - t1).toSec()
+                                          ,  " seconds, time change is: " , time_inc);
     }
 
     void FastPathFinder::reparamBspline(NonUniformBspline& bspline, double ratio,

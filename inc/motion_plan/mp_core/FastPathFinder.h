@@ -43,12 +43,12 @@ namespace fast_planner {
         LocalTrajData local_data_;
         MidPlanData plan_data_;
         EDTEnvironment::Ptr edt_environment_;
+        GlobalTrajData global_data_;
         
     private:
         ros::Subscriber plan_state_sub_;
         /* main planning algorithms & modules */
         SDFMap::Ptr sdf_map_;
-        GlobalTrajData global_data_;
 
         unique_ptr<KinodynamicAstar> kino_path_finder_;
         vector<BsplineOptimizer::Ptr> bspline_optimizers_;

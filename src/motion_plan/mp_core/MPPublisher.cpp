@@ -164,3 +164,17 @@ void MPPublisher::drawBspline(NonUniformBspline& bspline) {
     visualization_->drawBspline(bspline, 0.1, Eigen::Vector4d(1.0, 0, 0.0, 1), false, 0.2,
                                 Eigen::Vector4d(1, 0, 0, 1));
 }
+
+
+void MPPublisher::drawPolynomialTraj(PolynomialTraj poly_traj, double resolution, const Eigen::Vector4d& color,
+                                     int id) {
+    visualization_->drawPolynomialTraj(poly_traj, resolution, color, id);
+}
+
+void MPPublisher::drawBsplinesPhase1(vector<NonUniformBspline>& bsplines, double size) {
+    visualization_->drawBsplinesPhase1(bsplines, size);
+}
+
+void MPPublisher::drawBsplinesPhase2(vector<NonUniformBspline>& bsplines, double size) {
+    visualization_->drawBsplinesPhase2(bsplines, size);
+}

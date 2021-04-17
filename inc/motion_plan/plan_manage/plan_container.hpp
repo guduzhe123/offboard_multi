@@ -55,14 +55,22 @@ public:
     global_duration_ += time_inc;
     time_increase_ += time_inc;
     last_time_inc_ = time_inc;
+      chlog::info("motion_plan",  "get position, local_start_time_ = ", local_start_time_, ", local_end_time_ = "
+              , local_end_time_ , ", global_duration_ = " , global_duration_ );
+
   }
 
   Eigen::Vector3d getPosition(double t) {
+      chlog::info("motion_plan",  "t = " , t , ", local_start_time_ = ", local_start_time_, ", local_end_time_ = "
+                                         , local_end_time_ , ", global_duration_ = " , global_duration_ );
     if (t >= -1e-3 && t <= local_start_time_) {
+        chlog::info("motion_plan","11111");
       return global_traj_.evaluate(t - time_increase_ + last_time_inc_);
     } else if (t >= local_end_time_ && t <= global_duration_ + 1e-3) {
+        chlog::info("motion_plan","22222");
       return global_traj_.evaluate(t - time_increase_);
     } else {
+        chlog::info("motion_plan","33333");
       double tm, tmp;
       local_traj_[0].getTimeSpan(tm, tmp);
       return local_traj_[0].evaluateDeBoor(tm + t - local_start_time_);

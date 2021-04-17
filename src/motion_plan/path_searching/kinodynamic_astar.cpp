@@ -139,7 +139,7 @@ namespace fast_planner {
             double res = 1 / 2.0, time_res = 1 / 2.0/*, time_res_init = 1 / 2.0*/;
 
             float max_time, max_acc;
-            if (!search_successed) {
+/*            if (!search_successed) {
                 max_acc = 5.0;
                 max_time = 2.0;
                 res = 1 /5.0, time_res = 1 / 10.0;
@@ -148,7 +148,10 @@ namespace fast_planner {
                 max_acc = max_acc_;
                 max_time = max_tau_;
                 time_res = init_max_tau_;
-            }
+            }*/
+            max_acc = max_acc_;
+            max_time = max_tau_;
+            time_res = init_max_tau_;
 
             Eigen::Matrix<double, 6, 1> cur_state = cur_node->state;
             Eigen::Matrix<double, 6, 1> pro_state;

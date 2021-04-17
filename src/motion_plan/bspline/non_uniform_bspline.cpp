@@ -314,6 +314,7 @@ namespace fast_planner {
             return;
         }
 
+        chlog::info("motion_plan", "[B-splis number", point_set.size());
         if (point_set.size() < 2) {
             chlog::info("motion_plan", "[B-spline]:point set have only ", point_set.size(), " points.");
             return;

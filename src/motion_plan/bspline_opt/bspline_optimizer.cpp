@@ -15,7 +15,8 @@ namespace fast_planner {
 
     const int BsplineOptimizer::GUIDE_PHASE = BsplineOptimizer::SMOOTHNESS | BsplineOptimizer::GUIDE;
     const int BsplineOptimizer::NORMAL_PHASE =
-            BsplineOptimizer::SMOOTHNESS | BsplineOptimizer::DISTANCE | BsplineOptimizer::FEASIBILITY | BsplineOptimizer::DIST_CENTER;
+            BsplineOptimizer::SMOOTHNESS | BsplineOptimizer::DISTANCE | BsplineOptimizer::FEASIBILITY
+            /*| BsplineOptimizer::DIST_CENTER*/;
     const int BsplineOptimizer::SAFE =
             BsplineOptimizer::SMOOTHNESS | BsplineOptimizer::DISTANCE | BsplineOptimizer::FEASIBILITY;
 

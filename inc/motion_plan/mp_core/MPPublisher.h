@@ -56,6 +56,14 @@ public:
 
     void drawBspline(NonUniformBspline& bspline);
 
+    // draw a polynomial trajectory
+    void drawPolynomialTraj(PolynomialTraj poly_traj, double resolution, const Eigen::Vector4d& color,
+                            int id = 0);
+
+    // draw a set of bspline trajectories generated in different phases
+    void drawBsplinesPhase1(vector<NonUniformBspline>& bsplines, double size);
+    void drawBsplinesPhase2(vector<NonUniformBspline>& bsplines, double size);
+
 
 private:
     void calcDistToCenter(float &dist, const TVec3 &cur_pos, TVec3 start_pos, TVec3 end_pos);
