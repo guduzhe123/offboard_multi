@@ -27,7 +27,7 @@ public:
 
   static const int GUIDE_PHASE;
   static const int NORMAL_PHASE;
-  static const int SAFE;
+  static const int SMOOTH;
 
   BsplineOptimizer() {}
   ~BsplineOptimizer() {}

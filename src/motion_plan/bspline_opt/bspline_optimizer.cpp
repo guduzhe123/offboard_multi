@@ -17,7 +17,7 @@ namespace fast_planner {
     const int BsplineOptimizer::NORMAL_PHASE =
             BsplineOptimizer::SMOOTHNESS | BsplineOptimizer::DISTANCE | BsplineOptimizer::FEASIBILITY
             /*| BsplineOptimizer::DIST_CENTER*/;
-    const int BsplineOptimizer::SAFE =
+    const int BsplineOptimizer::SMOOTH =
             BsplineOptimizer::SMOOTHNESS | BsplineOptimizer::DISTANCE | BsplineOptimizer::FEASIBILITY;
 
     void BsplineOptimizer::setParam(ros::NodeHandle& nh) {

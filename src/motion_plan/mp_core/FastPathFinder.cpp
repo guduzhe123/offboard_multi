@@ -287,19 +287,19 @@ namespace fast_planner {
             int cost_function;
             chlog::info("motion_plan", "[plan man]: mp_config_.mp_plan_state = ", mp_config_.mp_plan_state);
 
-            cost_function = BsplineOptimizer::SAFE;
-            if (status != KinodynamicAstar::REACH_END) {
-                cost_function |= BsplineOptimizer::ENDPOINT;
-            }
 
-            ctrl_pts = bspline_optimizers_[0]->BsplineOptimizeTraj(ctrl_pts, ts, cost_function, 1, 1);
+            Eigen::MatrixXd opt_ctrl_pts1 = bspline_optimizers_[0]->BsplineOptimizeTraj(
+                    ctrl_pts, ts, BsplineOptimizer::SMOOTH, 1, 1);
+
+            Eigen::MatrixXd opt_ctrl_pts2 = bspline_optimizers_[0]->BsplineOptimizeTraj(
+                    opt_ctrl_pts1, ts, BsplineOptimizer::NORMAL_PHASE,1, 1);
 
             t_opt = (ros::Time::now() - t1).toSec();
 
             // iterative time adjustment
 
             t1                    = ros::Time::now();
-            NonUniformBspline pos = NonUniformBspline(ctrl_pts, 3, ts);
+            NonUniformBspline pos = NonUniformBspline(opt_ctrl_pts2, 3, ts);
 
             double to = pos.getTimeSum();
             pos.setPhysicalLimits(pp_.max_vel_, pp_.max_acc_);
