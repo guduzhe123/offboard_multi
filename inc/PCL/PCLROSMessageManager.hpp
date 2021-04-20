@@ -46,6 +46,8 @@ private:
                        const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud,
                        float radius, int min_neighbors,
                        pcl::IndicesConstPtr &cloud_filtered_indices);
+    void voselGrid(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,
+                   const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud);
 
     void groundRemove(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,
                       const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud,

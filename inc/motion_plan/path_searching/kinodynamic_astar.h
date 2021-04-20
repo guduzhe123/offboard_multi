@@ -198,6 +198,8 @@ public:
 
   void setCirclePoint(const TVec3 &mp_circle_point);
   std::vector<PathNodePtr> getVisitedNodes();
+    double pathLength(const vector<Eigen::Vector3d>& path);
+    vector<Eigen::Vector3d> discretizePath(const vector<Eigen::Vector3d>& path, int pt_num);
 
   typedef shared_ptr<KinodynamicAstar> Ptr;
 };

@@ -24,12 +24,20 @@ public:
   double local_start_time_, local_end_time_;
   double time_increase_;
   double last_time_inc_;
+  int step_;
+
+  double max_vel_, max_acc_, max_jerk_;  // physical limits
 
   GlobalTrajData(/* args */) {}
 
   ~GlobalTrajData() {}
 
   bool localTrajReachTarget() { return fabs(local_end_time_ - global_duration_) < 0.1; }
+
+  void setMaxVel(const double max_vel, const double max_acc) {
+      max_vel_ = max_vel;
+      max_acc_ = max_acc;
+  }
 
   void setGlobalTraj(const PolynomialTraj& traj, const ros::Time& time) {
     global_traj_ = traj;
@@ -101,6 +109,10 @@ public:
     }
   }
 
+  void setSetp(int step) {
+      step_ = step;
+  }
+
   // get Bspline paramterization data of a local trajectory within a sphere
   // start_t: start time of the trajectory
   // dist_pt: distance between the discretized points
@@ -126,6 +138,9 @@ public:
       seg_length += (cur_pt - prev_pt).norm();
       prev_pt = cur_pt;
       radius = (cur_pt - first_pt).norm();
+        chlog::info("motion_plan", "radius = ", radius, ", des_radius = ", des_radius,
+                    ", seg_time = ", seg_time, ", global_duration_ = ",
+                    global_duration_, ", start_t = ", start_t);
     }
 
     // get parameterization dt by desired density of points
@@ -135,9 +150,19 @@ public:
 
     seg_duration = seg_time;  // duration of the truncated segment
     dt = seg_time / seg_num;  // time difference between to points
+      prev_pt = first_pt;
 
     for (double tp = 0.0; tp <= seg_time + 1e-4; tp += dt) {
       cur_pt = getPosition(start_t + tp);
+      chlog::info("motion_plan", "traj pos = ", toStr(cur_pt.cast<float>()),
+              ", dt = ", dt);
+        radius = (cur_pt - prev_pt).norm();
+        if (radius / dt > max_vel_ * 2) {
+            chlog::info("motion_plan", "lagre vel ", radius);
+            continue;
+        }
+        prev_pt = cur_pt;
+
       point_set.push_back(cur_pt);
     }
 
@@ -156,6 +181,7 @@ public:
                          vector<Eigen::Vector3d>& start_end_derivative, double& dt) {
     dt = duration / seg_num;
     Eigen::Vector3d cur_pt;
+    chlog::info("motion_plan", "duration = ", duration, ", dt = ", dt, ", seg_num = ", seg_num);
     for (double tp = 0.0; tp <= duration + 1e-4; tp += dt) {
       cur_pt = getPosition(start_t + tp);
       point_set.push_back(cur_pt);

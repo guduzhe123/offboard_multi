@@ -18,7 +18,7 @@ namespace fast_planner {
             BsplineOptimizer::SMOOTHNESS | BsplineOptimizer::DISTANCE | BsplineOptimizer::FEASIBILITY
             /*| BsplineOptimizer::DIST_CENTER*/;
     const int BsplineOptimizer::SMOOTH =
-            BsplineOptimizer::SMOOTHNESS | BsplineOptimizer::DISTANCE | BsplineOptimizer::FEASIBILITY;
+            BsplineOptimizer::SMOOTHNESS ;
 
     void BsplineOptimizer::setParam(ros::NodeHandle& nh) {
         nh.param("optimization/lambda1", lambda1_, 10.0);

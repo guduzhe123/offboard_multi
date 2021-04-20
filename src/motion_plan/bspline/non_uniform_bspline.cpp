@@ -128,7 +128,9 @@ namespace fast_planner {
             if (fabs(vel(0)) > limit_vel_ + 1e-4 || fabs(vel(1)) > limit_vel_ + 1e-4 ||
                 fabs(vel(2)) > limit_vel_ + 1e-4) {
 
-                if (show) cout << "[Check]: Infeasible vel " << i << " :" << vel.transpose() << endl;
+                TVec3 vel_in = (vel.transpose()).cast<float>();
+                if (show) chlog::info("motion_plan", "[Check]: Infeasible vel " , i , " :" ,
+                        toStr(vel_in));
                 fea = false;
 
                 for (int j = 0; j < dimension; ++j) {
@@ -149,7 +151,8 @@ namespace fast_planner {
             if (fabs(acc(0)) > limit_acc_ + 1e-4 || fabs(acc(1)) > limit_acc_ + 1e-4 ||
                 fabs(acc(2)) > limit_acc_ + 1e-4) {
 
-                if (show) cout << "[Check]: Infeasible acc " << i << " :" << acc.transpose() << endl;
+                if (show) chlog::info("motion_plan", "[Check]: Infeasible acc " , i ,
+                        " :" , toStr((acc.transpose()).cast<float>()));
                 fea = false;
 
                 for (int j = 0; j < dimension; ++j) {
@@ -314,7 +317,7 @@ namespace fast_planner {
             return;
         }
 
-        chlog::info("motion_plan", "[B-splis number", point_set.size());
+        chlog::info("motion_plan", "[B-splis number]: ", point_set.size());
         if (point_set.size() < 2) {
             chlog::info("motion_plan", "[B-spline]:point set have only ", point_set.size(), " points.");
             return;

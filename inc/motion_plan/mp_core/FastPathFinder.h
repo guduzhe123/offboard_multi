@@ -37,6 +37,7 @@ namespace fast_planner {
 
         LocalTrajData& getLocaldata() override ;
         MidPlanData& getPlanData() override;
+        GlobalTrajData& getGlobalData() override;
 
         void updateSpeedLimit(const float max_speed, const float max_acc) override;
 
@@ -63,8 +64,9 @@ namespace fast_planner {
         void findCollisionRange(vector<Eigen::Vector3d>& colli_start, vector<Eigen::Vector3d>& colli_end,
                                 vector<Eigen::Vector3d>& start_pts, vector<Eigen::Vector3d>& end_pts);
 
-        Eigen::MatrixXd reparamLocalTraj(double start_t, double& dt, double& duration);
-        Eigen::MatrixXd reparamLocalTraj(double start_t, double duration, int seg_num, double& dt);
+        Eigen::MatrixXd reparamLocalTraj(double start_t, double &dt, double &duration, int step);
+        Eigen::MatrixXd reparamLocalTraj(double start_t, double duration, int seg_num, double &dt,
+                                         vector<Eigen::Vector3d> &start_end_derivative);
 
         void selectBestTraj(NonUniformBspline& traj);
         void refineTraj(NonUniformBspline& best_traj, double& time_inc);
@@ -73,6 +75,9 @@ namespace fast_planner {
 
         // heading planning
         void calcNextYaw(const double& last_yaw, double& yaw);
+
+        void optimizeTopoBspline(double start_t, double duration, vector<Eigen::Vector3d> guide_path, int traj_id,
+                                 vector<Eigen::Vector3d> start_end_points);
 
         // !SECTION stable
 

@@ -13,6 +13,8 @@
   <!-- main algorithm params -->
   <include file="$(find offboard)/launch/kino_algorithm.xml">
 
+<!--  <include file="$(find offboard)/launch/topo_algorithm.launch"/>-->
+
     <arg name="is_wind_application" value="$(arg is_wind_application)"/>
     <arg name="map_size_x_" value="$(arg map_size_x)"/>
     <arg name="map_size_y_" value="$(arg map_size_y)"/>
@@ -36,7 +38,7 @@
     <arg name="fy" value="387.229248046875"/>
 
     <!-- maximum velocity and acceleration the drone will reach -->
-    <arg name="max_vel" value="1.6" />
+    <arg name="max_vel" value="3.0" />
     <arg name="max_acc" value="3.0" />
 
     <!-- 1: use 2D Nav Goal to select goal  -->

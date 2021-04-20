@@ -9,6 +9,7 @@ MPManager::MPManager(const MP_Config &config) :
         mp_state_(INIT),
         end_vel_{},
         receive_traj_(false),
+        have_target_(false),
         has_drone_update_(false),
         init_target_pos_{},
         path_find_fail_timer_(0),
@@ -32,6 +33,7 @@ MPManager::MPManager(const MP_Config &config) :
     end_vel_.setZero();
     init_target_pos_ = mp_config_.end_pos;
     path_finder_->setGlobalWaypoints(mp_config_.end_pos);
+    have_target_ = true;
 }
 
 
@@ -80,6 +82,7 @@ void MPManager::updateMotionPlan(const float dist, const TVec3 &insp_vec,
     insp_vec_ENU_ = insp_vec.normalized();
     chlog::info("motion_plan", "[MP Manager]: insp_vec = ", toStr(insp_vec), ", insp_vec_ENU_ = ",
                 toStr(insp_vec_ENU_));
+    have_target_ = true;
 }
 
 
@@ -87,7 +90,6 @@ bool MPManager::CallKinodynamicReplan(int step) {
     bool plan_success;
 
     chlog::info("motion_plan", "step = ", step, ", collide_ = ", collide_);
-    collide_ = true;
     if (step == 1) {
         plan_success = path_finder_->planGlobalTraj(start_pt_, mp_config_.end_pos);
     } else {
@@ -134,7 +136,8 @@ bool MPManager::CallKinodynamicReplan(int step) {
 
         /* visulization */
         auto plan_data = &path_finder_->getPlanData();
-        mp_publisher_->drawPolynomialTraj(path_finder_->global_data_.global_traj_, 0.05,
+        auto global_data = &path_finder_->getGlobalData();
+        mp_publisher_->drawPolynomialTraj(global_data->global_traj_, 0.05,
                                            Eigen::Vector4d(0, 0, 0, 1), 0);
         mp_publisher_->drawGeometricPath(plan_data->kino_path_);
         mp_publisher_->drawBspline(info->position_traj_);
@@ -321,7 +324,15 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
     }
 
     /* ---------- check trajectory ---------- */
-    if (mp_state_ == EXEC_TRAJ /*|| mp_state_ == REPLAN_TRAJ*/) {
+    if (mp_state_ == EXEC_TRAJ || mp_state_ == REPLAN_TRAJ) {
+        if (collide_) {
+            bool line_aviable = path_finder_->checkLineAviable(drone_st_.drone_pos, mp_config_.end_pos);
+            if (line_aviable) {
+                collide_ = false;
+                ChangeExecState(GEN_NEW_TRAJ, "FSM");
+            }
+        }
+
         double dist;
         bool   safe = path_finder_->checkTrajCollision(dist);
         if (!safe) {
@@ -329,13 +340,6 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
                 chlog::info("motion_plan", "current traj: ", dist, "  m to collision" );
                 collide_ = true;
                 ChangeExecState(REPLAN_TRAJ, "SAFETY");
-            }
-        }
-        if (collide_) {
-            bool line_aviable = path_finder_->checkLineAviable(drone_st_.drone_pos, mp_config_.end_pos);
-            if (line_aviable) {
-                collide_ = false;
-                ChangeExecState(GEN_NEW_TRAJ, "FSM");
             }
         }
     }
@@ -352,7 +356,7 @@ void MPManager::ProcessState() {
 
         case WAIT_TARGET: {
             receive_traj_ = false;
-            if (!mp_config_.is_enable || !has_drone_update_)
+            if (!mp_config_.is_enable || !has_drone_update_ || !have_target_)
                 return;
             else {
                 ChangeExecState(GEN_NEW_TRAJ, "FSM");
@@ -387,10 +391,21 @@ void MPManager::ProcessState() {
             LocalTrajData *info = &path_finder_->getLocaldata();
             ros::Time time_now = ros::Time::now();
             double t_cur = (time_now - info->start_time_).toSec();
+            GlobalTrajData* global_data = &path_finder_->getGlobalData();
 
             Eigen::Vector3d pos = info->position_traj_.evaluateDeBoorT(t_cur);
 
+/*            chlog::info("motion_plan", "[MP Manager]: mp_config_.end_pos = ", toStr(mp_config_.end_pos),
+                    ", drone_st_.drone_pos = ", toStr(drone_st_.drone_pos), ", t_cur = ",
+                        t_cur, ", global_duration_ = ", global_data->global_duration_);*/
+            if (t_cur > global_data->global_duration_ - 1e-2) {
+                ChangeExecState(WAIT_TARGET, "FSM");
+                have_target_ = false;
+                return;
+            }
+
             if ((mp_config_.end_pos - drone_st_.drone_pos).norm() < 0.8) {
+                have_target_ = false;
                 ChangeExecState(WAIT_TARGET, "FSM");
                 return;
 
@@ -417,8 +432,9 @@ void MPManager::ProcessState() {
                 start_vel_ = info->velocity_traj_.evaluateDeBoorT(t_cur).cast<float>();
                 if ((start_pt_ - mp_config_.end_pos).norm() < 0.8) {
                     chlog::info("motion_plan", "[MP Manager]: near target, change goal");
-                    start_pt_ = info->position_traj_.evaluateDeBoorT(t_cur).cast<float>();
-                    start_vel_ = drone_st_.drone_vel;
+                    ChangeExecState(WAIT_TARGET, "FSM");
+                    have_target_ = false;
+                    return;
                 }
             } else if (mp_config_.control_mode == POSITION_CUR || mp_config_.control_mode == VELOCITY_WITH_CUR) {
                 start_pt_ = drone_st_.drone_pos;
@@ -431,7 +447,12 @@ void MPManager::ProcessState() {
             if (success) {
                 ChangeExecState(EXEC_TRAJ, "FSM");
             } else {
+                start_pt_ = drone_st_.drone_pos;
+                bool success = CallKinodynamicReplan(1);
                 chlog::info("motion_plan", "Replan fail, retrying...");
+                if (success) {
+                    ChangeExecState(EXEC_TRAJ, "FSM");
+                }
             }
             break;
         }

@@ -27,6 +27,7 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
     pcl::PCLPointCloud2 pcl_pc2;
     pcl_conversions::toPCL(*m, pcl_pc2);
     pcl::PointCloud<pcl::PointXYZ>::Ptr raw_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr voselGride_ptr(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr simple_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ground_remove (new pcl::PointCloud<pcl::PointXYZ>);
@@ -60,6 +61,18 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
     PubOctomap(tree_, octomap_pub_);
 }
 
+
+void PCLROSMessageManager::voselGrid(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,
+               const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud) {
+    if (input_cloud->empty()) return;
+    pcl::VoxelGrid<pcl::PointXYZ> sor;
+    sor.setInputCloud (input_cloud);
+    sor.setLeafSize (0.2f, 0.2f, 0.2f);
+    sor.filter (*output_cloud);
+    chlog::info("motion_plan", "voxel input cloud size = ", input_cloud->size(),
+            ", output size = ", output_cloud->size());
+}
+
 void PCLROSMessageManager::radiusRemoval(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,
                                         const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud,
                                         float radius, int min_neighbors,
@@ -86,7 +99,7 @@ void PCLROSMessageManager::groundRemove(const pcl::PointCloud<pcl::PointXYZ>::Pt
     seg.setOptimizeCoefficients (true);
     seg.setModelType (pcl::SACMODEL_PLANE);
     seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setMaxIterations (200);
+    seg.setMaxIterations (100);
     seg.setDistanceThreshold (0.5);
     seg.setInputCloud (input_cloud);
     seg.setIndices(cloud_filtered_indices);
@@ -98,8 +111,6 @@ void PCLROSMessageManager::groundRemove(const pcl::PointCloud<pcl::PointXYZ>::Pt
     extract.setIndices (inliers);
     extract.setNegative (true);
     extract.filter (*output_cloud);
-    chlog::info("data","input_cloud size = %d, output cloud size = %d, cloud_filtered_indices size = %d",
-            input_cloud->points.size(), output_cloud->points.size(), cloud_filtered_indices->size());
 }
 
 void

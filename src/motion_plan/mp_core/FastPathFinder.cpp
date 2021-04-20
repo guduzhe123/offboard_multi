@@ -49,6 +49,7 @@ namespace fast_planner {
             bspline_optimizers_[i]->setEnvironment(map);
             bspline_optimizers_[i]->setSpeedLimit(pp_.max_vel_, pp_.max_acc_);
         }
+        global_data_.setMaxVel(pp_.max_vel_, pp_.max_acc_);
     }
 
     void FastPathFinder::setGlobalWaypoints(const TVec3 &waypoints) {
@@ -61,6 +62,7 @@ namespace fast_planner {
         pp_.max_acc_ = max_acc;
         kino_path_finder_->setSpeedLimit(pp_.max_vel_, pp_.max_acc_);
         bspline_optimizers_[0]->setSpeedLimit(pp_.max_vel_, pp_.max_acc_);
+        global_data_.setMaxVel(pp_.max_vel_, pp_.max_acc_);
     }
 
 
@@ -94,11 +96,11 @@ namespace fast_planner {
         TVec3 dir = (start_pt - end_pt).normalized();
         float dt_len = 0.5;
         TVec3 center_pos = start_pt;
-        while ((center_pos - end_pt).norm() < 0.8) {
+        while ((center_pos - end_pt).norm() > 0.8) {
             if (!mp_config_.mp_map->isStateValid(center_pos, false)) {
                 return false;
             }
-            center_pos += dt_len * dir;
+            center_pos -= dt_len * dir;
         }
         return true;
     }
@@ -146,7 +148,11 @@ namespace fast_planner {
         // write position matrix
         int             pt_num = inter_points.size();
         Eigen::MatrixXd pos(pt_num, 3);
-        for (int i = 0; i < pt_num; ++i) pos.row(i) = inter_points[i];
+        for (int i = 0; i < pt_num; ++i) {
+            pos.row(i) = inter_points[i];
+            TVec3 pos_i = inter_points[i].cast<float>();
+            chlog::info("motion_plan", "33333333333, inter_points[", i, "] = ", toStr(pos_i));
+        }
 
         Eigen::Vector3d zero(0, 0, 0);
         Eigen::VectorXd time(pt_num - 1);
@@ -167,7 +173,7 @@ namespace fast_planner {
         // truncate a local trajectory
 
         double            dt, duration;
-        Eigen::MatrixXd   ctrl_pts = reparamLocalTraj(0.0, dt, duration);
+        Eigen::MatrixXd   ctrl_pts = reparamLocalTraj(0.0, dt, duration, 1);
         NonUniformBspline bspline(ctrl_pts, 3, dt);
 
         global_data_.setLocalTraj(bspline, 0.0, duration, 0.0);
@@ -180,12 +186,13 @@ namespace fast_planner {
         return true;
     }
 
-    Eigen::MatrixXd FastPathFinder::reparamLocalTraj(double start_t, double& dt, double& duration) {
+    Eigen::MatrixXd FastPathFinder::reparamLocalTraj(double start_t, double &dt, double &duration, int step) {
         /* get the sample points local traj within radius */
 
         vector<Eigen::Vector3d> point_set;
         vector<Eigen::Vector3d> start_end_derivative;
 
+        global_data_.setSetp(step);
         global_data_.getTrajByRadius(start_t, pp_.local_traj_len_, pp_.ctrl_pt_dist, point_set,
                                      start_end_derivative, dt, duration);
 
@@ -205,19 +212,19 @@ namespace fast_planner {
     bool FastPathFinder::replan(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel, Eigen::Vector3d start_acc,
                                 Eigen::Vector3d end_pt, Eigen::Vector3d end_vel, bool collide) {
         chlog::info("motion_plan", "[plan man]: plan manager start point: (" + to_string2(start_pt(0)) +
-                                       ", " + to_string2(start_pt(1)) +
-                                       ", " + to_string2(start_pt(2)) + ")" +
-                                       ", start_vel, " + to_string2(start_vel(0)) +
-                                       ", " + to_string2(start_vel(1)) +
-                                       ", " + to_string2(start_vel(2)) + ")");
+                                   ", " + to_string2(start_pt(1)) +
+                                   ", " + to_string2(start_pt(2)) + ")" +
+                                   ", start_vel, " + to_string2(start_vel(0)) +
+                                   ", " + to_string2(start_vel(1)) +
+                                   ", " + to_string2(start_vel(2)) + ")");
 
         chlog::info("motion_plan", "[plan man]: , end_pt, " + to_string2(end_pt(0)) +
-                                       ", " + to_string2(end_pt(1)) +
-                                       ", " + to_string2(end_pt(2)) + ")" +
-                                       ", end_vel, " + to_string2(end_vel(0)) +
-                                       ", " + to_string2(end_vel(1)) +
-                                       ", " + to_string2(end_vel(2)) +
-                                       ", collide = ", collide);
+                                   ", " + to_string2(end_pt(1)) +
+                                   ", " + to_string2(end_pt(2)) + ")" +
+                                   ", end_vel, " + to_string2(end_vel(0)) +
+                                   ", " + to_string2(end_vel(1)) +
+                                   ", " + to_string2(end_vel(2)) +
+                                   ", collide = ", collide);
         ros::Time t1, t2;
         ros::Time time_now = ros::Time::now();
         double    t_now    = (time_now - global_data_.global_start_time_).toSec();
@@ -225,8 +232,7 @@ namespace fast_planner {
                     global_data_.global_start_time_.toSec(), ", t_now = ", t_now);
         double    local_traj_dt, local_traj_duration;
         double    time_inc = 0.0;
-
-        Eigen::MatrixXd   ctrl_pts = reparamLocalTraj(t_now, local_traj_dt, local_traj_duration);
+        Eigen::MatrixXd   ctrl_pts = reparamLocalTraj(t_now, local_traj_dt, local_traj_duration, 2);
         if (ctrl_pts.rows() == 0 || ctrl_pts.cols() == 0) return false;
         NonUniformBspline init_traj(ctrl_pts, 3, local_traj_dt);
         local_data_.start_time_ = time_now;
@@ -276,75 +282,89 @@ namespace fast_planner {
             vector<Eigen::Vector3d> point_set, start_end_derivatives;
             kino_path_finder_->getSamples(ts, point_set, start_end_derivatives);
 
-            Eigen::MatrixXd ctrl_pts;
-            NonUniformBspline::parameterizeToBspline(ts, point_set, start_end_derivatives, ctrl_pts);
-            NonUniformBspline init(ctrl_pts, 3, ts);
+            NonUniformBspline best_traj;
+            if (true) {
+                Eigen::MatrixXd ctrl_pts;
+                NonUniformBspline::parameterizeToBspline(ts, point_set, start_end_derivatives, ctrl_pts);
+                NonUniformBspline init(ctrl_pts, 3, ts);
 
-            // bspline trajectory optimization
+                // bspline trajectory optimization
 
-            t1 = ros::Time::now();
+                t1 = ros::Time::now();
 
-            int cost_function;
-            chlog::info("motion_plan", "[plan man]: mp_config_.mp_plan_state = ", mp_config_.mp_plan_state);
+                Eigen::MatrixXd opt_ctrl_pts1 = bspline_optimizers_[0]->BsplineOptimizeTraj(
+                        ctrl_pts, ts, BsplineOptimizer::SMOOTH, 1, 1);
 
+                Eigen::MatrixXd opt_ctrl_pts2 = bspline_optimizers_[0]->BsplineOptimizeTraj(
+                        opt_ctrl_pts1, ts, BsplineOptimizer::NORMAL_PHASE,1, 1);
 
-            Eigen::MatrixXd opt_ctrl_pts1 = bspline_optimizers_[0]->BsplineOptimizeTraj(
-                    ctrl_pts, ts, BsplineOptimizer::SMOOTH, 1, 1);
+                t_opt = (ros::Time::now() - t1).toSec();
 
-            Eigen::MatrixXd opt_ctrl_pts2 = bspline_optimizers_[0]->BsplineOptimizeTraj(
-                    opt_ctrl_pts1, ts, BsplineOptimizer::NORMAL_PHASE,1, 1);
+                // iterative time adjustment
 
-            t_opt = (ros::Time::now() - t1).toSec();
+                t1                    = ros::Time::now();
+                NonUniformBspline pos = NonUniformBspline(opt_ctrl_pts2, 3, ts);
 
-            // iterative time adjustment
+                double to = pos.getTimeSum();
+                pos.setPhysicalLimits(pp_.max_vel_, pp_.max_acc_);
+                bool feasible = pos.checkFeasibility(false);
 
-            t1                    = ros::Time::now();
-            NonUniformBspline pos = NonUniformBspline(opt_ctrl_pts2, 3, ts);
+                int iter_num = 0;
+                while (!feasible && ros::ok()) {
 
-            double to = pos.getTimeSum();
-            pos.setPhysicalLimits(pp_.max_vel_, pp_.max_acc_);
-            bool feasible = pos.checkFeasibility(false);
+                    feasible = pos.reallocateTime();
 
-            int iter_num = 0;
-            while (!feasible && ros::ok()) {
+                    if (++iter_num >= 3) break;
+                }
 
-                feasible = pos.reallocateTime();
+                // pos.checkFeasibility(true);
+                // cout << "[Main]: iter num: " << iter_num << endl;
 
-                if (++iter_num >= 3) break;
+                double tn = pos.getTimeSum();
+
+                chlog::info("motion_plan", "[plan man]: Reallocate ratio: " + to_string2( tn / to ));
+                if (tn / to > 3.0) ROS_ERROR("reallocate error.");
+
+                t_adjust = (ros::Time::now() - t1).toSec();
+
+                // save planned results
+
+                local_data_.position_traj_ = pos;
+
+                double t_total = t_search + t_opt + t_adjust;
+                chlog::info("motion_plan", "[plan man]: time: " + to_string(t_total) + ", search: " +
+                                           to_string(t_search) + ", optimize: " + to_string(t_opt) +
+                                           ", adjust time:" + to_string(t_adjust));
+
+                time_inc = t_total;
+
+                chlog::info("motion_plan",  "get position, local_start_time_ = ", t_now, ", local_end_time_ = "
+                        , local_traj_duration + time_inc + t_now , ", time_inc = " , time_inc,
+                            ",local_traj_duration = ", local_traj_duration);
+
+            } else {
+                plan_data_.topo_traj_pos1_.resize(1);
+                plan_data_.topo_traj_pos2_.resize(1);
+                vector<thread> optimize_threads;
+                for (int i = 0; i < 1; ++i) {
+                    optimize_threads.emplace_back(&FastPathFinder::optimizeTopoBspline, this, t_now,
+                                                  local_traj_duration, point_set, i, start_end_derivatives);
+                }
+                for (int i = 0; i < 1; ++i) {
+
+                    optimize_threads[i].join();
+                    chlog::info("motion_plan", "optimize i " , i );
+                }
+
+                t_opt = (ros::Time::now() - t1).toSec();
+                chlog::info("motion_plan", "[planner]: optimization time: ", t_opt );
+                best_traj = plan_data_.topo_traj_pos2_[0];
+                refineTraj(best_traj, time_inc);
             }
-
-            // pos.checkFeasibility(true);
-            // cout << "[Main]: iter num: " << iter_num << endl;
-
-            double tn = pos.getTimeSum();
-
-            chlog::info("motion_plan", "[plan man]: Reallocate ratio: " + to_string2( tn / to ));
-            if (tn / to > 3.0) ROS_ERROR("reallocate error.");
-
-            t_adjust = (ros::Time::now() - t1).toSec();
-
-            // save planned results
-
-            local_data_.position_traj_ = pos;
-
-            double t_total = t_search + t_opt + t_adjust;
-            chlog::info("motion_plan", "[plan man]: time: " + to_string(t_total) + ", search: " +
-                                       to_string(t_search) + ", optimize: " + to_string(t_opt) +
-                                       ", adjust time:" + to_string(t_adjust));
-
-            pp_.time_search_   = t_search;
-            pp_.time_optimize_ = t_opt;
-            pp_.time_adjust_   = t_adjust;
-
-            refineTraj(local_data_.position_traj_, time_inc);
-            global_data_.setLocalTraj(local_data_.position_traj_, t_now,
-                                      local_traj_duration + t_total + t_now, t_total);
-
-            chlog::info("motion_plan",  "get position, local_start_time_ = ", t_now, ", local_end_time_ = "
-                    , local_traj_duration + time_inc + t_now , ", time_inc = " , time_inc,
-                    ",local_traj_duration = ", local_traj_duration);
         }
 
+        global_data_.setLocalTraj(local_data_.position_traj_, t_now,
+                                  local_traj_duration + time_inc + t_now, time_inc);
         updateTrajInfo();
 
         return true;
@@ -435,6 +455,10 @@ namespace fast_planner {
         return plan_data_;
     }
 
+    GlobalTrajData& FastPathFinder::getGlobalData() {
+        return global_data_;
+    }
+
     void FastPathFinder::refineTraj(NonUniformBspline& best_traj, double& time_inc) {
         ros::Time t1 = ros::Time::now();
         time_inc     = 0.0;
@@ -454,11 +478,11 @@ namespace fast_planner {
         ctrl_pts  = bspline_optimizers_[0]->BsplineOptimizeTraj(ctrl_pts, dt, cost_function, 1, 1);
         best_traj = NonUniformBspline(ctrl_pts, 3, dt);
         chlog::info("motion_plan", "[Refine]: cost " ,  (ros::Time::now() - t1).toSec()
-                                          ,  " seconds, time change is: " , time_inc);
+                ,  " seconds, time change is: " , time_inc);
     }
 
     void FastPathFinder::reparamBspline(NonUniformBspline& bspline, double ratio,
-                                            Eigen::MatrixXd& ctrl_pts, double& dt, double& time_inc) {
+                                        Eigen::MatrixXd& ctrl_pts, double& dt, double& time_inc) {
         int    prev_num    = bspline.getControlPoint().rows();
         double time_origin = bspline.getTimeSum();
         int    seg_num     = bspline.getControlPoint().rows() - 3;
@@ -478,6 +502,75 @@ namespace fast_planner {
         NonUniformBspline::parameterizeToBspline(dt, point_set, plan_data_.local_start_end_derivative_,
                                                  ctrl_pts);
         // ROS_WARN("prev: %d, new: %d", prev_num, ctrl_pts.rows());
+    }
+
+    void FastPathFinder::optimizeTopoBspline(double start_t, double duration, vector<Eigen::Vector3d> guide_path,
+                                             int traj_id,
+                                             vector<Eigen::Vector3d> start_end_points) {
+        ros::Time t1;
+        double    tm1, tm2, tm3;
+
+        t1 = ros::Time::now();
+
+        // parameterize B-spline according to the length of guide path
+        int             seg_num = kino_path_finder_->pathLength(guide_path) / pp_.ctrl_pt_dist;
+        Eigen::MatrixXd ctrl_pts;
+        double          dt;
+
+        ctrl_pts = reparamLocalTraj(start_t, duration, seg_num, dt, start_end_points);
+        // std::cout << "ctrl pt num: " << ctrl_pts.rows() << std::endl;
+
+        // discretize the guide path and align it with B-spline control points
+        vector<Eigen::Vector3d> guide_pt;
+        guide_pt = kino_path_finder_->discretizePath(guide_path, int(ctrl_pts.rows()) - 2);
+
+        guide_pt.pop_back();
+        guide_pt.pop_back();
+        guide_pt.erase(guide_pt.begin(), guide_pt.begin() + 2);
+
+        // std::cout << "guide pt num: " << guide_pt.size() << std::endl;
+        if (guide_pt.size() != int(ctrl_pts.rows()) - 6) ROS_WARN("what guide");
+
+        tm1 = (ros::Time::now() - t1).toSec();
+        t1  = ros::Time::now();
+
+        // first phase, path-guided optimization
+
+        bspline_optimizers_[traj_id]->setGuidePath(guide_pt);
+        Eigen::MatrixXd opt_ctrl_pts1 = bspline_optimizers_[traj_id]->BsplineOptimizeTraj(
+                ctrl_pts, dt, BsplineOptimizer::GUIDE_PHASE, 0, 1);
+
+        plan_data_.topo_traj_pos1_[traj_id] = NonUniformBspline(opt_ctrl_pts1, 3, dt);
+
+        tm2 = (ros::Time::now() - t1).toSec();
+        t1  = ros::Time::now();
+
+        // second phase, normal optimization
+
+        Eigen::MatrixXd opt_ctrl_pts2 = bspline_optimizers_[traj_id]->BsplineOptimizeTraj(
+                opt_ctrl_pts1, dt, BsplineOptimizer::NORMAL_PHASE, 1, 1);
+
+        plan_data_.topo_traj_pos2_[traj_id] = NonUniformBspline(opt_ctrl_pts2, 3, dt);
+
+        tm3 = (ros::Time::now() - t1).toSec();
+        chlog::info("motion_plan", "optimization ", traj_id,
+                    " cost ", tm1, ", ", tm2, ", ", tm3, "seconds");
+    }
+
+    Eigen::MatrixXd FastPathFinder::reparamLocalTraj(double start_t, double duration, int seg_num, double &dt,
+                                                     vector<Eigen::Vector3d> &start_end_derivative) {
+        vector<Eigen::Vector3d> point_set;
+
+        dt = duration / seg_num;
+        global_data_.getTrajByDuration(start_t, duration, seg_num, point_set, start_end_derivative, dt);
+        plan_data_.local_start_end_derivative_ = start_end_derivative;
+
+        /* parameterization of B-spline */
+        Eigen::MatrixXd ctrl_pts;
+        NonUniformBspline::parameterizeToBspline(dt, point_set, start_end_derivative, ctrl_pts);
+        // cout << "ctrl pts:" << ctrl_pts.rows() << endl;
+
+        return ctrl_pts;
     }
 
 }  // namespace fast_planner

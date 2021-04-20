@@ -93,6 +93,7 @@ private:
     vector<TVec3> traj_cmd_;
 
     bool receive_traj_;
+    bool have_target_;
     bool has_drone_update_;
     TVec3 init_target_pos_;
     int path_find_fail_timer_;
