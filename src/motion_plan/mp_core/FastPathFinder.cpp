@@ -90,6 +90,18 @@ namespace fast_planner {
         return true;
     }
 
+    bool FastPathFinder::checkLineAviable(TVec3 start_pt, TVec3 end_pt) {
+        TVec3 dir = (start_pt - end_pt).normalized();
+        float dt_len = 0.5;
+        TVec3 center_pos = start_pt;
+        while ((center_pos - end_pt).norm() < 0.8) {
+            if (!mp_config_.mp_map->isStateValid(center_pos, false)) {
+                return false;
+            }
+            center_pos += dt_len * dir;
+        }
+        return true;
+    }
     // SECTION topological replanning
 
     bool FastPathFinder::planGlobalTraj(const Eigen::Vector3f &start_pos, const Eigen::Vector3f &end_pos) {
@@ -326,7 +338,7 @@ namespace fast_planner {
 
             refineTraj(local_data_.position_traj_, time_inc);
             global_data_.setLocalTraj(local_data_.position_traj_, t_now,
-                                      local_traj_duration /*+ time_inc*/ + t_now, time_inc);
+                                      local_traj_duration + t_total + t_now, t_total);
 
             chlog::info("motion_plan",  "get position, local_start_time_ = ", t_now, ", local_end_time_ = "
                     , local_traj_duration + time_inc + t_now , ", time_inc = " , time_inc,

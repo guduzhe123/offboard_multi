@@ -33,6 +33,7 @@ namespace fast_planner {
         void setGlobalWaypoints(const TVec3 &waypoints) override;
 
         bool checkTrajCollision(double& distance) override ;
+        bool checkLineAviable(TVec3 start_pt, TVec3 end_pt) override;
 
         LocalTrajData& getLocaldata() override ;
         MidPlanData& getPlanData() override;

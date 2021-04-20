@@ -28,6 +28,8 @@ namespace fast_planner{
 
         virtual bool checkTrajCollision(double& distance) = 0;
 
+        virtual bool checkLineAviable(TVec3 start_pt, TVec3 end_pt) = 0;
+
         virtual LocalTrajData& getLocaldata() = 0;
 
         virtual MidPlanData& getPlanData() = 0;

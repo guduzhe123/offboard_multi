@@ -330,10 +330,14 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
                 collide_ = true;
                 ChangeExecState(REPLAN_TRAJ, "SAFETY");
             }
-        } else {
+        }
+        bool line_aviable = path_finder_->checkLineAviable(drone_st_.drone_pos, mp_config_.end_pos);
+        if (line_aviable) {
             collide_ = false;
+            ChangeExecState(GEN_NEW_TRAJ, "FSM");
         }
     }
+
 }
 
 void MPManager::ProcessState() {
