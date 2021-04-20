@@ -395,16 +395,17 @@ void MPManager::ProcessState() {
 
             Eigen::Vector3d pos = info->position_traj_.evaluateDeBoorT(t_cur);
 
-/*            chlog::info("motion_plan", "[MP Manager]: mp_config_.end_pos = ", toStr(mp_config_.end_pos),
+            chlog::info("motion_plan", "[MP Manager]: mp_config_.end_pos = ", toStr(mp_config_.end_pos),
                     ", drone_st_.drone_pos = ", toStr(drone_st_.drone_pos), ", t_cur = ",
-                        t_cur, ", global_duration_ = ", global_data->global_duration_);*/
-            if (t_cur > global_data->global_duration_ - 1e-2) {
-                ChangeExecState(WAIT_TARGET, "FSM");
+                        t_cur, ", global_duration_ = ", global_data->global_duration_);
+            float err_target = (mp_config_.end_pos - drone_st_.drone_pos).norm();
+            if (t_cur > global_data->global_duration_ - 1e-2 && err_target > 1.0) {
+                ChangeExecState(GEN_NEW_TRAJ, "FSM");
                 have_target_ = false;
                 return;
             }
 
-            if ((mp_config_.end_pos - drone_st_.drone_pos).norm() < 0.8) {
+            if (err_target < 1.0) {
                 have_target_ = false;
                 ChangeExecState(WAIT_TARGET, "FSM");
                 return;

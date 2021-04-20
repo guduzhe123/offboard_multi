@@ -96,7 +96,9 @@ namespace fast_planner {
         TVec3 dir = (start_pt - end_pt).normalized();
         float dt_len = 0.5;
         TVec3 center_pos = start_pt;
+        chlog::info("motion_plan", "start_pt = ", toStr(start_pt), ", end_pt = ", toStr(end_pt));
         while ((center_pos - end_pt).norm() > 0.8) {
+            chlog::info("motion_plan", "center_pos = ", toStr(center_pos));
             if (!mp_config_.mp_map->isStateValid(center_pos, false)) {
                 return false;
             }
