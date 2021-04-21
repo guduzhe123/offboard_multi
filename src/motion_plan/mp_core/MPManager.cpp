@@ -248,15 +248,12 @@ void MPManager::OnUpdateDroneHeading(float drone_heading) {
 
 void MPManager::checkCollisionReplan(TVec3& cur_pos) {
     if (!mp_config_.mp_map) return;
-    //chlog::info("motion_plan", "check_collision_state_ = ", check_collision_state_);
+    chlog::info("motion_plan", "check_collision_state_ = ", check_collision_state_);
     switch (check_collision_state_) {
         case CHECK_COLLISION: {
             if (!mp_config_.mp_map->isStateValid(cur_pos, false)) {
                 check_collision_state_ = COLLOSION_INIT;
-/*                if (mp_state_ == EXEC_TRAJ) {
-                    collide_ = true;
-                    ChangeExecState(REPLAN_TRAJ, "SAFETY");
-                }*/
+//                collide_ = true;
             }
             break;
         }
@@ -325,13 +322,13 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
 
     /* ---------- check trajectory ---------- */
     if (mp_state_ == EXEC_TRAJ || mp_state_ == REPLAN_TRAJ) {
-        if (collide_) {
+/*        if (collide_) {
             bool line_aviable = path_finder_->checkLineAviable(drone_st_.drone_pos, mp_config_.end_pos);
             if (line_aviable) {
                 collide_ = false;
                 ChangeExecState(GEN_NEW_TRAJ, "FSM");
             }
-        }
+        }*/
 
         double dist;
         bool   safe = path_finder_->checkTrajCollision(dist);

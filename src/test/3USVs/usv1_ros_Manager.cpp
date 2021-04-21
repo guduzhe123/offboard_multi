@@ -182,6 +182,7 @@ void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr
     mp_config.end_pos = goal;
     ActionMotionPlan::getInstance()->initMP(mp_config);
     ActionMotionPlan::getInstance()->setEnable(true);
+    usv_.is_formation = true;
 }
 
 void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {
@@ -189,6 +190,7 @@ void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {
     int command;
     DataMan::getInstance()->getCommand(command);
     if (command == VF_USV_ALL_START /*|| command == SLAVESTART*/) {
+        usv_.is_formation = false;
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
         chlog::info("data", "usv1 arm_i = %d, is_arm = %d", arm_i_, is_arm_);

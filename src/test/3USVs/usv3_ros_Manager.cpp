@@ -285,10 +285,19 @@ void usv3_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
         TVec3 usv3_cur_usv1_cur = (cur_pos - usv1_cur_pos).normalized();
         TVec3 usv3_cur_usv2_target = target_vec.normalized();
         float ang = acos(usv3_cur_usv1_cur.dot(usv3_cur_usv2_target));
-        if (ang * 180 / M_PI < 90 && !usv_crash_) {
-            local_pos_pub.publish(target_local_pos_sp_);
+
+        int command;
+        DataMan::getInstance()->getCommand(command);
+        if (command == VF_USV_TRIANGLE) {
+            if (ang * 180 / M_PI < 90 && !usv_crash_) {
+                local_pos_pub.publish(target_local_pos_sp_);
+            } else {
+                local_pos_pub.publish(uav_.current_local_pos);
+                chlog::info("data", "usv3 disable the target, ang = %.2f, usv3 crash = %d", ang * 180 / M_PI,
+                            usv_crash_);
+            }
         } else {
-            local_pos_pub.publish(uav_.current_local_pos);
+            local_pos_pub.publish(target_local_pos_sp_);
         }
 
         local_pos_pub.publish(target_local_pos_sp_);

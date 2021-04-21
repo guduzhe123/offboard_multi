@@ -45,8 +45,9 @@ void MultiBoatControl::getData() {
 }
 
 void MultiBoatControl::DoProgress() {
-    chlog::info("data","[Boat Control]:is usv in formation = ", is_formation_);
-    if (is_formation_) {
+    chlog::info("data","is usv in formation = ", is_formation_, ", usv1 formation = ",
+                m_multi_vehicle_.usv1.is_formation);
+    if (is_formation_ || m_multi_vehicle_.usv1.is_formation) {
         return;
     }
 

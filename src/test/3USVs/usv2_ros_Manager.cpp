@@ -296,14 +296,19 @@ void usv2_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
         TVec3 usv2_cur_usv1_cur = (cur_pos - usv1_cur_pos).normalized();
         TVec3 usv2_cur_usv2_target = target_vec.normalized();
         float ang = acos(usv2_cur_usv1_cur.dot(usv2_cur_usv2_target));
-/*
-        chlog::info("data","[USV2]: usv1_cur_pos = (%.2f, %.2f, %.2f), usv2 cur_pos = (%.2f, %.2f, %.2f), usv2 target_pos = (%.2f, %.2f, %.2f)", usv1_cur_pos.x(),
-                 usv1_cur_pos.y(), usv1_cur_pos.z(), cur_pos.x(), cur_pos.y(), cur_pos.z(), target_pos.x(), target_pos.y(), target_pos.z());*/
-        if (ang * 180 / M_PI < 90 && !usv_crash_) {
-            local_pos_pub.publish(target_local_pos_sp_);
+
+        int command;
+        DataMan::getInstance()->getCommand(command);
+        if (command == VF_USV_TRIANGLE) {
+            if (ang * 180 / M_PI < 90 && !usv_crash_) {
+                local_pos_pub.publish(target_local_pos_sp_);
+            } else {
+                local_pos_pub.publish(usv_.current_local_pos);
+                chlog::info("data", "usv2 disable the target, ang = %.2f, usv2 crash = %d", ang * 180 / M_PI,
+                            usv_crash_);
+            }
         } else {
-            local_pos_pub.publish(usv_.current_local_pos);
-//            chlog::info("data","[USV2]: usv2 disable the target, ang = %.2f, usv2 crash = %d", ang * 180 / M_PI, usv_crash_);
+            local_pos_pub.publish(target_local_pos_sp_);
         }
 
     }
