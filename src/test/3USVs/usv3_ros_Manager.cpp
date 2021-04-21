@@ -208,14 +208,14 @@ void usv3_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 }
 
 void usv3_ros_Manager::commander_update(const ros::TimerEvent& e) {
-    if (! current_state.connected) return;
+    if (!  uav_.current_state.connected) return;
     int command;
     DataMan::getInstance()->getCommand(command);
     if (command == VF_USV_ALL_START /*|| command == SLAVESTART*/) {
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
         chlog::info("data","[USV3]: usv3 arm_i = %d, is_arm = %d", arm_i_, is_arm_);
-        if (!current_state.armed && !is_arm_) {
+        if (! uav_.current_state.armed && !is_arm_) {
             while(arm_i_ > 0) {
                 if (arming_client.call(arm_cmd) &&
                     arm_cmd.response.success) {
@@ -230,7 +230,7 @@ void usv3_ros_Manager::commander_update(const ros::TimerEvent& e) {
         mavros_msgs::SetMode offb_set_mode;
         offb_set_mode.request.custom_mode = "OFFBOARD";
         chlog::info("data","[USV3]: is_offboard = %d", is_offboard_);
-        if (current_state.mode != "OFFBOARD" && !is_offboard_) {
+        if ( uav_.current_state.mode != "OFFBOARD" && !is_offboard_) {
             static int offboard_i;
             for (offboard_i = 10; ros::ok() && offboard_i > 0; --offboard_i) {
                 if (set_mode_client.call(offb_set_mode) &&

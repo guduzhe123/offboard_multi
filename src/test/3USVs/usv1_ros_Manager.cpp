@@ -186,7 +186,7 @@ void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr
 }
 
 void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {
-    if (! current_state.connected) return;
+    if (! usv_.current_state.connected) return;
     int command;
     DataMan::getInstance()->getCommand(command);
     if (command == VF_USV_ALL_START /*|| command == SLAVESTART*/) {
@@ -194,7 +194,7 @@ void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
         chlog::info("data", "usv1 arm_i = %d, is_arm = %d", arm_i_, is_arm_);
-        if (!current_state.armed && !is_arm_) {
+        if (!usv_.current_state.armed && !is_arm_) {
             while(arm_i_ > 0) {
                 if (arming_client.call(arm_cmd) &&
                     arm_cmd.response.success) {
@@ -209,7 +209,7 @@ void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {
         mavros_msgs::SetMode offb_set_mode;
         offb_set_mode.request.custom_mode = "OFFBOARD";
         chlog::info("data","[USV1]: is_offboard = %d", is_offboard_);
-        if (current_state.mode != "OFFBOARD" && !is_offboard_) {
+        if (usv_.current_state.mode != "OFFBOARD" && !is_offboard_) {
             static int offboard_i;
             for (offboard_i = 10; ros::ok() && offboard_i > 0; --offboard_i) {
                 if (set_mode_client.call(offb_set_mode) &&
@@ -355,7 +355,7 @@ void usv1_ros_Manager::homePositionCB(const mavros_msgs::HomePosition::ConstPtr&
 
 void usv1_ros_Manager::usvCallService(mavros_msgs::SetMode &m_mode) {
 
-    if (current_state.mode != "OFFBOARD" && !is_offboard_called_) {
+    if (usv_.current_state.mode != "OFFBOARD" && !is_offboard_called_) {
         static int offboard_j;
         for (offboard_j = 10; ros::ok() && offboard_j > 0; --offboard_j) {
             if (set_mode_client.call(m_mode) &&
@@ -379,7 +379,7 @@ void usv1_ros_Manager::getOctomap() {
     TVec3 drone_pos = TVec3(usv_.current_local_pos.pose.position.x,
                             usv_.current_local_pos.pose.position.y,
                             usv_.current_local_pos.pose.position.z);
-    if (!usv_.Imap->isStateValid(drone_pos)) {
+    if (!usv_.Imap->isStateValid(drone_pos, false)) {
         chlog::info("data","[USV1]: usv1 is in collision!");
     }
 }

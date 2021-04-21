@@ -213,7 +213,7 @@ void usv2_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 }
 
 void usv2_ros_Manager::commander_update(const ros::TimerEvent& e) {
-    if (! current_state.connected) return;
+    if (! usv_.current_state.connected) return;
     int command;
     DataMan::getInstance()->getCommand(command);
     if (command == VF_USV_ALL_START /*|| command == MASTERSTART*/) {
@@ -224,7 +224,7 @@ void usv2_ros_Manager::commander_update(const ros::TimerEvent& e) {
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
 
-        if (!current_state.armed && !is_arm_) {
+        if (!usv_.current_state.armed && !is_arm_) {
             static int arm_i;
             while (arm_i_ > 0) {
                 if (arming_client.call(arm_cmd) &&
@@ -237,7 +237,7 @@ void usv2_ros_Manager::commander_update(const ros::TimerEvent& e) {
             }
         }
 
-        if (current_state.mode != "OFFBOARD" && !is_offboard_) {
+        if (usv_.current_state.mode != "OFFBOARD" && !is_offboard_) {
             static int i;
             for (i = 10; ros::ok() && i > 0; --i) {
                 if (set_mode_client.call(offb_set_mode) &&

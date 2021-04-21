@@ -31,12 +31,6 @@ int main(int argc, char **argv)
     lead_node->OnInit();
     DataMan::getInstance()->OnInit(lead_node, is_uav, is_usv);
 
-    DataMan::getInstance()->OnInit(lead_node);
-
-    ros::NodeHandle nh("~");
-    bool is_motion_plan;
-    nh.param("is_motion_plan", is_motion_plan, false);
-    chlog::info("data", "~~~~ is motion plan = ", is_motion_plan);
 //    is_motion_plan = true;
     PathCreator::geInstance()->onInit(lead_node, true);
     PathCreator::geInstance()->initMotionPlan();
