@@ -306,6 +306,7 @@ enum REPLAN_MODE {
 struct MP_Config{
     TVec3 start_pos;
     TVec3 end_pos;
+    vector<TVec3> targets;
     float exp_vel;
     float max_vel;
     float max_acc;

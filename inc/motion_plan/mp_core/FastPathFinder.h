@@ -30,7 +30,7 @@ namespace fast_planner {
         void planYaw(const Eigen::Vector3d& start_yaw) override ;
 
         void initPlanModules(const MP_Config &config, Sp<IMap> &map) override ;
-        void setGlobalWaypoints(const TVec3 &waypoints) override;
+        void setGlobalWaypoints(const vector<TVec3> &waypoints) override;
 
         bool checkTrajCollision(double& distance) override ;
         bool checkLineAviable(TVec3 start_pt, TVec3 end_pt) override;

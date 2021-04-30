@@ -44,6 +44,20 @@ void MultiBoatControl::getData() {
     }
 }
 
+void MultiBoatControl::OnInitMotionPlan(const vector<TVec3>& usv1_targets ) {
+    MP_Config mp_config;
+    mp_config.is_track_point = true;
+    mp_config.is_speed_mode = false;
+    mp_config.control_mode = POSITION_WITHOUT_CUR;
+    mp_config.is_enable = true;
+    mp_config.max_vel = 2.0;
+    mp_config.max_acc = 2.0;
+    mp_config.mp_map = m_multi_vehicle_.usv1.Imap;
+    mp_config.targets = usv1_targets;
+    ActionMotionPlan::getInstance()->initMP(mp_config);
+    ActionMotionPlan::getInstance()->setEnable(true);
+}
+
 void MultiBoatControl::DoProgress() {
     chlog::info("data","is usv in formation = ", is_formation_, ", usv1 formation = ",
                 m_multi_vehicle_.usv1.is_formation);
@@ -72,6 +86,9 @@ void MultiBoatControl::DoProgress() {
                         target_init.pose.position.y = -target_local.y();
                         target_init.pose.position.z = 0;
                         usv_way_points_.push_back(target_init);
+
+                        TVec3 cur_tar = TVec3(-target_local.x(), -target_local.y(), 0);
+                        usv1_targets_.push_back(cur_tar);
                         chlog::info("data","[Boat Control]:target_local = (", target_local.x(), ", ", target_local.y(), ")");
                     }
                     std::reverse(usv_way_points_.begin(), usv_way_points_.end());
@@ -86,11 +103,13 @@ void MultiBoatControl::DoProgress() {
                 }
                 usv_waypoints_size_init_ = usv_way_points_.size();
                 usv_way_points_copy_ = usv_way_points_;
+                OnInitMotionPlan(usv1_targets_);
                 usv_state_ = USV_WAYPOINT;
                 break;
 
             case USV_WAYPOINT: {
                 chlog::info("data","[Boat Control]:boat local size = ", usv_way_points_.size());
+
                 if (!usv_way_points_.empty()) {
                     m_multi_vehicle_.leader_usv.target_local_pos_sp = usv_way_points_.back();
                     target_pos_ = usv_way_points_.back();
@@ -148,7 +167,7 @@ void MultiBoatControl::DoProgress() {
                                            0);
                     TVec3 vec = (usv1_target - usv1_cur).normalized();
                     float target_yaw = atan2(vec.y(), vec.x()) * 180 / M_PI;
-                    if (fabs(target_yaw - m_multi_vehicle_.usv1.yaw) < 20 ) {
+                    if (fabs(target_yaw - m_multi_vehicle_.usv1.yaw) < 10 ) {
                         PathCreator::geInstance()->CreateUSVFormationInit(formation_config_);
                     }
                     chlog::info("data","[Boat Control]:targte yaw = ", target_yaw, ", , m_multi_vehicle_.usv1.yaw = ",

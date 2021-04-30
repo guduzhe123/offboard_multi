@@ -35,6 +35,8 @@ private:
 
     geometry_msgs::PoseStamped CalculateTargetPos(geometry_msgs::PoseStamped& target_local_pos, TVec3 &formation_target);
 
+    void OnInitMotionPlan(const vector<TVec3>& usv1_targets);
+
     void changeToLocalTarget();
     void GetTakeoffPos();
     void calcFollowUUVPos();
@@ -49,6 +51,7 @@ private:
     vector<geometry_msgs::PoseStamped> usv_way_points_;
     vector<geometry_msgs::PoseStamped> usv_way_points_copy_;
     vector<geometry_msgs::PoseStamped> uav_way_points_init_;
+    vector<TVec3> usv1_targets_;
     int usv_state_;
     int config_;
     int formation_config_;

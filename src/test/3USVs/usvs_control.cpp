@@ -71,7 +71,7 @@ void usvs_control::PublishBoatPosControl(const multi_vehicle &multi_vehicles) {
         usv1 = multi_vehicles.usv1.droneControl;
     }*/
 
-    TVec3 target_pos{multi_vehicles.usv1.target_local_pos_sp.pose.position.x,
+/*    TVec3 target_pos{multi_vehicles.usv1.target_local_pos_sp.pose.position.x,
                      multi_vehicles.usv1.target_local_pos_sp.pose.position.y,
                      0};
     target_pos.z() = 0;
@@ -80,7 +80,7 @@ void usvs_control::PublishBoatPosControl(const multi_vehicle &multi_vehicles) {
         chlog::info("motion_plan", "target_pos = ", toStr(target_pos), ", usv1_target_pre_ = ", toStr(usv1_target_pre_));
         OnInitMotionPlan(multi_vehicles);
         usv1_target_pre_ = target_pos;
-    }
+    }*/
 
 //    usv1_control_->usvPosSp(usv1);
     usv2_control_->usvPosSp(usv2);

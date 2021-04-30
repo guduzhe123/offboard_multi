@@ -52,9 +52,12 @@ namespace fast_planner {
         global_data_.setMaxVel(pp_.max_vel_, pp_.max_acc_);
     }
 
-    void FastPathFinder::setGlobalWaypoints(const TVec3 &waypoints) {
+    void FastPathFinder::setGlobalWaypoints(const vector<TVec3> &waypoints) {
         plan_data_.global_waypoints_.clear();
-        plan_data_.global_waypoints_.push_back(waypoints.cast<double>());
+//        plan_data_.global_waypoints_.push_back(waypoints.cast<double>());
+        for (auto i : waypoints) {
+            plan_data_.global_waypoints_.push_back(i.cast<double>());
+        }
     }
 
     void FastPathFinder::updateSpeedLimit(const float max_speed, const float max_acc) {
@@ -115,7 +118,7 @@ namespace fast_planner {
         vector<Eigen::Vector3d> points = plan_data_.global_waypoints_;
         if (points.size() == 0)
         {
-            std::cout << "no global waypoints!" << std::endl;
+            chlog::info("motion_plan",  "no global waypoints!");
             return false;
         }
 
