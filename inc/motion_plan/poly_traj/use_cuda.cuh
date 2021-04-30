@@ -14,12 +14,14 @@
 #include "Eigen/Dense"
 #include "error.cuh"
 
-
+using namespace std;
 
 class UseCuda {
 public:
     void onInit();
     void calMatrixInverse(const Eigen::MatrixXd &A, Eigen::MatrixXd &x_sol, float &use_time);
+    void calMatrixDgemm(const Eigen::MatrixXd &matrix_A, const Eigen::MatrixXd &matrix_B, Eigen::MatrixXd &sol,
+                        float &time);
 
 private:
 

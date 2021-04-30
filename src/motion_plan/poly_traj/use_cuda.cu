@@ -4,6 +4,7 @@
 
 #include "motion_plan/poly_traj/use_cuda.cuh"
 
+void print_matrix(int R, int C, double* A, const char* name);
 
 template<typename T>
 void PrintEMatrix(const T &mat, const char *name) {
@@ -53,7 +54,6 @@ void UseCuda::calMatrixInverse(const Eigen::MatrixXd &A, Eigen::MatrixXd &x_sol,
     MatrixXd b = MatrixXd::Identity(N,K);
 
     float elapsed_time;
-
     cudaEvent_t start1, stop1;
     CHECK(cudaEventCreate(&start1));
     CHECK(cudaEventCreate(&stop1));
@@ -61,8 +61,6 @@ void UseCuda::calMatrixInverse(const Eigen::MatrixXd &A, Eigen::MatrixXd &x_sol,
     cudaEventQuery(start1);
 /*    PrintEMatrix(A, "A");
     PrintEMatrix(b, "b");
-    PrintEMatrix(x_ref, "x_ref");
-    PrintEMatrix(C, "C");*/
 /*    std::cout << "solution l1 error = " << (x_ref - C).norm()
               << std::endl;*/
 
@@ -189,13 +187,99 @@ void UseCuda::calMatrixInverse(const Eigen::MatrixXd &A, Eigen::MatrixXd &x_sol,
     CHECK(cudaMemcpy(x_sol.data(), d_b_, sizeof(T) * N * K,
                      cudaMemcpyDeviceToHost));
 
-
     CHECK(cudaEventRecord(stop1));
     CHECK(cudaEventSynchronize(stop1));
     CHECK(cudaEventElapsedTime(&elapsed_time, start1, stop1));
     use_time = elapsed_time;
     printf("Time2 = %g ms.\n", elapsed_time);
 
-/*    PrintEMatrix(x_ref, "x_ref");
-    PrintEMatrix(x_sol, "x_sol");*/
+}
+
+void UseCuda::calMatrixDgemm(const Eigen::MatrixXd &matrix_A, const Eigen::MatrixXd &matrix_B,
+                             Eigen::MatrixXd &sol, float &time) {
+    float elapsed_time;
+    cudaEvent_t start1, stop1;
+    CHECK(cudaEventCreate(&start1));
+    CHECK(cudaEventCreate(&stop1));
+    CHECK(cudaEventRecord(start1));
+    cudaEventQuery(start1);
+
+    typedef double T;
+    int M = matrix_A.rows();
+    int K = matrix_A.cols();
+    int N = matrix_B.cols();
+    int MK = M * K;
+    int KN = K * N;
+    int MN = M * N;
+
+    double *h_A = (double *) malloc(sizeof(double) * MK);
+    double *h_B = (double *) malloc(sizeof(double) * KN);
+    double *h_C = (double *) malloc(sizeof(double) * MN);
+
+    for (int i = 0; i < K; i++) {
+        for (int j = 0; j < M; j++) {
+            h_A[i * M + j] = matrix_A(j, i);
+        }
+    }
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < K; j++) {
+            h_B[i * K + j] = matrix_B(j, i);
+        }
+    }
+
+    for (int i = 0; i < MN; i++) {
+        h_C[i] = 0;
+    }
+
+    double *g_A, *g_B, *g_C;
+    CHECK(cudaMalloc((void **) &g_A, sizeof(double) * MK));
+    CHECK(cudaMalloc((void **) &g_B, sizeof(double) * KN));
+    CHECK(cudaMalloc((void **) &g_C, sizeof(double) * MN));
+
+    cublasSetVector(MK, sizeof(double), h_A, 1, g_A, 1);
+    cublasSetVector(KN, sizeof(double), h_B, 1, g_B, 1);
+    cublasSetVector(MN, sizeof(double), h_C, 1, g_C, 1);
+
+    cublasHandle_t handle;
+    cublasCreate(&handle);
+    double alpha = 1.0;
+    double beta = 0.0;
+    cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N,
+                M, N, K, &alpha, g_A, M, g_B, K, &beta, g_C, M);
+    cublasDestroy(handle);
+
+    cublasGetVector(MN, sizeof(double), g_C, 1, h_C, 1);
+
+    sol = Eigen::MatrixXd::Zero(M, N);
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            sol(j, i) = h_C[i * M + j];
+        }
+    }
+    free(h_A);
+    free(h_B);
+    free(h_C);
+    CHECK(cudaFree(g_A));
+    CHECK(cudaFree(g_B));
+    CHECK(cudaFree(g_C));
+
+    CHECK(cudaEventRecord(stop1));
+    CHECK(cudaEventSynchronize(stop1));
+    CHECK(cudaEventElapsedTime(&elapsed_time, start1, stop1));
+    time = elapsed_time;
+}
+
+void print_matrix(int R, int C, double* A, const char* name)
+{
+    printf("%s = \n", name);
+    for (int r = 0; r < R; ++r)
+    {
+        for (int c = 0; c < C; ++c)
+        {
+            printf("%10.6f", A[c * R + r]);
+        }
+        printf("\n");
+    }
 }

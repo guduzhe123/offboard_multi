@@ -1,13 +1,22 @@
 #include <iostream>
 #include "motion_plan/poly_traj/polynomial_traj.h"
 
+std::shared_ptr<UseCuda> m_fun;
+
 void onInitCUDA(const Eigen::MatrixXd &A, Eigen::MatrixXd &A_inv) {
-    chlog::info("motion_plan", "init cuda!");
-    std::shared_ptr<UseCuda> m_fun;
+    chlog::info("motion_plan", "init matrix inverse use cuda!");
     m_fun = std::make_shared<UseCuda>();
     float use_time = 0;
     m_fun->calMatrixInverse(A, A_inv, use_time);
-    chlog::info("motion_plan", "cuda finished! use time = ", use_time, "ms");
+    chlog::info("motion_plan", "matrix inverse finished! use time = ", use_time, "ms");
+}
+
+void calMatrixgem(const Eigen::MatrixXd &matrix_A, const Eigen::MatrixXd &matrix_B,
+                  Eigen::MatrixXd &sol) {
+    m_fun = std::make_shared<UseCuda>();
+    float time;
+    m_fun->calMatrixDgemm(matrix_A, matrix_B, sol, time);
+    chlog::info("motion_plan", " Matrix use time = ", time, "ms");
 }
 
 PolynomialTraj minSnapTraj(const Eigen::MatrixXd& Pos, const Eigen::Vector3d& start_vel,
@@ -124,19 +133,19 @@ PolynomialTraj minSnapTraj(const Eigen::MatrixXd& Pos, const Eigen::Vector3d& st
         }
     }
     ros::Time t1;
-    double time1, time2, time3, time4, time5, time6;
+    double time1, time2, time3, time4, time5, time6, time7, time8;
     t1 = ros::Time::now();
     /* ---------- R matrix ---------- */
-//    A_inv = A.inverse();
-
     onInitCUDA(A, A_inv);
     onInitCUDA(A.transpose(), A_trans_inv);
-    time1 = (ros::Time::now() - t1).toSec();
-    t1 = ros::Time::now();
 
-    Eigen::MatrixXd R = C * A_trans_inv * Q * A_inv * Ct;
-    time5 = (ros::Time::now() - t1).toSec();
-    t1 = ros::Time::now();
+    Eigen::MatrixXd res1, res2, res3, R;
+//  R = C * A_trans_inv * Q * A_inv * Ct;
+    calMatrixgem(C, A_trans_inv, res1);
+    calMatrixgem(res1, Q, res2);
+    calMatrixgem(res2, A_inv, res3);
+    calMatrixgem(res3, Ct, R);
+
     Eigen::VectorXd Dxf(2 * seg_num + 4), Dyf(2 * seg_num + 4), Dzf(2 * seg_num + 4);
 
     Dxf = Dx1.segment(0, 2 * seg_num + 4);
@@ -154,29 +163,41 @@ PolynomialTraj minSnapTraj(const Eigen::MatrixXd& Pos, const Eigen::Vector3d& st
     Rpf = R.block(2 * seg_num + 4, 0, 2 * seg_num - 2, 2 * seg_num + 4);
     Rpp = R.block(2 * seg_num + 4, 2 * seg_num + 4, 2 * seg_num - 2, 2 * seg_num - 2);
 
-    time2 = (ros::Time::now() - t1).toSec();
-    t1 = ros::Time::now();
-
     /* ---------- close form solution ---------- */
+    /*    Dxp = -(Rpp_inv * Rfp.transpose()) * Dxf;
+          Dyp = -(Rpp_inv * Rfp.transpose()) * Dyf;
+          Dzp = -(Rpp_inv * Rfp.transpose()) * Dzf;*/
     onInitCUDA(Rpp, Rpp_inv);
     Eigen::VectorXd Dxp(2 * seg_num - 2), Dyp(2 * seg_num - 2), Dzp(2 * seg_num - 2);
-    Dxp = -(Rpp_inv * Rfp.transpose()) * Dxf;
-    Dyp = -(Rpp_inv * Rfp.transpose()) * Dyf;
-    Dzp = -(Rpp_inv * Rfp.transpose()) * Dzf;
+    Eigen::MatrixXd cal, Dxp_c, Dyp_c, Dzp_c;
+    calMatrixgem(Rpp_inv, Rfp.transpose(), cal);
+    calMatrixgem(cal, Dxf, Dxp_c);
+    calMatrixgem(cal, Dyf, Dyp_c);
+    calMatrixgem(cal, Dzf, Dzp_c);
+    for (int i = 0 ; i < Dxp_c.rows(); i++) {
+        Dxp[i] = -Dxp_c(i, 0);
+        Dyp[i] = -Dyp_c(i, 0);
+        Dzp[i] = -Dzp_c(i, 0);
+    }
 
     Dx1.segment(2 * seg_num + 4, 2 * seg_num - 2) = Dxp;
     Dy1.segment(2 * seg_num + 4, 2 * seg_num - 2) = Dyp;
     Dz1.segment(2 * seg_num + 4, 2 * seg_num - 2) = Dzp;
 
-    time6 = (ros::Time::now() - t1).toSec();
-    t1 = ros::Time::now();
-
-    Px = (A_inv * Ct) * Dx1;
+    /*    Px = (A_inv * Ct) * Dx1;
     Py = (A_inv * Ct) * Dy1;
-    Pz = (A_inv * Ct) * Dz1;
-
-    time3 = (ros::Time::now() - t1).toSec();
-    t1 = ros::Time::now();
+    Pz = (A_inv * Ct) * Dz1;*/
+    Eigen::MatrixXd cal1;
+    Eigen::MatrixXd Px_1, Py_1, Pz_1;
+    calMatrixgem(A_inv, Ct, cal1);
+    calMatrixgem(cal1, Dx1, Px_1);
+    calMatrixgem(cal1, Dy1, Py_1);
+    calMatrixgem(cal1, Dz1, Pz_1);
+    for (int i = 0 ; i < Px_1.rows(); i++) {
+        Px[i] = Px_1(i, 0);
+        Py[i] = Py_1(i, 0);
+        Pz[i] = Pz_1(i, 0);
+    }
 
     for (int i = 0; i < seg_num; i++) {
         poly_coeff.block(i, 0, 1, 6) = Px.segment(i * 6, 6).transpose();
@@ -198,11 +219,9 @@ PolynomialTraj minSnapTraj(const Eigen::MatrixXd& Pos, const Eigen::Vector3d& st
         poly_traj.addSegment(cx, cy, cz, ts);
     }
 
-    time4 = (ros::Time::now() - t1).toSec();
+    time1 = (ros::Time::now() - t1).toSec();
     chlog::info("motion_plan", "A size = ", A.cols(),
-                ", calcuse matrix inverse use cuda use time1 = ", time1,
-                ", next time2 = ", time2, ", time3 = ", time3,
-                ", time4 = ", time4, ", time5 = ", time5, ", time6 = ", time6);
+                ", calcuse matrix inverse use cuda use time1 = ", time1);
     return poly_traj;
 }
 

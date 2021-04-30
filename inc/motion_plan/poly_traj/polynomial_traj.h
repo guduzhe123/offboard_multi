@@ -273,4 +273,5 @@ PolynomialTraj fastLine4deg(Eigen::Vector3d start, Eigen::Vector3d end, double m
 PolynomialTraj fastLine3deg(Eigen::Vector3d start, Eigen::Vector3d end, double max_vel, double max_acc);
 
 void onInitCUDA(const Eigen::MatrixXd &A, Eigen::MatrixXd &A_inv);
+void calMatrixgem(const Eigen::MatrixXd &matrix_A, const Eigen::MatrixXd &matrix_B, Eigen::MatrixXd &sol);
 #endif
