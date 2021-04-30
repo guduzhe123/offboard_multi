@@ -37,7 +37,6 @@ void USV_Avoidance::GetData() {
 
 void USV_Avoidance::DoProgress() {
         // TODO need to use map.
-        float avo_uav1, avo_uav2, avo_uav3;
 
         checkDistance(m_multi_vehicle_.usv1, m_multi_vehicle_.usv2);
         checkDistance(m_multi_vehicle_.usv1, m_multi_vehicle_.usv3);

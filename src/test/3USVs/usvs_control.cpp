@@ -43,6 +43,9 @@ void usvs_control::OnInit() {
     nh.param("waypoint_num", waypoint_num_, -1);
     nh.param("danger_distance", danger_distance_, 0.0);
     chlog::info("data","formation distance = ", formation_distance_, ", waypoint_num_ = ", waypoint_num_);
+    nh.param("manager/max_vel", max_vel_, 0.0);
+    nh.param("manager/max_acc", max_acc_, 0.0);
+
 //    usvLocalPositionSp();
 }
 
@@ -101,8 +104,8 @@ void usvs_control::OnInitMotionPlan(const multi_vehicle &multi_vehicles) {
     mp_config.is_speed_mode = false;
     mp_config.control_mode = POSITION_WITHOUT_CUR;
     mp_config.is_enable = true;
-    mp_config.max_vel = 2.0;
-    mp_config.max_acc = 2.0;
+    mp_config.max_vel = max_vel_;
+    mp_config.max_acc = max_acc_;
     mp_config.mp_map = multi_vehicles.usv1.Imap;
     mp_config.end_pos = target_pos;
     ActionMotionPlan::getInstance()->initMP(mp_config);

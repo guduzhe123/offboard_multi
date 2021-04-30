@@ -43,6 +43,8 @@ private:
     double formation_distance_;
     int command_ ;
     double danger_distance_;
+    double max_vel_;
+    double max_acc_;
 
     TVec3 usv1_target_pre_{};
 };

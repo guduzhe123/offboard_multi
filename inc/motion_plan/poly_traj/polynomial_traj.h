@@ -3,6 +3,8 @@
 
 #include <Eigen/Eigen>
 #include <vector>
+#include "use_cuda.cuh"
+#include "Cinc.hpp"
 
 using std::vector;
 
@@ -270,4 +272,5 @@ PolynomialTraj fastLine4deg(Eigen::Vector3d start, Eigen::Vector3d end, double m
                             double max_jerk);
 PolynomialTraj fastLine3deg(Eigen::Vector3d start, Eigen::Vector3d end, double max_vel, double max_acc);
 
+void onInitCUDA(const Eigen::MatrixXd &A, Eigen::MatrixXd &A_inv);
 #endif

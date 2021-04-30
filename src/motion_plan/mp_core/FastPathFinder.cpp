@@ -110,7 +110,6 @@ namespace fast_planner {
 
     bool FastPathFinder::planGlobalTraj(const Eigen::Vector3f &start_pos, const Eigen::Vector3f &end_pos) {
         plan_data_.clearTopoPaths();
-
         // generate global reference trajectory
 
         vector<Eigen::Vector3d> points = plan_data_.global_waypoints_;

@@ -1,6 +1,17 @@
 cmake_minimum_required(VERSION 3.4.1)
-project(offboard)
+set(CMAKE_CUDA_COMPILER "/usr/local/cuda-10.2/bin/nvcc")
+project(offboard CXX CUDA)
 SET(CMAKE_CXX_STANDARD 14)
+
+option(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
+find_package(CUDA REQUIRED)
+
+#set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS} -O3 -Wall")
+
+set(CUDA_NVCC_PLAGS ${CUDA_NVCC_PLAGS};-g;-G;-gencode;arch=sm_75;code=sm_30 -O3)
+include_directories(/usr/local/cuda/include)
+link_directories(/usr/local/cuda/lib64)
+set(CMAKE_CXX_STANDARD 14)
 find_package(catkin REQUIRED COMPONENTS
         roscpp
         rospy
@@ -70,7 +81,7 @@ include_directories(
         ${catkin_INCLUDE_DIRS}
 )
 
-include_directories( "/usr/include/eigen3" )
+include_directories( "/usr/local/include/eigen3" )
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/offboard.cpp
@@ -82,6 +93,25 @@ add_library(
         STATIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src/log/ChLog.cpp
 )
+
+add_library(my_cuda
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/motion_plan/poly_traj/use_cuda.cu
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc/motion_plan/poly_traj/use_cuda.cuh
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc/motion_plan/poly_traj/error.cuh
+        )
+
+target_link_libraries(
+        my_cuda
+        cublas
+        cusolver
+)
+
+target_compile_features(my_cuda PUBLIC cxx_std_14)
+set_target_properties( my_cuda
+        PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+set_target_properties(my_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET my_cuda PROPERTY CUDA_ARCHITECTURES 75)
 
 add_library(
         motion_plan_lib
@@ -113,8 +143,11 @@ target_link_libraries(
         /usr/local/lib/libnlopt.so
         ${${LINK_LIB}}
         chlog_lib
+        my_cuda
 
 )
+
+set_property(TARGET motion_plan_lib PROPERTY CUDA_ARCHITECTURES 75)
 
 add_executable(offboard src/offboard.cpp)
 target_link_libraries(offboard ${catkin_LIBRARIES})
