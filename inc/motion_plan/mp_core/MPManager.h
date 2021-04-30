@@ -99,8 +99,6 @@ private:
     int path_find_fail_timer_;
 
     MP_CHECK_COLLISION check_collision_state_;
-
-    vector<TVec3> init_targets_;
     bool collide_;
     // private functions
     void CalcDistToCenter(float &dist, const TVec3 &cur_pos, TVec3 start_pos, TVec3 end_pos);
@@ -114,8 +112,6 @@ private:
     void changeToTurbineFrame(TVec3 &pnt, TVec3 &pos_in_turbine_EUS);
 
     void checkCollisionReplan(TVec3& cur_pos);
-
-    void ChangeGoalVector();
 };
 
 #endif //WINDAPPCORE_MPMANAGER_H

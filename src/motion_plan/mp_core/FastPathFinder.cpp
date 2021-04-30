@@ -177,7 +177,7 @@ namespace fast_planner {
         // truncate a local trajectory
 
         double            dt, duration;
-        Eigen::MatrixXd   ctrl_pts = reparamLocalTraj(0.0, dt, duration, 1);
+        Eigen::MatrixXd   ctrl_pts = reparamLocalTraj(0.0, dt, duration, duration);
         NonUniformBspline bspline(ctrl_pts, 3, dt);
 
         global_data_.setLocalTraj(bspline, 0.0, duration, 0.0);

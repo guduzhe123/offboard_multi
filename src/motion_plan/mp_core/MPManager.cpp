@@ -26,8 +26,10 @@ MPManager::MPManager(const MP_Config &config) :
     path_finder_->initPlanModules(mp_config_, mp_config_.mp_map);
     receive_traj_ = false;
 
-    ChangeGoalVector();
-    if (!init_targets_.empty()) mp_config_.end_pos = init_targets_.back();
+    if (!mp_config_.targets.empty()) {
+        mp_config_.end_pos = mp_config_.targets.back();
+        path_finder_->setGlobalWaypoints(mp_config_.targets);
+    }
     mp_publisher_->drawGoal(mp_config_.end_pos, 1, Eigen::Vector4d(1, 0, 0, 1.0));
 
     chlog::info("motion_plan", "[MP Mananger]: Triggered! end_pt_ = " + toStr(mp_config_.end_pos), "max_vel = "
@@ -139,7 +141,7 @@ bool MPManager::CallKinodynamicReplan(int step) {
         /* visulization */
         auto plan_data = &path_finder_->getPlanData();
         auto global_data = &path_finder_->getGlobalData();
-        mp_publisher_->drawPolynomialTraj(global_data->global_traj_, 0.05,
+        mp_publisher_->drawPolynomialTraj(global_data->global_traj_, 0.1,
                                            Eigen::Vector4d(0, 0, 0, 1), 0);
         mp_publisher_->drawGeometricPath(plan_data->kino_path_);
         mp_publisher_->drawBspline(info->position_traj_);
@@ -345,23 +347,6 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
 
 }
 
-void MPManager::ChangeGoalVector() {
-    init_targets_.clear();
-    int i;
-    for (i = 0; i < mp_config_.targets.size(); i++) {
-        init_targets_.push_back(mp_config_.targets[i]);
-        if (init_targets_.size() > 2) break;
-        if (i > 0 && ((init_targets_[i] - init_targets_[0]).norm() > 50
-        || (init_targets_[i] - init_targets_[i - 1]).norm() > 20)) {
-            init_targets_.pop_back();
-            break;
-        }
-    }
-    if (!init_targets_.empty()) mp_config_.end_pos = init_targets_.back();
-    mp_config_.targets.erase(mp_config_.targets.begin(), mp_config_.targets.begin() + 2);
-    path_finder_->setGlobalWaypoints(init_targets_);
-}
-
 void MPManager::ProcessState() {
     checkCollisionReplan(drone_st_.drone_pos);
     switch (mp_state_) {
@@ -414,7 +399,12 @@ void MPManager::ProcessState() {
             chlog::info("motion_plan", "[MP Manager]: mp_config_.end_pos = ", toStr(mp_config_.end_pos),
                     ", drone_st_.drone_pos = ", toStr(drone_st_.drone_pos), ", t_cur = ",
                         t_cur, ", global_duration_ = ", global_data->global_duration_);
-            float err_target = (mp_config_.end_pos - drone_st_.drone_pos).norm();
+            float err_target;
+            if (mp_config_.targets.size() > 0) {
+                err_target = (mp_config_.targets.back() - drone_st_.drone_pos).norm();
+            } else {
+                err_target = (mp_config_.end_pos - drone_st_.drone_pos).norm();
+            }
             if (t_cur > global_data->global_duration_ - 1e-2 && err_target > 1.0) {
                 ChangeExecState(GEN_NEW_TRAJ, "FSM");
                 have_target_ = false;
@@ -422,14 +412,8 @@ void MPManager::ProcessState() {
             }
 
             if (err_target < 1.0) {
-                if (!mp_config_.targets.empty()) {
-                    ChangeGoalVector();
-                    ChangeExecState(GEN_NEW_TRAJ, "FSM");
-                    break;
-                } else {
-                    have_target_ = false;
-                    ChangeExecState(WAIT_TARGET, "FSM");
-                }
+                have_target_ = false;
+                ChangeExecState(WAIT_TARGET, "FSM");
                 return;
 
             }  else if ((info->start_pos_ - pos).norm() < 1.5 /*&& !collide_*/) {
@@ -455,14 +439,8 @@ void MPManager::ProcessState() {
                 start_vel_ = info->velocity_traj_.evaluateDeBoorT(t_cur).cast<float>();
                 if ((start_pt_ - mp_config_.end_pos).norm() < 1) {
                     chlog::info("motion_plan", "[MP Manager]: near target, change goal");
-                    if (!mp_config_.targets.empty()) {
-                        ChangeGoalVector();
-                        ChangeExecState(GEN_NEW_TRAJ, "FSM");
-                        break;
-                    } else {
-                        have_target_ = false;
-                        ChangeExecState(WAIT_TARGET, "FSM");
-                    }
+                    have_target_ = false;
+                    ChangeExecState(WAIT_TARGET, "FSM");
                 }
             } else if (mp_config_.control_mode == POSITION_CUR || mp_config_.control_mode == VELOCITY_WITH_CUR) {
                 start_pt_ = drone_st_.drone_pos;
