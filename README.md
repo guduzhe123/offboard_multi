@@ -10,6 +10,10 @@
 2. Firmware: https://github.com/guduzhe123/Firmware branch: 1.8.0-github
 3. offboard: branch master
 4. mavros: https://github.com/mavlink/mavros/blob/master/mavros/README.md#installation
+5. cmake version: > 3.8 https://zhuanlan.zhihu.com/p/93480024
+6. eigen version 3.3.8 官网下载 mkdir build && cd build cmake .. & sudo make install
+    在/usr/local/include里有eigen3
+7. 安装cuda https://blog.csdn.net/qq_25241325/article/details/90753830 注意要在bashrc或zshrc设置环境, 检测 nvcc --version
 
 目前支持的编队方式：1uav-1usv, 2uavs, 4uavs, 4uavs-3usvs,4uavs-3usvs-3uuvs
 
