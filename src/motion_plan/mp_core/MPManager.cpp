@@ -340,11 +340,11 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
             if (dist > 0.1) {
                 chlog::info("motion_plan", "current traj: ", dist, "  m to collision" );
                 collide_ = true;
+
                 ChangeExecState(REPLAN_TRAJ, "SAFETY");
             }
         }
     }
-
 }
 
 void MPManager::ProcessState() {

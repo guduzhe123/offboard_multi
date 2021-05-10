@@ -213,6 +213,40 @@ namespace fast_planner {
 
 // SECTION kinodynamic replanning
 
+    void FastPathFinder::findCollisionRange(vector<Eigen::Vector3f>& colli_start,
+                                       vector<Eigen::Vector3f>& colli_end) {
+        bool               last_safe = true, safe;
+        double             t_m, t_mp;
+        NonUniformBspline* initial_traj = &plan_data_.initial_local_segment_;
+        initial_traj->getTimeSpan(t_m, t_mp);
+
+        /* find range of collision */
+        double t_s = -1.0, t_e = -1.0;
+        for (double tc = t_m; tc <= t_mp + 1e-4; tc += 0.05) {
+
+            Eigen::Vector3f ptc = initial_traj->evaluateDeBoor(tc).cast<float>();
+            safe = mp_config_.mp_map->isStateValid(ptc, false);
+            chlog::info("motion_plan", "find safe traj pos = ", toStr(ptc), ", is safe = ",
+                        safe);
+
+            if (last_safe && !safe) {
+                colli_start.push_back(initial_traj->evaluateDeBoor(tc - 0.05).cast<float>());
+                TVec3 cur_coll_start = colli_start.back();
+                chlog::info("motion_plan", "collision start = ", toStr(cur_coll_start));
+                if (t_s < 0.0) t_s = tc - 0.05;
+            } else if (!last_safe && safe) {
+                colli_end.push_back(ptc);
+                t_e = tc;
+            }
+
+            last_safe = safe;
+        }
+
+        if (colli_start.size() == 0) return;
+
+        if (colli_start.size() == 1 && colli_end.size() == 0) return;
+    }
+
     bool FastPathFinder::replan(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel, Eigen::Vector3d start_acc,
                                 Eigen::Vector3d end_pt, Eigen::Vector3d end_vel, bool collide) {
         chlog::info("motion_plan", "[plan man]: plan manager start point: (" + to_string2(start_pt(0)) +
@@ -250,13 +284,17 @@ namespace fast_planner {
             local_data_.start_time_ = ros::Time::now();
             double t_search = 0.0, t_opt = 0.0, t_adjust = 0.0;
 
+            plan_data_.initial_local_segment_ = init_traj;
+            vector<Eigen::Vector3f> colli_start, colli_end;
+            findCollisionRange(colli_start, colli_end);
             // kinodynamic path searching
 
             t1 = ros::Time::now();
 
             kino_path_finder_->reset();
 
-            int status = kino_path_finder_->search(start_pt, start_vel, start_acc, end_pt, end_vel, mp_config_.mp_plan_state, true, true);
+            int status = kino_path_finder_->search(start_pt, start_vel, start_acc, colli_end.back().cast<double>(),
+                    end_vel, mp_config_.mp_plan_state, true, true);
 
             if (status == KinodynamicAstar::NO_PATH) {
                 chlog::info("motion_plan", "[plan man]: kinodynamic search fail!");

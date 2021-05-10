@@ -180,6 +180,8 @@ void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr
     mp_config.max_acc = 2.0;
     mp_config.mp_map = usv_.Imap;
     mp_config.end_pos = goal;
+    mp_config.targets.clear();
+    mp_config.targets.push_back(goal);
     ActionMotionPlan::getInstance()->initMP(mp_config);
     ActionMotionPlan::getInstance()->setEnable(true);
     usv_.is_formation = true;

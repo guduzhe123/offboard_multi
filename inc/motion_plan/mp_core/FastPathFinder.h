@@ -61,8 +61,7 @@ namespace fast_planner {
 
         // topology guided optimization
 
-        void findCollisionRange(vector<Eigen::Vector3d>& colli_start, vector<Eigen::Vector3d>& colli_end,
-                                vector<Eigen::Vector3d>& start_pts, vector<Eigen::Vector3d>& end_pts);
+        void findCollisionRange(vector<Eigen::Vector3f>& colli_start, vector<Eigen::Vector3f>& colli_end);
 
         Eigen::MatrixXd reparamLocalTraj(double start_t, double &dt, double &duration, int step);
         Eigen::MatrixXd reparamLocalTraj(double start_t, double duration, int seg_num, double &dt,
