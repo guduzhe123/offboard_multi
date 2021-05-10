@@ -167,7 +167,9 @@ void MultiBoatControl::DoProgress() {
                                            0);
                     TVec3 vec = (usv1_target - usv1_cur).normalized();
                     float target_yaw = atan2(vec.y(), vec.x()) * 180 / M_PI;
-                    if (fabs(target_yaw - m_multi_vehicle_.usv1.yaw) < 10 ) {
+                    float yaw_err = fabs(target_yaw - m_multi_vehicle_.usv1.yaw);
+                    if (yaw_err > 180) yaw_err -= 180;
+                    if (yaw_err < 20 ) {
                         PathCreator::geInstance()->CreateUSVFormationInit(formation_config_);
                     }
                     chlog::info("data","[Boat Control]:targte yaw = ", target_yaw, ", , m_multi_vehicle_.usv1.yaw = ",

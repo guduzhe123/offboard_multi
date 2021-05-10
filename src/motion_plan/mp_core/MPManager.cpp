@@ -27,7 +27,7 @@ MPManager::MPManager(const MP_Config &config) :
     receive_traj_ = false;
 
     if (!mp_config_.targets.empty()) {
-        mp_config_.end_pos = mp_config_.targets.back();
+        mp_config_.end_pos = mp_config_.targets.front();
         path_finder_->setGlobalWaypoints(mp_config_.targets);
     }
     mp_publisher_->drawGoal(mp_config_.end_pos, 1, Eigen::Vector4d(1, 0, 0, 1.0));
@@ -347,6 +347,10 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
     }
 }
 
+void MPManager::checkEndPos() {
+//    if ()
+}
+
 void MPManager::ProcessState() {
     checkCollisionReplan(drone_st_.drone_pos);
     switch (mp_state_) {
@@ -416,7 +420,7 @@ void MPManager::ProcessState() {
                 ChangeExecState(WAIT_TARGET, "FSM");
                 return;
 
-            }  else if ((info->start_pos_ - pos).norm() < 1.5 /*&& !collide_*/) {
+            }  else if (t_cur <  1.0/*&& !collide_*/) {
 //                chlog::info("motion_plan", "[MP Manager]: close to start pos!");
                 return;
 

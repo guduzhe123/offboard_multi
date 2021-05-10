@@ -157,10 +157,10 @@ public:
       chlog::info("motion_plan", "traj pos = ", toStr(cur_pt.cast<float>()),
               ", dt = ", dt);
         radius = (cur_pt - prev_pt).norm();
-        if (radius / dt > max_vel_ * 4) {
+/*        if (radius / dt > max_vel_ * 4) {
             chlog::info("motion_plan", "lagre vel ", radius);
             continue;
-        }
+        }*/
         prev_pt = cur_pt;
 
       point_set.push_back(cur_pt);

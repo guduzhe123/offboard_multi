@@ -79,6 +79,7 @@ private:
     vector<NonUniformBspline> real_traj_;
     vector<NonUniformBspline> plan_traj_;
     double traj_duration_;
+    double replan_distance_threshold_, replan_time_threshold_;
 
     float dist_config_;
     TVec3 insp_vec_ENU_;
@@ -112,6 +113,8 @@ private:
     void changeToTurbineFrame(TVec3 &pnt, TVec3 &pos_in_turbine_EUS);
 
     void checkCollisionReplan(TVec3& cur_pos);
+
+    void checkEndPos();
 };
 
 #endif //WINDAPPCORE_MPMANAGER_H
