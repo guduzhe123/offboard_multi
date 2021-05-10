@@ -115,6 +115,8 @@ private:
     void checkCollisionReplan(TVec3& cur_pos);
 
     void checkEndPos();
+
+    void formationCall(int formation_type);
 };
 
 #endif //WINDAPPCORE_MPMANAGER_H

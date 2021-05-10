@@ -25,7 +25,8 @@ namespace fast_planner {
         /* main planning interface */
         bool replan(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel, Eigen::Vector3d start_acc,
                     Eigen::Vector3d end_pt, Eigen::Vector3d end_vel, bool collide) override ;
-        bool planGlobalTraj(const Eigen::Vector3f &start_pos, const Eigen::Vector3f &end_pos);
+        bool planGlobalTraj(const Eigen::Vector3f &start_pos, const Eigen::Vector3f &end_pos, const int formation_type,
+                            const float formation_distance);
 
         void planYaw(const Eigen::Vector3d& start_yaw) override ;
 
@@ -57,6 +58,8 @@ namespace fast_planner {
         OctoMap::Ptr octo_map_;
         MP_Config mp_config_;
 
+        TVec3 Drone_usv2_, Drone_usv3_;
+
         void updateTrajInfo();
 
         // topology guided optimization
@@ -77,6 +80,10 @@ namespace fast_planner {
 
         void optimizeTopoBspline(double start_t, double duration, vector<Eigen::Vector3d> guide_path, int traj_id,
                                  vector<Eigen::Vector3d> start_end_points);
+
+        void planUSV2GlobalTraj(vector<Eigen::Vector3d>& leader_pos, int usv_id);
+
+        void initFormation();
 
         // !SECTION stable
 

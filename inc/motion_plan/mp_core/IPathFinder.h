@@ -20,7 +20,9 @@ namespace fast_planner{
         virtual bool replan(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel, Eigen::Vector3d start_acc,
                             Eigen::Vector3d end_pt, Eigen::Vector3d end_vel, bool collide) = 0;
 
-        virtual bool planGlobalTraj(const Eigen::Vector3f &start_pos, const Eigen::Vector3f &end_pos) = 0;
+        virtual bool
+        planGlobalTraj(const Eigen::Vector3f &start_pos, const Eigen::Vector3f &end_pos, const int formation_type,
+                       const float formation_distance) = 0;
 
         virtual void planYaw(const Eigen::Vector3d& start_yaw) = 0;
 

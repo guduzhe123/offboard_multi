@@ -50,6 +50,51 @@ namespace fast_planner {
             bspline_optimizers_[i]->setSpeedLimit(pp_.max_vel_, pp_.max_acc_);
         }
         global_data_.setMaxVel(pp_.max_vel_, pp_.max_acc_);
+
+        initFormation();
+    }
+
+    void FastPathFinder::initFormation() {
+        switch (mp_config_.formation_type) {
+            case VF_USV_TRIANGLE: {
+                chlog::info("data","[USV Formation]: usv Formation call! Triangle!");
+                Drone_usv2_ = TVec3(-K_multi_usv_formation_distance, -K_multi_usv_formation_distance , 0);
+                Drone_usv3_ = TVec3(K_multi_usv_formation_distance, -K_multi_usv_formation_distance , 0);
+
+            }
+                break;
+
+            case VF_USV_INVERSION_TRIANGLE: {
+                chlog::info("data","[USV Formation]: usv Formation call! INVERSION Triangle!");
+                Drone_usv2_ = TVec3(- K_multi_usv_formation_distance,  -K_multi_usv_formation_distance ,0);
+                Drone_usv3_ = TVec3(-2*K_multi_usv_formation_distance ,0, 0);
+            }
+                break;
+
+
+            case VF_USV_LINE_HORIZONTAL : {
+                chlog::info("data","[USV Formation]: usv Formation call! Line horizontal!");
+                Drone_usv2_ = TVec3(0, -K_multi_usv_formation_distance , 0);
+                Drone_usv3_ = TVec3(0, -2 * K_multi_usv_formation_distance, 0);
+            }
+                break;
+
+            case VF_USV_LINE_VERTICAL : {
+                chlog::info("data","[USV Formation]: usv Formation call! Line Vertical!");
+                Drone_usv2_ = TVec3(K_multi_usv_formation_distance, 0 , 0);
+                Drone_usv3_ = TVec3(2* K_multi_usv_formation_distance, 0, 0);
+            }
+                break;
+
+            case VF_USV_ALL_RETURN: {
+                chlog::info("data","[USV Formation]: usv Formation call! All USVs Return!");
+            }
+                break;
+
+            default:
+                break;
+
+        }
     }
 
     void FastPathFinder::setGlobalWaypoints(const vector<TVec3> &waypoints) {
@@ -111,7 +156,9 @@ namespace fast_planner {
     }
     // SECTION topological replanning
 
-    bool FastPathFinder::planGlobalTraj(const Eigen::Vector3f &start_pos, const Eigen::Vector3f &end_pos) {
+    bool FastPathFinder::planGlobalTraj(const Eigen::Vector3f &start_pos, const Eigen::Vector3f &end_pos,
+                                        const int formation_type,
+                                        const float formation_distance) {
         plan_data_.clearTopoPaths();
         // generate global reference trajectory
 
@@ -188,6 +235,14 @@ namespace fast_planner {
 
         return true;
     }
+
+    void FastPathFinder::planUSV2GlobalTraj(vector<Eigen::Vector3d>& leader_pos, int usv_id) {
+        vector<Eigen::Vector3d> follower_pos;
+        for (auto pos : leader_pos) {
+
+        }
+    }
+
 
     Eigen::MatrixXd FastPathFinder::reparamLocalTraj(double start_t, double &dt, double &duration, int step) {
         /* get the sample points local traj within radius */

@@ -38,6 +38,7 @@ MPManager::MPManager(const MP_Config &config) :
     end_vel_.setZero();
     init_target_pos_ = mp_config_.end_pos;
     have_target_ = true;
+    formationCall(mp_config_.formation_type);
 }
 
 
@@ -95,7 +96,8 @@ bool MPManager::CallKinodynamicReplan(int step) {
 
     chlog::info("motion_plan", "step = ", step, ", collide_ = ", collide_);
     if (step == 1) {
-        plan_success = path_finder_->planGlobalTraj(start_pt_, mp_config_.end_pos);
+        plan_success = path_finder_->planGlobalTraj(start_pt_, mp_config_.end_pos,
+                                                    mp_config_.formation_type, mp_config_.formation_distance);
     } else {
         plan_success = path_finder_->replan(start_pt_.cast<double>(), start_vel_.cast<double>(),
                                             start_acc_.cast<double>(),
@@ -200,6 +202,29 @@ void MPManager::ChangeExecState(MP_EXEC_STATE new_state, string pos_call) {
     mp_state_ = new_state;
     chlog::info("motion_plan", "[MP Manager]: [" + pos_call + "]: from " + state_str[pre_s]
                                + " to " + state_str[int(new_state)]);
+}
+
+void MPManager::formationCall(int formation_type) {
+    switch (formation_type) {
+        case VF_USV_TRIANGLE: {
+            chlog::info("motion_plan", "[MP Manager]: VF_USV_TRIANGLE");
+            break;
+        }
+        case VF_USV_LINE_HORIZONTAL: {
+            chlog::info("motion_plan", "[MP Manager]: VF_USV_LINE_HORIZONTAL");
+            break;
+        }
+        case VF_USV_LINE_VERTICAL: {
+            chlog::info("motion_plan", "[MP Manager]: VF_USV_LINE_VERTICAL");
+            break;
+        }
+        case VF_USV_INVERSION_TRIANGLE: {
+            chlog::info("motion_plan", "[MP Manager]: VF_USV_INVERSION_TRIANGLE");
+            break;
+        }
+
+    }
+
 }
 
 bool MPManager::GetControlOutput(TVec3 &vector_eus) {
