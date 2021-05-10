@@ -158,10 +158,10 @@ void usv1_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
     mavros_msgs::DebugValue debugValue;
     debugValue = *msg;
     chlog::info("data", "usv5 debug_value x = ", debugValue.data[0]);
-    int config = (int) debugValue.data[0];
+    config_ = (int) debugValue.data[0];
 
-    DataMan::getInstance()->setCommand(config);
-    PathCreator::geInstance()->CreateUSVFormationInit(config);
+    DataMan::getInstance()->setCommand(config_);
+    PathCreator::geInstance()->CreateUSVFormationInit(config_);
 }
 
 void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
@@ -181,7 +181,13 @@ void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr
     mp_config.mp_map = usv_.Imap;
     mp_config.end_pos = goal;
     mp_config.targets.clear();
+    TVec3 center{dronepos_.m_x, goal.y(), 0};
+    mp_config.targets.push_back(center);
+    TVec3 center_next{goal.x(), dronepos_.m_y, 0};
+    mp_config.targets.push_back(center_next);
     mp_config.targets.push_back(goal);
+    mp_config.formation_type = config_;
+    mp_config.formation_distance = K_multi_usv_formation_distance;
     ActionMotionPlan::getInstance()->initMP(mp_config);
     ActionMotionPlan::getInstance()->setEnable(true);
     usv_.is_formation = true;

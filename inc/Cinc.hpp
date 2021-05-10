@@ -307,7 +307,6 @@ struct MP_Config{
     TVec3 start_pos;
     TVec3 end_pos;
     vector<TVec3> targets;
-    float exp_vel;
     float max_vel;
     float max_acc;
     float safe_zone_r; // the flight corrider radius.
@@ -316,16 +315,13 @@ struct MP_Config{
     float turn_rate;
     bool is_enable = false;
     int control_mode;
+    int formation_type;
+    float formation_distance;
     MotionPlanState mp_plan_state;
-    double safe_dist;
-    double replan_thresh;
-    double plan_horizon; // fitting line planning length
     TVec3 m_toward_point;
     bool is_track_point = false;
     bool is_speed_mode = false;
     bool is_gazebo_sim = false;
-    int m_blade_id;
-    int m_path_id;
     Sp<IMap> mp_map;
 };
 #endif //OFFBOARD_CINC_HPP

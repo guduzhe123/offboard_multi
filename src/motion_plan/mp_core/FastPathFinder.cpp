@@ -128,10 +128,9 @@ namespace fast_planner {
         vector<Eigen::Vector3d> inter_points;
         const double            dist_thresh = 4.0;
 
+        inter_points.push_back(points.front());
         for (int i = 0; i < points.size() - 1; ++i) {
-            inter_points.push_back(points.at(i));
             double dist = (points.at(i + 1) - points.at(i)).norm();
-
             if (dist > dist_thresh) {
                 int id_num = floor(dist / dist_thresh) + 1;
 

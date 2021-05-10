@@ -215,15 +215,14 @@ void MultiBoatControl::DoProgress() {
                 body.pose.position.x = circle_config.m_radius;
                 body.pose.position.y = 0;
                 body.pose.position.z = 0;
-                Calculate::getInstance()->bodyFrame2LocalFrame(body, target_local,
-                                                               (float)(m_multi_vehicle_.usv1.yaw * M_PI / 180.0f));
-                target_local = body;
-
+   /*             Calculate::getInstance()->bodyFrame2LocalFrame(body, target_local,
+                            (float)(m_multi_vehicle_.usv1.yaw * M_PI / 180.0f));*/
+                // 圆心
                 circle_config.m_circle_pos = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x + target_local.pose.position.x,
                                                    m_multi_vehicle_.usv1.current_local_pos.pose.position.y + target_local.pose.position.y,
                                                    m_multi_vehicle_.usv1.current_local_pos.pose.position.z + target_local.pose.position.z);
 
-
+                // 起始点
                 circle_config.m_start_pos = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x,
                                                   m_multi_vehicle_.usv1.current_local_pos.pose.position.y,
                                                   m_multi_vehicle_.usv1.current_local_pos.pose.position.z);
@@ -238,6 +237,15 @@ void MultiBoatControl::DoProgress() {
                 usv_way_points_.clear();
                 usv_way_points_ = circle_output.usv_way_points_;
                 usv_waypoints_size_init_ = usv_way_points_.size();
+                usv1_targets_.clear();
+                for (auto & usv_way_point : usv_way_points_) {
+                    TVec3 target_local;
+                    target_local.x() = usv_way_point.pose.position.x;
+                    target_local.y() = usv_way_point.pose.position.y;
+                    target_local.z() = usv_way_point.pose.position.z;
+                    usv1_targets_.push_back(target_local);
+                }
+                OnInitMotionPlan(usv1_targets_);
                 usv_state_ = USV_WAYPOINT;
                 state_changed_ = true;
                 break;

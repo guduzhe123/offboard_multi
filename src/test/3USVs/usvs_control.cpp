@@ -96,9 +96,9 @@ void usvs_control::SetUSVAvoData(const bool usv1_crash, const bool usv2_crash, c
 }
 
 void usvs_control::OnInitMotionPlan(const multi_vehicle &multi_vehicles) {
-    TVec3 target_pos{multi_vehicles.usv1.target_local_pos_sp.pose.position.x,
-                     multi_vehicles.usv1.target_local_pos_sp.pose.position.y,
-                     multi_vehicles.usv1.target_local_pos_sp.pose.position.z};
+    TVec3 target_pos{(float)multi_vehicles.usv1.target_local_pos_sp.pose.position.x,
+                     (float)multi_vehicles.usv1.target_local_pos_sp.pose.position.y,
+                     (float)multi_vehicles.usv1.target_local_pos_sp.pose.position.z};
     MP_Config mp_config;
     mp_config.is_track_point = true;
     mp_config.is_speed_mode = false;

@@ -62,6 +62,7 @@ private:
 
 
     int arm_i_;
+    int config_;
     bool is_arm_;
     bool is_offboard_;
     bool is_offboard_called_;
