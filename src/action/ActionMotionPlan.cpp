@@ -6,7 +6,8 @@
 
 
 ActionMotionPlan::ActionMotionPlan() :
-        is_enable_(false)
+        is_enable_(false),
+        init_follower_(false)
 {
 }
 
@@ -22,6 +23,7 @@ bool ActionMotionPlan::initMP(const MP_Config &mpConfig) {
     mp_config_ = mpConfig;
     mp_config_.log_path = "USV1_MP";
     mp_config_.nh = nh_;
+    mp_config_.drone_id = 1;
     output_.target_heading = mpConfig.m_drone_heading;
     mp_manager_ = makeSp<MPManager>(mp_config_);
     mp_manager_->SetMpEnable(true);
@@ -47,9 +49,15 @@ void ActionMotionPlan::DoProgress() {
     if (is_enable_) {
         mp_manager_->ProcessState();
         TVec3 drone_data, drone_speed;
-//        drone_data =
-//        SetStatus()
         SetFunctionOutPut();
+
+        PolynomialTraj usv2_traj, usv3_traj;
+        if (mp_manager_->getPolyTraj(usv2_traj, usv3_traj) && !init_follower_) {
+            USV2ActionMotionPlan::getInstance()->initMP(mp_config_);
+            USV2ActionMotionPlan::getInstance()->setPolyTraj(usv2_traj);
+            USV2ActionMotionPlan::getInstance()->setEnable(true);
+            init_follower_ = true;
+        }
     } else {
         mp_manager_->SetMpEnable(false);
     }

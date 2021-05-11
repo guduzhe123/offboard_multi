@@ -14,6 +14,7 @@ MPManager::MPManager(const MP_Config &config) :
         init_target_pos_{},
         path_find_fail_timer_(0),
         collide_(false),
+        plan_success_(false),
         check_collision_state_(CHECK_COLLISION){
     log = config.log_path;
     chlog::info(log, "~~~~~~~~\n");
@@ -92,21 +93,34 @@ void MPManager::updateMotionPlan(const float dist, const TVec3 &insp_vec,
 }
 
 
-bool MPManager::CallKinodynamicReplan(int step) {
-    bool plan_success;
+void MPManager::setPolyTraj(const PolynomialTraj& poly_traj) {
+    gl_traj_ = poly_traj;
+}
 
+bool MPManager::getPolyTraj(PolynomialTraj& usv2_poly_traj, PolynomialTraj& usv3_poly_traj) {
+    if (plan_success_) {
+        usv2_poly_traj = path_finder_->getUSV2PolynomialTraj();
+        usv3_poly_traj = path_finder_->getUSV3PolynomialTraj();
+    }
+    return plan_success_;
+}
+
+bool MPManager::CallKinodynamicReplan(int step) {
+    plan_success_ = false;
     chlog::info(log, "step = ", step, ", collide_ = ", collide_);
     if (step == 1) {
-        plan_success = path_finder_->planGlobalTraj(start_pt_, mp_config_.end_pos,
-                                                    mp_config_.formation_type, mp_config_.formation_distance);
+        plan_success_ = path_finder_->planGlobalTraj(start_pt_, mp_config_.end_pos,
+                                                     mp_config_.formation_type, mp_config_.formation_distance,
+                                                     mp_config_.drone_id, gl_traj_);
+
     } else {
-        plan_success = path_finder_->replan(start_pt_.cast<double>(), start_vel_.cast<double>(),
+        plan_success_ = path_finder_->replan(start_pt_.cast<double>(), start_vel_.cast<double>(),
                                             start_acc_.cast<double>(),
                                             mp_config_.end_pos.cast<double>(), end_vel_.cast<double>(),
                                             collide_);
     }
 
-    if (plan_success) {
+    if (plan_success_) {
         auto info = &path_finder_->getLocaldata();
 
         /* get traj result */

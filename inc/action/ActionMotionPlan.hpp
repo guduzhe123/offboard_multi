@@ -8,6 +8,7 @@
 #include "IControlFunction.hpp"
 #include "motion_plan/mp_core/MPManager.h"
 #include "DataMan.hpp"
+#include "USV2ActionMotionPlan.hpp"
 
 class ActionMotionPlan : public IControlFunction {
 public:
@@ -89,6 +90,9 @@ private:
     bool is_enable_;
     GlobalTrajData usv1_global_data_;
     ros::NodeHandle nh_;
+
+    PolynomialTraj gl_traj;
+    bool init_follower_;
 };
 
 class ActionMotionPlanFactory : public IFunctionFactory {

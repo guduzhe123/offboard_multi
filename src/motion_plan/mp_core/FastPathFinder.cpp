@@ -35,7 +35,7 @@ namespace fast_planner {
         edt_environment_->setMap(sdf_map_);
 
         chlog::info(mp_config_.log_path, "[plan man]: pp_.max_vel_ = " + to_string2(pp_.max_vel_) + ", max acc_: " +
-                                   to_string2(pp_.max_acc_));
+                                         to_string2(pp_.max_acc_));
         kino_path_finder_.reset(new KinodynamicAstar);
         kino_path_finder_->setParam(nh, mp_config_.log_path);
         kino_path_finder_->setEnvironment(map, edt_environment_);
@@ -157,46 +157,56 @@ namespace fast_planner {
 
     bool FastPathFinder::planGlobalTraj(const Eigen::Vector3f &start_pos, const Eigen::Vector3f &end_pos,
                                         const int formation_type,
-                                        const float formation_distance) {
-        plan_data_.clearTopoPaths();
-        // generate global reference trajectory
+                                        const float formation_distance, const int usv_id,
+                                        const PolynomialTraj poly_traj) {
+        PolynomialTraj gl_traj;
+        if (usv_id == 1) {
+            plan_data_.clearTopoPaths();
+            // generate global reference trajectory
 
-        vector<Eigen::Vector3d> points = plan_data_.global_waypoints_;
-        if (points.size() == 0)
-        {
-            chlog::info(mp_config_.log_path,  "no global waypoints!");
-            return false;
-        }
+            vector<Eigen::Vector3d> points = plan_data_.global_waypoints_;
+            if (points.size() == 0)
+            {
+                chlog::info(mp_config_.log_path,  "no global waypoints!");
+                return false;
+            }
 
-        points.insert(points.begin(), start_pos.cast<double>());
+            points.insert(points.begin(), start_pos.cast<double>());
 
-        // insert intermediate points if too far
-        vector<Eigen::Vector3d> inter_points;
-        const double            dist_thresh = 4.0;
+            // insert intermediate points if too far
+            vector<Eigen::Vector3d> inter_points;
+            const double            dist_thresh = 4.0;
 
-        inter_points.push_back(points.front());
-        for (int i = 0; i < points.size() - 1; ++i) {
-            double dist = (points.at(i + 1) - points.at(i)).norm();
-            if (dist > dist_thresh) {
-                int id_num = floor(dist / dist_thresh) + 1;
+            inter_points.push_back(points.front());
+            for (int i = 0; i < points.size() - 1; ++i) {
+                double dist = (points.at(i + 1) - points.at(i)).norm();
+                if (dist > dist_thresh) {
+                    int id_num = floor(dist / dist_thresh) + 1;
 
-                for (int j = 1; j < id_num; ++j) {
-                    Eigen::Vector3d inter_pt =
-                            points.at(i) * (1.0 - double(j) / id_num) + points.at(i + 1) * double(j) / id_num;
-                    inter_points.push_back(inter_pt);
+                    for (int j = 1; j < id_num; ++j) {
+                        Eigen::Vector3d inter_pt =
+                                points.at(i) * (1.0 - double(j) / id_num) + points.at(i + 1) * double(j) / id_num;
+                        inter_points.push_back(inter_pt);
+                    }
                 }
             }
-        }
 
-        inter_points.push_back(points.back());
-        if (inter_points.size() == 2) {
-            Eigen::Vector3d mid = (inter_points[0] + inter_points[1]) * 0.5;
-            inter_points.insert(inter_points.begin() + 1, mid);
-        }
+            inter_points.push_back(points.back());
+            if (inter_points.size() == 2) {
+                Eigen::Vector3d mid = (inter_points[0] + inter_points[1]) * 0.5;
+                inter_points.insert(inter_points.begin() + 1, mid);
+            }
 
-        // write position matrix
-        PolynomialTraj gl_traj;
-        calcMiniSnap(inter_points, gl_traj);
+            // write position matrix
+            int             pt_num = inter_points.size();
+            Eigen::VectorXd time(pt_num - 1);
+            calcMiniSnap(inter_points, gl_traj, time, 1);
+
+            planUSV2GlobalTraj(inter_points, time);
+
+        } else {
+            gl_traj = poly_traj;
+        }
 
         auto time_now = ros::Time::now();
         global_data_.setGlobalTraj(gl_traj, time_now);
@@ -213,11 +223,12 @@ namespace fast_planner {
 
         updateTrajInfo();
 
-        planUSV2GlobalTraj(inter_points, 2);
         return true;
     }
 
-    void FastPathFinder::calcMiniSnap(vector<Eigen::Vector3d>& inter_points, PolynomialTraj& gl_traj) {
+    void
+    FastPathFinder::calcMiniSnap(vector<Eigen::Vector3d> &inter_points, PolynomialTraj &gl_traj, Eigen::VectorXd &time,
+                                 int usv_id) {
         int             pt_num = inter_points.size();
         Eigen::MatrixXd pos(pt_num, 3);
         for (int i = 0; i < pt_num; ++i) {
@@ -227,37 +238,45 @@ namespace fast_planner {
         }
 
         Eigen::Vector3d zero(0, 0, 0);
-        Eigen::VectorXd time(pt_num - 1);
-        for (int i = 0; i < pt_num - 1; ++i) {
-            time(i) = (pos.row(i + 1) - pos.row(i)).norm() / (pp_.max_vel_);
+        if (usv_id == 1) {
+            for (int i = 0; i < pt_num - 1; ++i) {
+                time(i) = (pos.row(i + 1) - pos.row(i)).norm() / (pp_.max_vel_);
+            }
+
+            time(0) *= 2.0;
+            time(0) = max(1.0, time(0));
+            time(time.rows() - 1) *= 2.0;
+            time(time.rows() - 1) = max(1.0, time(time.rows() - 1));
         }
-
-        time(0) *= 2.0;
-        time(0) = max(1.0, time(0));
-        time(time.rows() - 1) *= 2.0;
-        time(time.rows() - 1) = max(1.0, time(time.rows() - 1));
-
+        if (pos.rows() - 1 != time.size()) {
+            chlog::info(mp_config_.log_path, "Error! wrong mini snap inputs! pos size = ", pos.size(),
+                        ", time size = ", time.size());
+            return;
+        }
         gl_traj = minSnapTraj(pos, zero, zero, zero, zero, time);
     }
 
 
-    void FastPathFinder::planUSV2GlobalTraj(vector<Eigen::Vector3d>& leader_pos, int usv_id) {
+    void FastPathFinder::planUSV2GlobalTraj(vector<Eigen::Vector3d> &leader_pos, Eigen::VectorXd &time) {
         TVec3 line_dir_norm(1, 0, 0);
         vector<Eigen::Vector3d> follower_pos;
+        TVec3 res;
         for (int i = 0; i < leader_pos.size() - 1; i++) {
             TVec3 line_dir = ((leader_pos.at(i + 1) - leader_pos.at(i)).normalized()).cast<float>();
             Eigen::Matrix3f rotMatrix = Eigen::Quaternionf::FromTwoVectors(line_dir_norm, line_dir).toRotationMatrix();
             chlog::info(mp_config_.log_path, "line dir = ", toStr(line_dir), ", drone_usv2_ = ", toStr(drone_usv2_));
             cout << "Rotation_usv 2 = " << endl << rotMatrix << endl;
-            TVec3 res = rotMatrix * drone_usv2_;
+            res = rotMatrix * drone_usv2_;
             Eigen::Vector3d pos = leader_pos.at(i) + res.cast<double>();
             chlog::info(mp_config_.log_path, "pos = ", toStr(pos.cast<float>()), ", leader pos = ",
                         toStr(leader_pos.at(i).cast<float>()), ", res = ", toStr(res));
             follower_pos.push_back(pos);
         }
 
-        PolynomialTraj gl_traj;
-        calcMiniSnap(follower_pos, gl_traj);
+        Eigen::Vector3d pos = leader_pos.back() + res.cast<double>();
+        follower_pos.push_back(pos);
+
+        calcMiniSnap(follower_pos, usv2_gl_traj_, time, 2);
     }
 
 
@@ -285,7 +304,7 @@ namespace fast_planner {
 // SECTION kinodynamic replanning
 
     void FastPathFinder::findCollisionRange(vector<Eigen::Vector3f>& colli_start,
-                                       vector<Eigen::Vector3f>& colli_end) {
+                                            vector<Eigen::Vector3f>& colli_end) {
         bool               last_safe = true, safe;
         double             t_m, t_mp;
         NonUniformBspline* initial_traj = &plan_data_.initial_local_segment_;
@@ -321,19 +340,19 @@ namespace fast_planner {
     bool FastPathFinder::replan(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel, Eigen::Vector3d start_acc,
                                 Eigen::Vector3d end_pt, Eigen::Vector3d end_vel, bool collide) {
         chlog::info(mp_config_.log_path, "[plan man]: plan manager start point: (" + to_string2(start_pt(0)) +
-                                   ", " + to_string2(start_pt(1)) +
-                                   ", " + to_string2(start_pt(2)) + ")" +
-                                   ", start_vel, " + to_string2(start_vel(0)) +
-                                   ", " + to_string2(start_vel(1)) +
-                                   ", " + to_string2(start_vel(2)) + ")");
+                                         ", " + to_string2(start_pt(1)) +
+                                         ", " + to_string2(start_pt(2)) + ")" +
+                                         ", start_vel, " + to_string2(start_vel(0)) +
+                                         ", " + to_string2(start_vel(1)) +
+                                         ", " + to_string2(start_vel(2)) + ")");
 
         chlog::info(mp_config_.log_path, "[plan man]: , end_pt, " + to_string2(end_pt(0)) +
-                                   ", " + to_string2(end_pt(1)) +
-                                   ", " + to_string2(end_pt(2)) + ")" +
-                                   ", end_vel, " + to_string2(end_vel(0)) +
-                                   ", " + to_string2(end_vel(1)) +
-                                   ", " + to_string2(end_vel(2)) +
-                                   ", collide = ", collide);
+                                         ", " + to_string2(end_pt(1)) +
+                                         ", " + to_string2(end_pt(2)) + ")" +
+                                         ", end_vel, " + to_string2(end_vel(0)) +
+                                         ", " + to_string2(end_vel(1)) +
+                                         ", " + to_string2(end_vel(2)) +
+                                         ", collide = ", collide);
         ros::Time t1, t2;
         ros::Time time_now = ros::Time::now();
         double    t_now    = (time_now - global_data_.global_start_time_).toSec();
@@ -365,7 +384,7 @@ namespace fast_planner {
             kino_path_finder_->reset();
 
             int status = kino_path_finder_->search(start_pt, start_vel, start_acc, colli_end.back().cast<double>(),
-                    end_vel, mp_config_.mp_plan_state, true, true);
+                                                   end_vel, mp_config_.mp_plan_state, true, true);
 
             if (status == KinodynamicAstar::NO_PATH) {
                 chlog::info(mp_config_.log_path, "[plan man]: kinodynamic search fail!");
@@ -446,8 +465,8 @@ namespace fast_planner {
 
                 double t_total = t_search + t_opt + t_adjust;
                 chlog::info(mp_config_.log_path, "[plan man]: time: " + to_string(t_total) + ", search: " +
-                                           to_string(t_search) + ", optimize: " + to_string(t_opt) +
-                                           ", adjust time:" + to_string(t_adjust));
+                                                 to_string(t_search) + ", optimize: " + to_string(t_opt) +
+                                                 ", adjust time:" + to_string(t_adjust));
 
                 time_inc = t_total;
 
@@ -571,6 +590,14 @@ namespace fast_planner {
     GlobalTrajData& FastPathFinder::getGlobalData() {
         return global_data_;
     }
+
+    PolynomialTraj& FastPathFinder::getUSV2PolynomialTraj() {
+        return usv2_gl_traj_;
+    };
+
+    PolynomialTraj& FastPathFinder::getUSV3PolynomialTraj() {
+        return usv3_gl_traj_;
+    };
 
     void FastPathFinder::refineTraj(NonUniformBspline& best_traj, double& time_inc) {
         ros::Time t1 = ros::Time::now();

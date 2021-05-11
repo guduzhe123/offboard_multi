@@ -15,13 +15,14 @@ void USV3ActionMotionPlan::Oninit(const int config) {
 }
 void USV3ActionMotionPlan::initNh(ros::NodeHandle& nh) {
     nh_ = nh;
+    mp_manager_ = makeSp<MPManager>(mp_config_);
 }
 
 bool USV3ActionMotionPlan::initMP(const MP_Config &mpConfig) {
     mp_config_ = mpConfig;
     mp_config_.log_path = "USV3_MP";
     mp_config_.nh = nh_;
-    mp_manager_ = makeSp<MPManager>(mp_config_);
+    mp_config_.drone_id = 3;
     output_.target_heading = mpConfig.m_drone_heading;
     mp_manager_->SetMpEnable(true);
     chlog::info(mp_config_.log_path, "[Action MP]: usv3_mp init! target_pos = " + toStr(mpConfig.end_pos)

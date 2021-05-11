@@ -51,6 +51,10 @@ public:
     void OnUpdateOctomap(const octomap_msgs::Octomap &msg);
 
     void updateEndVel(const TVec3 &end_vel);
+
+    void setPolyTraj(const PolynomialTraj& poly_traj);
+
+    bool getPolyTraj(PolynomialTraj& usv2_poly_traj, PolynomialTraj& usv3_poly_traj);
 private:
     enum MP_EXEC_STATE {
         INIT,
@@ -101,7 +105,10 @@ private:
 
     MP_CHECK_COLLISION check_collision_state_;
     bool collide_;
+    bool plan_success_;
     string log;
+    PolynomialTraj gl_traj_;
+
     // private functions
     void CalcDistToCenter(float &dist, const TVec3 &cur_pos, TVec3 start_pos, TVec3 end_pos);
 

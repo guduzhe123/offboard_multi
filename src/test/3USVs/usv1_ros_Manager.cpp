@@ -186,8 +186,6 @@ void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr
     mp_config.targets.clear();
     TVec3 center{dronepos_.m_x, goal.y(), 0};
     mp_config.targets.push_back(center);
-    TVec3 center_next{goal.x(), dronepos_.m_y, 0};
-    mp_config.targets.push_back(center_next);
     mp_config.targets.push_back(goal);
     mp_config.formation_type = config_;
     mp_config.formation_distance = K_multi_usv_formation_distance;

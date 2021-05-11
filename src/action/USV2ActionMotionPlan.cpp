@@ -6,26 +6,33 @@
 
 
 USV2ActionMotionPlan::USV2ActionMotionPlan() :
-        is_enable_(false)
+        is_enable_(false),
+        test_num(0)
 {
 }
 
 void USV2ActionMotionPlan::Oninit(const int config) {
 
 }
-void USV2ActionMotionPlan::initNh(ros::NodeHandle& nh) {
+void USV2ActionMotionPlan::initNh(ros::NodeHandle &nh, const shared_ptr<IMap> &IMap) {
     nh_ = nh;
+    IMap_ = IMap;
+    test_num = 66;
+    chlog::info("USV2_MP", "[USV2 Action MP]: usv2 usv2_mp init! test_num = ", test_num);
 }
 
 bool USV2ActionMotionPlan::initMP(const MP_Config &mpConfig) {
     mp_config_ = mpConfig;
     mp_config_.log_path = "USV2_MP";
     mp_config_.nh = nh_;
+    mp_config_.drone_id = 2;
+    mp_config_.mp_map = IMap_;
     mp_manager_ = makeSp<MPManager>(mp_config_);
     output_.target_heading = mpConfig.m_drone_heading;
     mp_manager_->SetMpEnable(true);
     chlog::info(mp_config_.log_path, "[USV2 Action MP]: usv2 usv2_mp init! target_pos = " + toStr(mpConfig.end_pos)
-                           + ", target_heading = " + to_string2(mpConfig.target_heading));
+                           + ", target_heading = " + to_string2(mpConfig.target_heading),
+                           ", test num = ", test_num);
     return false;
 }
 
@@ -106,6 +113,11 @@ void USV2ActionMotionPlan::updateMotionPlan(const float dist,const TVec3 &insp_v
 void USV2ActionMotionPlan::updateCirclePoint(const TVec3 &tip_pos) {
     mp_config_.m_toward_point = tip_pos;
 }
+
+void USV2ActionMotionPlan::setPolyTraj(PolynomialTraj& poly_traj) {
+    mp_manager_->setPolyTraj(poly_traj);
+}
+
 
 USV2ActionMotionPlan* USV2ActionMotionPlan::getInstance() {
     static USV2ActionMotionPlan *action_mp = NULL;

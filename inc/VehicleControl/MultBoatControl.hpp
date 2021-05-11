@@ -11,6 +11,9 @@
 #include "Calculate.hpp"
 #include "ActionCircle.hpp"
 #include "PathCreator.hpp"
+#include "ActionMotionPlan.hpp"
+#include "USV2ActionMotionPlan.hpp"
+#include "USV3ActionMotionPlan.hpp"
 
 class MultiBoatControl : public IVehicleControl {
 public:

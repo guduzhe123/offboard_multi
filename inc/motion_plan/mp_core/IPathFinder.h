@@ -22,7 +22,7 @@ namespace fast_planner{
 
         virtual bool
         planGlobalTraj(const Eigen::Vector3f &start_pos, const Eigen::Vector3f &end_pos, const int formation_type,
-                       const float formation_distance) = 0;
+                       const float formation_distance, const int usv_id, const PolynomialTraj gl_traj) = 0;
 
         virtual void planYaw(const Eigen::Vector3d& start_yaw) = 0;
 
@@ -42,6 +42,8 @@ namespace fast_planner{
 
         virtual void updateSpeedLimit(const float max_speed, const float max_acc) = 0;
 
+        virtual PolynomialTraj& getUSV2PolynomialTraj() = 0;
+        virtual PolynomialTraj& getUSV3PolynomialTraj() = 0;
     };
 }
 

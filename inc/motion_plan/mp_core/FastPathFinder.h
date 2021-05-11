@@ -26,7 +26,7 @@ namespace fast_planner {
         bool replan(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel, Eigen::Vector3d start_acc,
                     Eigen::Vector3d end_pt, Eigen::Vector3d end_vel, bool collide) override ;
         bool planGlobalTraj(const Eigen::Vector3f &start_pos, const Eigen::Vector3f &end_pos, const int formation_type,
-                            const float formation_distance);
+                            const float formation_distance, const int usv_id, const PolynomialTraj gl_traj);
 
         void planYaw(const Eigen::Vector3d& start_yaw) override ;
 
@@ -39,6 +39,8 @@ namespace fast_planner {
         LocalTrajData& getLocaldata() override ;
         MidPlanData& getPlanData() override;
         GlobalTrajData& getGlobalData() override;
+        PolynomialTraj& getUSV2PolynomialTraj() override;
+        PolynomialTraj& getUSV3PolynomialTraj() override;
 
         void updateSpeedLimit(const float max_speed, const float max_acc) override;
 
@@ -59,6 +61,8 @@ namespace fast_planner {
         MP_Config mp_config_;
 
         TVec3 drone_usv2_, drone_usv3_;
+        PolynomialTraj usv2_gl_traj_;
+        PolynomialTraj usv3_gl_traj_;
 
         void updateTrajInfo();
 
@@ -81,11 +85,12 @@ namespace fast_planner {
         void optimizeTopoBspline(double start_t, double duration, vector<Eigen::Vector3d> guide_path, int traj_id,
                                  vector<Eigen::Vector3d> start_end_points);
 
-        void planUSV2GlobalTraj(vector<Eigen::Vector3d>& leader_pos, int usv_id);
+        void planUSV2GlobalTraj(vector<Eigen::Vector3d> &leader_pos, Eigen::VectorXd &time);
 
         void initFormation();
 
-        void calcMiniSnap(vector<Eigen::Vector3d>& inter_points, PolynomialTraj& gl_traj);
+        void
+        calcMiniSnap(vector<Eigen::Vector3d> &inter_points, PolynomialTraj &gl_traj, Eigen::VectorXd &time, int usv_id);
 
         // !SECTION stable
 

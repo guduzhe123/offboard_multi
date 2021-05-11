@@ -325,5 +325,6 @@ struct MP_Config{
     Sp<IMap> mp_map;
     ros::NodeHandle nh;
     string log_path;
+    int drone_id;
 };
 #endif //OFFBOARD_CINC_HPP
