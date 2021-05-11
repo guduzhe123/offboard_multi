@@ -13,9 +13,9 @@ USV3ActionMotionPlan::USV3ActionMotionPlan() :
 void USV3ActionMotionPlan::Oninit(const int config) {
 
 }
-void USV3ActionMotionPlan::initNh(ros::NodeHandle& nh) {
+void USV3ActionMotionPlan::initNh(ros::NodeHandle &nh, shared_ptr<IMap> &IMap) {
     nh_ = nh;
-    mp_manager_ = makeSp<MPManager>(mp_config_);
+    IMap_ = IMap;
 }
 
 bool USV3ActionMotionPlan::initMP(const MP_Config &mpConfig) {
@@ -23,6 +23,8 @@ bool USV3ActionMotionPlan::initMP(const MP_Config &mpConfig) {
     mp_config_.log_path = "USV3_MP";
     mp_config_.nh = nh_;
     mp_config_.drone_id = 3;
+    mp_config_.mp_map = IMap_;
+    mp_manager_ = makeSp<MPManager>(mp_config_);
     output_.target_heading = mpConfig.m_drone_heading;
     mp_manager_->SetMpEnable(true);
     chlog::info(mp_config_.log_path, "[Action MP]: usv3_mp init! target_pos = " + toStr(mpConfig.end_pos)
@@ -109,6 +111,10 @@ void USV3ActionMotionPlan::updateMotionPlan(const float dist,const TVec3 &insp_v
 
 void USV3ActionMotionPlan::updateCirclePoint(const TVec3 &tip_pos) {
     mp_config_.m_toward_point = tip_pos;
+}
+
+void USV3ActionMotionPlan::setPolyTraj(PolynomialTraj& poly_traj) {
+    mp_manager_->setPolyTraj(poly_traj);
 }
 
 USV3ActionMotionPlan* USV3ActionMotionPlan::getInstance() {

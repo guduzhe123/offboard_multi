@@ -68,7 +68,8 @@ public:
 
     void SetStatus(const TVec3 &drone_pos, const TVec3 &drone_speed, float heading);
 
-    void initNh(ros::NodeHandle& nh);
+    void initNh(ros::NodeHandle &nh, shared_ptr<IMap> &IMap);
+    void setPolyTraj(PolynomialTraj& poly_traj);
     static USV3ActionMotionPlan* getInstance();
 
 
@@ -86,6 +87,7 @@ private:
     bool is_enable_;
     GlobalTrajData usv1_global_data_;
     ros::NodeHandle nh_;
+    shared_ptr<IMap> IMap_;
 };
 
 class USV3ActionMotionPlanFactory : public IFunctionFactory {

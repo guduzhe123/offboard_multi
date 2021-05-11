@@ -56,6 +56,10 @@ void ActionMotionPlan::DoProgress() {
             USV2ActionMotionPlan::getInstance()->initMP(mp_config_);
             USV2ActionMotionPlan::getInstance()->setPolyTraj(usv2_traj);
             USV2ActionMotionPlan::getInstance()->setEnable(true);
+
+            USV3ActionMotionPlan::getInstance()->initMP(mp_config_);
+            USV3ActionMotionPlan::getInstance()->setPolyTraj(usv3_traj);
+            USV3ActionMotionPlan::getInstance()->setEnable(true);
             init_follower_ = true;
         }
     } else {

@@ -112,6 +112,7 @@ bool MPManager::CallKinodynamicReplan(int step) {
         plan_success_ = path_finder_->planGlobalTraj(start_pt_, mp_config_.end_pos,
                                                      mp_config_.formation_type, mp_config_.formation_distance,
                                                      mp_config_.drone_id, gl_traj_);
+        chlog::info(log, "plan success = ", plan_success_);
 
     } else {
         plan_success_ = path_finder_->replan(start_pt_.cast<double>(), start_vel_.cast<double>(),
@@ -379,7 +380,7 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
         if (!safe) {
             if (dist > 0.1) {
                 chlog::info(log, "current traj: ", dist, "  m to collision" );
-                collide_ = true;
+//                collide_ = true;
 
                 ChangeExecState(REPLAN_TRAJ, "SAFETY");
             }

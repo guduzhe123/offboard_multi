@@ -70,7 +70,7 @@ void usv3_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
     uav_.Imap.reset(new OctoMap);
     uav_.Imap->onInit();
     uav_.Imap->setSafeRaduis(5);
-    USV3ActionMotionPlan::getInstance()->initNh(nh);
+    USV3ActionMotionPlan::getInstance()->initNh(nh, uav_.Imap);
 }
 
 void usv3_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {

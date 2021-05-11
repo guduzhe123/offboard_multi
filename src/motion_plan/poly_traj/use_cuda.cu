@@ -191,6 +191,15 @@ void UseCuda::calMatrixInverse(const Eigen::MatrixXd &A, Eigen::MatrixXd &x_sol,
     CHECK(cudaEventSynchronize(stop1));
     CHECK(cudaEventElapsedTime(&elapsed_time, start1, stop1));
     use_time = elapsed_time;
+
+    CHECK(cudaFree(d_A));
+    CHECK(cudaFree(d_b));
+    CHECK(cudaFree(d_tau));
+    CHECK(cudaFree(d_devInfo));
+    CHECK(cudaFree(d_R));
+    CHECK(cudaFree(d_b_));
+    CHECK(cudaFree(d_work));
+    CHECK(cudaFree(d_work2));
     printf("Time2 = %g ms.\n", elapsed_time);
 
 }

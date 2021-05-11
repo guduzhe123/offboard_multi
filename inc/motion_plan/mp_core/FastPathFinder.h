@@ -86,6 +86,7 @@ namespace fast_planner {
                                  vector<Eigen::Vector3d> start_end_points);
 
         void planUSV2GlobalTraj(vector<Eigen::Vector3d> &leader_pos, Eigen::VectorXd &time);
+        void planUSV3GlobalTraj(vector<Eigen::Vector3d> &leader_pos, Eigen::VectorXd &time);
 
         void initFormation();
 

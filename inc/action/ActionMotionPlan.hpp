@@ -9,6 +9,7 @@
 #include "motion_plan/mp_core/MPManager.h"
 #include "DataMan.hpp"
 #include "USV2ActionMotionPlan.hpp"
+#include "USV3ActionMotionPlan.hpp"
 
 class ActionMotionPlan : public IControlFunction {
 public:

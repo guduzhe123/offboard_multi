@@ -4,11 +4,11 @@
 std::shared_ptr<UseCuda> m_fun;
 
 void onInitCUDA(const Eigen::MatrixXd &A, Eigen::MatrixXd &A_inv) {
-    chlog::info("motion_plan", "init matrix inverse use cuda!");
+    chlog::info("USV1_MP", "init matrix inverse use cuda!");
     m_fun = std::make_shared<UseCuda>();
     float use_time = 0;
     m_fun->calMatrixInverse(A, A_inv, use_time);
-    chlog::info("motion_plan", "matrix inverse finished! use time = ", use_time, "ms");
+    chlog::info("USV1_MP", "matrix inverse finished! use time = ", use_time, "ms");
 }
 
 void calMatrixgem(const Eigen::MatrixXd &matrix_A, const Eigen::MatrixXd &matrix_B,
@@ -16,7 +16,7 @@ void calMatrixgem(const Eigen::MatrixXd &matrix_A, const Eigen::MatrixXd &matrix
     m_fun = std::make_shared<UseCuda>();
     float time;
     m_fun->calMatrixDgemm(matrix_A, matrix_B, sol, time);
-    chlog::info("motion_plan", " Matrix use time = ", time, "ms");
+    chlog::info("USV1_MP", " Matrix use time = ", time, "ms");
 }
 
 PolynomialTraj minSnapTraj(const Eigen::MatrixXd& Pos, const Eigen::Vector3d& start_vel,
@@ -220,7 +220,7 @@ PolynomialTraj minSnapTraj(const Eigen::MatrixXd& Pos, const Eigen::Vector3d& st
     }
 
     time1 = (ros::Time::now() - t1).toSec();
-    chlog::info("motion_plan", "A size = ", A.cols(),
+    chlog::info("USV1_MP", "A size = ", A.cols(),
                 ", calcuse matrix inverse use cuda use time1 = ", time1);
     return poly_traj;
 }

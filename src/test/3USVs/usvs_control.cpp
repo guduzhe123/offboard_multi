@@ -83,8 +83,8 @@ void usvs_control::PublishBoatPosControl(const multi_vehicle &multi_vehicles) {
     }*/
 
 //    usv1_control_->usvPosSp(usv1);
-    usv2_control_->usvPosSp(usv2);
-    usv3_control_->usvPosSp(usv3);
+/*    usv2_control_->usvPosSp(usv2);
+    usv3_control_->usvPosSp(usv3);*/
 
 }
 

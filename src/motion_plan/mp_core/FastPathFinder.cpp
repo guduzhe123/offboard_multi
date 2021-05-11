@@ -59,30 +59,32 @@ namespace fast_planner {
         switch (mp_config_.formation_type) {
             case VF_USV_TRIANGLE: {
                 chlog::info(mp_config_.log_path,"[USV Formation]: usv Formation call! Triangle!");
-                drone_usv2_ = TVec3(-mp_config_.formation_distance, -mp_config_.formation_distance , 0);
-                drone_usv3_ = TVec3(mp_config_.formation_distance, -mp_config_.formation_distance , 0);
+                drone_usv2_ = TVec3(-K_multi_usv_formation_distance, -K_multi_usv_formation_distance , 0);
+                drone_usv3_ = TVec3(-K_multi_usv_formation_distance, K_multi_usv_formation_distance , 0);
+                chlog::info(mp_config_.log_path, "[USV Formation]: drone_usv2_ = ", toStr(drone_usv2_),
+                            ", drone_usv3 = ", toStr(drone_usv3_));
             }
                 break;
 
             case VF_USV_INVERSION_TRIANGLE: {
                 chlog::info(mp_config_.log_path,"[USV Formation]: usv Formation call! INVERSION Triangle!");
-                drone_usv2_ = TVec3(- mp_config_.formation_distance, -mp_config_.formation_distance , 0);
-                drone_usv3_ = TVec3(-2 * mp_config_.formation_distance , 0, 0);
+                drone_usv2_ = TVec3(- K_multi_usv_formation_distance, -K_multi_usv_formation_distance , 0);
+                drone_usv3_ = TVec3(-2 * K_multi_usv_formation_distance , 0, 0);
             }
                 break;
 
 
             case VF_USV_LINE_HORIZONTAL : {
                 chlog::info(mp_config_.log_path,"[USV Formation]: usv Formation call! Line horizontal!");
-                drone_usv2_ = TVec3(0, -mp_config_.formation_distance , 0);
-                drone_usv3_ = TVec3(0, -2 * mp_config_.formation_distance, 0);
+                drone_usv2_ = TVec3(0, -K_multi_usv_formation_distance , 0);
+                drone_usv3_ = TVec3(0, -2 * K_multi_usv_formation_distance, 0);
             }
                 break;
 
             case VF_USV_LINE_VERTICAL : {
                 chlog::info(mp_config_.log_path,"[USV Formation]: usv Formation call! Line Vertical!");
-                drone_usv2_ = TVec3(mp_config_.formation_distance, 0 , 0);
-                drone_usv3_ = TVec3(2 * mp_config_.formation_distance, 0, 0);
+                drone_usv2_ = TVec3(K_multi_usv_formation_distance, 0 , 0);
+                drone_usv3_ = TVec3(2 * K_multi_usv_formation_distance, 0, 0);
             }
                 break;
 
@@ -203,6 +205,7 @@ namespace fast_planner {
             calcMiniSnap(inter_points, gl_traj, time, 1);
 
             planUSV2GlobalTraj(inter_points, time);
+            planUSV3GlobalTraj(inter_points, time);
 
         } else {
             gl_traj = poly_traj;
@@ -279,6 +282,28 @@ namespace fast_planner {
         calcMiniSnap(follower_pos, usv2_gl_traj_, time, 2);
     }
 
+    void FastPathFinder::planUSV3GlobalTraj(vector<Eigen::Vector3d> &leader_pos, Eigen::VectorXd &time) {
+        TVec3 line_dir_norm(1, 0, 0);
+        vector<Eigen::Vector3d> follower_pos;
+        TVec3 res;
+        for (int i = 0; i < leader_pos.size() - 1; i++) {
+            TVec3 line_dir = ((leader_pos.at(i + 1) - leader_pos.at(i)).normalized()).cast<float>();
+            Eigen::Matrix3f rotMatrix = Eigen::Quaternionf::FromTwoVectors(line_dir_norm, line_dir).toRotationMatrix();
+            chlog::info(mp_config_.log_path, "line dir = ", toStr(line_dir),
+                        ", drone_usv3_ = ", toStr(drone_usv3_));
+            cout << "Rotation_usv 3 = " << endl << rotMatrix << endl;
+            res = rotMatrix * drone_usv3_;
+            Eigen::Vector3d pos = leader_pos.at(i) + res.cast<double>();
+            chlog::info(mp_config_.log_path, "pos = ", toStr(pos.cast<float>()), ", leader pos = ",
+                        toStr(leader_pos.at(i).cast<float>()), ", res = ", toStr(res));
+            follower_pos.push_back(pos);
+        }
+
+        Eigen::Vector3d pos = leader_pos.back() + res.cast<double>();
+        follower_pos.push_back(pos);
+
+        calcMiniSnap(follower_pos, usv3_gl_traj_, time, 2);
+    }
 
     Eigen::MatrixXd FastPathFinder::reparamLocalTraj(double start_t, double &dt, double &duration, int step) {
         /* get the sample points local traj within radius */
