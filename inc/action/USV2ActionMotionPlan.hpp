@@ -2,26 +2,26 @@
 // Created by zhouhua on 2020/6/1.
 //
 
-#ifndef WINDAPPCORE_ACTIONMOTIONPLAN_HPP
-#define WINDAPPCORE_ACTIONMOTIONPLAN_HPP
+#ifndef WINDAPPCORE_USV2_ACTIONMOTIONPLAN_HPP
+#define WINDAPPCORE_USV2_ACTIONMOTIONPLAN_HPP
 
 #include "IControlFunction.hpp"
 #include "motion_plan/mp_core/MPManager.h"
 #include "DataMan.hpp"
 
-class ActionMotionPlan : public IControlFunction {
+class USV2ActionMotionPlan : public IControlFunction {
 public:
     /// @brief Constructor
     ///
-    /// Constructor of the class ActionMotionPlan.
+    /// Constructor of the class USV2ActionMotionPlan.
     /// @param name the name of this class
-    ActionMotionPlan();
+    USV2ActionMotionPlan();
 
     /// @brief Destructor
     ///
     /// Destructor of the class ActionDroneMoving.
     ///
-    ~ActionMotionPlan() override = default;
+    ~USV2ActionMotionPlan() override = default;
 
     /// @brief Initialization Function
     ///
@@ -67,12 +67,9 @@ public:
     void setEnable(bool enable);
 
     void SetStatus(const TVec3 &drone_pos, const TVec3 &drone_speed, float heading);
-
-    void getUSV1GlobalTraj(const GlobalTrajData &global_data);
-
     void initNh(ros::NodeHandle& nh);
 
-    static ActionMotionPlan* getInstance();
+    static USV2ActionMotionPlan* getInstance();
 
 
 protected:
@@ -84,20 +81,20 @@ private:
     MP_Config mp_config_;
     M_Drone drone_state_;
 
-    TVec3 usv1_drone_pos_;
+    TVec3 drone_pos_;
     multi_vehicle m_multi_vehicle_;
     bool is_enable_;
     GlobalTrajData usv1_global_data_;
     ros::NodeHandle nh_;
 };
 
-class ActionMotionPlanFactory : public IFunctionFactory {
+class USV2ActionMotionPlanFactory : public IFunctionFactory {
 public:
-    ~ActionMotionPlanFactory() {};
+    ~USV2ActionMotionPlanFactory() {};
 
     IControlFunction* FunctionCreator()  {
-        return ActionMotionPlan::getInstance();
+        return USV2ActionMotionPlan::getInstance();
     }
 };
 
-#endif //WINDAPPCORE_ACTIONMOTIONPLAN_HPP
+#endif //WINDAPPCORE_USV2_ACTIONMOTIONPLAN_HPP

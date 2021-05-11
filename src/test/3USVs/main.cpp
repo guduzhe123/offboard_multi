@@ -11,8 +11,14 @@
 
 int main(int argc, char **argv)
 {
-    chlog::initChannel("motion_plan");
-    chlog::setEnCout("motion_plan", true);
+    chlog::initChannel("USV1_MP");
+    chlog::setEnCout("USV1_MP", true);
+
+    chlog::initChannel("USV2_MP");
+    chlog::setEnCout("USV2_MP", false);
+
+    chlog::initChannel("USV3_MP");
+    chlog::setEnCout("USV3_MP", false);
 
     chlog::initChannel("data");
     chlog::setEnCout("data", false);

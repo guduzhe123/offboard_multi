@@ -5,18 +5,14 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /uav21/blade_fitting1
-        - /uav21/path_update1
-        - /uav21/path_fitting1
+        - /uav21
         - /uav31/simulation_map1/Autocompute Value Bounds1
-        - /usv11
-        - /usv11/target_pos1
-        - /usv11/cur_pos1
+        - /usv11/Planning1/bspline_traj1
         - /usv11/heading1
         - /usv11/Transform_points1
-        - /usv21/cur_pos1
-        - /usv21/target_pos1
+        - /usv21/Planning1
         - /usv21/heading1
+        - /usv31/Planning1/bspline_traj1
       Splitter Ratio: 0.397034585
     Tree Height: 431
   - Class: rviz/Selection
@@ -38,7 +34,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: PointCloud2
+    SyncSource: ""
 Toolbars:
   toolButtonStyle: 2
 Visualization Manager:
@@ -169,98 +165,10 @@ Visualization Manager:
           Use Fixed Frame: true
           Use rainbow: true
           Value: false
-      Enabled: true
+      Enabled: false
       Name: uav1
     - Class: rviz/Group
-      Displays:
-        - Class: rviz/Marker
-          Enabled: true
-          Marker Topic: /planning_vis/trajectory
-          Name: bspline_traj
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/Marker
-          Enabled: true
-          Marker Topic: /planning/travel_traj
-          Name: executed_traj
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/Marker
-          Enabled: true
-          Marker Topic: /planning/position_cmd_vis
-          Name: position_cmd
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/Marker
-          Enabled: true
-          Marker Topic: /planning/blade_fitting
-          Name: blade_fitting
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/Marker
-          Enabled: true
-          Marker Topic: /planning/path_update
-          Name: path_update
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/Marker
-          Enabled: true
-          Marker Topic: /planning/path_fitting
-          Name: path_fitting
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/Marker
-          Enabled: true
-          Marker Topic: /planning/blade1_map
-          Name: blade1
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/Marker
-          Enabled: true
-          Marker Topic: /planning/blade2_map
-          Name: blade2
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/Marker
-          Enabled: true
-          Marker Topic: /planning/blade3_map
-          Name: blade3
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/Marker
-          Enabled: true
-          Marker Topic: /planning/cabin_map
-          Name: cabin
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/Marker
-          Enabled: true
-          Marker Topic: /planning/turbine_map
-          Name: turbine
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
+      Displays: ~
       Enabled: true
       Name: uav2
     - Class: rviz/Group
@@ -345,98 +253,42 @@ Visualization Manager:
           Displays:
             - Class: rviz/Marker
               Enabled: true
-              Marker Topic: /planning_vis/trajectory
+              Marker Topic: /usv1/planning_vis/trajectory
               Name: bspline_traj
               Namespaces:
-                "": true
+                {}
               Queue Size: 100
               Value: true
             - Class: rviz/Marker
               Enabled: true
-              Marker Topic: /planning/travel_traj
+              Marker Topic: /usv1/planning/travel_traj
               Name: executed_traj
               Namespaces:
-                "": true
+                {}
               Queue Size: 100
               Value: true
             - Class: rviz/Marker
               Enabled: true
-              Marker Topic: /planning/position_cmd_vis
+              Marker Topic: /usv1/planning/position_cmd_vis
               Name: position_cmd
               Namespaces:
-                "": true
+                {}
               Queue Size: 100
               Value: true
             - Class: rviz/Marker
               Enabled: true
-              Marker Topic: /planning/blade_fitting
-              Name: blade_fitting
-              Namespaces:
-                points_and_lines: true
-              Queue Size: 100
-              Value: true
-            - Class: rviz/Marker
-              Enabled: true
-              Marker Topic: /planning/path_update
+              Marker Topic: /usv1/planning/path_update
               Name: path_update
               Namespaces:
-                points_and_lines: true
+                {}
               Queue Size: 100
               Value: true
             - Class: rviz/Marker
               Enabled: true
-              Marker Topic: /planning/path_fitting
+              Marker Topic: /usv1/planning_vis/drone_sphere
               Name: path_fitting
               Namespaces:
-                points_and_lines: true
-              Queue Size: 100
-              Value: true
-            - Class: rviz/Marker
-              Enabled: true
-              Marker Topic: /planning/blade1_map
-              Name: blade1
-              Namespaces:
                 {}
-              Queue Size: 100
-              Value: true
-            - Class: rviz/Marker
-              Enabled: true
-              Marker Topic: /planning/blade2_map
-              Name: blade2
-              Namespaces:
-                {}
-              Queue Size: 100
-              Value: true
-            - Class: rviz/Marker
-              Enabled: true
-              Marker Topic: /planning/blade3_map
-              Name: blade3
-              Namespaces:
-                {}
-              Queue Size: 100
-              Value: true
-            - Class: rviz/Marker
-              Enabled: true
-              Marker Topic: /planning/cabin_map
-              Name: cabin
-              Namespaces:
-                {}
-              Queue Size: 100
-              Value: true
-            - Class: rviz/Marker
-              Enabled: true
-              Marker Topic: /planning/turbine_map
-              Name: turbine
-              Namespaces:
-                {}
-              Queue Size: 100
-              Value: true
-            - Class: rviz/Marker
-              Enabled: true
-              Marker Topic: /planning_vis/drone_sphere
-              Name: drone
-              Namespaces:
-                "": true
               Queue Size: 100
               Value: true
           Enabled: true
@@ -454,7 +306,7 @@ Visualization Manager:
           Marker Topic: /usv1/cur_pos
           Name: cur_pos
           Namespaces:
-            points_and_lines: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -462,7 +314,7 @@ Visualization Manager:
           Marker Topic: /usv1/heading_vis
           Name: heading
           Namespaces:
-            "": true
+            {}
           Queue Size: 100
           Value: true
         - Alpha: 1
@@ -541,12 +393,56 @@ Visualization Manager:
       Name: usv1
     - Class: rviz/Group
       Displays:
+        - Class: rviz/Group
+          Displays:
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /usv2/planning_vis/trajectory
+              Name: bspline_traj
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /usv2/planning/travel_traj
+              Name: executed_traj
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /usv2/planning/position_cmd_vis
+              Name: position_cmd
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /usv2/planning/path_update
+              Name: path_update
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /usv2/planning_vis/drone_sphere
+              Name: path_fitting
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+          Enabled: true
+          Name: Planning
         - Class: rviz/Marker
           Enabled: true
           Marker Topic: /usv2/cur_pos
           Name: cur_pos
           Namespaces:
-            points_and_lines: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -562,19 +458,63 @@ Visualization Manager:
           Marker Topic: /usv2/heading_vis
           Name: heading
           Namespaces:
-            "": true
+            {}
           Queue Size: 100
           Value: true
       Enabled: true
       Name: usv2
     - Class: rviz/Group
       Displays:
+        - Class: rviz/Group
+          Displays:
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /usv3/planning_vis/trajectory
+              Name: bspline_traj
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /usv3/planning/travel_traj
+              Name: executed_traj
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /usv3/planning/position_cmd_vis
+              Name: position_cmd
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /usv3/planning/path_update
+              Name: path_update
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+            - Class: rviz/Marker
+              Enabled: true
+              Marker Topic: /usv3/planning_vis/drone_sphere
+              Name: path_fitting
+              Namespaces:
+                {}
+              Queue Size: 100
+              Value: true
+          Enabled: true
+          Name: Planning
         - Class: rviz/Marker
           Enabled: true
           Marker Topic: /usv3/cur_pos
           Name: cur_pos
           Namespaces:
-            points_and_lines: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -590,7 +530,7 @@ Visualization Manager:
           Marker Topic: /usv3/heading_vis
           Name: heading
           Namespaces:
-            "": true
+            {}
           Queue Size: 100
           Value: true
       Enabled: true
@@ -643,16 +583,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 135.624237
+      Distance: 77.8699875
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -37.4043961
-        Y: 7.01159382
-        Z: 5.48739717e-06
+        X: -6.94963264
+        Y: 8.48831463
+        Z: 2.83755799e-05
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
@@ -661,7 +601,7 @@ Visualization Manager:
       Pitch: 1.56979632
       Target Frame: <Fixed Frame>
       Value: ThirdPersonFollower (rviz)
-      Yaw: 2.42448282
+      Yaw: 2.94948268
     Saved:
       - Class: rviz/ThirdPersonFollower
         Distance: 17.4853859
@@ -921,7 +861,7 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1855
-  X: 65
+  X: 1985
   Y: 24
   depth:
     collapsed: false

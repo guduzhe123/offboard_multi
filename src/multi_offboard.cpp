@@ -475,6 +475,6 @@ void MultiOffboard::SetUSVAvoData(const bool usv1_usv2_crash, const bool usv1_us
 
 }
 
-void MultiOffboard::PublishUSV1PosControl(const multi_vehicle &multi_vehicles) {
+void MultiOffboard::PublishUSVPosControl(const multi_vehicle &multi_vehicles, int id) {
 
 }

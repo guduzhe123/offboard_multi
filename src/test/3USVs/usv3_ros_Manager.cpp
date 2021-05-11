@@ -10,6 +10,7 @@ usv3_ros_Manager::usv3_ros_Manager() :
         is_offboard_(false),
         is_takeoff_(false),
         is_land_(false),
+        is_speed_ctrl_(false),
         home_pos_updated_(false),
         usv_crash_(false)
 {
@@ -39,6 +40,8 @@ void usv3_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/imu/data", 10, &usv3_ros_Manager::imuCB, this);
     usv1_local_position_sub = nh.subscribe<geometry_msgs::PoseStamped>
             ("/usv1/mavros/local_position/pose", 20, &usv3_ros_Manager::usv1_local_pos_cb, this);
+    rviz_goal_sub = nh.subscribe<geometry_msgs::PoseStamped>
+            ("/move_base_simple/goal", 10, &usv3_ros_Manager::rvizUsv1GoalCB, this);
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
             ("mavros/setpoint_position/local", 100);
@@ -64,6 +67,38 @@ void usv3_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
     exec_timer_ = nh.createTimer(ros::Duration(0.05), &usv3_ros_Manager::drone_pos_update, this);
     commander_timer_ = nh.createTimer(ros::Duration(0.05), &usv3_ros_Manager::commander_update, this);
     publish_timer_ = nh.createTimer(ros::Duration(0.05), &usv3_ros_Manager::publishDronePosControl, this);
+    uav_.Imap.reset(new OctoMap);
+    uav_.Imap->onInit();
+    uav_.Imap->setSafeRaduis(5);
+    USV3ActionMotionPlan::getInstance()->initNh(nh);
+}
+void usv3_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
+    TVec3 goal;
+    goal.x() = msg->pose.position.x;
+    goal.y() = msg->pose.position.y;
+    goal.z() = msg->pose.position.z;
+    chlog::info("data", "received rviz goal ", toStr(goal));
+
+    MP_Config mp_config;
+    mp_config.is_track_point = true;
+    mp_config.is_speed_mode = false;
+    mp_config.control_mode = POSITION_WITHOUT_CUR;
+    mp_config.is_enable = true;
+    mp_config.max_vel = 1.5;
+    mp_config.max_acc = 2.0;
+    mp_config.mp_map = uav_.Imap;
+    mp_config.end_pos = goal;
+    mp_config.targets.clear();
+    TVec3 center{dronepos_.m_y, -goal.x(), 0};
+    mp_config.targets.push_back(center);
+    TVec3 center_next{goal.y(), dronepos_.m_x, 0};
+    mp_config.targets.push_back(center_next);
+    mp_config.targets.push_back(goal);
+    mp_config.formation_type = 1;
+    mp_config.formation_distance = K_multi_usv_formation_distance;
+    USV3ActionMotionPlan::getInstance()->initMP(mp_config);
+    USV3ActionMotionPlan::getInstance()->setEnable(true);
+    uav_.is_formation = true;
 }
 
 void usv3_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {

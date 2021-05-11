@@ -18,6 +18,8 @@
 #include "MultDroneControl.hpp"
 #include "MultBoatControl.hpp"
 #include "ActionMotionPlan.hpp"
+#include "USV2ActionMotionPlan.hpp"
+#include "USV3ActionMotionPlan.hpp"
 
 using namespace Eigen;
 using namespace std;

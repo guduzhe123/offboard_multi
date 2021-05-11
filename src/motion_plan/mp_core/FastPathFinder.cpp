@@ -8,7 +8,7 @@ namespace fast_planner {
 
     FastPathFinder::FastPathFinder() {}
 
-    FastPathFinder::~FastPathFinder() { chlog::info("motion_plan", "des manager" ) ; }
+    FastPathFinder::~FastPathFinder() { }
 
     void FastPathFinder::initPlanModules(const MP_Config &config, Sp<IMap> &map) {
         /* read algorithm parameters */
@@ -34,10 +34,10 @@ namespace fast_planner {
         edt_environment_.reset(new EDTEnvironment);
         edt_environment_->setMap(sdf_map_);
 
-        chlog::info("motion_plan", "[plan man]: pp_.max_vel_ = " + to_string2(pp_.max_vel_) + ", max acc_: " +
+        chlog::info(mp_config_.log_path, "[plan man]: pp_.max_vel_ = " + to_string2(pp_.max_vel_) + ", max acc_: " +
                                    to_string2(pp_.max_acc_));
         kino_path_finder_.reset(new KinodynamicAstar);
-        kino_path_finder_->setParam(nh);
+        kino_path_finder_->setParam(nh, mp_config_.log_path);
         kino_path_finder_->setEnvironment(map, edt_environment_);
         kino_path_finder_->setSpeedLimit(pp_.max_vel_, pp_.max_acc_);
         kino_path_finder_->init();
@@ -55,39 +55,39 @@ namespace fast_planner {
     }
 
     void FastPathFinder::initFormation() {
+        mp_config_.formation_type = VF_USV_TRIANGLE;
         switch (mp_config_.formation_type) {
             case VF_USV_TRIANGLE: {
-                chlog::info("data","[USV Formation]: usv Formation call! Triangle!");
-                Drone_usv2_ = TVec3(-K_multi_usv_formation_distance, -K_multi_usv_formation_distance , 0);
-                Drone_usv3_ = TVec3(K_multi_usv_formation_distance, -K_multi_usv_formation_distance , 0);
-
+                chlog::info(mp_config_.log_path,"[USV Formation]: usv Formation call! Triangle!");
+                drone_usv2_ = TVec3(-mp_config_.formation_distance, -mp_config_.formation_distance , 0);
+                drone_usv3_ = TVec3(mp_config_.formation_distance, -mp_config_.formation_distance , 0);
             }
                 break;
 
             case VF_USV_INVERSION_TRIANGLE: {
-                chlog::info("data","[USV Formation]: usv Formation call! INVERSION Triangle!");
-                Drone_usv2_ = TVec3(- K_multi_usv_formation_distance,  -K_multi_usv_formation_distance ,0);
-                Drone_usv3_ = TVec3(-2*K_multi_usv_formation_distance ,0, 0);
+                chlog::info(mp_config_.log_path,"[USV Formation]: usv Formation call! INVERSION Triangle!");
+                drone_usv2_ = TVec3(- mp_config_.formation_distance, -mp_config_.formation_distance , 0);
+                drone_usv3_ = TVec3(-2 * mp_config_.formation_distance , 0, 0);
             }
                 break;
 
 
             case VF_USV_LINE_HORIZONTAL : {
-                chlog::info("data","[USV Formation]: usv Formation call! Line horizontal!");
-                Drone_usv2_ = TVec3(0, -K_multi_usv_formation_distance , 0);
-                Drone_usv3_ = TVec3(0, -2 * K_multi_usv_formation_distance, 0);
+                chlog::info(mp_config_.log_path,"[USV Formation]: usv Formation call! Line horizontal!");
+                drone_usv2_ = TVec3(0, -mp_config_.formation_distance , 0);
+                drone_usv3_ = TVec3(0, -2 * mp_config_.formation_distance, 0);
             }
                 break;
 
             case VF_USV_LINE_VERTICAL : {
-                chlog::info("data","[USV Formation]: usv Formation call! Line Vertical!");
-                Drone_usv2_ = TVec3(K_multi_usv_formation_distance, 0 , 0);
-                Drone_usv3_ = TVec3(2* K_multi_usv_formation_distance, 0, 0);
+                chlog::info(mp_config_.log_path,"[USV Formation]: usv Formation call! Line Vertical!");
+                drone_usv2_ = TVec3(mp_config_.formation_distance, 0 , 0);
+                drone_usv3_ = TVec3(2 * mp_config_.formation_distance, 0, 0);
             }
                 break;
 
             case VF_USV_ALL_RETURN: {
-                chlog::info("data","[USV Formation]: usv Formation call! All USVs Return!");
+                chlog::info(mp_config_.log_path,"[USV Formation]: usv Formation call! All USVs Return!");
             }
                 break;
 
@@ -99,7 +99,6 @@ namespace fast_planner {
 
     void FastPathFinder::setGlobalWaypoints(const vector<TVec3> &waypoints) {
         plan_data_.global_waypoints_.clear();
-//        plan_data_.global_waypoints_.push_back(waypoints.cast<double>());
         for (auto i : waypoints) {
             plan_data_.global_waypoints_.push_back(i.cast<double>());
         }
@@ -144,9 +143,9 @@ namespace fast_planner {
         TVec3 dir = (start_pt - end_pt).normalized();
         float dt_len = 0.5;
         TVec3 center_pos = start_pt;
-        chlog::info("motion_plan", "start_pt = ", toStr(start_pt), ", end_pt = ", toStr(end_pt));
+        chlog::info(mp_config_.log_path, "start_pt = ", toStr(start_pt), ", end_pt = ", toStr(end_pt));
         while ((center_pos - end_pt).norm() > 0.8) {
-            chlog::info("motion_plan", "center_pos = ", toStr(center_pos));
+            chlog::info(mp_config_.log_path, "center_pos = ", toStr(center_pos));
             if (!mp_config_.mp_map->isStateValid(center_pos, false)) {
                 return false;
             }
@@ -165,7 +164,7 @@ namespace fast_planner {
         vector<Eigen::Vector3d> points = plan_data_.global_waypoints_;
         if (points.size() == 0)
         {
-            chlog::info("motion_plan",  "no global waypoints!");
+            chlog::info(mp_config_.log_path,  "no global waypoints!");
             return false;
         }
 
@@ -196,12 +195,35 @@ namespace fast_planner {
         }
 
         // write position matrix
+        PolynomialTraj gl_traj;
+        calcMiniSnap(inter_points, gl_traj);
+
+        auto time_now = ros::Time::now();
+        global_data_.setGlobalTraj(gl_traj, time_now);
+
+        // truncate a local trajectory
+        double            dt, duration;
+        Eigen::MatrixXd   ctrl_pts = reparamLocalTraj(0.0, dt, duration, duration);
+        NonUniformBspline bspline(ctrl_pts, 3, dt);
+
+        global_data_.setLocalTraj(bspline, 0.0, duration, 0.0);
+        local_data_.position_traj_ = bspline;
+        local_data_.start_time_    = time_now;
+        chlog::info(mp_config_.log_path, "global trajectory generated.");
+
+        updateTrajInfo();
+
+        planUSV2GlobalTraj(inter_points, 2);
+        return true;
+    }
+
+    void FastPathFinder::calcMiniSnap(vector<Eigen::Vector3d>& inter_points, PolynomialTraj& gl_traj) {
         int             pt_num = inter_points.size();
         Eigen::MatrixXd pos(pt_num, 3);
         for (int i = 0; i < pt_num; ++i) {
             pos.row(i) = inter_points[i];
             TVec3 pos_i = inter_points[i].cast<float>();
-            chlog::info("motion_plan", "33333333333, inter_points[", i, "] = ", toStr(pos_i));
+            chlog::info(mp_config_.log_path, "33333333333, inter_points[", i, "] = ", toStr(pos_i));
         }
 
         Eigen::Vector3d zero(0, 0, 0);
@@ -215,32 +237,27 @@ namespace fast_planner {
         time(time.rows() - 1) *= 2.0;
         time(time.rows() - 1) = max(1.0, time(time.rows() - 1));
 
-        PolynomialTraj gl_traj = minSnapTraj(pos, zero, zero, zero, zero, time);
-
-        auto time_now = ros::Time::now();
-        global_data_.setGlobalTraj(gl_traj, time_now);
-
-        // truncate a local trajectory
-
-        double            dt, duration;
-        Eigen::MatrixXd   ctrl_pts = reparamLocalTraj(0.0, dt, duration, duration);
-        NonUniformBspline bspline(ctrl_pts, 3, dt);
-
-        global_data_.setLocalTraj(bspline, 0.0, duration, 0.0);
-        local_data_.position_traj_ = bspline;
-        local_data_.start_time_    = time_now;
-        chlog::info("motion_plan", "global trajectory generated.");
-
-        updateTrajInfo();
-
-        return true;
+        gl_traj = minSnapTraj(pos, zero, zero, zero, zero, time);
     }
 
-    void FastPathFinder::planUSV2GlobalTraj(vector<Eigen::Vector3d>& leader_pos, int usv_id) {
-        vector<Eigen::Vector3d> follower_pos;
-        for (auto pos : leader_pos) {
 
+    void FastPathFinder::planUSV2GlobalTraj(vector<Eigen::Vector3d>& leader_pos, int usv_id) {
+        TVec3 line_dir_norm(1, 0, 0);
+        vector<Eigen::Vector3d> follower_pos;
+        for (int i = 0; i < leader_pos.size() - 1; i++) {
+            TVec3 line_dir = ((leader_pos.at(i + 1) - leader_pos.at(i)).normalized()).cast<float>();
+            Eigen::Matrix3f rotMatrix = Eigen::Quaternionf::FromTwoVectors(line_dir_norm, line_dir).toRotationMatrix();
+            chlog::info(mp_config_.log_path, "line dir = ", toStr(line_dir), ", drone_usv2_ = ", toStr(drone_usv2_));
+            cout << "Rotation_usv 2 = " << endl << rotMatrix << endl;
+            TVec3 res = rotMatrix * drone_usv2_;
+            Eigen::Vector3d pos = leader_pos.at(i) + res.cast<double>();
+            chlog::info(mp_config_.log_path, "pos = ", toStr(pos.cast<float>()), ", leader pos = ",
+                        toStr(leader_pos.at(i).cast<float>()), ", res = ", toStr(res));
+            follower_pos.push_back(pos);
         }
+
+        PolynomialTraj gl_traj;
+        calcMiniSnap(follower_pos, gl_traj);
     }
 
 
@@ -280,13 +297,13 @@ namespace fast_planner {
 
             Eigen::Vector3f ptc = initial_traj->evaluateDeBoor(tc).cast<float>();
             safe = mp_config_.mp_map->isStateValid(ptc, false);
-            chlog::info("motion_plan", "find safe traj pos = ", toStr(ptc), ", is safe = ",
+            chlog::info(mp_config_.log_path, "find safe traj pos = ", toStr(ptc), ", is safe = ",
                         safe);
 
             if (last_safe && !safe) {
                 colli_start.push_back(initial_traj->evaluateDeBoor(tc - 0.05).cast<float>());
                 TVec3 cur_coll_start = colli_start.back();
-                chlog::info("motion_plan", "collision start = ", toStr(cur_coll_start));
+                chlog::info(mp_config_.log_path, "collision start = ", toStr(cur_coll_start));
                 if (t_s < 0.0) t_s = tc - 0.05;
             } else if (!last_safe && safe) {
                 colli_end.push_back(ptc);
@@ -303,14 +320,14 @@ namespace fast_planner {
 
     bool FastPathFinder::replan(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel, Eigen::Vector3d start_acc,
                                 Eigen::Vector3d end_pt, Eigen::Vector3d end_vel, bool collide) {
-        chlog::info("motion_plan", "[plan man]: plan manager start point: (" + to_string2(start_pt(0)) +
+        chlog::info(mp_config_.log_path, "[plan man]: plan manager start point: (" + to_string2(start_pt(0)) +
                                    ", " + to_string2(start_pt(1)) +
                                    ", " + to_string2(start_pt(2)) + ")" +
                                    ", start_vel, " + to_string2(start_vel(0)) +
                                    ", " + to_string2(start_vel(1)) +
                                    ", " + to_string2(start_vel(2)) + ")");
 
-        chlog::info("motion_plan", "[plan man]: , end_pt, " + to_string2(end_pt(0)) +
+        chlog::info(mp_config_.log_path, "[plan man]: , end_pt, " + to_string2(end_pt(0)) +
                                    ", " + to_string2(end_pt(1)) +
                                    ", " + to_string2(end_pt(2)) + ")" +
                                    ", end_vel, " + to_string2(end_vel(0)) +
@@ -320,7 +337,7 @@ namespace fast_planner {
         ros::Time t1, t2;
         ros::Time time_now = ros::Time::now();
         double    t_now    = (time_now - global_data_.global_start_time_).toSec();
-        chlog::info("motion_plan", "time_now = ", time_now.toSec(), ", global_data_.global_start_time_ = ",
+        chlog::info(mp_config_.log_path, "time_now = ", time_now.toSec(), ", global_data_.global_start_time_ = ",
                     global_data_.global_start_time_.toSec(), ", t_now = ", t_now);
         double    local_traj_dt, local_traj_duration;
         double    time_inc = 0.0;
@@ -351,21 +368,21 @@ namespace fast_planner {
                     end_vel, mp_config_.mp_plan_state, true, true);
 
             if (status == KinodynamicAstar::NO_PATH) {
-                chlog::info("motion_plan", "[plan man]: kinodynamic search fail!");
+                chlog::info(mp_config_.log_path, "[plan man]: kinodynamic search fail!");
 
                 // retry searching with discontinuous initial state
                 kino_path_finder_->reset();
                 status = kino_path_finder_->search(start_pt, start_vel, start_acc, end_pt, end_vel, mp_config_.mp_plan_state, false, false);
 
                 if (status == KinodynamicAstar::NO_PATH) {
-                    chlog::info("motion_plan", "[plan man]: Can't find path.");
+                    chlog::info(mp_config_.log_path, "[plan man]: Can't find path.");
                     return false;
                 } else {
-                    chlog::info("motion_plan", "[plan man]: retry search success.");
+                    chlog::info(mp_config_.log_path, "[plan man]: retry search success.");
                 }
 
             } else {
-                chlog::info("motion_plan", "[plan man]: kinodynamic search success.");
+                chlog::info(mp_config_.log_path, "[plan man]: kinodynamic search success.");
             }
 
             plan_data_.kino_path_ = kino_path_finder_->getKinoTraj(0.01);
@@ -418,7 +435,7 @@ namespace fast_planner {
 
                 double tn = pos.getTimeSum();
 
-                chlog::info("motion_plan", "[plan man]: Reallocate ratio: " + to_string2( tn / to ));
+                chlog::info(mp_config_.log_path, "[plan man]: Reallocate ratio: " + to_string2( tn / to ));
                 if (tn / to > 3.0) ROS_ERROR("reallocate error.");
 
                 t_adjust = (ros::Time::now() - t1).toSec();
@@ -428,13 +445,13 @@ namespace fast_planner {
                 local_data_.position_traj_ = pos;
 
                 double t_total = t_search + t_opt + t_adjust;
-                chlog::info("motion_plan", "[plan man]: time: " + to_string(t_total) + ", search: " +
+                chlog::info(mp_config_.log_path, "[plan man]: time: " + to_string(t_total) + ", search: " +
                                            to_string(t_search) + ", optimize: " + to_string(t_opt) +
                                            ", adjust time:" + to_string(t_adjust));
 
                 time_inc = t_total;
 
-                chlog::info("motion_plan",  "get position, local_start_time_ = ", t_now, ", local_end_time_ = "
+                chlog::info(mp_config_.log_path,  "get position, local_start_time_ = ", t_now, ", local_end_time_ = "
                         , local_traj_duration + time_inc + t_now , ", time_inc = " , time_inc,
                             ",local_traj_duration = ", local_traj_duration);
 
@@ -449,11 +466,11 @@ namespace fast_planner {
                 for (int i = 0; i < 1; ++i) {
 
                     optimize_threads[i].join();
-                    chlog::info("motion_plan", "optimize i " , i );
+                    chlog::info(mp_config_.log_path, "optimize i " , i );
                 }
 
                 t_opt = (ros::Time::now() - t1).toSec();
-                chlog::info("motion_plan", "[planner]: optimization time: ", t_opt );
+                chlog::info(mp_config_.log_path, "[planner]: optimization time: ", t_opt );
                 best_traj = plan_data_.topo_traj_pos2_[0];
                 refineTraj(best_traj, time_inc);
             }
@@ -477,7 +494,7 @@ namespace fast_planner {
 // !SECTION
 
     void FastPathFinder::planYaw(const Eigen::Vector3d& start_yaw) {
-        chlog::info("motion_plan", "[plan man]: plan yaw");
+        chlog::info(mp_config_.log_path, "[plan man]: plan yaw");
         //auto t1 = ros::Time::now();
         // calculate waypoints of heading
 
@@ -567,13 +584,13 @@ namespace fast_planner {
 
         best_traj.setPhysicalLimits(pp_.max_vel_, pp_.max_acc_);
         double ratio = best_traj.checkRatio();
-        chlog::info("motion_plan", "[Refine]: ratio: " , ratio );
+        chlog::info(mp_config_.log_path, "[Refine]: ratio: " , ratio );
         reparamBspline(best_traj, ratio, ctrl_pts, dt, t_inc);
         time_inc += t_inc;
 
         ctrl_pts  = bspline_optimizers_[0]->BsplineOptimizeTraj(ctrl_pts, dt, cost_function, 1, 1);
         best_traj = NonUniformBspline(ctrl_pts, 3, dt);
-        chlog::info("motion_plan", "[Refine]: cost " ,  (ros::Time::now() - t1).toSec()
+        chlog::info(mp_config_.log_path, "[Refine]: cost " ,  (ros::Time::now() - t1).toSec()
                 ,  " seconds, time change is: " , time_inc);
     }
 
@@ -649,7 +666,7 @@ namespace fast_planner {
         plan_data_.topo_traj_pos2_[traj_id] = NonUniformBspline(opt_ctrl_pts2, 3, dt);
 
         tm3 = (ros::Time::now() - t1).toSec();
-        chlog::info("motion_plan", "optimization ", traj_id,
+        chlog::info(mp_config_.log_path, "optimization ", traj_id,
                     " cost ", tm1, ", ", tm2, ", ", tm3, "seconds");
     }
 

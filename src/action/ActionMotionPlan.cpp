@@ -14,13 +14,19 @@ void ActionMotionPlan::Oninit(const int config) {
 
 }
 
+void ActionMotionPlan::initNh(ros::NodeHandle& nh) {
+    nh_ = nh;
+}
+
 bool ActionMotionPlan::initMP(const MP_Config &mpConfig) {
-    chlog::info("motion_plan", "[Action MP]: motion_plan init! target_pos = " + toStr(mpConfig.end_pos)
-                           + ", target_heading = " + to_string2(mpConfig.target_heading));
     mp_config_ = mpConfig;
-    mp_manager_ = makeSp<MPManager>(mp_config_);
+    mp_config_.log_path = "USV1_MP";
+    mp_config_.nh = nh_;
     output_.target_heading = mpConfig.m_drone_heading;
+    mp_manager_ = makeSp<MPManager>(mp_config_);
     mp_manager_->SetMpEnable(true);
+    chlog::info(mp_config_.log_path, "[Action MP]: motion_plan init! target_pos = " + toStr(mpConfig.end_pos)
+                               + ", target_heading = " + to_string2(mpConfig.target_heading));
     return false;
 }
 
@@ -37,7 +43,7 @@ void ActionMotionPlan::GetData() {
 
 void ActionMotionPlan::DoProgress() {
     if (mp_manager_ == NULL) return;
-//    chlog::info("motion_plan", "is_enable = ", is_enable_);
+//    chlog::info(mp_config_.log_path, "is_enable = ", is_enable_);
     if (is_enable_) {
         mp_manager_->ProcessState();
         TVec3 drone_data, drone_speed;
@@ -72,21 +78,21 @@ void ActionMotionPlan::SetFunctionOutPut() {
         m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.x = output_.m_vector.x();
         m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.y = output_.m_vector.y();
         m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.z = output_.m_vector.z();
-        DataMan::getInstance()->SetUSV1MPControlData(m_multi_vehicle_);
+        DataMan::getInstance()->SetUSVMPControlData(m_multi_vehicle_, 1);
         chlog::info("af_data",
-                    "ActionDroneMotionPlan --- GetOutput m_vector = " + toStr(output_.m_vector));
+                    "[USV1 ActionDroneMotionPlan] --- GetOutput m_vector = " + toStr(output_.m_vector));
     }
 }
 
 void ActionMotionPlan::updateSpeedLimit(const float &speed_limit) {
     mp_config_.max_vel = speed_limit;
     mp_manager_->OnUpdateMaxSpeed(speed_limit);
-    //chlog::info("motion_plan", "motion plan update speed limit = " + to_string2(speed_limit));
+    //chlog::info(mp_config_.log_path, "motion plan update speed limit = " + to_string2(speed_limit));
 }
 
 void ActionMotionPlan::OnUpdateTargetPoint(const TVec3 &new_target_point) {
     TVec3 end_pos = new_target_point;
-    chlog::info("motion_plan", "[Action MP]:motion_plan init! new_target_point = " + toStr(end_pos));
+    chlog::info(mp_config_.log_path, "[Action MP]:motion_plan init! new_target_point = " + toStr(end_pos));
     mp_manager_->OnUpdateTargetPos(end_pos);
 }
 

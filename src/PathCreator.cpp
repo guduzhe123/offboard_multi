@@ -19,7 +19,11 @@ void PathCreator::onInit(IMsgRosManager *msg_manager, const bool is_uav_follow) 
 
 void PathCreator::initMotionPlan() {
     ActionMotionPlanFactory action_mp;
+    USV2ActionMotionPlanFactory usv2_action_mp;
+    USV3ActionMotionPlanFactory usv3_action_mp;
     FlightManager::getInstance()->AddFunctionProgress(&action_mp);
+    FlightManager::getInstance()->AddFunctionProgress(&usv2_action_mp);
+    FlightManager::getInstance()->AddFunctionProgress(&usv3_action_mp);
 
 }
 

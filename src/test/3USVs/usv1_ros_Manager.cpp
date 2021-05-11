@@ -11,6 +11,7 @@ usv1_ros_Manager::usv1_ros_Manager() :
         is_offboard_called_(false),
         is_takeoff_(false),
         is_land_(false),
+        is_speed_ctrl_(false),
         home_pos_updated_(false),
         usv_crash_(false),
         yaw_cur_(0)
@@ -75,6 +76,8 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
     usv_.Imap.reset(new OctoMap);
     usv_.Imap->onInit();
     usv_.Imap->setSafeRaduis(5);
+
+    ActionMotionPlan::getInstance()->initNh(nh);
 }
 
 void usv1_ros_Manager::state_cb(const mavros_msgs::State::ConstPtr& msg) {

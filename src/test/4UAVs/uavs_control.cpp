@@ -104,6 +104,6 @@ void uavs_control::SetUSVAvoData(const bool usv1_usv2_crash, const bool usv1_usv
 }
 
 
-void uavs_control::PublishUSV1PosControl(const multi_vehicle &multi_vehicles) {
+void uavs_control::PublishUSVPosControl(const multi_vehicle &multi_vehicles, int id) {
 
 }

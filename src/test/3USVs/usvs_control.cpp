@@ -124,9 +124,17 @@ void usvs_control::PublishUUVPosControl(const multi_vehicle &multi_vehicles) {
 
 }
 
-void usvs_control::PublishUSV1PosControl(const multi_vehicle &multi_vehicles)  {
-    DroneControl usv1;
+void usvs_control::PublishUSVPosControl(const multi_vehicle &multi_vehicles, int id) {
+    DroneControl usv1, usv2, usv3;
     usv1.target_pose = multi_vehicles.usv1.target_local_pos_sp;
-    usv1_control_->usvPosSp(usv1);
+    usv2.target_pose = multi_vehicles.usv2.target_local_pos_sp;
+    usv3.target_pose = multi_vehicles.usv3.target_local_pos_sp;
+    if (id == 1) {
+        usv1_control_->usvPosSp(usv1);
+    } else if (id == 2) {
+        usv2_control_->usvPosSp(usv2);
+    } else if (id == 3) {
+        usv3_control_->usvPosSp(usv3);
+    }
 }
 

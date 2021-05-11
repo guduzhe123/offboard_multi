@@ -104,6 +104,7 @@ public:
 class KinodynamicAstar {
 private:
   /* ---------- main data structure ---------- */
+  string log_;
   vector<PathNodePtr> path_node_pool_;
   int use_node_num_, iter_num_, outof_corridor_mum_, in_collision_num_, total_tried_num_, in_closed_set_num_, vel_infeasible_num_, feasible_num_, open_count_;
   NodeHashTable expanded_nodes_;
@@ -174,7 +175,7 @@ public:
   enum { REACH_HORIZON = 1, REACH_END = 2, NO_PATH = 3 };
 
   /* main API */
-  void setParam(ros::NodeHandle& nh);
+  void setParam(ros::NodeHandle &nh, string &log);
   void init();
   void reset();
   void

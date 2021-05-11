@@ -217,9 +217,11 @@ void DataMan::SetBoatControlData(const multi_vehicle &m_multi_vehicles) {
     msg_config_->PublishBoatPosControl(m_multi_vehicles);
 }
 
-void DataMan::SetUSV1MPControlData(const multi_vehicle & m_multi_vehicles) {
+void DataMan::SetUSVMPControlData(const multi_vehicle &m_multi_vehicles, const int id) {
     multi_vehicle_.usv1.target_local_pos_sp = m_multi_vehicles.usv1.target_local_pos_sp;
-    msg_config_->PublishUSV1PosControl(m_multi_vehicles);
+    multi_vehicle_.usv2.target_local_pos_sp = m_multi_vehicles.usv2.target_local_pos_sp;
+    multi_vehicle_.usv3.target_local_pos_sp = m_multi_vehicles.usv3.target_local_pos_sp;
+    msg_config_->PublishUSVPosControl(m_multi_vehicles, id);
 }
 
 void DataMan::SetUUVControlData(const multi_vehicle &m_multi_vehicles) {

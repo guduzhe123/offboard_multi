@@ -21,7 +21,7 @@ public:
     void PublishDronePosControl(const multi_vehicle &multi_vehicles) override ;
     void PublishBoatPosControl(const multi_vehicle &multi_vehicles) override ;
     void PublishUUVPosControl(const multi_vehicle &multi_vehicles) override;
-    void PublishUSV1PosControl(const multi_vehicle &multi_vehicles) override ;
+    void PublishUSVPosControl(const multi_vehicle &multi_vehicles, int id) override ;
     void SetUAVState(mavros_msgs::SetMode &m_mode) override ;
     void SetUSVState(mavros_msgs::SetMode &arm_command, int usv_id) override ;
     void SetUSVAvoData(const bool usv1_usv2_crash, const bool usv1_usv3_crash, const bool usv2_usv3_crash) override ;

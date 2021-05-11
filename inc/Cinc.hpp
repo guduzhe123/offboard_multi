@@ -315,7 +315,7 @@ struct MP_Config{
     float turn_rate;
     bool is_enable = false;
     int control_mode;
-    int formation_type;
+    int formation_type = VF_USV_TRIANGLE;
     float formation_distance;
     MotionPlanState mp_plan_state;
     TVec3 m_toward_point;
@@ -323,5 +323,7 @@ struct MP_Config{
     bool is_speed_mode = false;
     bool is_gazebo_sim = false;
     Sp<IMap> mp_map;
+    ros::NodeHandle nh;
+    string log_path;
 };
 #endif //OFFBOARD_CINC_HPP

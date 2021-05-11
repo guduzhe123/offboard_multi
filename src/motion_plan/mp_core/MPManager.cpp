@@ -15,12 +15,13 @@ MPManager::MPManager(const MP_Config &config) :
         path_find_fail_timer_(0),
         collide_(false),
         check_collision_state_(CHECK_COLLISION){
-    chlog::info("motion_plan", "\n");
-    chlog::info("motion_plan", "[MP Manager]: mp manager init!");
+    log = config.log_path;
+    chlog::info(log, "~~~~~~~~\n");
+    chlog::info(log, "[MP Manager]: mp manager init!");
 
     mp_config_ = config;
     mp_publisher_ = makeSp<MPPublisher>();
-    mp_publisher_->OnInit(mp_config_.mp_plan_state);
+    mp_publisher_->OnInit(mp_config_.nh);
 
     path_finder_ = makeSp<FastPathFinder>();
     path_finder_->initPlanModules(mp_config_, mp_config_.mp_map);
@@ -32,7 +33,7 @@ MPManager::MPManager(const MP_Config &config) :
     }
     mp_publisher_->drawGoal(mp_config_.end_pos, 1, Eigen::Vector4d(1, 0, 0, 1.0));
 
-    chlog::info("motion_plan", "[MP Mananger]: Triggered! end_pt_ = " + toStr(mp_config_.end_pos), "max_vel = "
+    chlog::info(log, "[MP Mananger]: Triggered! end_pt_ = " + toStr(mp_config_.end_pos), "max_vel = "
                                                                                                    + to_string(mp_config_.max_vel));
     ChangeExecState(WAIT_TARGET, "FSM");
     end_vel_.setZero();
@@ -66,7 +67,7 @@ void MPManager::OnUpdateTargetPos(const TVec3 &target_pos) {
     mp_config_.end_pos = target_pos;
     init_target_pos_ = mp_config_.end_pos;
     mp_publisher_->drawGoal(mp_config_.end_pos, 1, Eigen::Vector4d(1, 0, 0, 1.0));
-    chlog::info("motion_plan", "[MP Manager]: update motion plan target = ", toStr(mp_config_.end_pos));
+    chlog::info(log, "[MP Manager]: update motion plan target = ", toStr(mp_config_.end_pos));
     if (mp_state_ == EXEC_TRAJ) {
         ChangeExecState(REPLAN_TRAJ, "FSM");
     }
@@ -85,7 +86,7 @@ void MPManager::updateMotionPlan(const float dist, const TVec3 &insp_vec,
     mp_publisher_->updateMPTarget(dist, points);
     dist_config_ = dist;
     insp_vec_ENU_ = insp_vec.normalized();
-    chlog::info("motion_plan", "[MP Manager]: insp_vec = ", toStr(insp_vec), ", insp_vec_ENU_ = ",
+    chlog::info(log, "[MP Manager]: insp_vec = ", toStr(insp_vec), ", insp_vec_ENU_ = ",
                 toStr(insp_vec_ENU_));
     have_target_ = true;
 }
@@ -94,7 +95,7 @@ void MPManager::updateMotionPlan(const float dist, const TVec3 &insp_vec,
 bool MPManager::CallKinodynamicReplan(int step) {
     bool plan_success;
 
-    chlog::info("motion_plan", "step = ", step, ", collide_ = ", collide_);
+    chlog::info(log, "step = ", step, ", collide_ = ", collide_);
     if (step == 1) {
         plan_success = path_finder_->planGlobalTraj(start_pt_, mp_config_.end_pos,
                                                     mp_config_.formation_type, mp_config_.formation_distance);
@@ -151,7 +152,7 @@ bool MPManager::CallKinodynamicReplan(int step) {
 
         return true;
     } else {
-        chlog::info("motion_plan", "[MP Manager]:  generate new traj fail.");
+        chlog::info(log, "[MP Manager]:  generate new traj fail.");
         return false;
     }
 }
@@ -200,26 +201,26 @@ void MPManager::ChangeExecState(MP_EXEC_STATE new_state, string pos_call) {
     string state_str[5] = {"INIT", "WAIT_TARGET", "GEN_NEW_TRAJ", "REPLAN_TRAJ", "EXEC_TRAJ"};
     int pre_s = int(mp_state_);
     mp_state_ = new_state;
-    chlog::info("motion_plan", "[MP Manager]: [" + pos_call + "]: from " + state_str[pre_s]
+    chlog::info(log, "[MP Manager]: [" + pos_call + "]: from " + state_str[pre_s]
                                + " to " + state_str[int(new_state)]);
 }
 
 void MPManager::formationCall(int formation_type) {
     switch (formation_type) {
         case VF_USV_TRIANGLE: {
-            chlog::info("motion_plan", "[MP Manager]: VF_USV_TRIANGLE");
+            chlog::info(log, "[MP Manager]: VF_USV_TRIANGLE");
             break;
         }
         case VF_USV_LINE_HORIZONTAL: {
-            chlog::info("motion_plan", "[MP Manager]: VF_USV_LINE_HORIZONTAL");
+            chlog::info(log, "[MP Manager]: VF_USV_LINE_HORIZONTAL");
             break;
         }
         case VF_USV_LINE_VERTICAL: {
-            chlog::info("motion_plan", "[MP Manager]: VF_USV_LINE_VERTICAL");
+            chlog::info(log, "[MP Manager]: VF_USV_LINE_VERTICAL");
             break;
         }
         case VF_USV_INVERSION_TRIANGLE: {
-            chlog::info("motion_plan", "[MP Manager]: VF_USV_INVERSION_TRIANGLE");
+            chlog::info(log, "[MP Manager]: VF_USV_INVERSION_TRIANGLE");
             break;
         }
 
@@ -228,7 +229,7 @@ void MPManager::formationCall(int formation_type) {
 }
 
 bool MPManager::GetControlOutput(TVec3 &vector_eus) {
-//        chlog::info("motion_plan", "[MP Manager]: received traj = ", receive_traj_);
+//        chlog::info(log, "[MP Manager]: received traj = ", receive_traj_);
     if (!receive_traj_) return false;
 
     ros::Time time_now = ros::Time::now();
@@ -247,7 +248,7 @@ bool MPManager::GetControlOutput(TVec3 &vector_eus) {
         vel = plan_traj_[1].evaluateDeBoorT(traj_duration_);
         acc.setZero();
     } else {
-        chlog::info("motion_plan", "[MP Manager]: invalid time!");
+        chlog::info(log, "[MP Manager]: invalid time!");
     }
 
     if (mp_config_.is_speed_mode) {
@@ -258,7 +259,7 @@ bool MPManager::GetControlOutput(TVec3 &vector_eus) {
 
     TVec3 dir(cos(yaw), sin(yaw), 0.0);
     mp_publisher_->DrawTrajCommand(pos.cast<float>(), 2 * dir, Eigen::Vector4d(1, 1, 0, 0.7), 2);
-/*    chlog::info("motion_plan", "[MP Manager]: mp pos command = ", pos.x(), ",", pos.y(), ",", pos.z(),
+/*    chlog::info(log, "[MP Manager]: mp pos command = ", pos.x(), ",", pos.y(), ",", pos.z(),
                 ", is speed mode = ", mp_config_.is_speed_mode);*/
     // drawCmd(pos, pos_err, 3, Eigen::Vector4d(1, 1, 0, 0.7));
     return true;
@@ -268,7 +269,7 @@ void MPManager::OnUpdateMaxSpeed(float speed_max) {
     mp_config_.max_vel = speed_max;
     mp_config_.max_acc = speed_max;
     path_finder_->updateSpeedLimit(mp_config_.max_vel, mp_config_.max_acc);
-    chlog::info("motion_plan", "[MP Manager]: update_speed limit:", to_string(mp_config_.max_vel));
+    chlog::info(log, "[MP Manager]: update_speed limit:", to_string(mp_config_.max_vel));
 }
 
 void MPManager::OnUpdateDroneHeading(float drone_heading) {
@@ -277,7 +278,7 @@ void MPManager::OnUpdateDroneHeading(float drone_heading) {
 
 void MPManager::checkCollisionReplan(TVec3& cur_pos) {
     if (!mp_config_.mp_map) return;
-    chlog::info("motion_plan", "check_collision_state_ = ", check_collision_state_);
+    chlog::info(log, "check_collision_state_ = ", check_collision_state_);
     switch (check_collision_state_) {
         case CHECK_COLLISION: {
             if (!mp_config_.mp_map->isStateValid(cur_pos, false)) {
@@ -317,7 +318,7 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
             }
 
             if (max_dist > 0.3) {
-                chlog::info("motion_plan", "change goal, replan. goal = " + toStr(goal));
+                chlog::info(log, "change goal, replan. goal = " + toStr(goal));
                 mp_config_.end_pos = goal;
                 end_vel_.setZero();
 
@@ -363,7 +364,7 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
         bool   safe = path_finder_->checkTrajCollision(dist);
         if (!safe) {
             if (dist > 0.1) {
-                chlog::info("motion_plan", "current traj: ", dist, "  m to collision" );
+                chlog::info(log, "current traj: ", dist, "  m to collision" );
                 collide_ = true;
 
                 ChangeExecState(REPLAN_TRAJ, "SAFETY");
@@ -410,7 +411,7 @@ void MPManager::ProcessState() {
                 } else {
                     ChangeExecState(WAIT_TARGET, "FSM");
                     path_find_fail_timer_ = 0;
-                    chlog::info("motion_plan", "[MP Manager]: A star search failed too many times!");
+                    chlog::info(log, "[MP Manager]: A star search failed too many times!");
                 }
             }
             break;
@@ -425,7 +426,7 @@ void MPManager::ProcessState() {
 
             Eigen::Vector3d pos = info->position_traj_.evaluateDeBoorT(t_cur);
 
-            chlog::info("motion_plan", "[MP Manager]: mp_config_.end_pos = ", toStr(mp_config_.end_pos),
+            chlog::info(log, "[MP Manager]: mp_config_.end_pos = ", toStr(mp_config_.end_pos),
                     ", drone_st_.drone_pos = ", toStr(drone_st_.drone_pos), ", t_cur = ",
                         t_cur, ", global_duration_ = ", global_data->global_duration_);
             float err_target;
@@ -446,7 +447,7 @@ void MPManager::ProcessState() {
                 return;
 
             }  else if (t_cur <  1.0/*&& !collide_*/) {
-//                chlog::info("motion_plan", "[MP Manager]: close to start pos!");
+//                chlog::info(log, "[MP Manager]: close to start pos!");
                 return;
 
             } else {
@@ -467,7 +468,7 @@ void MPManager::ProcessState() {
                 start_pt_ = info->position_traj_.evaluateDeBoorT(t_cur).cast<float>();
                 start_vel_ = info->velocity_traj_.evaluateDeBoorT(t_cur).cast<float>();
                 if ((start_pt_ - mp_config_.end_pos).norm() < 1) {
-                    chlog::info("motion_plan", "[MP Manager]: near target, change goal");
+                    chlog::info(log, "[MP Manager]: near target, change goal");
                     have_target_ = false;
                     ChangeExecState(WAIT_TARGET, "FSM");
                 }
@@ -484,7 +485,7 @@ void MPManager::ProcessState() {
             } else {
                 start_pt_ = drone_st_.drone_pos;
                 bool success = CallKinodynamicReplan(1);
-                chlog::info("motion_plan", "Replan fail, retrying...");
+                chlog::info(log, "Replan fail, retrying...");
                 if (success) {
                     ChangeExecState(EXEC_TRAJ, "FSM");
                 }

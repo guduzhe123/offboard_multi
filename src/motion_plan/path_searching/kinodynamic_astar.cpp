@@ -11,7 +11,7 @@ namespace fast_planner {
         }
     }
 
-    void KinodynamicAstar::setParam(ros::NodeHandle& nh) {
+    void KinodynamicAstar::setParam(ros::NodeHandle &nh, string &log) {
         nh.param("search/max_tau", max_tau_, 0.3);
         nh.param("search/init_max_tau", init_max_tau_, 0.4);
         nh.param("search/w_time", w_time_, 10.0);
@@ -25,13 +25,13 @@ namespace fast_planner {
         nh.param("search/dist_radius", check_radius_, 2.0);
         nh.param("search/dist_lambda", dist_lambda_, 20.0);
         nh.param("search/safe_dist_tip", safe_dist_tip_, 7.0);
-
+        log_ = log;
     }
 
     void KinodynamicAstar::setSpeedLimit(const double max_vel, const double max_acc) {
         max_vel_ = max_vel;
         max_acc_ = max_acc;
-        chlog::info("motion_plan", "[Kino Astar] margin:" + to_string2(margin_), ", max_vel =", max_vel_);
+        chlog::info(log_, "[Kino Astar] margin:" + to_string2(margin_), ", max_vel =", max_vel_);
     }
 
     void KinodynamicAstar::setTargetPoint(const Eigen::Vector3d &target_pos, const Eigen::Vector3d &start_point
@@ -39,7 +39,7 @@ namespace fast_planner {
         target_pos_ = target_pos;
         start_pos_ = start_point;
         odom_pos_ = cur_pos;
-        chlog::info("motion_plan", "[Kino Astar] target pos: (" + to_string2(target_pos_(0)) +
+        chlog::info(log_, "[Kino Astar] target pos: (" + to_string2(target_pos_(0)) +
                                    ", " + to_string2(target_pos_(1)) +
                                    ", " + to_string2(target_pos_(2)) + ")" +
                                    ", start point: (" + to_string2(start_point(0)) +
@@ -100,9 +100,9 @@ namespace fast_planner {
             bool near_end = (cur_node->state.head(3) - end_pt).norm() <= tolerance;
 
             if (reach_horizon || near_end) {
-                chlog::info("motion_plan", " \n " );
-                chlog::info("motion_plan", "[Kino Astar]:---------------------- " );
-                chlog::info("motion_plan", "[Kino Astar] use node num: " + to_string(use_node_num_) +
+                chlog::info(log_, " \n " );
+                chlog::info(log_, "[Kino Astar]:---------------------- " );
+                chlog::info(log_, "[Kino Astar] use node num: " + to_string(use_node_num_) +
                                                 ", iter num: " +to_string(iter_num_), ", out corridor num = ", outof_corridor_mum_,
                                                 ", in collosion num = ", in_collision_num_
                                                 , ", in closeset num = ", in_closed_set_num_, ", vel_infeasible_num_ = ", vel_infeasible_num_
@@ -114,7 +114,7 @@ namespace fast_planner {
                 has_path_ = true;
 
                 if (near_end) {
-                    chlog::info("motion_plan", "[Kino Astar]: near end.");
+                    chlog::info(log_, "[Kino Astar]: near end.");
 
                     /* one shot trajectory */
                     estimateHeuristic(cur_node->state, end_state, time_to_goal);
@@ -125,7 +125,7 @@ namespace fast_planner {
                     else
                         return REACH_END;
                 } else if (reach_horizon) {
-                    chlog::info("motion_plan", "[Kino Astar]: Reach horizon_");
+                    chlog::info(log_, "[Kino Astar]: Reach horizon_");
                     return REACH_HORIZON;
                 }
             }
@@ -143,7 +143,7 @@ namespace fast_planner {
                 max_acc = 5.0;
                 max_time = 2.0;
                 res = 1 /5.0, time_res = 1 / 10.0;
-                chlog::info("motion_plan", "[Kino Astar]: blade circle big step! ");
+                chlog::info(log_, "[Kino Astar]: blade circle big step! ");
             } else {
                 max_acc = max_acc_;
                 max_time = max_tau_;
@@ -172,7 +172,7 @@ namespace fast_planner {
                     durations.push_back(tau);
             }
 
-//            chlog::info("motion_plan", "input size = ", inputs.size(), ", durations size = ", durations.size());
+//            chlog::info(log_, "input size = ", inputs.size(), ", durations size = ", durations.size());
             /* ---------- state propagation loop ---------- */
             for (unsigned int i = 0; i < inputs.size(); ++i)
                 for (unsigned int j = 0; j < durations.size(); ++j) {
@@ -210,7 +210,7 @@ namespace fast_planner {
                     /*check turbine obstacle distance*/
 
                     if (!map_->isStateValid(pro_state.head(3).cast<float>(), true)) {
-                        // chlog::info("motion_plan", "the state is in collision!");
+                        // chlog::info(log_, "the state is in collision!");
                         in_collision_num_++;
                         continue;
                     }
@@ -266,7 +266,7 @@ namespace fast_planner {
 
                             use_node_num_ += 1;
                             if (use_node_num_ == allocate_num_) {
-                                chlog::info("motion_plan", "[Kino Astar] run out of memory. use node num: " , use_node_num_
+                                chlog::info(log_, "[Kino Astar] run out of memory. use node num: " , use_node_num_
                                         , ", iter num: " ,iter_num_, ", out corridor num = ", outof_corridor_mum_,
                                             ", in collosion num = ", in_collision_num_
                                         , ", in closeset num = ", in_closed_set_num_, ", vel_infeasible_num_ = ", vel_infeasible_num_
@@ -286,7 +286,7 @@ namespace fast_planner {
                             }
                             open_count_ ++;
                         } else {
-                            chlog::info("motion_plan", "[Kino Astar] error type in searching: " + to_string2(pro_node->node_state));
+                            chlog::info(log_, "[Kino Astar] error type in searching: " + to_string2(pro_node->node_state));
                         }
 
                     }
@@ -296,7 +296,7 @@ namespace fast_planner {
         }
 
         /* ---------- open set empty, no path ---------- */
-        chlog::info("motion_plan", "[Kino Astar] open set empty, no path! use node num: " , use_node_num_
+        chlog::info(log_, "[Kino Astar] open set empty, no path! use node num: " , use_node_num_
                                     , ", iter num: " ,iter_num_, ", out corridor num = ", outof_corridor_mum_,
                                 ", in collosion num = ", in_collision_num_
                             , ", in closeset num = ", in_closed_set_num_, ", vel_infeasible_num_ = ", vel_infeasible_num_
@@ -358,7 +358,7 @@ namespace fast_planner {
         /* ---------- get coefficient ---------- */
 
         if (time_to_goal < 0.001) {
-            chlog::info("motion_plan", "one shot fail!");
+            chlog::info(log_, "one shot fail!");
             is_shot_succ_ = false;
         }
 

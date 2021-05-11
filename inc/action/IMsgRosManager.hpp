@@ -25,6 +25,6 @@ public:
 
     virtual void SetUSVAvoData(const bool usv1_usv2_crash, const bool usv1_usv3_crash, const bool usv2_usv3_crash) = 0;
 
-    virtual void PublishUSV1PosControl(const multi_vehicle &multi_vehicles) = 0;
+    virtual void PublishUSVPosControl(const multi_vehicle &multi_vehicles, int id) = 0;
 };
 #endif //OFFBOARD_IMSGROSMANAGER_HPP

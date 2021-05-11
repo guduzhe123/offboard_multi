@@ -129,6 +129,6 @@ void seven_vehicle_control::SetUSVAvoData(const bool usv1_usv2_crash, const bool
 
 }
 
-void seven_vehicle_control::PublishUSV1PosControl(const multi_vehicle &multi_vehicles) {
+void seven_vehicle_control::PublishUSVPosControl(const multi_vehicle &multi_vehicles, int id) {
 
 }

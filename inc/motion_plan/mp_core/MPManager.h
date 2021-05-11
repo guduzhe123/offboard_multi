@@ -101,6 +101,7 @@ private:
 
     MP_CHECK_COLLISION check_collision_state_;
     bool collide_;
+    string log;
     // private functions
     void CalcDistToCenter(float &dist, const TVec3 &cur_pos, TVec3 start_pos, TVec3 end_pos);
 

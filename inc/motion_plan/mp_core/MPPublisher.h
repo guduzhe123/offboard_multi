@@ -38,7 +38,7 @@ public:
     MPPublisher();
     ~MPPublisher() = default;
 
-    void OnInit(const float state);
+    void OnInit(ros::NodeHandle &nh);
 
     void DrawTrajCommand(const TVec3 &pos, const TVec3 &vec, const Eigen::Vector4d &color, int id);
 

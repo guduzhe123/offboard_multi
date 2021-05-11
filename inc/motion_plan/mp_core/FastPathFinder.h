@@ -58,7 +58,7 @@ namespace fast_planner {
         OctoMap::Ptr octo_map_;
         MP_Config mp_config_;
 
-        TVec3 Drone_usv2_, Drone_usv3_;
+        TVec3 drone_usv2_, drone_usv3_;
 
         void updateTrajInfo();
 
@@ -84,6 +84,8 @@ namespace fast_planner {
         void planUSV2GlobalTraj(vector<Eigen::Vector3d>& leader_pos, int usv_id);
 
         void initFormation();
+
+        void calcMiniSnap(vector<Eigen::Vector3d>& inter_points, PolynomialTraj& gl_traj);
 
         // !SECTION stable
 
