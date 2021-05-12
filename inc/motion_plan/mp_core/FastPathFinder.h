@@ -85,8 +85,8 @@ namespace fast_planner {
         void optimizeTopoBspline(double start_t, double duration, vector<Eigen::Vector3d> guide_path, int traj_id,
                                  vector<Eigen::Vector3d> start_end_points);
 
-        void planUSV2GlobalTraj(vector<Eigen::Vector3d> &leader_pos, Eigen::VectorXd &time);
-        void planUSV3GlobalTraj(vector<Eigen::Vector3d> &leader_pos, Eigen::VectorXd &time);
+        void planFollowerGlobalTraj(vector<Eigen::Vector3d> &leader_pos, Eigen::VectorXd &time, const TVec3 &dorne_move,
+                                    PolynomialTraj &gl_traj);
 
         void initFormation();
 

@@ -7,7 +7,9 @@
 
 ActionMotionPlan::ActionMotionPlan() :
         is_enable_(false),
-        init_follower_(false)
+        init_follower_(false),
+        init_usv2_(false),
+        init_usv3_(false)
 {
 }
 
@@ -38,6 +40,14 @@ void ActionMotionPlan::GetData() {
     usv1_drone_pos_ << m_multi_vehicle_.usv1.current_local_pos.pose.position.x,
                       m_multi_vehicle_.usv1.current_local_pos.pose.position.y,
                       m_multi_vehicle_.usv1.current_local_pos.pose.position.z;
+
+    usv2_drone_pos_ << m_multi_vehicle_.usv2.current_local_pos.pose.position.x,
+                      m_multi_vehicle_.usv2.current_local_pos.pose.position.y,
+                      m_multi_vehicle_.usv2.current_local_pos.pose.position.z;
+
+    usv3_drone_pos_ << m_multi_vehicle_.usv3.current_local_pos.pose.position.x,
+                      m_multi_vehicle_.usv3.current_local_pos.pose.position.y,
+                      m_multi_vehicle_.usv3.current_local_pos.pose.position.z;
     TVec3 attitude = {0, 0, m_multi_vehicle_.usv1.yaw}, acc = {0, 0, 0};
     TVec3 drone_speed = m_multi_vehicle_.usv1.velocity;
     mp_manager_->OnUpdateDroneStatus(usv1_drone_pos_, drone_speed, acc, attitude);
@@ -52,15 +62,34 @@ void ActionMotionPlan::DoProgress() {
         SetFunctionOutPut();
 
         PolynomialTraj usv2_traj, usv3_traj;
-        if (mp_manager_->getPolyTraj(usv2_traj, usv3_traj) && !init_follower_) {
-            USV2ActionMotionPlan::getInstance()->initMP(mp_config_);
-            USV2ActionMotionPlan::getInstance()->setPolyTraj(usv2_traj);
-            USV2ActionMotionPlan::getInstance()->setEnable(true);
+        if (mp_manager_->getPolyTraj(usv2_traj, usv3_traj)) {
+            if (mp_config_.formation_type != VF_USV_LINE_VERTICAL) {
+                if (!init_follower_) {
+                    USV2ActionMotionPlan::getInstance()->initMP(mp_config_);
+                    USV2ActionMotionPlan::getInstance()->setPolyTraj(usv2_traj);
+                    USV3ActionMotionPlan::getInstance()->initMP(mp_config_);
+                    USV3ActionMotionPlan::getInstance()->setPolyTraj(usv3_traj);
+                    USV2ActionMotionPlan::getInstance()->setEnable(true);
+                    USV3ActionMotionPlan::getInstance()->setEnable(true);
+                    init_follower_ = true;
+                }
+            } else {
+                float usv1_length = (output_.m_vector).norm();
+                chlog::info(mp_config_.log_path, "usv1_length = ", usv1_length);
+                if (usv1_length > K_multi_usv_formation_distance && !init_usv2_) {
+                    USV2ActionMotionPlan::getInstance()->initMP(mp_config_);
+                    USV2ActionMotionPlan::getInstance()->setPolyTraj(usv2_traj);
+                    USV2ActionMotionPlan::getInstance()->setEnable(true);
+                    init_usv2_ = true;
+                }
+                if (usv1_length > 2 * K_multi_usv_formation_distance && !init_usv3_) {
+                    USV3ActionMotionPlan::getInstance()->initMP(mp_config_);
+                    USV3ActionMotionPlan::getInstance()->setPolyTraj(usv3_traj);
+                    USV3ActionMotionPlan::getInstance()->setEnable(true);
+                    init_usv3_ = true;
+                }
 
-            USV3ActionMotionPlan::getInstance()->initMP(mp_config_);
-            USV3ActionMotionPlan::getInstance()->setPolyTraj(usv3_traj);
-            USV3ActionMotionPlan::getInstance()->setEnable(true);
-            init_follower_ = true;
+            }
         }
     } else {
         mp_manager_->SetMpEnable(false);

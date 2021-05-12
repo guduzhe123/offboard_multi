@@ -87,6 +87,8 @@ private:
     M_Drone drone_state_;
 
     TVec3 usv1_drone_pos_;
+    TVec3 usv2_drone_pos_;
+    TVec3 usv3_drone_pos_;
     multi_vehicle m_multi_vehicle_;
     bool is_enable_;
     GlobalTrajData usv1_global_data_;
@@ -94,6 +96,8 @@ private:
 
     PolynomialTraj gl_traj;
     bool init_follower_;
+    bool init_usv2_;
+    bool init_usv3_;
 };
 
 class ActionMotionPlanFactory : public IFunctionFactory {
