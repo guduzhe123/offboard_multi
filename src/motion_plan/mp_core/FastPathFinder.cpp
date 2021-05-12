@@ -232,6 +232,12 @@ namespace fast_planner {
     void
     FastPathFinder::calcMiniSnap(vector<Eigen::Vector3d> &inter_points, PolynomialTraj &gl_traj, Eigen::VectorXd &time,
                                  int usv_id) {
+        if (inter_points.size() - 1 != time.size()) {
+            chlog::info(mp_config_.log_path, "Error! wrong mini snap inputs! pos size = ", inter_points.size(),
+                        ", time size = ", time.size());
+            return;
+        }
+
         int             pt_num = inter_points.size();
         Eigen::MatrixXd pos(pt_num, 3);
         for (int i = 0; i < pt_num; ++i) {
@@ -244,30 +250,34 @@ namespace fast_planner {
         if (usv_id == 1) {
             for (int i = 0; i < pt_num - 1; ++i) {
                 time(i) = (pos.row(i + 1) - pos.row(i)).norm() / (pp_.max_vel_);
+                if (i > 0) {
+                    if (fabs(time(i) - time(0)) > 0.2)  time(i) = 2 * time(0);
+                }
+                chlog::info(mp_config_.log_path, "leader time = ", time(i));
             }
 
             time(0) *= 2.0;
             time(0) = max(1.0, time(0));
             time(time.rows() - 1) *= 2.0;
             time(time.rows() - 1) = max(1.0, time(time.rows() - 1));
-        }
-        if (pos.rows() - 1 != time.size()) {
-            chlog::info(mp_config_.log_path, "Error! wrong mini snap inputs! pos size = ", pos.size(),
-                        ", time size = ", time.size());
-            return;
+
         }
         gl_traj = minSnapTraj(pos, zero, zero, zero, zero, time);
     }
 
 
     void FastPathFinder::planUSV2GlobalTraj(vector<Eigen::Vector3d> &leader_pos, Eigen::VectorXd &time) {
+        vector<double> time_line;
+        for (int i = 0; i < time.size(); i++) {
+            time_line.push_back(time(i));
+        }
         TVec3 line_dir_norm(1, 0, 0);
         vector<Eigen::Vector3d> follower_pos;
         TVec3 res;
         for (int i = 0; i < leader_pos.size() - 1; i++) {
             TVec3 line_dir = ((leader_pos.at(i + 1) - leader_pos.at(i)).normalized()).cast<float>();
             Eigen::Matrix3f rotMatrix = Eigen::Quaternionf::FromTwoVectors(line_dir_norm, line_dir).toRotationMatrix();
-            chlog::info(mp_config_.log_path, "line dir = ", toStr(line_dir), ", drone_usv2_ = ", toStr(drone_usv2_));
+//            chlog::info(mp_config_.log_path, "line dir = ", toStr(line_dir), ", drone_usv2_ = ", toStr(drone_usv2_));
             cout << "Rotation_usv 2 = " << endl << rotMatrix << endl;
             res = rotMatrix * drone_usv2_;
             Eigen::Vector3d pos = leader_pos.at(i) + res.cast<double>();
@@ -289,13 +299,15 @@ namespace fast_planner {
         for (int i = 0; i < leader_pos.size() - 1; i++) {
             TVec3 line_dir = ((leader_pos.at(i + 1) - leader_pos.at(i)).normalized()).cast<float>();
             Eigen::Matrix3f rotMatrix = Eigen::Quaternionf::FromTwoVectors(line_dir_norm, line_dir).toRotationMatrix();
-            chlog::info(mp_config_.log_path, "line dir = ", toStr(line_dir),
-                        ", drone_usv3_ = ", toStr(drone_usv3_));
-            cout << "Rotation_usv 3 = " << endl << rotMatrix << endl;
+
             res = rotMatrix * drone_usv3_;
             Eigen::Vector3d pos = leader_pos.at(i) + res.cast<double>();
             chlog::info(mp_config_.log_path, "pos = ", toStr(pos.cast<float>()), ", leader pos = ",
                         toStr(leader_pos.at(i).cast<float>()), ", res = ", toStr(res));
+            if (i > 0) {
+                float pos_err = (follower_pos.back() - pos).norm();
+                chlog::info(mp_config_.log_path, "usv3 pos error = ", pos_err);
+            }
             follower_pos.push_back(pos);
         }
 

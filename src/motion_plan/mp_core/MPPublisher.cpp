@@ -159,7 +159,7 @@ void MPPublisher::drawGeometricPath(const vector<Eigen::Vector3d>& path) {
 }
 
 void MPPublisher::drawBspline(NonUniformBspline& bspline) {
-    visualization_->drawBspline(bspline, 0.1, Eigen::Vector4d(1.0, 0, 0.0, 1), false, 0.2,
+    visualization_->drawBspline(bspline, 0.1, Eigen::Vector4d(1.0, 0, 0.0, 1), true, 0.2,
                                 Eigen::Vector4d(1, 0, 0, 1));
 }
 

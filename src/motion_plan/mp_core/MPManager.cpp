@@ -440,7 +440,6 @@ void MPManager::ProcessState() {
             GlobalTrajData* global_data = &path_finder_->getGlobalData();
 
             Eigen::Vector3d pos = info->position_traj_.evaluateDeBoorT(t_cur);
-
             chlog::info(log, "[MP Manager]: mp_config_.end_pos = ", toStr(mp_config_.end_pos),
                     ", drone_st_.drone_pos = ", toStr(drone_st_.drone_pos), ", t_cur = ",
                         t_cur, ", global_duration_ = ", global_data->global_duration_);
@@ -454,14 +453,7 @@ void MPManager::ProcessState() {
                 ChangeExecState(GEN_NEW_TRAJ, "FSM");
                 have_target_ = false;
                 return;
-            }
-
-            if (err_target < 1.0) {
-                have_target_ = false;
-                ChangeExecState(WAIT_TARGET, "FSM");
-                return;
-
-            }  else if (t_cur <  1.0/*&& !collide_*/) {
+            }  else if  (t_cur <  1.0/*&& !collide_*/) {
 //                chlog::info(log, "[MP Manager]: close to start pos!");
                 return;
 

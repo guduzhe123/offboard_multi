@@ -219,10 +219,6 @@ void MultiUSVFormation::GetTakeoffPos() {
 
 void MultiUSVFormation::DoProgress() {
     GetTakeoffPos();
-/*    if (!config_ && !is_formation_) {
-    }*/
-/*    changeToLocalTarget();
-    calcFollowUSVPos();*/
 
     OnCheckFormationArrived();
     SetFunctionOutPut();
