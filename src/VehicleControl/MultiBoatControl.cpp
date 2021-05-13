@@ -104,109 +104,8 @@ void MultiBoatControl::DoProgress() {
                 usv_waypoints_size_init_ = usv_way_points_.size();
                 usv_way_points_copy_ = usv_way_points_;
                 OnInitMotionPlan(usv1_targets_);
-                usv_state_ = USV_WAYPOINT;
                 break;
 
-            case USV_WAYPOINT: {
-                chlog::info("data","[Boat Control]:boat local size = ", usv_way_points_.size());
-
-                if (!usv_way_points_.empty()) {
-                    m_multi_vehicle_.leader_usv.target_local_pos_sp = usv_way_points_.back();
-                    target_pos_ = usv_way_points_.back();
-//                    Calculate::getInstance()->bodyFrame2LocalFrame(body_pos_, target_pos_,init_yaw_);
-
-                    if (pos_reached(m_multi_vehicle_.usv1.current_local_pos, target_pos_,
-                                    usv_position_allow_reached_) && !usv1_reached_) {
-                        usv1_reached_ = true;
-                        chlog::info("data","[Boat Control]:usv1 disarm at one point");
-                    }
-
-                    chlog::info("data","[Boat Control]:usv2 local (", m_multi_vehicle_.usv2.current_local_pos.pose.position.x, ", ",
-                             m_multi_vehicle_.usv2.current_local_pos.pose.position.y, ", ",
-                             m_multi_vehicle_.usv2.current_local_pos.pose.position.z, ")");
-                    chlog::info("data","[Boat Control]:target_usv2 = (", target_usv2_init_.pose.position.x, ", ",
-                            target_usv2_init_.pose.position.y, ", ", target_usv2_init_.pose.position.z, ")");
-                    if (pos_reached(m_multi_vehicle_.usv2.current_local_pos, target_usv2_init_,
-                                    usv_position_allow_reached_) && !usv2_reached_) {
-                        usv2_reached_ = true;
-                        chlog::info("data","[Boat Control]:usv2 disarm at one point");
-                    }
-
-                    if (pos_reached(m_multi_vehicle_.usv3.current_local_pos, target_usv3_init_,
-                                    usv_position_allow_reached_) && !usv3_reached_) {
-                        usv3_reached_ = true;
-                        chlog::info("data","[Boat Control]:usv3 disarm at one point");
-                    }
-
-                    chlog::info("data","[Boat Control]:usv1_reached_ = ", usv1_reached_, ", usv2_reached_ = ",
-                            usv2_reached_ , ", usv3_reached_ = ", usv3_reached_);
-                    if (usv1_reached_) {
-                        usv_way_points_.pop_back();
-                        chlog::info("data","[Boat Control]:Finished one way point = (",
-                                 usv_way_points_.back().pose.position.x, ", ", usv_way_points_.back().pose.position.y,
-                                 ", ", usv_way_points_.back().pose.position.z);
-
-                        if (!usv_way_points_.empty()) {
-                            chlog::info("data","[Boat Control]:Goto next way point = (",
-                                     usv_way_points_.back().pose.position.x, ", ", usv_way_points_.back().pose.position.y,
-                                     ", ", usv_way_points_.back().pose.position.z);
-                            usv_state_ = USV_WAYPOINT;
-                        } else {
-                            chlog::info("data","[Boat Control]:Finish all target points!");
-                            usv_state_ = USV_RETRAY;
-                        }
-                        usv1_reached_ = false;
-                        usv2_reached_ = false;
-                        usv3_reached_ = false;
-
-                    }
-
-                    TVec3 usv1_target = TVec3(target_pos_.pose.position.x, target_pos_.pose.position.y, 0);
-                    TVec3 usv1_cur = TVec3(m_multi_vehicle_.usv1.current_local_pos.pose.position.x,
-                                           m_multi_vehicle_.usv1.current_local_pos.pose.position.y,
-                                           0);
-                    TVec3 vec = (usv1_target - usv1_cur).normalized();
-                    float target_yaw = atan2(vec.y(), vec.x()) * 180 / M_PI;
-                    float yaw_err = fabs(target_yaw - m_multi_vehicle_.usv1.yaw);
-                    if (yaw_err > 180) yaw_err -= 180;
-                    if (yaw_err < 20 ) {
-                        PathCreator::geInstance()->CreateUSVFormationInit(formation_config_);
-                    }
-                    chlog::info("data","[Boat Control]:targte yaw = ", target_yaw, ", , m_multi_vehicle_.usv1.yaw = ",
-                            m_multi_vehicle_.usv1.yaw);
-
-                } else {
-                    usv_state_ = USV_DISARM;
-                }
-
-                setVehicleCtrlData();
-                break;
-            }
-
-            case USV_RETRAY:
-                // disarm all.
-                chlog::info("data","[Boat Control]:Disarm all usv");
-                target_pos_.pose.position.x = 0;
-                target_pos_.pose.position.y = 0;
-                target_pos_.pose.position.z = 0;
-                setVehicleCtrlData();
-                if (pos_reached(m_multi_vehicle_.usv1.current_local_pos, target_pos_,
-                                usv_position_allow_reached_) && !usv1_reached_) {
-
-                    usv_way_points_.clear();
-                    usv_way_points_ = usv_way_points_copy_;
-                    usv_waypoints_size_init_ = usv_way_points_.size();
-                    usv_state_ = USV_WAYPOINT;
-                }
-                break;
-
-            case USV_DISARM: {
-                target_pos_.pose.position.x = 0;
-                target_pos_.pose.position.y = 0;
-                target_pos_.pose.position.z = 0;
-                setVehicleCtrlData();
-            }
-                break;
 
             case USV_CIRCLE_INIT: {
                 TCircleConfig circle_config;
@@ -248,7 +147,6 @@ void MultiBoatControl::DoProgress() {
                     usv1_targets_.push_back(target_local);
                 }
                 OnInitMotionPlan(usv1_targets_);
-                usv_state_ = USV_WAYPOINT;
                 state_changed_ = true;
                 break;
             }
@@ -311,10 +209,6 @@ void MultiBoatControl::DoProgress() {
             offb_set_mode.request.custom_mode = "OFFBOARD";
             DataMan::getInstance()->SetUSVState(offb_set_mode, 1);
 
-        } else {
-/*            m_multi_vehicle_.leader_usv.target_local_pos_sp.pose.position =
-                    m_multi_vehicle_.leader_usv.current_local_pos.pose.position;
-            setVehicleCtrlData();*/
         }
     }
 }
