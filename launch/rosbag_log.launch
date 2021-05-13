@@ -134,6 +134,8 @@
             /usv3/target_point
             /usv3/cur_pos
             /usv3/heading_vis
+
+            /target_local
 "
     />
 </launch>

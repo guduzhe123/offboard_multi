@@ -295,3 +295,6 @@ target_link_libraries(7vehicles ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
 
 add_executable(CompressedToRaw src/CompressedToRaw.cpp)
 TARGET_LINK_LIBRARIES(CompressedToRaw ${OpenCV_LIBS} ${catkin_LIBRARIES} )
+
+add_executable(send_target src/test/3USVs/send_target.cpp)
+TARGET_LINK_LIBRARIES(send_target  ${catkin_LIBRARIES} )

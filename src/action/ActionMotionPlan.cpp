@@ -120,7 +120,7 @@ void ActionMotionPlan::SetFunctionOutPut() {
         m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.y = output_.m_vector.y();
         m_multi_vehicle_.usv1.target_local_pos_sp.pose.position.z = output_.m_vector.z();
         DataMan::getInstance()->SetUSVMPControlData(m_multi_vehicle_, 1);
-        chlog::info("af_data",
+        chlog::info(mp_config_.log_path,
                     "[USV1 ActionDroneMotionPlan] --- GetOutput m_vector = " + toStr(output_.m_vector));
     }
 }

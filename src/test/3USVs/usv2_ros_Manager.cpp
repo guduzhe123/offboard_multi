@@ -44,7 +44,7 @@ void usv2_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("/move_base_simple/goal", 10, &usv2_ros_Manager::rvizUsv1GoalCB, this);*/
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
-            ("mavros/setpoint_position/local", 100);
+            ("setpoint_position/local", 100);
     gps_global_pos_pub = nh.advertise<sensor_msgs::NavSatFix>
             ("mavros/global_position/raw/fix", 100);
     global_pos_pub = nh.advertise<sensor_msgs::NavSatFix>

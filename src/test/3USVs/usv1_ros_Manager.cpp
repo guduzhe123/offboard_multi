@@ -47,7 +47,7 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/local_position/velocity_local", 10, &usv1_ros_Manager::velocity_cb, this);
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
-            ("mavros/setpoint_position/local", 100);
+            ("setpoint_position/local", 100);
     gps_global_pos_pub = nh.advertise<sensor_msgs::NavSatFix>
             ("mavros/global_position/raw/fix", 100);
     global_pos_pub = nh.advertise<sensor_msgs::NavSatFix>
@@ -187,13 +187,14 @@ void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr
     TVec3 center{dronepos_.m_x, goal.y(), 0};
     mp_config.targets.push_back(center);
     mp_config.targets.push_back(goal);
+    mp_config.targets.push_back(TVec3{goal.x(), 0, 0});
     TVec3 center1{dronepos_.m_x, -goal.y(), 0};
     mp_config.targets.push_back(center1);
 
     TVec3 center2{0, 0, 0};
     mp_config.targets.push_back(center2);
 //    mp_config.formation_type = config_;
-    mp_config.formation_type = VF_USV_LINE_VERTICAL;
+    mp_config.formation_type = VF_USV_TRIANGLE;
     mp_config.formation_distance = K_multi_usv_formation_distance;
     ActionMotionPlan::getInstance()->initMP(mp_config);
     ActionMotionPlan::getInstance()->setEnable(true);

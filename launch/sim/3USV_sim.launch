@@ -19,6 +19,8 @@
         <param name="is_usv" value="$(arg is_usv)" type="bool"/>
         <param name="is_uav" value="$(arg is_uav)" type="bool"/>
     </node>
+
+    <node pkg = "offboard" name = "send_target" type="send_target" output="screen"></node>
     <include file="$(find offboard)/launch/rosbag_log.launch"/>
     <include file="$(find offboard)/launch/rviz.launch"/>
 </launch>
