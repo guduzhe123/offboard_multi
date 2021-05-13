@@ -13,7 +13,9 @@ usvs_control::usvs_control():
         is_avoidance_(false),
         command_(-1),
         danger_distance_(-1),
-        usv1_target_pre_(0,0,0){
+        usv1_target_pre_(0,0,0),
+        follower_usv2_tf_offset_(0,0,0),
+        follower_usv3_tf_offset_(0,0,0){
 
 }
 
@@ -62,30 +64,10 @@ void usvs_control::PublishDronePosControl(const multi_vehicle &multi_vehicles) {
 }
 
 void usvs_control::PublishBoatPosControl(const multi_vehicle &multi_vehicles) {
-    DroneControl usv2, usv3;
-    usv2.target_pose = multi_vehicles.usv2.target_local_pos_sp;
-    usv3.target_pose = multi_vehicles.usv3.target_local_pos_sp;
-
-/*    if (multi_vehicles.usv1.droneControl.speed_ctrl) {
-        chlog::info("data","usv1 send vel control = %.d", multi_vehicles.usv1.droneControl.speed_ctrl);
-        usv1 = multi_vehicles.usv1.droneControl;
-    }*/
-
-/*    TVec3 target_pos{multi_vehicles.usv1.target_local_pos_sp.pose.position.x,
-                     multi_vehicles.usv1.target_local_pos_sp.pose.position.y,
-                     0};
-    target_pos.z() = 0;
-    float pre_cur_err = (target_pos - usv1_target_pre_).norm();
-    if (pre_cur_err > 0.8) {
-        chlog::info("motion_plan", "target_pos = ", toStr(target_pos), ", usv1_target_pre_ = ", toStr(usv1_target_pre_));
-        OnInitMotionPlan(multi_vehicles);
-        usv1_target_pre_ = target_pos;
-    }*/
-
-//    usv1_control_->usvPosSp(usv1);
-/*    usv2_control_->usvPosSp(usv2);
-    usv3_control_->usvPosSp(usv3);*/
-
+    follower_usv2_tf_offset_ = multi_vehicles.usv2.follower_usv_tf_offset;
+    follower_usv3_tf_offset_ = multi_vehicles.usv3.follower_usv_tf_offset;
+    chlog::info("data","follower_usv2_tf_offset_ = ", toStr(follower_usv2_tf_offset_),
+                ", follower_usv3_tf_offset_ = ", toStr(follower_usv3_tf_offset_));
 }
 
 void usvs_control::SetUSVAvoData(const bool usv1_crash, const bool usv2_crash, const bool usv3_crash) {
@@ -127,8 +109,14 @@ void usvs_control::PublishUUVPosControl(const multi_vehicle &multi_vehicles) {
 void usvs_control::PublishUSVPosControl(const multi_vehicle &multi_vehicles, int id) {
     DroneControl usv1, usv2, usv3;
     usv1.target_pose = multi_vehicles.usv1.target_local_pos_sp;
-    usv2.target_pose = multi_vehicles.usv2.target_local_pos_sp;
-    usv3.target_pose = multi_vehicles.usv3.target_local_pos_sp;
+    usv2.target_pose.pose.position.x = multi_vehicles.usv2.target_local_pos_sp.pose.position.x + follower_usv2_tf_offset_.x();
+    usv2.target_pose.pose.position.y = multi_vehicles.usv2.target_local_pos_sp.pose.position.y + follower_usv2_tf_offset_.y();
+
+    usv3.target_pose.pose.position.x = multi_vehicles.usv3.target_local_pos_sp.pose.position.x + follower_usv3_tf_offset_.x();
+    usv3.target_pose.pose.position.y = multi_vehicles.usv3.target_local_pos_sp.pose.position.y + follower_usv3_tf_offset_.y();
+
+    chlog::info("data","follower_usv2_tf_offset_ = ", toStr(follower_usv2_tf_offset_),
+                ", follower_usv3_tf_offset_ = ", toStr(follower_usv3_tf_offset_));
     if (id == 1) {
         usv1_control_->usvPosSp(usv1);
     } else if (id == 2) {

@@ -58,7 +58,7 @@ private:
     TVec3 follow_usv3_;
 
     TVec3 follow_usv1_to_leader, follow_usv2_to_leader, follow_usv3_to_leader;
-    TVec3 follow_usv1_first_local_, follow_usv2_first_local_, follow_usv3_first_local_;
+    TVec3 follower_usv2_tf_offset, follower_usv3_tf_offset, follow_usv3_first_local_;
     TVec3 follow_usv1_keep_local_, follow_usv2_keep_local_, follow_usv3_keep_local_;
 
     GlobalPosition usv1_takeoff_gps_pos_, usv2_takeoff_gps_pos_, usv3_takeoff_gps_pos_, usv4_takeoff_gps_pos_;

@@ -106,6 +106,7 @@ struct M_Drone {
     mavros_msgs::State current_state = {};
     TVec3 follower_to_leader_pos = {0,0,0};
     TVec3 follower_keep_pos = {0,0,0};
+    TVec3 follower_usv_tf_offset = {0,0,0};
     TVec3 avoidance_pos = {0,0,0};
     TVec3 velocity = {0,0,0};
     geometry_msgs::PoseStamped target_local_pos_sp = {};

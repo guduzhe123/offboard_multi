@@ -46,6 +46,8 @@ private:
     double max_vel_;
     double max_acc_;
 
+    TVec3 follower_usv2_tf_offset_;
+    TVec3 follower_usv3_tf_offset_;
     TVec3 usv1_target_pre_{};
 };
 

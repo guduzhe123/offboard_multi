@@ -132,18 +132,20 @@ void MultiUSVFormation::GetData() {
 void
 MultiUSVFormation::calcFollowUSVPos() {
     // 目标相对位置-当前相对位置+当前在该飞机坐标系下的绝对位置
-    follow_usv1_.x() = m_multi_vehicle_.usv1.current_local_pos.pose.position.x + Drone_usv2_.x() + follow_usv1_first_local_.x();
-    follow_usv1_.y() = m_multi_vehicle_.usv1.current_local_pos.pose.position.y + Drone_usv2_.y() + follow_usv1_first_local_.y();
+    follow_usv1_.x() = m_multi_vehicle_.usv1.current_local_pos.pose.position.x + Drone_usv2_.x() + follower_usv2_tf_offset.x();
+    follow_usv1_.y() = m_multi_vehicle_.usv1.current_local_pos.pose.position.y + Drone_usv2_.y() + follower_usv2_tf_offset.y();
     follow_usv1_.z() = leader_drone_.current_local_pos.pose.position.z;
-    follow_usv1_keep_local_ = TVec3 (Drone_usv2_.x() + follow_usv1_first_local_.x(), Drone_usv2_.y() + follow_usv1_first_local_.y(), 0);
+    follow_usv1_keep_local_ = TVec3 (Drone_usv2_.x() + follower_usv2_tf_offset.x(), Drone_usv2_.y() + follower_usv2_tf_offset.y(), 0);
 
-    follow_usv2_.x() = m_multi_vehicle_.usv1.current_local_pos.pose.position.x + Drone_usv3_.x() + follow_usv2_first_local_.x();
-    follow_usv2_.y() = m_multi_vehicle_.usv1.current_local_pos.pose.position.y + Drone_usv3_.y() + follow_usv2_first_local_.y();
+    follow_usv2_.x() = m_multi_vehicle_.usv1.current_local_pos.pose.position.x + Drone_usv3_.x() + follower_usv3_tf_offset.x();
+    follow_usv2_.y() = m_multi_vehicle_.usv1.current_local_pos.pose.position.y + Drone_usv3_.y() + follower_usv3_tf_offset.y();
     follow_usv2_.z() = leader_drone_.current_local_pos.pose.position.z;
-    follow_usv2_keep_local_ = TVec3 (Drone_usv3_.x() + follow_usv2_first_local_.x(), Drone_usv3_.y() + follow_usv2_first_local_.y(), 0);
+    follow_usv2_keep_local_ = TVec3 (Drone_usv3_.x() + follower_usv3_tf_offset.x(), Drone_usv3_.y() + follower_usv3_tf_offset.y(), 0);
     chlog::info("data","[USV Formation]: m_multi_vehicle_.usv2.current_local_pos.pose.position.x = ",
             m_multi_vehicle_.usv2.current_local_pos.pose.position.x, ", y = ",
              m_multi_vehicle_.usv2.current_local_pos.pose.position.y);
+    m_multi_vehicle_.usv2.follower_usv_tf_offset = follower_usv2_tf_offset;
+    m_multi_vehicle_.usv3.follower_usv_tf_offset = follower_usv3_tf_offset;
 
 }
 
@@ -210,9 +212,9 @@ void MultiUSVFormation::GetTakeoffPos() {
         chlog::info("data","[USV Formation]: usv2_takeoff_gps_pos_ = ", usv2_takeoff_gps_pos_.latitude, ", ", usv2_takeoff_gps_pos_.longitude);
         chlog::info("data","[USV Formation]: usv3_takeoff_gps_pos_ = ", usv3_takeoff_gps_pos_.latitude, ", ", usv3_takeoff_gps_pos_.longitude);
 
-        Calculate::getInstance()->GetLocalPos(usv1_takeoff_gps_pos_, usv2_takeoff_gps_pos_, follow_usv1_first_local_);
-        Calculate::getInstance()->GetLocalPos(usv1_takeoff_gps_pos_, usv3_takeoff_gps_pos_, follow_usv2_first_local_);
-        chlog::info("data","[USV Formation]: follow_usv1_first_local_ ", follow_usv1_first_local_.x(),", ",  follow_usv1_first_local_.y());
+        Calculate::getInstance()->GetLocalPos(usv1_takeoff_gps_pos_, usv2_takeoff_gps_pos_, follower_usv2_tf_offset);
+        Calculate::getInstance()->GetLocalPos(usv1_takeoff_gps_pos_, usv3_takeoff_gps_pos_, follower_usv3_tf_offset);
+        chlog::info("data", "[USV Formation]: follower_usv2_tf_offset ", follower_usv2_tf_offset.x(), ", ", follower_usv2_tf_offset.y());
 
     }
 }
