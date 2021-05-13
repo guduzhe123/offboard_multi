@@ -31,6 +31,9 @@ bool ActionMotionPlan::initMP(const MP_Config &mpConfig) {
     mp_manager_->SetMpEnable(true);
     chlog::info(mp_config_.log_path, "[Action MP]: motion_plan init! target_pos = " + toStr(mpConfig.end_pos)
                                + ", target_heading = " + to_string2(mpConfig.target_heading));
+    init_follower_ = false;
+    init_usv2_ = false;
+    init_usv3_ = false;
     return false;
 }
 
