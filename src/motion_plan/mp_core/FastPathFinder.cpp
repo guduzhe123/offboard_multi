@@ -379,6 +379,10 @@ namespace fast_planner {
         ros::Time t1, t2;
         ros::Time time_now = ros::Time::now();
         double    t_now    = (time_now - global_data_.global_start_time_).toSec();
+/*        if (mp_config_.drone_id == 2) {
+            t_now += 1.0;
+            time_now += ros::Duration(1.0);
+        }*/
         chlog::info(mp_config_.log_path, "time_now = ", time_now.toSec(), ", global_data_.global_start_time_ = ",
                     global_data_.global_start_time_.toSec(), ", t_now = ", t_now);
         double    local_traj_dt, local_traj_duration;

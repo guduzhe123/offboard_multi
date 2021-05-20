@@ -118,6 +118,10 @@ void USV2ActionMotionPlan::setPolyTraj(PolynomialTraj& poly_traj) {
     mp_manager_->setPolyTraj(poly_traj);
 }
 
+void USV2ActionMotionPlan::setFormationTarget(const TVec3 &formation_pos_target) {
+    mp_manager_->setFormationTarget(formation_pos_target);
+}
+
 
 USV2ActionMotionPlan* USV2ActionMotionPlan::getInstance() {
     static USV2ActionMotionPlan *action_mp = NULL;

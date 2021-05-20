@@ -55,6 +55,8 @@ public:
     void setPolyTraj(const PolynomialTraj& poly_traj);
 
     bool getPolyTraj(PolynomialTraj& usv2_poly_traj, PolynomialTraj& usv3_poly_traj);
+
+    void setFormationTarget(const TVec3 &formation_pos_target);
 private:
     enum MP_EXEC_STATE {
         INIT,
@@ -108,6 +110,8 @@ private:
     bool plan_success_;
     string log;
     PolynomialTraj gl_traj_;
+    TVec3 formation_target_ = TVec3{0,0,0};
+    float time_add_sum_;
 
     // private functions
     void CalcDistToCenter(float &dist, const TVec3 &cur_pos, TVec3 start_pos, TVec3 end_pos);

@@ -70,6 +70,7 @@ public:
 
     void initNh(ros::NodeHandle &nh, shared_ptr<IMap> &IMap);
     void setPolyTraj(PolynomialTraj& poly_traj);
+    void setFormationTarget(const TVec3& formation_pos_target);
     static USV3ActionMotionPlan* getInstance();
 
 

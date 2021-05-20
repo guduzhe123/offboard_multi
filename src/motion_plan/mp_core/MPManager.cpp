@@ -15,7 +15,8 @@ MPManager::MPManager(const MP_Config &config) :
         path_find_fail_timer_(0),
         collide_(false),
         plan_success_(false),
-        check_collision_state_(CHECK_COLLISION){
+        check_collision_state_(CHECK_COLLISION),
+        time_add_sum_(0){
     log = config.log_path;
     chlog::info(log, "~~~~~~~~\n");
     chlog::info(log, "[MP Manager]: mp manager init!");
@@ -147,14 +148,12 @@ bool MPManager::CallKinodynamicReplan(int step) {
 
         bsplineResult(bspline);
 
-        plan_traj_.clear();
+/*        plan_traj_.clear();
         plan_traj_.push_back(info->position_traj_);
         plan_traj_.push_back(plan_traj_[0].getDerivative());
         plan_traj_.push_back(plan_traj_[1].getDerivative());
-
         traj_duration_ = plan_traj_[0].getTimeSum();
-
-        receive_traj_ = true;
+        receive_traj_ = true;*/
 
         /* visulization */
         auto plan_data = &path_finder_->getPlanData();
@@ -244,14 +243,16 @@ void MPManager::formationCall(int formation_type) {
 }
 
 bool MPManager::GetControlOutput(TVec3 &vector_eus) {
-//        chlog::info(log, "[MP Manager]: received traj = ", receive_traj_);
     if (!receive_traj_) return false;
 
     ros::Time time_now = ros::Time::now();
     double t_cur = (time_now - start_time_).toSec();
 
+    t_cur += time_add_sum_;
     Eigen::Vector3d pos = {0, 0, 0}, vel = {0, 0, 0}, acc = {0, 0, 0};
     double yaw = 0;
+
+    chlog::info(log, "t_cur = ", t_cur);
 
     if (t_cur < traj_duration_ && t_cur >= 0.0) {
         pos = plan_traj_[0].evaluateDeBoorT(t_cur);
@@ -264,6 +265,26 @@ bool MPManager::GetControlOutput(TVec3 &vector_eus) {
         acc.setZero();
     } else {
         chlog::info(log, "[MP Manager]: invalid time!");
+        return false;
+    }
+
+    if (formation_target_.norm() > 0 && (formation_target_ - pos.cast<float>()).norm() > 1.0) {
+        chlog::info(mp_config_.log_path, "command pos before = ", toStr(pos.cast<float>()));
+        time_add_sum_ = (formation_target_ - pos.cast<float>()).norm() / mp_config_.max_vel;
+        t_cur += time_add_sum_;
+        if (time_add_sum_ > 3) time_add_sum_ = 3;
+        if (t_cur < traj_duration_ && t_cur >= 0.0 ) {
+            pos = plan_traj_[0].evaluateDeBoorT(t_cur);
+            vel = plan_traj_[1].evaluateDeBoorT(t_cur);
+        } else if (t_cur > traj_duration_) {
+            pos = plan_traj_[0].evaluateDeBoorT(traj_duration_);
+            vel = plan_traj_[1].evaluateDeBoorT(traj_duration_);
+        } else {
+            chlog::info(log, "[MP Manager]: invalid time!");
+            return false;
+        }
+        chlog::info(mp_config_.log_path, "add time to reach formation, add time = ", time_add_sum_, ", formation_target_ = ",
+                    toStr(formation_target_), ", pos.cast<float>() = ", toStr(pos.cast<float>()));
     }
 
     if (mp_config_.is_speed_mode) {
@@ -392,6 +413,11 @@ void MPManager::checkEndPos() {
 //    if ()
 }
 
+void MPManager::setFormationTarget(const TVec3 &formation_pos_target) {
+    formation_target_ = formation_pos_target;
+
+}
+
 void MPManager::ProcessState() {
     checkCollisionReplan(drone_st_.drone_pos);
     switch (mp_state_) {
@@ -470,10 +496,10 @@ void MPManager::ProcessState() {
 
             if (mp_config_.control_mode == VELOCITY_WITHOUT_CUR) {
                 start_pt_ = drone_st_.drone_pos;
-                start_vel_ = info->velocity_traj_.evaluateDeBoorT(t_cur).cast<float>();
+                start_vel_ = info->velocity_traj_.evaluateDeBoorT(t_cur + time_add_sum_).cast<float>();
             } else if (mp_config_.control_mode == POSITION_WITHOUT_CUR) {
-                start_pt_ = info->position_traj_.evaluateDeBoorT(t_cur).cast<float>();
-                start_vel_ = info->velocity_traj_.evaluateDeBoorT(t_cur).cast<float>();
+                start_pt_ = info->position_traj_.evaluateDeBoorT(t_cur + time_add_sum_).cast<float>();
+                start_vel_ = info->velocity_traj_.evaluateDeBoorT(t_cur + time_add_sum_).cast<float>();
                 if ((start_pt_ - mp_config_.end_pos).norm() < 1) {
                     chlog::info(log, "[MP Manager]: near target, change goal");
                     have_target_ = false;

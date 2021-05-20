@@ -13,6 +13,11 @@
 
 class ActionMotionPlan : public IControlFunction {
 public:
+    enum PlanState {
+        ST_INIT,
+        ST_RUNNING
+    };
+
     /// @brief Constructor
     ///
     /// Constructor of the class ActionMotionPlan.
@@ -87,8 +92,6 @@ private:
     M_Drone drone_state_;
 
     TVec3 usv1_drone_pos_;
-    TVec3 usv2_drone_pos_;
-    TVec3 usv3_drone_pos_;
     multi_vehicle m_multi_vehicle_;
     bool is_enable_;
     GlobalTrajData usv1_global_data_;
@@ -98,6 +101,15 @@ private:
     bool init_follower_;
     bool init_usv2_;
     bool init_usv3_;
+    int m_state_;
+    TVec3 start_pos_;
+    TVec3 drone_usv2_;
+    TVec3 drone_usv3_;
+
+    vector<TVec3> goals_;
+    void calcuLineDir(const vector<TVec3> &goal, TVec3 &usv2_pos_sp, TVec3 &usv3_pos_sp);
+    void initFormation();
+    void getFollowerSp(const TVec3 &drone_move, const Eigen::Matrix3f &rotMatrix, TVec3 &target_pos);
 };
 
 class ActionMotionPlanFactory : public IFunctionFactory {

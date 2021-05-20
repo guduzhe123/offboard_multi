@@ -71,6 +71,8 @@ public:
 
     void setPolyTraj(PolynomialTraj& poly_traj);
 
+    void setFormationTarget(const TVec3& formation_pos_target);
+
     static USV2ActionMotionPlan* getInstance();
 
 
