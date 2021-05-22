@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4.1)
-set(CMAKE_CUDA_COMPILER "/usr/local/cuda-10.0/bin/nvcc")
+set(CMAKE_CUDA_COMPILER "/usr/local/cuda-10.2/bin/nvcc")
 project(offboard CXX CUDA)
 SET(CMAKE_CXX_STANDARD 14)
 

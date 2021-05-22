@@ -144,8 +144,6 @@ MultiUSVFormation::calcFollowUSVPos() {
     chlog::info("data","[USV Formation]: m_multi_vehicle_.usv2.current_local_pos.pose.position.x = ",
             m_multi_vehicle_.usv2.current_local_pos.pose.position.x, ", y = ",
              m_multi_vehicle_.usv2.current_local_pos.pose.position.y);
-    m_multi_vehicle_.usv2.follower_usv_tf_offset = follower_usv2_tf_offset;
-    m_multi_vehicle_.usv3.follower_usv_tf_offset = follower_usv3_tf_offset;
 
 }
 
@@ -216,6 +214,8 @@ void MultiUSVFormation::GetTakeoffPos() {
         Calculate::getInstance()->GetLocalPos(usv1_takeoff_gps_pos_, usv3_takeoff_gps_pos_, follower_usv3_tf_offset);
         chlog::info("data", "[USV Formation]: follower_usv2_tf_offset ", follower_usv2_tf_offset.x(), ", ", follower_usv2_tf_offset.y());
 
+        m_multi_vehicle_.usv2.follower_usv_tf_offset = follower_usv2_tf_offset;
+        m_multi_vehicle_.usv3.follower_usv_tf_offset = follower_usv3_tf_offset;
     }
 }
 
@@ -265,6 +265,6 @@ void MultiUSVFormation::SetFunctionOutPut() {
             m_multi_vehicle_.usv2.target_local_pos_sp = m_multi_vehicle_.usv1.target_local_pos_sp;
             m_multi_vehicle_.usv3.target_local_pos_sp = m_multi_vehicle_.usv1.target_local_pos_sp;
         }
-        DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);
     }
+    DataMan::getInstance()->SetBoatControlData(m_multi_vehicle_);
 }

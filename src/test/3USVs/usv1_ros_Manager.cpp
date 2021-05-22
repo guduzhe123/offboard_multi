@@ -194,7 +194,7 @@ void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr
     TVec3 center2{0, 0, 0};
     mp_config.targets.push_back(center2);
 //    mp_config.formation_type = config_;
-    mp_config.formation_type = VF_USV_TRIANGLE;
+    mp_config.formation_type = VF_USV_INVERSION_TRIANGLE;
     mp_config.formation_distance = K_multi_usv_formation_distance;
     ActionMotionPlan::getInstance()->initMP(mp_config);
     ActionMotionPlan::getInstance()->setEnable(true);

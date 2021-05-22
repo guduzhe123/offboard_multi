@@ -13,7 +13,7 @@ MultiBoatControl::MultiBoatControl() :
         usv1_reached_(false),
         usv2_reached_(false),
         usv3_reached_(false),
-        formation_config_(0),
+        formation_config_(VF_USV_TRIANGLE),
         usv_waypoints_size_init_(0){
 
 }
@@ -50,10 +50,11 @@ void MultiBoatControl::OnInitMotionPlan(const vector<TVec3>& usv1_targets ) {
     mp_config.is_speed_mode = false;
     mp_config.control_mode = POSITION_WITHOUT_CUR;
     mp_config.is_enable = true;
-    mp_config.max_vel = 2.0;
-    mp_config.max_acc = 2.0;
+    mp_config.max_vel = 1.0;
+    mp_config.max_acc = 1.0;
     mp_config.mp_map = m_multi_vehicle_.usv1.Imap;
     mp_config.targets = usv1_targets;
+    mp_config.formation_type = formation_config_;
     ActionMotionPlan::getInstance()->initMP(mp_config);
     ActionMotionPlan::getInstance()->setEnable(true);
 }
@@ -104,7 +105,12 @@ void MultiBoatControl::DoProgress() {
                 usv_waypoints_size_init_ = usv_way_points_.size();
                 usv_way_points_copy_ = usv_way_points_;
                 OnInitMotionPlan(usv1_targets_);
+                usv_state_ = USV_WAYPOINT;
                 break;
+
+            case USV_WAYPOINT: {
+                break;
+            }
 
 
             case USV_CIRCLE_INIT: {
@@ -147,6 +153,7 @@ void MultiBoatControl::DoProgress() {
                     usv1_targets_.push_back(target_local);
                 }
                 OnInitMotionPlan(usv1_targets_);
+                usv_state_ = USV_WAYPOINT;
                 state_changed_ = true;
                 break;
             }

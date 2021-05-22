@@ -39,9 +39,14 @@ bool USV2ActionMotionPlan::initMP(const MP_Config &mpConfig) {
 void USV2ActionMotionPlan::GetData() {
     m_multi_vehicle_ = DataMan::getInstance()->GetData();
     if (mp_manager_ == NULL) return;
-    drone_pos_ << m_multi_vehicle_.usv2.current_local_pos.pose.position.x,
-                      m_multi_vehicle_.usv2.current_local_pos.pose.position.y,
-                      m_multi_vehicle_.usv2.current_local_pos.pose.position.z;
+    drone_pos_ << m_multi_vehicle_.usv2.current_local_pos.pose.position.x +
+                m_multi_vehicle_.usv2.follower_usv_tf_offset.x(),
+                      m_multi_vehicle_.usv2.current_local_pos.pose.position.y+
+                      m_multi_vehicle_.usv2.follower_usv_tf_offset.y(),
+                      0;
+
+    chlog::info(mp_config_.log_path, "[USV2 Action MP]: follower_usv_tf_offset = ",
+                toStr(m_multi_vehicle_.usv3.follower_usv_tf_offset));
     TVec3 attitude = {0, 0, m_multi_vehicle_.usv2.yaw}, acc = {0, 0, 0};
     TVec3 drone_speed = m_multi_vehicle_.usv2.velocity;
     mp_manager_->OnUpdateDroneStatus(drone_pos_, drone_speed, acc, attitude);

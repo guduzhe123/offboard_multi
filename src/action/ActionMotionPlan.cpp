@@ -10,7 +10,8 @@ ActionMotionPlan::ActionMotionPlan() :
         init_follower_(false),
         init_usv2_(false),
         init_usv3_(false),
-        m_state_(ST_INIT)
+        m_state_(ST_INIT),
+        init_time_(false)
 {
 }
 
@@ -37,6 +38,7 @@ bool ActionMotionPlan::initMP(const MP_Config &mpConfig) {
     init_usv3_ = false;
     m_state_ = ST_INIT;
     initFormation();
+    init_time_ = false;
     return false;
 }
 

@@ -12,5 +12,8 @@
         <param name="is_usv" value="$(arg is_usv)" type="bool"/>
         <param name="is_uav" value="$(arg is_uav)" type="bool"/>
     </node>
+
+    <include file="$(find offboard)/launch/kino_replan.launch"/>
+    <node pkg = "offboard" name = "send_target" type="send_target" output="screen"></node>
 </launch>
 <!--roslaunch usb_cam usb_cam-test.launch -->
