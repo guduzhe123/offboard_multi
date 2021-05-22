@@ -112,6 +112,7 @@ private:
     PolynomialTraj gl_traj_;
     TVec3 formation_target_ = TVec3{0,0,0};
     float time_add_sum_;
+    float time_add_sum_pre_;
 
     // private functions
     void CalcDistToCenter(float &dist, const TVec3 &cur_pos, TVec3 start_pos, TVec3 end_pos);

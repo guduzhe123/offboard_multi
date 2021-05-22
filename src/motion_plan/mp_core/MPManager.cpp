@@ -16,7 +16,8 @@ MPManager::MPManager(const MP_Config &config) :
         collide_(false),
         plan_success_(false),
         check_collision_state_(CHECK_COLLISION),
-        time_add_sum_(0){
+        time_add_sum_(0),
+        time_add_sum_pre_(0){
     log = config.log_path;
     chlog::info(log, "~~~~~~~~\n");
     chlog::info(log, "[MP Manager]: mp manager init!");
@@ -268,9 +269,14 @@ bool MPManager::GetControlOutput(TVec3 &vector_eus) {
         return false;
     }
 
-    if (formation_target_.norm() > 0 && (formation_target_ - pos.cast<float>()).norm() > 1.0) {
+    if (formation_target_.norm() > 0 && (formation_target_ - pos.cast<float>()).norm() > 2.0) {
         chlog::info(mp_config_.log_path, "command pos before = ", toStr(pos.cast<float>()));
         time_add_sum_ = (formation_target_ - pos.cast<float>()).norm() / mp_config_.max_vel;
+        if (time_add_sum_ > time_add_sum_pre_ - 0.01) {
+            time_add_sum_pre_ = time_add_sum_;
+        } else {
+            time_add_sum_ = time_add_sum_pre_;
+        }
         t_cur += time_add_sum_;
         if (time_add_sum_ > 3) time_add_sum_ = 3;
         if (t_cur < traj_duration_ && t_cur >= 0.0 ) {
@@ -415,6 +421,7 @@ void MPManager::checkEndPos() {
 
 void MPManager::setFormationTarget(const TVec3 &formation_pos_target) {
     formation_target_ = formation_pos_target;
+    chlog::info(mp_config_.log_path, "usv get formation target = ", toStr(formation_target_));
 
 }
 

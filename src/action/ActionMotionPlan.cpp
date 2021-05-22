@@ -70,7 +70,7 @@ void ActionMotionPlan::DoProgress() {
             case ST_RUNNING: {
                 mp_manager_->ProcessState();
                 SetFunctionOutPut();
-                TVec3 usv2_pos_sp, usv3_pos_sp;
+                TVec3 usv2_pos_sp{0,0,0}, usv3_pos_sp{0,0,0};
                 if (mp_config_.formation_type == VF_USV_TRIANGLE
                     || mp_config_.formation_type == VF_USV_INVERSION_TRIANGLE) {
                     calcuLineDir(goals_, usv2_pos_sp, usv3_pos_sp);
@@ -187,6 +187,7 @@ void ActionMotionPlan::calcuLineDir(const vector<TVec3> &goal, TVec3 &usv2_pos_s
                         ", goal2 = ", toStr(goal[i+1]), ", dir_start = ", toStr(dir_start), ", dir_end = ",
                         toStr(dir_end), ", value = ", value);
             if ((output_.m_vector - goal[i + 1]).norm() < K_multi_usv_formation_distance) return;
+            if (i > 0 && (output_.m_vector - goal[i]).norm() < K_multi_usv_formation_distance) return;
             TVec3 line_dir = ((goal.at(i + 1) - goal.at(i)).normalized()).cast<float>();
 
             TVec3 line_dir_norm(1, 0, 0);
