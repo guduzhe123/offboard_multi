@@ -17,7 +17,7 @@ usv3_ros_Manager::usv3_ros_Manager() :
 
 }
 
-void usv3_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
+void usv3_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
     state_sub = nh.subscribe<mavros_msgs::State>
             ("mavros/state", 10, &usv3_ros_Manager::state_cb, this);
     vfr_hud_sub = nh.subscribe<mavros_msgs::VFR_HUD>

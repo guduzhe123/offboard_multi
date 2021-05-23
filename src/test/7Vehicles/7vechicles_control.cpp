@@ -22,7 +22,7 @@ seven_vehicle_control* seven_vehicle_control::getInstance() {
     return l_pInst;
 }
 
-void seven_vehicle_control::OnInit() {
+void seven_vehicle_control::OnInit(const bool is_sim) {
     ros::NodeHandle uav1_nh("uav1");
     uav1_control_.reset(new uav1_ros_Manager);
     uav1_control_->uavOnInit(uav1_nh);
@@ -41,15 +41,15 @@ void seven_vehicle_control::OnInit() {
 
     ros::NodeHandle usv1_nh("usv1");
     usv1_control_.reset(new usv1_ros_Manager);
-    usv1_control_->usvOnInit(usv1_nh);
+    usv1_control_->usvOnInit(usv1_nh, 0);
 
     ros::NodeHandle usv2_nh("usv2");
     usv2_control_.reset(new usv2_ros_Manager);
-    usv2_control_->usvOnInit(usv2_nh);
+    usv2_control_->usvOnInit(usv2_nh, 0);
 
     ros::NodeHandle usv3_nh("usv3");
     usv3_control_.reset(new usv3_ros_Manager);
-    usv3_control_->usvOnInit(usv3_nh);
+    usv3_control_->usvOnInit(usv3_nh, 0);
 
     ros::NodeHandle uuv1_nh("uuv1");
     uuv1_control_.reset(new uuv1_ros_Manager);

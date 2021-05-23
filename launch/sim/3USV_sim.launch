@@ -8,6 +8,7 @@
     <arg name="is_motion_plan" value="false" />
     <arg name="is_usv" value="true" />
     <arg name="is_uav" value="false" />
+    <arg name="is_sim" value="true" />
 
     <include file="$(find offboard)/launch/kino_replan.launch"/>
 
@@ -18,6 +19,7 @@
         <param name="is_motion_plan" value="$(arg is_motion_plan)" type="bool"/>
         <param name="is_usv" value="$(arg is_usv)" type="bool"/>
         <param name="is_uav" value="$(arg is_uav)" type="bool"/>
+        <param name="is_sim" value="$(arg is_sim)" type="bool"/>
     </node>
 
     <node pkg = "offboard" name = "send_target" type="send_target" output="screen"></node>

@@ -19,7 +19,7 @@ usv1_ros_Manager::usv1_ros_Manager() :
 
 }
 
-void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
+void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
     chlog::info("data","[USV1]: ~~~ init usv1");
     state_sub = nh.subscribe<mavros_msgs::State>
             ("mavros/state", 10, &usv1_ros_Manager::state_cb, this);
@@ -29,8 +29,13 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh) {
             ("mavros/local_position/pose", 20,  &usv1_ros_Manager::local_pos_cb, this);
     mavlink_from_sub = nh.subscribe<mavros_msgs::Mavlink>
             ("mavlink/from", 10, &usv1_ros_Manager::mavlink_from_sb, this);
-    global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
-            ("mavros/global_position/global", 10, &usv1_ros_Manager::global_pos_cb, this);
+    if (is_sim) {
+        global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
+                ("mavros/global_position/global", 10, &usv1_ros_Manager::global_pos_cb, this); /**/
+    } else {
+        global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
+                ("fix", 10, &usv1_ros_Manager::global_pos_cb, this); /*mavros/global_position/global*/
+    }
     commander_sub = nh.subscribe<mavros_msgs::DebugValue>
             ("mavros/debug_value/debug_vector", 10, &usv1_ros_Manager::debug_value_cb, this);
     way_point_sub = nh.subscribe<mavros_msgs::WaypointList>
@@ -224,7 +229,7 @@ void usv1_ros_Manager::commander_update(const ros::TimerEvent& e) {
 
         mavros_msgs::SetMode offb_set_mode;
         offb_set_mode.request.custom_mode = "OFFBOARD";
-        chlog::info("data","[USV1]: is_offboard = %d", is_offboard_);
+        chlog::info("data","[USV1]: is_offboard = ", is_offboard_);
         if (usv_.current_state.mode != "OFFBOARD" && !is_offboard_) {
             static int offboard_i;
             for (offboard_i = 10; ros::ok() && offboard_i > 0; --offboard_i) {

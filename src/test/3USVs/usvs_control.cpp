@@ -26,18 +26,18 @@ usvs_control* usvs_control::getInstance() {
     return l_pInst;
 }
 
-void usvs_control::OnInit() {
+void usvs_control::OnInit(const bool is_sim) {
     ros::NodeHandle usv1_nh("usv1");
     usv1_control_.reset(new usv1_ros_Manager);
-    usv1_control_->usvOnInit(usv1_nh);
+    usv1_control_->usvOnInit(usv1_nh, is_sim);
 
     ros::NodeHandle usv2_nh("usv2");
     usv2_control_.reset(new usv2_ros_Manager);
-    usv2_control_->usvOnInit(usv2_nh);
+    usv2_control_->usvOnInit(usv2_nh, is_sim);
 
     ros::NodeHandle usv3_nh("usv3");
     usv3_control_.reset(new usv3_ros_Manager);
-    usv3_control_->usvOnInit(usv3_nh);
+    usv3_control_->usvOnInit(usv3_nh, is_sim);
 
     ros::NodeHandle nh("~");
     int waypoint_num_;

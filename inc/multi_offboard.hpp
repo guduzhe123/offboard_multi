@@ -31,7 +31,7 @@ public:
 
     MultiOffboard();
 
-    void OnInit() override ;
+    void OnInit(const bool is_sim) override ;
 
     void vrf_hud_cb(const mavros_msgs::VFR_HUD::ConstPtr& msg);
 

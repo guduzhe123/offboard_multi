@@ -270,7 +270,7 @@ void MultiOffboard::uav7_debug_value_cb(const mavros_msgs::DebugValue::ConstPtr&
     PathCreator::geInstance()->CreateUAVFormationInit(config);
 }
 
-void MultiOffboard::OnInit() {
+void MultiOffboard::OnInit(const bool is_sim) {
     drone_uav1_.state_sub = nh.subscribe<mavros_msgs::State>
             ("uav1/mavros/state", 10, &MultiOffboard::uav1_state_cb, this);
     drone_uav2_.state_sub = nh.subscribe<mavros_msgs::State>

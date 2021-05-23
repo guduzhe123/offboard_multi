@@ -3,6 +3,7 @@
     <arg name="config_yaml" default="$(find mavros)/launch/px4_config.yaml" />
     <arg name="is_usv" value="true" />
     <arg name="is_uav" value="false" />
+    <arg name="is_sim" value="false" />
 
     <include file="$(find offboard)/launch/rosbag_log.launch"/>
     <include file="$(find offboard)/launch/rviz.launch"/>
@@ -11,6 +12,7 @@
         <param name="formation_distance" value="$(arg formation_distance)" />
         <param name="is_usv" value="$(arg is_usv)" type="bool"/>
         <param name="is_uav" value="$(arg is_uav)" type="bool"/>
+        <param name="is_sim" value="$(arg is_sim)" type="bool"/>
     </node>
 
     <include file="$(find offboard)/launch/kino_replan.launch"/>

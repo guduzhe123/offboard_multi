@@ -80,6 +80,12 @@ void ActionMotionPlan::DoProgress() {
 
                 PolynomialTraj usv2_traj, usv3_traj;
                 if (mp_manager_->getPolyTraj(usv2_traj, usv3_traj)) {
+                    if (!init_time_) {
+                        t0 = ros::Time::now();
+                        init_time_ = true;
+
+                    }
+                    chlog::info(mp_config_.log_path, "init_time_ = ", init_time_, ", t0 = ", t0.toSec());
                     if (mp_config_.formation_type != VF_USV_LINE_VERTICAL) {
                         if (!init_follower_) {
                             USV2ActionMotionPlan::getInstance()->initMP(mp_config_);
@@ -95,8 +101,11 @@ void ActionMotionPlan::DoProgress() {
                         USV2ActionMotionPlan::getInstance()->setFormationTarget(usv2_pos_sp);
                         USV3ActionMotionPlan::getInstance()->setFormationTarget(usv3_pos_sp);
                     } else {
-                        float usv1_length = (output_.m_vector).norm();
-                        chlog::info(mp_config_.log_path, "usv1_length = ", usv1_length);
+                        t1 = ros::Time::now();
+                        double time_err = (t1 - t0).toSec();
+                        float usv1_length = time_err * mp_config_.max_vel;
+                        chlog::info(mp_config_.log_path, "usv1_length = ", usv1_length, ", time_err = ", time_err,
+                                    ", t1 =", t1.toSec(), ", t0 = ", t0.toSec());
                         if (usv1_length > K_multi_usv_formation_distance && !init_usv2_) {
                             USV2ActionMotionPlan::getInstance()->initMP(mp_config_);
                             USV2ActionMotionPlan::getInstance()->setPolyTraj(usv2_traj);

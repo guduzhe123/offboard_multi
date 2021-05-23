@@ -22,7 +22,7 @@ public:
     void doProgress();
     static  uavs_control* getInstance();
 
-    void OnInit() override ;
+    void OnInit(const bool is_sim) override ;
     void PublishDronePosControl(const multi_vehicle &multi_vehicles) override ;
     void PublishBoatPosControl(const multi_vehicle &multi_vehicles) override ;
     void PublishUUVPosControl(const multi_vehicle &multi_vehicles) override;

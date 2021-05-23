@@ -11,7 +11,7 @@ class IMsgRosManager {
 public:
     virtual  ~IMsgRosManager() {};
 
-    virtual void OnInit() = 0;
+    virtual void OnInit(const bool is_sim) = 0;
 
     virtual void PublishDronePosControl(const multi_vehicle &multi_vehicles) = 0 ;
 

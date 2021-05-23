@@ -13,7 +13,7 @@ int main (int argc, char **argv){
     bool follow_usv;
     nh.param("follow_usv", follow_usv, false);
 
-    MultiOffboard::getInstance()->OnInit();
+    MultiOffboard::getInstance()->OnInit(0);
     auto msg_ros = MultiOffboard::getInstance();
     DataMan::getInstance()->OnInit(msg_ros, false, false);
     PathCreator::geInstance()->onInit(msg_ros, follow_usv);

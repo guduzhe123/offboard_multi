@@ -22,7 +22,7 @@ uavs_control* uavs_control::getInstance() {
     return l_pInst;
 }
 
-void uavs_control::OnInit() {
+void uavs_control::OnInit(const bool is_sim) {
     ros::NodeHandle uav1_nh("uav1");
     uav1_control_.reset(new uav1_ros_Manager);
     uav1_control_->uavOnInit(uav1_nh);

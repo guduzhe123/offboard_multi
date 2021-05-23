@@ -17,7 +17,7 @@ public:
     usv1_ros_Manager();
     ~usv1_ros_Manager() = default;
 
-    void usvOnInit(ros::NodeHandle &nh);
+    void usvOnInit(ros::NodeHandle &nh, const bool is_sim);
     void usvPosSp(const DroneControl& droneControl);
     void usvCallService(mavros_msgs::SetMode &m_mode);
     void usvCrash(bool usv1_carsh);

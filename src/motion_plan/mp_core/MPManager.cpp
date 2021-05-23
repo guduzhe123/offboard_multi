@@ -467,15 +467,24 @@ void MPManager::ProcessState() {
 
         case EXEC_TRAJ: {
             /* determine if need to replan */
+            ros::Time time;
+            double t0, t1, t2;
+            time = ros::Time::now();
             LocalTrajData *info = &path_finder_->getLocaldata();
             ros::Time time_now = ros::Time::now();
             double t_cur = (time_now - info->start_time_).toSec();
             GlobalTrajData* global_data = &path_finder_->getGlobalData();
 
+            t0 =  (ros::Time::now() - time).toSec();
+            time = ros::Time::now();
             Eigen::Vector3d pos = info->position_traj_.evaluateDeBoorT(t_cur);
+            t1 =  (ros::Time::now() - time).toSec();
+
             chlog::info(log, "[MP Manager]: mp_config_.end_pos = ", toStr(mp_config_.end_pos),
                     ", drone_st_.drone_pos = ", toStr(drone_st_.drone_pos), ", t_cur = ",
                         t_cur, ", global_duration_ = ", global_data->global_duration_);
+            chlog::info(log, "[MP Manager]: t0 = ", to_string(t0), ", t1 = ", to_string(t1));
+
             float err_target;
             if (mp_config_.targets.size() > 0) {
                 err_target = (mp_config_.targets.back() - drone_st_.drone_pos).norm();

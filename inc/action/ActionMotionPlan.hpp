@@ -107,6 +107,7 @@ private:
     TVec3 drone_usv2_;
     TVec3 drone_usv3_;
     bool init_time_;
+    ros::Time t0, t1;
 
     vector<TVec3> goals_;
     void calcuLineDir(const vector<TVec3> &goal, TVec3 &usv2_pos_sp, TVec3 &usv3_pos_sp);

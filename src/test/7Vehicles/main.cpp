@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 
     PathCreator::geInstance()->onInit(lead_node, follow_usv);
 
-    lead_node->OnInit();
+    lead_node->OnInit(0);
 
     ros::Rate rate(20.0);
 

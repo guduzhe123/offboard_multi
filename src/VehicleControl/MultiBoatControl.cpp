@@ -50,11 +50,12 @@ void MultiBoatControl::OnInitMotionPlan(const vector<TVec3>& usv1_targets ) {
     mp_config.is_speed_mode = false;
     mp_config.control_mode = POSITION_WITHOUT_CUR;
     mp_config.is_enable = true;
-    mp_config.max_vel = 1.0;
-    mp_config.max_acc = 1.0;
+    mp_config.max_vel = 2.0;
+    mp_config.max_acc = 2.0;
     mp_config.mp_map = m_multi_vehicle_.usv1.Imap;
     mp_config.targets = usv1_targets;
     mp_config.formation_type = formation_config_;
+    chlog::info("data", "Motion plan OnInit! Get action motion plan formation config = ", formation_config_);
     ActionMotionPlan::getInstance()->initMP(mp_config);
     ActionMotionPlan::getInstance()->setEnable(true);
 }
@@ -68,18 +69,23 @@ void MultiBoatControl::DoProgress() {
 
     chlog::info("data","[Boat Control]:leader usv movement_state = ", usv_state_);
     chlog::info("data","[Boat Control]:leader usv armed = ", m_multi_vehicle_.leader_usv.current_state.armed);
-    if (m_multi_vehicle_.leader_usv.current_state.mode == "OFFBOARD" /*&& m_multi_vehicle_.leader_uav.movement_state == FALLOW_USV*/) {
+    if (m_multi_vehicle_.leader_usv.current_state.mode == "OFFBOARD" && m_multi_vehicle_.user_command == VF_USV_ALL_START
+    /*&& m_multi_vehicle_.leader_uav.movement_state == FALLOW_USV*/) {
         mavros_msgs::CommandBool arm_cmd;
         switch (usv_state_) {
             case USV_INIT:
                 chlog::info("data","[Boat Control]:control: usv1 waypoint size = ", m_multi_vehicle_.usv1.waypointList.waypoints.size());
+                GlobalPosition takeoff;
+                takeoff.longitude = m_multi_vehicle_.leader_usv.homePosition.geo.longitude;
+                takeoff.latitude = m_multi_vehicle_.leader_usv.homePosition.geo.latitude;
+                if (takeoff.longitude < 0.0001 || takeoff.latitude < 0.0001) {
+                    usv_state_ = USV_INIT;
+                }
                 if (!m_multi_vehicle_.usv1.waypointList.waypoints.empty()) {
                     for (auto &i : m_multi_vehicle_.leader_usv.waypointList.waypoints) {
-                        GlobalPosition takeoff, waypnt;
+                        GlobalPosition waypnt;
                         geometry_msgs::PoseStamped target_init;
                         TVec3 target_local;
-                        takeoff.longitude = m_multi_vehicle_.leader_usv.homePosition.geo.longitude;
-                        takeoff.latitude = m_multi_vehicle_.leader_usv.homePosition.geo.latitude;
                         waypnt.longitude = i.y_long;
                         waypnt.latitude = i.x_lat;
                         Calculate::getInstance()->GetLocalPos(takeoff, waypnt, target_local);
