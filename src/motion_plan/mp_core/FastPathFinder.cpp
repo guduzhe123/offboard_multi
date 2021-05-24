@@ -378,7 +378,7 @@ namespace fast_planner {
                                          ", collide = ", collide);
         ros::Time t1, t2;
         ros::Time time_now = ros::Time::now();
-        double    t_now    = (time_now - global_data_.global_start_time_).toSec();
+        double    t_now    = (time_now - global_data_.global_start_time_).toSec() ;
 /*        if (mp_config_.drone_id == 2) {
             t_now += 1.0;
             time_now += ros::Duration(1.0);
@@ -394,7 +394,7 @@ namespace fast_planner {
 
         if (!collide) {
             /* truncate a new local segment for replanning */
-            refineTraj(init_traj, time_inc);
+//            refineTraj(init_traj, time_inc);
             local_data_.position_traj_ = init_traj;
             global_data_.setLocalTraj(init_traj, t_now, local_traj_duration + time_inc + t_now, time_inc);
         } else {

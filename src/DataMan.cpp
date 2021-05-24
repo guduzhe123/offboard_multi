@@ -403,8 +403,8 @@ void DataMan::PrintData() {
     if (is_usv_) {
         PrintBoatData();
         PrintBoatTargetPosData();
-        PrintUSVFormationData();
-        PrintUSVFormationKeep();
+//        PrintUSVFormationData();
+//        PrintUSVFormationKeep();
     }
 
     chlog::info("data","[DataMan]:---------------data end-----------------");
