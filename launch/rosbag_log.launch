@@ -144,6 +144,11 @@
             /usv3/cur_pos
             /usv3/heading_vis
 
+            /usv1/fix
+            /usv2/fix
+            /usv3/fix
+
+
             /target_local
 
 "

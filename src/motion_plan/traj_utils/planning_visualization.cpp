@@ -25,7 +25,7 @@ namespace fast_planner {
         pubs_.push_back(yaw_pub_);
 
         drone_sphere_pub_ = node.advertise<visualization_msgs::Marker>("planning_vis/drone_sphere", 20);
-        pubs_.push_back(drone_sphere_pub_);
+//        pubs_.push_back(drone_sphere_pub_);
 
         last_topo_path1_num_     = 0;
         last_topo_path2_num_     = 0;

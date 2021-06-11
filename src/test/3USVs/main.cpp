@@ -31,7 +31,8 @@ int main(int argc, char **argv)
     nh.param("is_usv", is_usv, false);
     nh.param("is_uav", is_uav, false);
     nh.param("is_sim", is_sim, false);
-    chlog::info("data", "~~~~ is motion plan = ", is_motion_plan, ", is_usv = ", is_usv, ", is_uav = ", is_uav);
+    chlog::info("data", "~~~~ is motion plan = ", is_motion_plan, ", is_usv = ", is_usv, ", is_uav = ", is_uav, ", is_sim = ",
+                is_sim);
 
     usvs_control* lead_node;
     lead_node = usvs_control::getInstance();

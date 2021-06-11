@@ -29,6 +29,7 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
             ("mavros/local_position/pose", 20,  &usv1_ros_Manager::local_pos_cb, this);
     mavlink_from_sub = nh.subscribe<mavros_msgs::Mavlink>
             ("mavlink/from", 10, &usv1_ros_Manager::mavlink_from_sb, this);
+    chlog::info("data", "usv1 sim = ", is_sim);
     if (is_sim) {
         global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
                 ("mavros/global_position/global", 10, &usv1_ros_Manager::global_pos_cb, this); /**/
@@ -184,8 +185,8 @@ void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr
     mp_config.is_speed_mode = false;
     mp_config.control_mode = POSITION_WITHOUT_CUR;
     mp_config.is_enable = true;
-    mp_config.max_vel = 1.5;
-    mp_config.max_acc = 2.0;
+    mp_config.max_vel = 1.0;
+    mp_config.max_acc = 1.0;
     mp_config.mp_map = usv_.Imap;
     mp_config.end_pos = goal;
     mp_config.targets.clear();
@@ -199,8 +200,8 @@ void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr
     TVec3 center2{0, 0, 0};
     mp_config.targets.push_back(center2);
 //    mp_config.formation_type = config_;
-//    mp_config.formation_type = VF_USV_INVERSION_TRIANGLE;
-    mp_config.formation_type = VF_USV_LINE_VERTICAL;
+    mp_config.formation_type = VF_USV_INVERSION_TRIANGLE;
+//    mp_config.formation_type = VF_USV_LINE_VERTICAL;
     mp_config.formation_distance = K_multi_usv_formation_distance;
     ActionMotionPlan::getInstance()->initMP(mp_config);
     ActionMotionPlan::getInstance()->setEnable(true);

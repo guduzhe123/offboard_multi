@@ -26,8 +26,17 @@ void usv3_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
             ("mavros/local_position/pose", 20,  &usv3_ros_Manager::local_pos_cb, this);
     mavlink_from_sub = nh.subscribe<mavros_msgs::Mavlink>
             ("mavlink/from", 10, &usv3_ros_Manager::mavlink_from_sb, this);
-    global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
-            ("mavros/global_position/global", 10, &usv3_ros_Manager::global_pos_cb, this);
+/*    global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
+            ("mavros/global_position/global", 10, &usv3_ros_Manager::global_pos_cb, this);*/
+    chlog::info("data", "usv3 sim = ", is_sim);
+    if (is_sim) {
+        global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
+                ("mavros/global_position/global", 10, &usv3_ros_Manager::global_pos_cb, this); /**/
+    } else {
+        global_pos_sub = nh.subscribe<sensor_msgs::NavSatFix>
+                ("fix", 10, &usv3_ros_Manager::global_pos_cb, this); /*mavros/global_position/global*/
+    }
+
     commander_sub = nh.subscribe<mavros_msgs::DebugValue>
             ("mavros/debug_value/debug_vector", 10, &usv3_ros_Manager::debug_value_cb, this);
     way_point_sub = nh.subscribe<mavros_msgs::WaypointList>

@@ -50,8 +50,8 @@ void MultiBoatControl::OnInitMotionPlan(const vector<TVec3>& usv1_targets ) {
     mp_config.is_speed_mode = false;
     mp_config.control_mode = POSITION_WITHOUT_CUR;
     mp_config.is_enable = true;
-    mp_config.max_vel = 2.0;
-    mp_config.max_acc = 2.0;
+    mp_config.max_vel = 1.0;
+    mp_config.max_acc = 1.0;
     mp_config.mp_map = m_multi_vehicle_.usv1.Imap;
     mp_config.targets = usv1_targets;
     mp_config.formation_type = formation_config_;

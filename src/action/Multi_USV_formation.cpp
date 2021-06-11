@@ -206,9 +206,12 @@ void MultiUSVFormation::GetTakeoffPos() {
                                                m_multi_vehicle_.usv2.homePosition.geo.longitude,0};
         usv3_takeoff_gps_pos_ = GlobalPosition{m_multi_vehicle_.usv3.homePosition.geo.latitude,
                                                m_multi_vehicle_.usv3.homePosition.geo.longitude,0};
-        chlog::info("data","[USV Formation]: usv1_takeoff_gps_pos_ = ", usv1_takeoff_gps_pos_.latitude, ", ", usv1_takeoff_gps_pos_.longitude);
-        chlog::info("data","[USV Formation]: usv2_takeoff_gps_pos_ = ", usv2_takeoff_gps_pos_.latitude, ", ", usv2_takeoff_gps_pos_.longitude);
-        chlog::info("data","[USV Formation]: usv3_takeoff_gps_pos_ = ", usv3_takeoff_gps_pos_.latitude, ", ", usv3_takeoff_gps_pos_.longitude);
+        chlog::info("data","[USV Formation]: usv1_takeoff_gps_pos_ = ", to_string(usv1_takeoff_gps_pos_.latitude),
+                    ", ", to_string(usv1_takeoff_gps_pos_.longitude));
+        chlog::info("data","[USV Formation]: usv2_takeoff_gps_pos_ = ", to_string(usv2_takeoff_gps_pos_.latitude),
+                    ", ", to_string(usv2_takeoff_gps_pos_.longitude));
+        chlog::info("data","[USV Formation]: usv3_takeoff_gps_pos_ = ",
+                    to_string(usv3_takeoff_gps_pos_.latitude), ", ", to_string(usv3_takeoff_gps_pos_.longitude));
 
         Calculate::getInstance()->GetLocalPos(usv1_takeoff_gps_pos_, usv2_takeoff_gps_pos_, follower_usv2_tf_offset);
         Calculate::getInstance()->GetLocalPos(usv1_takeoff_gps_pos_, usv3_takeoff_gps_pos_, follower_usv3_tf_offset);
