@@ -21,6 +21,7 @@ void Calculate::GetLocalPos(const GlobalPosition &loc1, const GlobalPosition &lo
 
     follow_uav_local_pos.x() = -y;
     follow_uav_local_pos.y() = -x;
+    follow_uav_local_pos.z() = 0;
     chlog::info("data","[Calculate]:distance orig x= ", follow_uav_local_pos.x(),
             ", distance orig y= ", follow_uav_local_pos.y(),
             " , x new = ", x,

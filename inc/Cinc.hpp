@@ -182,6 +182,7 @@ enum  {
 
 enum {
     USV_INIT,
+    USV_ARRIVE_AT_FIRST,
     USV_WAYPOINT,
     USV_RETRAY,
     USV_DISARM,

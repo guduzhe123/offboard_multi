@@ -48,6 +48,7 @@ private:
     void USVManualControl();
 
     void MotionPlanInit(const TVec3& target_pos);
+    bool OnCheckFormationArrived();
     static MultiBoatControl* l_lint;
 
     multi_vehicle m_multi_vehicle_;

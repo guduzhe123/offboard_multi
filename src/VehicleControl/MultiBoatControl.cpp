@@ -55,7 +55,8 @@ void MultiBoatControl::OnInitMotionPlan(const vector<TVec3>& usv1_targets ) {
     mp_config.mp_map = m_multi_vehicle_.usv1.Imap;
     mp_config.targets = usv1_targets;
     mp_config.formation_type = formation_config_;
-    chlog::info("data", "Motion plan OnInit! Get action motion plan formation config = ", formation_config_);
+    chlog::info("data", "Motion plan OnInit! Get action motion plan formation config = ", formation_config_
+    , ", usv1_targets size = ", usv1_targets.size());
     ActionMotionPlan::getInstance()->initMP(mp_config);
     ActionMotionPlan::getInstance()->setEnable(true);
 }
@@ -73,8 +74,9 @@ void MultiBoatControl::DoProgress() {
     /*&& m_multi_vehicle_.leader_uav.movement_state == FALLOW_USV*/) {
         mavros_msgs::CommandBool arm_cmd;
         switch (usv_state_) {
-            case USV_INIT:
-                chlog::info("data","[Boat Control]:control: usv1 waypoint size = ", m_multi_vehicle_.usv1.waypointList.waypoints.size());
+            case USV_INIT: {
+                chlog::info("data", "[Boat Control]:control: usv1 waypoint size = ",
+                            m_multi_vehicle_.usv1.waypointList.waypoints.size());
                 GlobalPosition takeoff;
                 takeoff.longitude = m_multi_vehicle_.leader_usv.homePosition.geo.longitude;
                 takeoff.latitude = m_multi_vehicle_.leader_usv.homePosition.geo.latitude;
@@ -96,23 +98,46 @@ void MultiBoatControl::DoProgress() {
 
                         TVec3 cur_tar = TVec3(-target_local.x(), -target_local.y(), 0);
                         usv1_targets_.push_back(cur_tar);
-                        chlog::info("data","[Boat Control]:target_local = (", target_local.x(), ", ", target_local.y(), ")");
+                        chlog::info("data", "[Boat Control]:target_local = (", target_local.x(), ", ", target_local.y(),
+                                    ")");
                     }
                     std::reverse(usv_way_points_.begin(), usv_way_points_.end());
-                    chlog::info("data","[Boat Control]:boat mission waypoint size = ", usv_way_points_.size());
+                    chlog::info("data", "[Boat Control]:boat mission waypoint size = ", usv_way_points_.size());
                 } else {
-                    for (auto & i : uav_way_points_init_) {
+                    for (auto &i : uav_way_points_init_) {
                         geometry_msgs::PoseStamped target_body;
                         Calculate::getInstance()->bodyFrame2LocalFrame(i, target_body,
-                                                                       (float)(m_multi_vehicle_.usv1.yaw * M_PI / 180.0f));
+                                                                       (float) (m_multi_vehicle_.usv1.yaw * M_PI /
+                                                                                180.0f));
                         usv_way_points_.push_back(target_body);
+
+                        TVec3 cur_tar = TVec3(target_body.pose.position.x, target_body.pose.position.y, 0);
+                        usv1_targets_.push_back(cur_tar);
                     }
                 }
                 usv_waypoints_size_init_ = usv_way_points_.size();
                 usv_way_points_copy_ = usv_way_points_;
-                OnInitMotionPlan(usv1_targets_);
                 usv_state_ = USV_WAYPOINT;
+                vector<TVec3> start_point(usv1_targets_.begin(), usv1_targets_.begin() + 1);
+                chlog::info("data", "[Boat Control]: start point size = ", start_point.size());
+                TVec3 usv2_form, usv3_form;
+                ActionMotionPlan::getInstance()->initFormation(usv2_form, usv3_form);
+                usv2_form += m_multi_vehicle_.usv2.follower_usv_tf_offset;
+                usv3_form += m_multi_vehicle_.usv3.follower_usv_tf_offset;
+
+                OnInitMotionPlan(usv1_targets_);
                 break;
+            }
+
+            case USV_ARRIVE_AT_FIRST: {
+                if (OnCheckFormationArrived()) {
+                    vector<TVec3> next_points(usv1_targets_.begin()+1, usv1_targets_.end());
+                    chlog::info("data", "[Boat Control]: next_points size = ", next_points.size());
+                    OnInitMotionPlan(next_points);
+                    usv_state_ = USV_WAYPOINT;
+                }
+                break;
+            }
 
             case USV_WAYPOINT: {
                 break;
@@ -380,6 +405,30 @@ bool MultiBoatControl::pos_reached(geometry_msgs::PoseStamped &current_pos, geom
     float err_py = current_pos.pose.position.y - target_pos.pose.position.y;
 
     return sqrt(err_px * err_px + err_py * err_py ) < err_allow;
+}
+
+bool MultiBoatControl::OnCheckFormationArrived() {
+    if (pos_reached(m_multi_vehicle_.usv1.current_local_pos, m_multi_vehicle_.usv1.target_local_pos_sp, usv_position_allow_reached_)) {
+        usv1_reached_ = true;
+    }
+    if (pos_reached(m_multi_vehicle_.usv2.current_local_pos, m_multi_vehicle_.usv2.target_local_pos_sp, usv_position_allow_reached_)) {
+        usv2_reached_ = true;
+    }
+    if (pos_reached(m_multi_vehicle_.usv3.current_local_pos, m_multi_vehicle_.usv3.target_local_pos_sp, usv_position_allow_reached_)) {
+        usv3_reached_ = true;
+    }
+
+    chlog::info("data","[USV Formation]:  usv1_reached_ = ", usv1_reached_,
+                ", usv2_reached_ = ", usv2_reached_,
+                ", usv3_reached_ = ", usv3_reached_);
+    if (usv1_reached_ && usv2_reached_ && usv3_reached_ && config_ != VF_USV_ALL_RETURN) {
+        usv1_reached_ = false;
+        usv2_reached_ = false;
+        usv3_reached_ = false;
+        chlog::info("data", "[USV Formation]: desable formation!");
+        return true;
+    }
+    return false;
 }
 
 void MultiBoatControl::USVManualControl() {

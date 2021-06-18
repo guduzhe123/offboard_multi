@@ -30,14 +30,14 @@ bool ActionMotionPlan::initMP(const MP_Config &mpConfig) {
     mp_config_.drone_id = 1;
     output_.target_heading = mpConfig.m_drone_heading;
     mp_manager_ = makeSp<MPManager>(mp_config_);
-    mp_manager_->SetMpEnable(true);
     chlog::info(mp_config_.log_path, "[Action MP]: motion_plan init! target_pos = " + toStr(mpConfig.end_pos)
                                + ", target_heading = " + to_string2(mpConfig.target_heading));
     init_follower_ = false;
     init_usv2_ = false;
     init_usv3_ = false;
     m_state_ = ST_INIT;
-    initFormation();
+    TVec3 usv2_form, usv3_form;
+    initFormation(usv2_form, usv3_form);
     init_time_ = false;
     return false;
 }
@@ -88,6 +88,7 @@ void ActionMotionPlan::DoProgress() {
                     chlog::info(mp_config_.log_path, "init_time_ = ", init_time_, ", t0 = ", t0.toSec());
                     if (mp_config_.formation_type != VF_USV_LINE_VERTICAL) {
                         if (!init_follower_) {
+                            mp_manager_->SetMpEnable(true);
                             USV2ActionMotionPlan::getInstance()->initMP(mp_config_);
                             USV2ActionMotionPlan::getInstance()->setPolyTraj(usv2_traj);
                             USV3ActionMotionPlan::getInstance()->initMP(mp_config_);
@@ -107,12 +108,14 @@ void ActionMotionPlan::DoProgress() {
                         chlog::info(mp_config_.log_path, "usv1_length = ", usv1_length, ", time_err = ", time_err,
                                     ", t1 =", t1.toSec(), ", t0 = ", t0.toSec());
                         if (usv1_length > K_multi_usv_formation_distance && !init_usv2_) {
+                            mp_manager_->SetMpEnable(true);
                             USV2ActionMotionPlan::getInstance()->initMP(mp_config_);
                             USV2ActionMotionPlan::getInstance()->setPolyTraj(usv2_traj);
                             USV2ActionMotionPlan::getInstance()->setEnable(true);
                             init_usv2_ = true;
                         }
                         if (usv1_length > 2 * K_multi_usv_formation_distance && !init_usv3_) {
+                            mp_manager_->SetMpEnable(true);
                             USV3ActionMotionPlan::getInstance()->initMP(mp_config_);
                             USV3ActionMotionPlan::getInstance()->setPolyTraj(usv3_traj);
                             USV3ActionMotionPlan::getInstance()->setEnable(true);
@@ -218,7 +221,7 @@ void ActionMotionPlan::getFollowerSp(const TVec3 &drone_move, const Eigen::Matri
     chlog::info(mp_config_.log_path, "pos = ", toStr(target_pos), ", res = ", toStr(res));
 }
 
-void ActionMotionPlan::initFormation() {
+void ActionMotionPlan::initFormation(TVec3 &usv2_form, TVec3 &usv3_form) {
     switch (mp_config_.formation_type) {
         case VF_USV_TRIANGLE: {
             chlog::info(mp_config_.log_path,"[Action MP]: usv Formation call! Triangle!");
@@ -260,6 +263,8 @@ void ActionMotionPlan::initFormation() {
             break;
 
     }
+    usv2_form = drone_usv2_;
+    usv3_form = drone_usv3_;
 }
 
 ActionMotionPlan* ActionMotionPlan::getInstance() {

@@ -79,6 +79,8 @@ public:
 
     void initNh(ros::NodeHandle& nh);
 
+    void initFormation(TVec3 &usv2_form, TVec3 &usv3_form);
+
     static ActionMotionPlan* getInstance();
 
 
@@ -111,7 +113,6 @@ private:
 
     vector<TVec3> goals_;
     void calcuLineDir(const vector<TVec3> &goal, TVec3 &usv2_pos_sp, TVec3 &usv3_pos_sp);
-    void initFormation();
     void getFollowerSp(const TVec3 &drone_move, const Eigen::Matrix3f &rotMatrix, TVec3 &target_pos);
 };
 
