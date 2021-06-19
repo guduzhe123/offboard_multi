@@ -116,9 +116,12 @@ namespace fast_planner {
                 if (near_end) {
                     chlog::info(log_, "[Kino Astar]: near end.");
 
+                    if ((cur_node->state.head(3) - end_pt).norm() < 0.01) return NO_PATH;
+                    chlog::info(log_, "[Kino Astar]: one shot begin! time_to_goal = ", time_to_goal);
                     /* one shot trajectory */
                     estimateHeuristic(cur_node->state, end_state, time_to_goal);
                     computeShotTraj(cur_node->state, end_state, time_to_goal);
+                    chlog::info(log_, "[Kino Astar]: one shot finished!");
 
                     if (terminate_node->parent == NULL && !is_shot_succ_)
                         return NO_PATH;
@@ -138,21 +141,6 @@ namespace fast_planner {
             /* ---------- init state propagation ---------- */
             double res = 1 / 2.0, time_res = 1 / 2.0/*, time_res_init = 1 / 2.0*/;
 
-            float max_time, max_acc;
-/*            if (!search_successed) {
-                max_acc = 5.0;
-                max_time = 2.0;
-                res = 1 /5.0, time_res = 1 / 10.0;
-                chlog::info(log_, "[Kino Astar]: blade circle big step! ");
-            } else {
-                max_acc = max_acc_;
-                max_time = max_tau_;
-                time_res = init_max_tau_;
-            }*/
-            max_acc = max_acc_;
-            max_time = max_tau_;
-            time_res = init_max_tau_;
-
             Eigen::Matrix<double, 6, 1> cur_state = cur_node->state;
             Eigen::Matrix<double, 6, 1> pro_state;
             vector<PathNodePtr>         tmp_expand_nodes;
@@ -162,13 +150,29 @@ namespace fast_planner {
             vector<Eigen::Vector3d> inputs;
             vector<double>          durations;
 
+
+            float max_time, max_acc;
+            if (!search_successed) {
+                max_acc = 5.0;
+                max_time = 2.0;
+                res = 1 /5.0, time_res = 1 / 10.0;
+            } else {
+                max_acc = max_acc_;
+                max_time = max_tau_;
+                time_res = init_max_tau_;
+            }
+            if (max_vel_ < 0.8) {
+                max_time = 1.0;
+                time_res = 0.25;
+            }
+
             {
-                for (double ax = -max_acc_; ax <= max_acc_ + 1e-3; ax += max_acc_ * res)
-                    for (double ay = -max_acc_; ay <= max_acc_ + 1e-3; ay += max_acc_ * res) {
-                        um << ax, ay, 0;
-                        inputs.push_back(um);
-                    }
-                for (double tau = time_res * max_tau_; tau <= max_tau_; tau += time_res * max_tau_)
+                for (double ax = -max_acc; ax <= max_acc + 1e-3; ax += max_acc * res)
+                    for (double ay = -max_acc; ay <= max_acc + 1e-3; ay += max_acc * res) {
+                            um << ax, ay, 0;
+                            inputs.push_back(um);
+                        }
+                for (double tau = time_res * max_time; tau <= max_time; tau += time_res * max_time)
                     durations.push_back(tau);
             }
 
@@ -199,9 +203,8 @@ namespace fast_planner {
 
                     /* vel feasibe */
                     Eigen::Vector3d pro_v = pro_state.tail(3);
-                    float vel_norm = pro_v.norm();
                     if (fabs(pro_v(0)) > max_vel_ || fabs(pro_v(1)) > max_vel_
-                        || fabs(pro_v(2)) > max_vel_ || vel_norm > max_vel_ + 0.05) {
+                        || fabs(pro_v(2)) > max_vel_ ) {
                         // cout << "vel infeasible" << endl;
                         vel_infeasible_num_++;
                         continue;
@@ -209,18 +212,19 @@ namespace fast_planner {
 
                     /*check turbine obstacle distance*/
 
-                    if (!map_->isStateValid(pro_state.head(3).cast<float>(), true)) {
+                    if (map_ && !map_->isStateValid(pro_state.head(3).cast<float>(), true)) {
                         // chlog::info(log_, "the state is in collision!");
                         in_collision_num_++;
                         continue;
                     }
 
                     /* ---------- compute cost ---------- */
-                    double time_to_goal, tmp_g_score, tmp_f_score;
+                    double time_to_goal, tmp_g_score, tmp_f_score, tmp_h_score;
 
                     tmp_g_score = (um.squaredNorm() + w_time_) * tau + cur_node->g_score;
-                    tmp_f_score = tmp_g_score + lambda_heu_ * estimateHeuristic(pro_state, end_state, time_to_goal);
-
+                    tmp_h_score = lambda_heu_ * estimateHeuristic(pro_state, end_state, time_to_goal);
+                    tmp_f_score = tmp_g_score + tmp_h_score;
+//                    chlog::info(log_, "tmp_g_score = ", tmp_g_score, ", tmp_h_score = ", tmp_h_score / lambda_heu_);
                     /* ---------- compare expanded node in this loop ---------- */
 
                     bool prune = false;
@@ -405,10 +409,6 @@ namespace fast_planner {
                 }
             }
 
-            if (coord(0) < origin_(0) || coord(0) >= map_size_3d_(0) || coord(1) < origin_(1) ||
-                coord(1) >= map_size_3d_(1) || coord(2) < origin_(2) || coord(2) >= map_size_3d_(2)) {
-                return false;
-            }
 
             if (edt_environment_->evaluateCoarseEDT(coord, -1.0) <= margin_) {
                 return false;
@@ -594,6 +594,7 @@ namespace fast_planner {
 
         /* ---------- init for sampling ---------- */
         int K = floor(T_sum / ts);
+        K = max(8, K);
         ts    = T_sum / double(K + 1);
         // cout << "K:" << K << ", ts:" << ts << endl;
 
@@ -711,6 +712,8 @@ namespace fast_planner {
         integral.tail(3) = tau * um;
 
         state1 = phi_ * state0 + integral;
+        state1[2] = 0;
+        state1[5] = 0; // let z axis velocity and position control be 0.
     }
 
     double KinodynamicAstar::pathLength(const vector<Eigen::Vector3d>& path) {

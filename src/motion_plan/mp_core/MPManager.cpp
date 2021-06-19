@@ -149,13 +149,6 @@ bool MPManager::CallKinodynamicReplan(int step) {
 
         bsplineResult(bspline);
 
-/*        plan_traj_.clear();
-        plan_traj_.push_back(info->position_traj_);
-        plan_traj_.push_back(plan_traj_[0].getDerivative());
-        plan_traj_.push_back(plan_traj_[1].getDerivative());
-        traj_duration_ = plan_traj_[0].getTimeSum();
-        receive_traj_ = true;*/
-
         /* visulization */
         auto plan_data = &path_finder_->getPlanData();
         auto global_data = &path_finder_->getGlobalData();
@@ -282,9 +275,6 @@ bool MPManager::GetControlOutput(TVec3 &vector_eus) {
 
     TVec3 dir(cos(yaw), sin(yaw), 0.0);
     mp_publisher_->DrawTrajCommand(pos.cast<float>(), 2 * dir, Eigen::Vector4d(1, 1, 0, 0.7), 2);
-/*    chlog::info(log, "[MP Manager]: mp pos command = ", pos.x(), ",", pos.y(), ",", pos.z(),
-                ", is speed mode = ", mp_config_.is_speed_mode);*/
-    // drawCmd(pos, pos_err, 3, Eigen::Vector4d(1, 1, 0, 0.7));
     return true;
 }
 
@@ -304,9 +294,9 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
     chlog::info(log, "check_collision_state_ = ", check_collision_state_);
     switch (check_collision_state_) {
         case CHECK_COLLISION: {
-            if (!mp_config_.mp_map->isStateValid(cur_pos, false)) {
+            if (mp_config_.mp_map && !mp_config_.mp_map->isStateValid(cur_pos, false)) {
                 check_collision_state_ = COLLOSION_INIT;
-//                collide_ = true;
+                collide_ = true;
             }
             break;
         }
@@ -329,7 +319,6 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
 
                     TVec3 new_pt(new_x, new_y, 0); // EUS
                     TVec3 new_pos_ENU;
-//                        posEUSToPosENU(new_pt, new_pos_ENU);
                     mp_config_.mp_map->getMinDistance(new_pt, new_min_dist);
 
                     if (new_min_dist > max_dist) {
@@ -357,7 +346,7 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
         }
 
         case REPLANNING: {
-            if (mp_config_.mp_map->isStateValid(cur_pos, false)) {
+            if (mp_config_.mp_map && mp_config_.mp_map->isStateValid(cur_pos, false)) {
                 check_collision_state_ = ORIGINAL_TARGET;
             }
         }
@@ -388,7 +377,7 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
         if (!safe) {
             if (dist > 0.1) {
                 chlog::info(log, "current traj: ", dist, "  m to collision" );
-//                collide_ = true;
+                collide_ = true;
 
                 ChangeExecState(REPLAN_TRAJ, "SAFETY");
             }
@@ -397,7 +386,14 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
 }
 
 void MPManager::checkEndPos() {
-//    if ()
+    if (mp_config_.targets.empty()) return;
+    vector<TVec3> targets = mp_config_.targets;
+    reverse(targets.begin(), targets.end());
+    if ((drone_st_.drone_pos - mp_config_.end_pos).norm() < 2.0) { // reach the end pos
+        targets.pop_back();
+        mp_config_.end_pos = targets.back();
+        chlog::info(mp_config_.log_path, "end pos = ", toStr(mp_config_.end_pos));
+    }
 }
 
 void MPManager::setFormationTarget(const TVec3 &formation_pos_target) {
@@ -407,6 +403,7 @@ void MPManager::setFormationTarget(const TVec3 &formation_pos_target) {
 }
 
 void MPManager::ProcessState() {
+    checkEndPos();
     checkCollisionReplan(drone_st_.drone_pos);
     switch (mp_state_) {
         case INIT: {
@@ -429,19 +426,12 @@ void MPManager::ProcessState() {
             start_vel_ = drone_st_.drone_vel;
             start_acc_.setZero();
 
-            bool success = CallKinodynamicReplan(1);
+            bool success = CallKinodynamicReplan(1); // TODO test A* use 2
             if (success) {
                 ChangeExecState(EXEC_TRAJ, "FSM");
             } else {
                 receive_traj_ = false;
-                path_find_fail_timer_++;
-                if (path_find_fail_timer_ < 5) {
-                    ChangeExecState(GEN_NEW_TRAJ, "FSM");
-                } else {
-                    ChangeExecState(WAIT_TARGET, "FSM");
-                    path_find_fail_timer_ = 0;
-                    chlog::info(log, "[MP Manager]: A star search failed too many times!");
-                }
+                ChangeExecState(GEN_NEW_TRAJ, "FSM");
             }
             break;
         }
@@ -472,11 +462,11 @@ void MPManager::ProcessState() {
             } else {
                 err_target = (mp_config_.end_pos - drone_st_.drone_pos).norm();
             }
-            if (t_cur > global_data->global_duration_ - 1e-2 && err_target > 1.0) {
+            if (t_cur > global_data->global_duration_ - 1e-2 && err_target > 2.0) {
                 ChangeExecState(GEN_NEW_TRAJ, "FSM");
                 have_target_ = false;
                 return;
-            }  else if  (t_cur <  1.0/*&& !collide_*/) {
+            }  else if  ((info->start_pos_ - pos).norm() < 2.0 /*&& !collide_*/) {
 //                chlog::info(log, "[MP Manager]: close to start pos!");
                 return;
 
@@ -487,6 +477,7 @@ void MPManager::ProcessState() {
         }
 
         case REPLAN_TRAJ: {
+            collide_ = true; // test
             LocalTrajData *info = &path_finder_->getLocaldata();
             ros::Time time_now = ros::Time::now();
             double t_cur = (time_now - info->start_time_).toSec();
@@ -512,12 +503,21 @@ void MPManager::ProcessState() {
             bool success = CallKinodynamicReplan(2);
             if (success) {
                 ChangeExecState(EXEC_TRAJ, "FSM");
+                path_find_fail_timer_ = 0;
             } else {
-                start_pt_ = drone_st_.drone_pos;
-                bool success = CallKinodynamicReplan(1);
-                chlog::info(log, "Replan fail, retrying...");
-                if (success) {
-                    ChangeExecState(EXEC_TRAJ, "FSM");
+                path_find_fail_timer_++;
+                if (path_find_fail_timer_ < 5) {
+                    start_pt_ = drone_st_.drone_pos;
+                    success = CallKinodynamicReplan(2);
+                    chlog::info(log, "Replan fail, retrying...");
+                    if (success) {
+                        ChangeExecState(EXEC_TRAJ, "FSM");
+                    }
+
+                }  else {
+                    ChangeExecState(WAIT_TARGET, "FSM");
+                    path_find_fail_timer_ = 0;
+                    chlog::info(log, "[MP Manager]: A star search failed too many times!");
                 }
             }
             break;

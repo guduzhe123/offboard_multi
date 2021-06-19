@@ -81,7 +81,7 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
 
     usv_.Imap.reset(new OctoMap);
     usv_.Imap->onInit();
-    usv_.Imap->setSafeRaduis(5);
+    usv_.Imap->setSafeRaduis(8);
 
     ActionMotionPlan::getInstance()->initNh(nh);
 }
@@ -191,14 +191,8 @@ void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr
     mp_config.end_pos = goal;
     mp_config.targets.clear();
     TVec3 center{dronepos_.m_x, goal.y(), 0};
-    mp_config.targets.push_back(center);
     mp_config.targets.push_back(goal);
-    mp_config.targets.push_back(TVec3{goal.x(), 0, 0});
-    TVec3 center1{dronepos_.m_x, -goal.y(), 0};
-    mp_config.targets.push_back(center1);
 
-    TVec3 center2{0, 0, 0};
-    mp_config.targets.push_back(center2);
 //    mp_config.formation_type = config_;
     mp_config.formation_type = VF_USV_INVERSION_TRIANGLE;
 //    mp_config.formation_type = VF_USV_LINE_VERTICAL;
@@ -402,7 +396,7 @@ void usv1_ros_Manager::getOctomap() {
     TVec3 drone_pos = TVec3(usv_.current_local_pos.pose.position.x,
                             usv_.current_local_pos.pose.position.y,
                             usv_.current_local_pos.pose.position.z);
-    if (!usv_.Imap->isStateValid(drone_pos, false)) {
+    if (usv_.Imap && !usv_.Imap->isStateValid(drone_pos, false)) {
         chlog::info("data","[USV1]: usv1 is in collision!");
     }
 }

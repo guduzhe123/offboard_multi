@@ -128,7 +128,7 @@ namespace fast_planner {
 
         while (radius < 6.0 && t_now + fut_t < local_data_.duration_) {
             fut_pt = local_data_.position_traj_.evaluateDeBoor(tm + t_now + fut_t);
-            if (!mp_config_.mp_map->isStateValid(fut_pt.cast<float>(), false)) {
+            if (mp_config_.mp_map && !mp_config_.mp_map->isStateValid(fut_pt.cast<float>(), false)) {
                 distance = radius;
                 return false;
             }
@@ -147,7 +147,7 @@ namespace fast_planner {
         chlog::info(mp_config_.log_path, "start_pt = ", toStr(start_pt), ", end_pt = ", toStr(end_pt));
         while ((center_pos - end_pt).norm() > 0.8) {
             chlog::info(mp_config_.log_path, "center_pos = ", toStr(center_pos));
-            if (!mp_config_.mp_map->isStateValid(center_pos, false)) {
+            if (mp_config_.mp_map && !mp_config_.mp_map->isStateValid(center_pos, false)) {
                 return false;
             }
             center_pos -= dt_len * dir;
@@ -338,9 +338,9 @@ namespace fast_planner {
         for (double tc = t_m; tc <= t_mp + 1e-4; tc += 0.05) {
 
             Eigen::Vector3f ptc = initial_traj->evaluateDeBoor(tc).cast<float>();
-            safe = mp_config_.mp_map->isStateValid(ptc, false);
-            chlog::info(mp_config_.log_path, "find safe traj pos = ", toStr(ptc), ", is safe = ",
-                        safe);
+            safe = mp_config_.mp_map && mp_config_.mp_map->isStateValid(ptc, false);
+            /*chlog::info(mp_config_.log_path, "find safe traj pos = ", toStr(ptc), ", is safe = ",
+                        safe);*/
 
             if (last_safe && !safe) {
                 colli_start.push_back(initial_traj->evaluateDeBoor(tc - 0.05).cast<float>());
@@ -353,6 +353,11 @@ namespace fast_planner {
             }
 
             last_safe = safe;
+        }
+
+        if (colli_end.size() == 0) {
+            TVec3 ptc = initial_traj->evaluateDeBoor(t_mp).cast<float>();
+            colli_end.push_back(ptc);
         }
 
         if (colli_start.size() == 0) return;
@@ -394,7 +399,6 @@ namespace fast_planner {
 
         if (!collide) {
             /* truncate a new local segment for replanning */
-//            refineTraj(init_traj, time_inc);
             local_data_.position_traj_ = init_traj;
             global_data_.setLocalTraj(init_traj, t_now, local_traj_duration + time_inc + t_now, time_inc);
         } else {
@@ -410,7 +414,7 @@ namespace fast_planner {
 
             kino_path_finder_->reset();
 
-            int status = kino_path_finder_->search(start_pt, start_vel, start_acc, colli_end.back().cast<double>(),
+            int status = kino_path_finder_->search(start_pt, start_vel, start_acc, end_pt,
                                                    end_vel, mp_config_.mp_plan_state, true, true);
 
             if (status == KinodynamicAstar::NO_PATH) {

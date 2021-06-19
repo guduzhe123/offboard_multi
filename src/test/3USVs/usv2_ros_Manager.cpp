@@ -82,7 +82,7 @@ void usv2_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
 
     usv_.Imap.reset(new OctoMap);
     usv_.Imap->onInit();
-    usv_.Imap->setSafeRaduis(5);
+    usv_.Imap->setSafeRaduis(8);
     USV2ActionMotionPlan::getInstance()->initNh(nh, shared_ptr<IMap>());
 }
 
@@ -233,7 +233,7 @@ void usv2_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 void usv2_ros_Manager::commander_update(const ros::TimerEvent& e) {
     if (! usv_.current_state.connected) return;
     int command;
-    DataMan::getInstance()->getCommand(command);
+//    DataMan::getInstance()->getCommand(command);
     if (command == VF_USV_ALL_START /*|| command == MASTERSTART*/) {
         chlog::info("data","[USV2]: usv2 begain to start!");
         mavros_msgs::SetMode offb_set_mode;
@@ -298,10 +298,6 @@ void usv2_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
     if (is_speed_ctrl_) {
         g_speed_control_pub.publish(vel_ctrl_sp_);
     } else {
-/*        TVec3 target_pos(p.x, p.y, p.z);
-        TVec3 cur_pos(pnt_.x, pnt_.y,pnt_.z);
-        TVec3 target_vec = cur_pos - target_pos;
-        TVec3 heading_vec = Calculate::getInstance()->toVec(0,0,(usv_.yaw - 90)* M_PI / 180);*/
 
         /*TODO to calculate if the target is in the front of the current usv.
          * If true publish the target position to let the usv run,

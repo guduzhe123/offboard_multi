@@ -78,7 +78,7 @@ void usv3_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
     publish_timer_ = nh.createTimer(ros::Duration(0.05), &usv3_ros_Manager::publishDronePosControl, this);
     uav_.Imap.reset(new OctoMap);
     uav_.Imap->onInit();
-    uav_.Imap->setSafeRaduis(5);
+    uav_.Imap->setSafeRaduis(8);
     USV3ActionMotionPlan::getInstance()->initNh(nh, uav_.Imap);
 }
 
@@ -226,7 +226,7 @@ void usv3_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 void usv3_ros_Manager::commander_update(const ros::TimerEvent& e) {
     if (!  uav_.current_state.connected) return;
     int command;
-    DataMan::getInstance()->getCommand(command);
+//    DataMan::getInstance()->getCommand(command);
     if (command == VF_USV_ALL_START /*|| command == SLAVESTART*/) {
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
