@@ -2,8 +2,8 @@
 // Created by zhouhua on 2020/6/1.
 //
 
-#ifndef WINDAPPCORE_USV2_ACTIONMOTIONPLAN_HPP
-#define WINDAPPCORE_USV2_ACTIONMOTIONPLAN_HPP
+#ifndef OFFBOARD_USV2_ACTIONMOTIONPLAN_HPP
+#define OFFBOARD_USV2_ACTIONMOTIONPLAN_HPP
 
 #include "IControlFunction.hpp"
 #include "motion_plan/mp_core/MPManager.h"
@@ -103,4 +103,4 @@ public:
     }
 };
 
-#endif //WINDAPPCORE_USV2_ACTIONMOTIONPLAN_HPP
+#endif //OFFBOARD_USV2_ACTIONMOTIONPLAN_HPP

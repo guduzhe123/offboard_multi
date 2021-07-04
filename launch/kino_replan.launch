@@ -1,5 +1,5 @@
 <launch>
-  <!-- check if use windappcore or use the default simulator -->
+  <!-- check if use OFFBOARD or use the default simulator -->
   <arg name="is_wind_application" value="false"/>
 
   <!-- size of map, change the size in x, y, z according to your application -->

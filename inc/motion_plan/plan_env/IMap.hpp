@@ -2,8 +2,8 @@
 // Created by zhouhua on 2020/12/22.
 //
 
-#ifndef WINDAPPCORE_IMAP_HPP
-#define WINDAPPCORE_IMAP_HPP
+#ifndef OFFBOARD_IMAP_HPP
+#define OFFBOARD_IMAP_HPP
 
 #include "CUtil.h"
 #include "CuMath.h"
@@ -21,4 +21,4 @@ public:
 
     virtual void setSafeRaduis(const float &raduis) = 0;
 };
-#endif //WINDAPPCORE_IMAP_HPP
+#endif //OFFBOARD_IMAP_HPP

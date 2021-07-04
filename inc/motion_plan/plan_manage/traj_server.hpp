@@ -2,8 +2,8 @@
 // Created by zhouhua on 2020/8/31.
 //
 
-#ifndef WINDAPPCORE_TRAJ_SERVER_HPP
-#define WINDAPPCORE_TRAJ_SERVER_HPP
+#ifndef OFFBOARD_TRAJ_SERVER_HPP
+#define OFFBOARD_TRAJ_SERVER_HPP
 #include "bspline/non_uniform_bspline.h"
 #include "nav_msgs/Odometry.h"
 #include "wa_ros_msgs/Bspline.h"
@@ -51,4 +51,4 @@ namespace fast_planner {
     };
 }
 
-#endif //WINDAPPCORE_TRAJ_SERVER_HPP
+#endif //OFFBOARD_TRAJ_SERVER_HPP

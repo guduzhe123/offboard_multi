@@ -9,12 +9,12 @@ PCLROSMessageManager::PCLROSMessageManager(){
 }
 
 void PCLROSMessageManager::OnInit(ros::NodeHandle &nh) {
-    lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("os_cloud_node/points", 500,
+    lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("/lslidar_point_cloud", 1,
                                                                &PCLROSMessageManager::cloudHandler, this);
-    transformed_cloud_pub_ = nh.advertise<sensor_msgs::PointCloud2>("lidar/Transformed_points", 1000);
-    octomap_pub_ = nh.advertise<octomap_msgs::Octomap>("pcl/Global_octomap", 3);
+    transformed_cloud_pub_ = nh.advertise<sensor_msgs::PointCloud2>("lidar/Transformed_points", 1);
+    octomap_pub_ = nh.advertise<octomap_msgs::Octomap>("pcl/Global_octomap", 1);
 
-    ground_removal_pub_ = nh.advertise<sensor_msgs::PointCloud2>("ground_removal_lidar", 1000);
+    ground_removal_pub_ = nh.advertise<sensor_msgs::PointCloud2>("ground_removal_lidar", 1);
 
 }
 
@@ -34,6 +34,10 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
 //    pcl::fromPCLPointCloud2(pcl_pc2, *raw_cloud_ptr);
 
     pcl::fromROSMsg(*m, *raw_cloud_ptr);
+
+    // Remove Nan points
+    std::vector<int> indices;
+    pcl::removeNaNFromPointCloud(*raw_cloud_ptr, *raw_cloud_ptr, indices);
 
     /*pcl points filter*/
     pcl::IndicesConstPtr cloud_filtered_indices;

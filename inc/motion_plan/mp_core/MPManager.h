@@ -2,8 +2,8 @@
 // Created by zhouhua on 2020/12/6.
 //
 
-#ifndef WINDAPPCORE_MPMANAGER_H
-#define WINDAPPCORE_MPMANAGER_H
+#ifndef OFFBOARD_MPMANAGER_H
+#define OFFBOARD_MPMANAGER_H
 
 
 #include "Cinc.hpp"
@@ -133,4 +133,4 @@ private:
     void formationCall(int formation_type);
 };
 
-#endif //WINDAPPCORE_MPMANAGER_H
+#endif //OFFBOARD_MPMANAGER_H

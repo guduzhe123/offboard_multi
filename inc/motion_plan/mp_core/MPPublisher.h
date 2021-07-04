@@ -2,10 +2,10 @@
 // Created by zhouhua on 2020/12/7.
 //
 
-#ifndef WINDAPPCORE_MPPUBLISHER_H
-#define WINDAPPCORE_MPPUBLISHER_H
+#ifndef OFFBOARD_MPPUBLISHER_H
+#define OFFBOARD_MPPUBLISHER_H
 
-#endif //WINDAPPCORE_MPPUBLISHER_H
+#endif //OFFBOARD_MPPUBLISHER_H
 
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>

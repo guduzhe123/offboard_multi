@@ -2,8 +2,8 @@
 // Created by zhouhua on 2020/12/22.
 //
 
-#ifndef WINDAPPCORE_IMAP_HPP
-#define WINDAPPCORE_IMAP_HPP
+#ifndef OFFBOARD_IMAP_HPP
+#define OFFBOARD_IMAP_HPP
 
 #include <Eigen/Core>
 #include <octomap_msgs/Octomap.h>
@@ -23,4 +23,4 @@ public:
 
     virtual void getMinDistance(const Eigen::Vector3f& cur_pos, float& min_dist) = 0;
 };
-#endif //WINDAPPCORE_IMAP_HPP
+#endif //OFFBOARD_IMAP_HPP

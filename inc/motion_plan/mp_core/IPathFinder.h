@@ -2,8 +2,8 @@
 // Created by zhouhua on 2020/12/9.
 //
 
-#ifndef WINDAPPCORE_IPATHFINDER_H
-#define WINDAPPCORE_IPATHFINDER_H
+#ifndef OFFBOARD_IPATHFINDER_H
+#define OFFBOARD_IPATHFINDER_H
 
 #include "Cinc.hpp"
 #include <ros/ros.h>
@@ -47,4 +47,4 @@ namespace fast_planner{
     };
 }
 
-#endif //WINDAPPCORE_IPATHFINDER_H
+#endif //OFFBOARD_IPATHFINDER_H
