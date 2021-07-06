@@ -215,7 +215,7 @@ namespace fast_planner {
     void PlanningVisualization::drawGoal(Eigen::Vector3d goal, double resolution,
                                          const Eigen::Vector4d& color, int id) {
         vector<Eigen::Vector3d> goal_vec = { goal };
-        chlog::info("motion_plan", "goal_vec = " + toStr(goal.cast<float>()));
+        chlog::info("USV1_MP", "goal_vec = " + toStr(goal.cast<float>()));
         displaySphereList(goal_vec, resolution, color, GOAL + id % 100);
     }
 

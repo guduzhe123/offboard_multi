@@ -150,6 +150,8 @@
 
 
             /target_local
+            /lslidar_point_cloud
+            /usv1/lidar/Transformed_points
 
 "
     />

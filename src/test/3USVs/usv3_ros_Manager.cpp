@@ -78,7 +78,7 @@ void usv3_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
     publish_timer_ = nh.createTimer(ros::Duration(0.05), &usv3_ros_Manager::publishDronePosControl, this);
     uav_.Imap.reset(new OctoMap);
     uav_.Imap->onInit();
-    uav_.Imap->setSafeRaduis(8);
+    uav_.Imap->setSafeRaduis(3);
     USV3ActionMotionPlan::getInstance()->initNh(nh, uav_.Imap);
 }
 

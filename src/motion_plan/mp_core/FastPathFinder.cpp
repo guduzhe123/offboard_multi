@@ -406,8 +406,8 @@ namespace fast_planner {
             double t_search = 0.0, t_opt = 0.0, t_adjust = 0.0;
 
             plan_data_.initial_local_segment_ = init_traj;
-            vector<Eigen::Vector3f> colli_start, colli_end;
-            findCollisionRange(colli_start, colli_end);
+/*            vector<Eigen::Vector3f> colli_start, colli_end;
+            findCollisionRange(colli_start, colli_end);*/
             // kinodynamic path searching
 
             t1 = ros::Time::now();

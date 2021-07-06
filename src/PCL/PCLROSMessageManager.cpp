@@ -59,6 +59,9 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
 
     for (std::size_t i = 0; i < transformed_cloud->size(); i++) {
         pcl::PointXYZ pnt = transformed_cloud->points[i];
+        if (pnt.z < -2) continue;
+        TVec3 point = TVec3{pnt.x, pnt.y, pnt.z};
+        if (point.norm() < 2.0f) continue;
         tree_->updateNode(octomap::point3d(pnt.x, pnt.y, pnt.z), true);
     }
     tree_->updateInnerOccupancy();
@@ -149,16 +152,16 @@ void PCLROSMessageManager::getOctomap(octomap_msgs::Octomap &octomap) {
 Eigen::Isometry3f PCLROSMessageManager::get_transformation_matrix() {
     Eigen::Isometry3f transformation_matrix;
     transformation_matrix = Eigen::Isometry3f::Identity();
-    Eigen::AngleAxisf gimbal_yaw(usv_.yaw * M_PI / 180.0f, Eigen::Vector3f::UnitZ());
-    Eigen::AngleAxisf gimbal_pitch(usv_.pitch * M_PI / 180.0f, Eigen::Vector3f::UnitY());
-    Eigen::AngleAxisf gimbal_roll(usv_.roll * M_PI / 180.0f, Eigen::Vector3f::UnitX());
+    Eigen::AngleAxisf gimbal_yaw(((usv_.yaw + 180.0f) * M_PI / 180.0f ), Eigen::Vector3f::UnitZ());
+    Eigen::AngleAxisf gimbal_pitch(0 * M_PI / 180.0f, Eigen::Vector3f::UnitY());
+    Eigen::AngleAxisf gimbal_roll(0 * M_PI / 180.0f, Eigen::Vector3f::UnitX());
     Eigen::Matrix3f vehicle_world;
     vehicle_world = gimbal_yaw * gimbal_pitch * gimbal_roll;
 
     transformation_matrix.rotate(vehicle_world);
     Eigen::Vector3f vehicle_pos = TVec3(usv_.current_local_pos.pose.position.x,
                                         usv_.current_local_pos.pose.position.y,
-                                        usv_.current_local_pos.pose.position.z + 2); // 2 is the velodyne lidar at the usv z position
+                                        usv_.current_local_pos.pose.position.z /*+ 2*/); // 2 is the velodyne lidar at the usv z position
     transformation_matrix.pretranslate(vehicle_pos);
     return transformation_matrix;
 }

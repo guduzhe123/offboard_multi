@@ -7,12 +7,13 @@ Panels:
         - /Global Options1
         - /uav21
         - /uav31/simulation_map1/Autocompute Value Bounds1
+        - /usv11
         - /usv11/Planning1/bspline_traj1
-        - /usv11/heading1
         - /usv11/Transform_points1
         - /usv21/Planning1
         - /usv21/heading1
         - /usv31/Planning1/bspline_traj1
+        - /Marker1
       Splitter Ratio: 0.397034585
     Tree Height: 431
   - Class: rviz/Selection
@@ -34,7 +35,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: Transform_points
 Toolbars:
   toolButtonStyle: 2
 Visualization Manager:
@@ -256,7 +257,7 @@ Visualization Manager:
               Marker Topic: /usv1/planning_vis/trajectory
               Name: bspline_traj
               Namespaces:
-                {}
+                "": true
               Queue Size: 100
               Value: true
             - Class: rviz/Marker
@@ -264,7 +265,7 @@ Visualization Manager:
               Marker Topic: /usv1/planning/travel_traj
               Name: executed_traj
               Namespaces:
-                {}
+                "": true
               Queue Size: 100
               Value: true
             - Class: rviz/Marker
@@ -272,7 +273,7 @@ Visualization Manager:
               Marker Topic: /usv1/planning/position_cmd_vis
               Name: position_cmd
               Namespaces:
-                {}
+                "": true
               Queue Size: 100
               Value: true
             - Class: rviz/Marker
@@ -288,7 +289,7 @@ Visualization Manager:
               Marker Topic: /usv1/planning_vis/drone_sphere
               Name: path_fitting
               Namespaces:
-                {}
+                "": true
               Queue Size: 100
               Value: true
           Enabled: true
@@ -306,7 +307,7 @@ Visualization Manager:
           Marker Topic: /usv1/cur_pos
           Name: cur_pos
           Namespaces:
-            {}
+            points_and_lines: true
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -314,7 +315,7 @@ Visualization Manager:
           Marker Topic: /usv1/heading_vis
           Name: heading
           Namespaces:
-            {}
+            "": true
           Queue Size: 100
           Value: true
         - Alpha: 1
@@ -362,8 +363,8 @@ Visualization Manager:
         - Alpha: 1
           Autocompute Intensity Bounds: true
           Autocompute Value Bounds:
-            Max Value: -0.795781434
-            Min Value: -1.99329078
+            Max Value: 1.69783425
+            Min Value: 0.637283325
             Value: true
           Axis: Z
           Channel Name: intensity
@@ -424,7 +425,7 @@ Visualization Manager:
               Marker Topic: /usv2/planning_vis/trajectory
               Name: bspline_traj
               Namespaces:
-                {}
+                "": true
               Queue Size: 100
               Value: true
             - Class: rviz/Marker
@@ -432,7 +433,7 @@ Visualization Manager:
               Marker Topic: /usv2/planning/travel_traj
               Name: executed_traj
               Namespaces:
-                {}
+                "": true
               Queue Size: 100
               Value: true
             - Class: rviz/Marker
@@ -456,7 +457,7 @@ Visualization Manager:
               Marker Topic: /usv2/planning_vis/drone_sphere
               Name: path_fitting
               Namespaces:
-                {}
+                "": true
               Queue Size: 100
               Value: true
           Enabled: true
@@ -466,7 +467,7 @@ Visualization Manager:
           Marker Topic: /usv2/cur_pos
           Name: cur_pos
           Namespaces:
-            {}
+            points_and_lines: true
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -482,7 +483,7 @@ Visualization Manager:
           Marker Topic: /usv2/heading_vis
           Name: heading
           Namespaces:
-            {}
+            "": true
           Queue Size: 100
           Value: true
       Enabled: true
@@ -496,7 +497,7 @@ Visualization Manager:
               Marker Topic: /usv3/planning_vis/trajectory
               Name: bspline_traj
               Namespaces:
-                {}
+                "": true
               Queue Size: 100
               Value: true
             - Class: rviz/Marker
@@ -504,7 +505,7 @@ Visualization Manager:
               Marker Topic: /usv3/planning/travel_traj
               Name: executed_traj
               Namespaces:
-                {}
+                "": true
               Queue Size: 100
               Value: true
             - Class: rviz/Marker
@@ -528,7 +529,7 @@ Visualization Manager:
               Marker Topic: /usv3/planning_vis/drone_sphere
               Name: path_fitting
               Namespaces:
-                {}
+                "": true
               Queue Size: 100
               Value: true
           Enabled: true
@@ -538,7 +539,7 @@ Visualization Manager:
           Marker Topic: /usv3/cur_pos
           Name: cur_pos
           Namespaces:
-            {}
+            points_and_lines: true
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -554,7 +555,7 @@ Visualization Manager:
           Marker Topic: /usv3/heading_vis
           Name: heading
           Namespaces:
-            {}
+            "": true
           Queue Size: 100
           Value: true
       Enabled: true
@@ -583,6 +584,14 @@ Visualization Manager:
       Transport Hint: raw
       Unreliable: false
       Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /planning_vis/A_star_points
+      Name: Marker
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 255; 253; 224
@@ -607,15 +616,15 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 45.3630486
+      Distance: 105.699448
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -6.94963264
-        Y: 8.48831463
+        X: 5.70511341
+        Y: 4.31167841
         Z: 2.83755799e-05
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007

@@ -82,7 +82,7 @@ void usv2_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
 
     usv_.Imap.reset(new OctoMap);
     usv_.Imap->onInit();
-    usv_.Imap->setSafeRaduis(8);
+    usv_.Imap->setSafeRaduis(3);
     USV2ActionMotionPlan::getInstance()->initNh(nh, shared_ptr<IMap>());
 }
 
