@@ -298,7 +298,7 @@ Visualization Manager:
           Marker Topic: /usv1/target_point
           Name: target_pos
           Namespaces:
-            points_and_lines: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -389,6 +389,30 @@ Visualization Manager:
           Use Fixed Frame: true
           Use rainbow: true
           Value: true
+        - Class: rviz/Marker
+          Enabled: true
+          Marker Topic: /usv1/planning_vis/A_star_points
+          Name: A_star_all
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+        - Class: rviz/Marker
+          Enabled: true
+          Marker Topic: /usv1/planning_vis/A_star_vel_inVal
+          Name: vel_inVal
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+        - Class: rviz/Marker
+          Enabled: true
+          Marker Topic: /usv1/planning_vis/A_in_collision
+          Name: Marker
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
       Enabled: true
       Name: usv1
     - Class: rviz/Group
@@ -450,7 +474,7 @@ Visualization Manager:
           Marker Topic: /usv2/target_point
           Name: target_pos
           Namespaces:
-            points_and_lines: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -522,7 +546,7 @@ Visualization Manager:
           Marker Topic: /usv3/target_point
           Name: target_pos
           Namespaces:
-            points_and_lines: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -583,7 +607,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 77.8699875
+      Distance: 45.3630486
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
@@ -861,7 +885,7 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1855
-  X: 1985
+  X: 65
   Y: 24
   depth:
     collapsed: false

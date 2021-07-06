@@ -148,6 +148,7 @@ private:
   double resolution_, inv_resolution_, time_resolution_, inv_time_resolution_;
   Eigen::Vector3d origin_, map_size_3d_;
   double time_origin_;
+  ros::Publisher pub_, pub_in_collision_, pub_vel_inVal_, pub_closeSet_;
 
   /* helper */
   Eigen::Vector3i posToIndex(Eigen::Vector3d pt);
@@ -168,6 +169,8 @@ private:
   void calcDistToCenter(double &dist, const Eigen::Vector3d &cur_pos, const Eigen::Vector3d &start_pos, bool show);
   bool checkNearObstacle(const TVec3 &cur_pos);
 
+    void displaySphereList(const vector<Eigen::Vector3d>& list, double resolution,
+                           const Eigen::Vector4d& color, ros::Publisher& pub);
 public:
   KinodynamicAstar(){};
   ~KinodynamicAstar();

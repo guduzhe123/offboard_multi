@@ -114,6 +114,7 @@ private:
     float time_add_sum_;
     float time_add_sum_pre_;
     TVec3 out_put_;
+    TVec3 exec_start_pos_;
 
     // private functions
     void CalcDistToCenter(float &dist, const TVec3 &cur_pos, TVec3 start_pos, TVec3 end_pos);

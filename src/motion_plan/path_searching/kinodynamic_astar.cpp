@@ -12,20 +12,25 @@ namespace fast_planner {
     }
 
     void KinodynamicAstar::setParam(ros::NodeHandle &nh, string &log) {
-        nh.param("search/max_tau", max_tau_, 0.3);
-        nh.param("search/init_max_tau", init_max_tau_, 0.4);
-        nh.param("search/w_time", w_time_, 10.0);
-        nh.param("search/horizon", horizon_, 10.0);
-        nh.param("search/resolution_astar", resolution_, 0.1);
-        nh.param("search/time_resolution", time_resolution_, 0.8);
-        nh.param("search/lambda_heu", lambda_heu_, 5.0);
-        nh.param("search/margin", margin_, 0.3);
-        nh.param("search/allocate_num", allocate_num_, 10000);
-        nh.param("search/check_num", check_num_, 5);
-        nh.param("search/dist_radius", check_radius_, 2.0);
-        nh.param("search/dist_lambda", dist_lambda_, 20.0);
-        nh.param("search/safe_dist_tip", safe_dist_tip_, 7.0);
+        nh.param("/search/max_tau", max_tau_, 0.3);
+        nh.param("/search/init_max_tau", init_max_tau_, 0.4);
+        nh.param("/search/w_time", w_time_, 10.0);
+        nh.param("/search/horizon", horizon_, 10.0);
+        nh.param("/search/resolution_astar", resolution_, 0.1);
+        nh.param("/search/time_resolution", time_resolution_, 0.8);
+        nh.param("/search/lambda_heu", lambda_heu_, 5.0);
+        nh.param("/search/margin", margin_, 0.3);
+        nh.param("/search/allocate_num", allocate_num_, 10000);
+        nh.param("/search/check_num", check_num_, 5);
+        nh.param("/search/dist_radius", check_radius_, 2.0);
+        nh.param("/search/dist_lambda", dist_lambda_, 20.0);
+        nh.param("/search/safe_dist_tip", safe_dist_tip_, 7.0);
         log_ = log;
+
+        pub_ = nh.advertise<visualization_msgs::Marker>("planning_vis/A_star_points", 20);
+        pub_in_collision_ = nh.advertise<visualization_msgs::Marker>("planning_vis/A_in_collision", 20);
+        pub_vel_inVal_ = nh.advertise<visualization_msgs::Marker>("planning_vis/A_star_vel_inVal", 20);
+        pub_closeSet_ = nh.advertise<visualization_msgs::Marker>("planning_vis/A_star_closeSet", 20);
     }
 
     void KinodynamicAstar::setSpeedLimit(const double max_vel, const double max_acc) {
@@ -86,16 +91,18 @@ namespace fast_planner {
         bool        search_successed = init_search_success;
         const int   tolerance      = 1.5;
 
+
+        vector<Eigen::Vector3d> lists_all;
+        vector<Eigen::Vector3d> lists_in_collision;
+        vector<Eigen::Vector3d> lists_outof_corridor;
+        vector<Eigen::Vector3d> lists_vel_inValid;
+        vector<Eigen::Vector3d> lists_in_closeSet;
         /* ---------- search loop ---------- */
         while (!open_set_.empty()) {
             /* ---------- get lowest f_score node ---------- */
             cur_node = open_set_.top();
 
             /* ---------- determine termination ---------- */
-
-/*            bool near_end = abs(cur_node->index(0) - end_index(0)) <= tolerance &&
-                            abs(cur_node->index(1) - end_index(1)) <= tolerance &&
-                            abs(cur_node->index(2) - end_index(2)) <= tolerance;*/
             bool reach_horizon = (cur_node->state.head(3) - start_pt).norm() >= horizon_;
             bool near_end = (cur_node->state.head(3) - end_pt).norm() <= tolerance;
 
@@ -107,7 +114,12 @@ namespace fast_planner {
                                                 ", in collosion num = ", in_collision_num_
                                                 , ", in closeset num = ", in_closed_set_num_, ", vel_infeasible_num_ = ", vel_infeasible_num_
                                                 ,", feasible_num_ = " , feasible_num_
+                                                , ", open_count_ = ", open_count_
                                                 , ", total_tried_num_ = ", total_tried_num_);
+                displaySphereList(lists_all, 0.2, Eigen::Vector4d(1, 0, 0, 1), pub_);
+                displaySphereList(lists_in_collision, 0.2, Eigen::Vector4d(1, 1, 0, 0.5), pub_in_collision_);
+                displaySphereList(lists_vel_inValid, 0.2, Eigen::Vector4d(1, 0, 1, 0.5), pub_vel_inVal_);
+                displaySphereList(lists_in_closeSet, 0.2, Eigen::Vector4d(1, 0.5, 0.5, 1), pub_closeSet_);
 
                 terminate_node = cur_node;
                 retrievePath(terminate_node);
@@ -186,6 +198,7 @@ namespace fast_planner {
                     stateTransit(cur_state, pro_state, um, tau);
                     pro_t = cur_node->time + tau;
                     total_tried_num_++;
+                    lists_all.push_back(pro_state.head(3));
                     /* ---------- check if in free space ---------- */
 
 
@@ -198,6 +211,7 @@ namespace fast_planner {
                     if (pro_node != NULL && pro_node->node_state == IN_CLOSE_SET) {
                         // cout << "in closeset" << endl;
                         in_closed_set_num_++;
+                        lists_in_closeSet.push_back(pro_state.head(3));
                         continue;
                     }
 
@@ -207,6 +221,7 @@ namespace fast_planner {
                         || fabs(pro_v(2)) > max_vel_ ) {
                         // cout << "vel infeasible" << endl;
                         vel_infeasible_num_++;
+                        lists_vel_inValid.push_back(pro_state.head(3));
                         continue;
                     }
 
@@ -215,6 +230,7 @@ namespace fast_planner {
                     if (map_ && !map_->isStateValid(pro_state.head(3).cast<float>(), true)) {
                         // chlog::info(log_, "the state is in collision!");
                         in_collision_num_++;
+                        lists_in_collision.push_back(pro_state.head(3));
                         continue;
                     }
 
@@ -276,6 +292,11 @@ namespace fast_planner {
                                         , ", in closeset num = ", in_closed_set_num_, ", vel_infeasible_num_ = ", vel_infeasible_num_
                                         ,", feasible_num_ = " , feasible_num_
                                         , ", total_tried_num_ = ", total_tried_num_);
+                                displaySphereList(lists_all, 0.2, Eigen::Vector4d(1, 0, 0, 1), pub_);
+                                displaySphereList(lists_in_collision, 0.2, Eigen::Vector4d(1, 1, 0, 0.5), pub_in_collision_);
+                                displaySphereList(lists_vel_inValid, 0.2, Eigen::Vector4d(1, 0, 1, 0.5), pub_vel_inVal_);
+                                displaySphereList(lists_in_closeSet, 0.2, Eigen::Vector4d(1, 0.5, 0.5, 1), pub_closeSet_);
+
                                 return NO_PATH;
                             }
                         } else if (pro_node->node_state == IN_OPEN_SET) {
@@ -760,6 +781,42 @@ namespace fast_planner {
         }
 
         return dis_path;
+    }
+
+
+    void KinodynamicAstar::displaySphereList(const vector<Eigen::Vector3d>& list, double resolution,
+                                             const Eigen::Vector4d& color, ros::Publisher& pub) {
+        visualization_msgs::Marker mk;
+        mk.header.frame_id = "map";
+        mk.header.stamp    = ros::Time::now();
+        mk.type            = visualization_msgs::Marker::SPHERE_LIST;
+        mk.action          = visualization_msgs::Marker::DELETE;
+//        pub_.publish(mk);
+//
+        mk.action             = visualization_msgs::Marker::ADD;
+        mk.pose.orientation.x = 0.0;
+        mk.pose.orientation.y = 0.0;
+        mk.pose.orientation.z = 0.0;
+        mk.pose.orientation.w = 1.0;
+
+        mk.color.r = color(0);
+        mk.color.g = color(1);
+        mk.color.b = color(2);
+        mk.color.a = color(3);
+
+        mk.scale.x = resolution;
+        mk.scale.y = resolution;
+        mk.scale.z = resolution;
+
+        geometry_msgs::Point pt;
+        for (int i = 0; i < int(list.size()); i++) {
+            pt.x = list[i](0);
+            pt.y = list[i](1);
+            pt.z = list[i](2);
+            mk.points.push_back(pt);
+        }
+        pub.publish(mk);
+        ros::Duration(0.001).sleep();
     }
 
 }  // namespace fast_planner

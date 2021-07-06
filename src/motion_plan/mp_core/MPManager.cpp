@@ -364,13 +364,6 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
 
     /* ---------- check trajectory ---------- */
     if (mp_state_ == EXEC_TRAJ || mp_state_ == REPLAN_TRAJ) {
-/*        if (collide_) {
-            bool line_aviable = path_finder_->checkLineAviable(drone_st_.drone_pos, mp_config_.end_pos);
-            if (line_aviable) {
-                collide_ = false;
-                ChangeExecState(GEN_NEW_TRAJ, "FSM");
-            }
-        }*/
 
         double dist;
         bool   safe = path_finder_->checkTrajCollision(dist);
@@ -428,6 +421,7 @@ void MPManager::ProcessState() {
 
             bool success = CallKinodynamicReplan(1); // TODO test A* use 2
             if (success) {
+                exec_start_pos_ = drone_st_.drone_pos;
                 ChangeExecState(EXEC_TRAJ, "FSM");
             } else {
                 receive_traj_ = false;
@@ -455,6 +449,7 @@ void MPManager::ProcessState() {
                     ", drone_st_.drone_pos = ", toStr(drone_st_.drone_pos), ", t_cur = ",
                         t_cur, ", global_duration_ = ", global_data->global_duration_);
             chlog::info(log, "[MP Manager]: t0 = ", to_string(t0), ", t1 = ", to_string(t1));
+            chlog::info(log, "(exec_start_pos_ - pos).norm() = ", (exec_start_pos_ - drone_st_.drone_pos).norm());
 
             float err_target;
             if (mp_config_.targets.size() > 0) {
@@ -466,7 +461,7 @@ void MPManager::ProcessState() {
                 ChangeExecState(GEN_NEW_TRAJ, "FSM");
                 have_target_ = false;
                 return;
-            }  else if  ((info->start_pos_ - pos).norm() < 2.0 /*&& !collide_*/) {
+            }  else if  ((info->start_pos_ - pos).norm() < 2.0/*(exec_start_pos_ - drone_st_.drone_pos).norm() < 3.0*/ /*&& !collide_*/) {
 //                chlog::info(log, "[MP Manager]: close to start pos!");
                 return;
 
@@ -502,6 +497,7 @@ void MPManager::ProcessState() {
 
             bool success = CallKinodynamicReplan(2);
             if (success) {
+                exec_start_pos_ = drone_st_.drone_pos;
                 ChangeExecState(EXEC_TRAJ, "FSM");
                 path_find_fail_timer_ = 0;
             } else {
@@ -511,6 +507,7 @@ void MPManager::ProcessState() {
                     success = CallKinodynamicReplan(2);
                     chlog::info(log, "Replan fail, retrying...");
                     if (success) {
+                        exec_start_pos_ = drone_st_.drone_pos;
                         ChangeExecState(EXEC_TRAJ, "FSM");
                     }
 

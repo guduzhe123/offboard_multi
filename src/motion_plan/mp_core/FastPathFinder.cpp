@@ -13,17 +13,18 @@ namespace fast_planner {
     void FastPathFinder::initPlanModules(const MP_Config &config, Sp<IMap> &map) {
         /* read algorithm parameters */
         ros::NodeHandle nh;
-        nh.param("manager/max_jerk", pp_.max_jerk_, 4.0);
-        nh.param("manager/dynamic_environment", pp_.dynamic_, -1);
-        nh.param("manager/clearance_threshold", pp_.clearance_, 0.2);
-        nh.param("manager/local_segment_length", pp_.local_traj_len_, 6.0);
-        nh.param("manager/control_points_distance", pp_.ctrl_pt_dist, 0.5);
+        nh = config.nh;
+        nh.param("/manager/max_jerk", pp_.max_jerk_, 4.0);
+        nh.param("/manager/dynamic_environment", pp_.dynamic_, -1);
+        nh.param("/manager/clearance_threshold", pp_.clearance_, 0.2);
+        nh.param("/manager/local_segment_length", pp_.local_traj_len_, 6.0);
+        nh.param("/manager/control_points_distance", pp_.ctrl_pt_dist, 0.5);
 
         bool use_geometric_path, use_kinodynamic_path, use_topo_path, use_optimization;
-        nh.param("manager/use_geometric_path", use_geometric_path, false);
-        nh.param("manager/use_kinodynamic_path", use_kinodynamic_path, true);
-        nh.param("manager/use_topo_path", use_topo_path, false);
-        nh.param("manager/use_optimization", use_optimization, true);
+        nh.param("/manager/use_geometric_path", use_geometric_path, false);
+        nh.param("/manager/use_kinodynamic_path", use_kinodynamic_path, true);
+        nh.param("/manager/use_topo_path", use_topo_path, false);
+        nh.param("/manager/use_optimization", use_optimization, true);
 
         mp_config_ = config;
         pp_.max_vel_ = mp_config_.max_vel;
