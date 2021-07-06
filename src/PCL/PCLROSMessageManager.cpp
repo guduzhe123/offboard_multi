@@ -9,7 +9,7 @@ PCLROSMessageManager::PCLROSMessageManager(){
 }
 
 void PCLROSMessageManager::OnInit(ros::NodeHandle &nh) {
-    lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("/lslidar_point_cloud", 1,
+    lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("lslidar_point_cloud", 1,
                                                                &PCLROSMessageManager::cloudHandler, this);
     transformed_cloud_pub_ = nh.advertise<sensor_msgs::PointCloud2>("lidar/Transformed_points", 1);
     octomap_pub_ = nh.advertise<octomap_msgs::Octomap>("pcl/Global_octomap", 1);
@@ -41,6 +41,7 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
 
     /*pcl points filter*/
     pcl::IndicesConstPtr cloud_filtered_indices;
+//    voselGrid(raw_cloud_ptr, raw_cloud_ptr);
     radiusRemoval(raw_cloud_ptr, simple_cloud_ptr, 0.5, 4, cloud_filtered_indices);
     groundRemove(raw_cloud_ptr, cloud_ground_remove, cloud_filtered_indices);
 
@@ -76,7 +77,7 @@ void PCLROSMessageManager::voselGrid(const pcl::PointCloud<pcl::PointXYZ>::Ptr &
     sor.setInputCloud (input_cloud);
     sor.setLeafSize (0.2f, 0.2f, 0.2f);
     sor.filter (*output_cloud);
-    chlog::info("motion_plan", "voxel input cloud size = ", input_cloud->size(),
+    chlog::info("data", "voxel input cloud size = ", input_cloud->size(),
             ", output size = ", output_cloud->size());
 }
 
@@ -152,7 +153,8 @@ void PCLROSMessageManager::getOctomap(octomap_msgs::Octomap &octomap) {
 Eigen::Isometry3f PCLROSMessageManager::get_transformation_matrix() {
     Eigen::Isometry3f transformation_matrix;
     transformation_matrix = Eigen::Isometry3f::Identity();
-    Eigen::AngleAxisf gimbal_yaw(((usv_.yaw + 180.0f) * M_PI / 180.0f ), Eigen::Vector3f::UnitZ());
+//    Eigen::AngleAxisf gimbal_yaw(((usv_.yaw + 180.0f) * M_PI / 180.0f ), Eigen::Vector3f::UnitZ());
+    Eigen::AngleAxisf gimbal_yaw(((usv_.yaw ) * M_PI / 180.0f ), Eigen::Vector3f::UnitZ());
     Eigen::AngleAxisf gimbal_pitch(0 * M_PI / 180.0f, Eigen::Vector3f::UnitY());
     Eigen::AngleAxisf gimbal_roll(0 * M_PI / 180.0f, Eigen::Vector3f::UnitX());
     Eigen::Matrix3f vehicle_world;
@@ -161,7 +163,7 @@ Eigen::Isometry3f PCLROSMessageManager::get_transformation_matrix() {
     transformation_matrix.rotate(vehicle_world);
     Eigen::Vector3f vehicle_pos = TVec3(usv_.current_local_pos.pose.position.x,
                                         usv_.current_local_pos.pose.position.y,
-                                        usv_.current_local_pos.pose.position.z /*+ 2*/); // 2 is the velodyne lidar at the usv z position
+                                        usv_.current_local_pos.pose.position.z + 2); // 2 is the velodyne lidar at the usv z position
     transformation_matrix.pretranslate(vehicle_pos);
     return transformation_matrix;
 }

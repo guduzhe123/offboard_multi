@@ -461,7 +461,8 @@ void MPManager::ProcessState() {
                 ChangeExecState(GEN_NEW_TRAJ, "FSM");
                 have_target_ = false;
                 return;
-            }  else if  ((info->start_pos_ - pos).norm() < 2.0/*(exec_start_pos_ - drone_st_.drone_pos).norm() < 3.0*/ /*&& !collide_*/) {
+            }  else if  ((info->start_pos_ - pos).norm() < 4.0
+                /*(exec_start_pos_ - drone_st_.drone_pos).norm() < 3.0*/ /*&& !collide_*/) {
 //                chlog::info(log, "[MP Manager]: close to start pos!");
                 return;
 

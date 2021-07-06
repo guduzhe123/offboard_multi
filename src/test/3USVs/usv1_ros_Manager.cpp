@@ -81,7 +81,9 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
 
     usv_.Imap.reset(new OctoMap);
     usv_.Imap->onInit();
-    usv_.Imap->setSafeRaduis(3);
+    if (is_sim) {
+        usv_.Imap->setSafeRaduis(8);
+    } else  usv_.Imap->setSafeRaduis(3);
 
     ActionMotionPlan::getInstance()->initNh(nh);
 }
@@ -185,8 +187,8 @@ void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr
     mp_config.is_speed_mode = false;
     mp_config.control_mode = POSITION_WITHOUT_CUR;
     mp_config.is_enable = true;
-    mp_config.max_vel = 1.0;
-    mp_config.max_acc = 1.0;
+    mp_config.max_vel = 2.0;
+    mp_config.max_acc = 2.0;
     mp_config.mp_map = usv_.Imap;
     mp_config.end_pos = goal;
     mp_config.targets.clear();
