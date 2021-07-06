@@ -403,7 +403,6 @@ namespace fast_planner {
             local_data_.position_traj_ = init_traj;
             global_data_.setLocalTraj(init_traj, t_now, local_traj_duration + time_inc + t_now, time_inc);
         } else {
-            local_data_.start_time_ = ros::Time::now();
             double t_search = 0.0, t_opt = 0.0, t_adjust = 0.0;
 
             plan_data_.initial_local_segment_ = init_traj;
@@ -493,6 +492,7 @@ namespace fast_planner {
 
                 // save planned results
 
+                local_data_.start_time_ = ros::Time::now();
                 local_data_.position_traj_ = pos;
 
                 double t_total = t_search + t_opt + t_adjust;
