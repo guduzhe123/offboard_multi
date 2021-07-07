@@ -4,8 +4,8 @@
 #include <Eigen/Eigen>
 #include <motion_plan/plan_env/edt_environment.h>
 #include <ros/ros.h>
-#include "PCL/IMap.hpp"
-#include "PCL/OctoMap.hpp"
+#include "motion_plan/plan_env/IMap.hpp"
+#include "motion_plan/plan_env/OctoMap.hpp"
 #include "Cinc.hpp"
 // Gradient and elasitc band optimization
 

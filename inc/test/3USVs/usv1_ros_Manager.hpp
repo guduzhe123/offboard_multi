@@ -9,8 +9,7 @@
 #include "dataMan.hpp"
 #include "DataMan.hpp"
 #include "PathCreator.hpp"
-#include "PCL/PCLROSMessageManager.hpp"
-#include "PCL/OctoMap.hpp"
+#include "motion_plan/plan_env/OctoMap.hpp"
 
 class usv1_ros_Manager {
 public:
@@ -39,13 +38,14 @@ private:
     void getOctomap();
     void rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr& msg);
     void velocity_cb(const geometry_msgs::TwistStamped::ConstPtr& msg);
+    void octomapCB(const octomap_msgs::Octomap::ConstPtr &msg);
     
     void drone_pos_update(const ros::TimerEvent& e);
     void commander_update(const ros::TimerEvent& e);
     void publishDronePosControl(const ros::TimerEvent& e);
 
     ros::Subscriber state_sub, vfr_hud_sub, local_position_sub, mavlink_from_sub, global_pos_sub, commander_sub, way_point_sub, homePos_sub,
-            way_point_reached_sub, imu_sub, rviz_goal_sub, velocity_local_sub;
+            way_point_reached_sub, imu_sub, rviz_goal_sub, velocity_local_sub, octree_sub_;
     ros::Publisher local_pos_pub, gps_global_pos_pub, global_pos_pub, g_speed_control_pub, dronePosPub,
                     home_pos_pub, marker_target_pub_, heading_vec_, marker_cur_pos_;
     ros::ServiceClient arming_client, set_mode_client;
@@ -76,9 +76,6 @@ private:
     float yaw_cur_;
 
     TVec4 usv1_color_ = TVec4{1, 0.1, 1, 1};
-
-
-    unique_ptr<PCLROSMessageManager> pcl_manager_;
 };
 
 

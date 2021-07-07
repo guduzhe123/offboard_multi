@@ -2,7 +2,7 @@
 // Created by zhouhua on 2021/2/9.
 //
 
-#include "PCL/OctoMap.hpp"
+#include "motion_plan/plan_env/OctoMap.hpp"
 OctoMap::OctoMap() :
         safety_radius_(6) {
 

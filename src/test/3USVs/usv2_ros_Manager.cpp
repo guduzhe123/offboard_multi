@@ -77,9 +77,6 @@ void usv2_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
     commander_timer_ = nh.createTimer(ros::Duration(0.05), &usv2_ros_Manager::commander_update, this);
     publish_timer_ = nh.createTimer(ros::Duration(0.05), &usv2_ros_Manager::publishDronePosControl, this);
 
-    pcl_manager_.reset(new PCLROSMessageManager);
-    pcl_manager_->OnInit(nh);
-
     usv_.Imap.reset(new OctoMap);
     usv_.Imap->onInit();
     usv_.Imap->setSafeRaduis(3);

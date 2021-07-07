@@ -8,7 +8,7 @@
 #include "Cinc.hpp"
 #include <ros/ros.h>
 #include "motion_plan/plan_manage/plan_container.hpp"
-#include "PCL/IMap.hpp"
+#include "motion_plan/plan_env/IMap.hpp"
 
 namespace fast_planner{
     class IPathFinder{

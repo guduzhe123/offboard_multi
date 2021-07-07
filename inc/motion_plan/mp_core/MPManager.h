@@ -10,8 +10,8 @@
 #include "motion_plan/bspline/non_uniform_bspline.h"
 #include "FastPathFinder.h"
 #include "MPPublisher.h"
-#include "PCL/IMap.hpp"
-#include "PCL/OctoMap.hpp"
+#include "motion_plan/plan_env/IMap.hpp"
+#include "motion_plan/plan_env/OctoMap.hpp"
 #include "offboard/Bspline.h"
 
 

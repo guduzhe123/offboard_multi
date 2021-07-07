@@ -10,10 +10,10 @@
 #include <unordered_map>
 // #include "grad_spline/sdf_map.h"
 #include "motion_plan/plan_env/edt_environment.h"
-#include "PCL/OctoMap.hpp"
+#include "motion_plan/plan_env/OctoMap.hpp"
 #include <boost/functional/hash.hpp>
 #include <queue>
-#include "PCL/IMap.hpp"
+#include "motion_plan/plan_env/IMap.hpp"
 #include "motion_plan/mp_core/IPathFinder.h"
 
 namespace fast_planner {

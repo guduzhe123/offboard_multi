@@ -396,6 +396,7 @@ void MPManager::setFormationTarget(const TVec3 &formation_pos_target) {
 }
 
 void MPManager::ProcessState() {
+
     checkEndPos();
     checkCollisionReplan(drone_st_.drone_pos);
     switch (mp_state_) {

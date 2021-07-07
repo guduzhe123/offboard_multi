@@ -39,7 +39,7 @@
 #include <octomap_ros/conversions.h>
 #include <octomap/octomap.h>
 
-#include "PCL/IMap.hpp"
+#include "motion_plan/plan_env/IMap.hpp"
 #include "log/Chlog.hpp"
 using namespace std;
 using namespace chlog;

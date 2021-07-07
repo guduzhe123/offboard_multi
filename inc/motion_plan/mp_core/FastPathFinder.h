@@ -6,7 +6,7 @@
 #include "motion_plan/path_searching/kinodynamic_astar.h"
 #include "motion_plan/plan_env/edt_environment.h"
 #include "motion_plan/plan_manage/plan_container.hpp"
-#include "PCL/OctoMap.hpp"
+#include "motion_plan/plan_env/OctoMap.hpp"
 #include <ros/ros.h>
 #include "IPathFinder.h"
 

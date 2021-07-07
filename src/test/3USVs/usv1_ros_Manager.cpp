@@ -51,6 +51,8 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
             ("/move_base_simple/goal", 10, &usv1_ros_Manager::rvizUsv1GoalCB, this);
     velocity_local_sub = nh.subscribe<geometry_msgs::TwistStamped>
             ("mavros/local_position/velocity_local", 10, &usv1_ros_Manager::velocity_cb, this);
+    octree_sub_ = nh.subscribe<octomap_msgs::Octomap>("pcl/Global_octomap", 10, &usv1_ros_Manager::octomapCB,
+                                                      this);
 
     local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
             ("setpoint_position/local", 100);
@@ -75,9 +77,6 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
     exec_timer_ = nh.createTimer(ros::Duration(0.05), &usv1_ros_Manager::drone_pos_update, this);
     commander_timer_ = nh.createTimer(ros::Duration(0.05), &usv1_ros_Manager::commander_update, this);
     publish_timer_ = nh.createTimer(ros::Duration(0.05), &usv1_ros_Manager::publishDronePosControl, this);
-
-    pcl_manager_.reset(new PCLROSMessageManager);
-    pcl_manager_->OnInit(nh);
 
     usv_.Imap.reset(new OctoMap);
     usv_.Imap->onInit();
@@ -263,7 +262,7 @@ void usv1_ros_Manager::drone_pos_update(const ros::TimerEvent& e) {
             ", dronepos_.m_heading =", dronepos_.m_heading,
             ", yaw_cur_ = ", yaw_cur_);
     DataMan::getInstance()->SetDroneData(usv_);
-    pcl_manager_->setVehicleMessage(usv_);
+//    pcl_manager_->setVehicleMessage(usv_);
     getOctomap();
 }
 
@@ -393,7 +392,7 @@ void usv1_ros_Manager::usvCrash(bool usv1_crash) {
 };
 
 void usv1_ros_Manager::getOctomap() {
-    pcl_manager_->getOctomap(usv_.octomap);
+//    pcl_manager_->getOctomap(usv_.octomap);
     usv_.Imap->updateOctomap(usv_.octomap);
     TVec3 drone_pos = TVec3(usv_.current_local_pos.pose.position.x,
                             usv_.current_local_pos.pose.position.y,
@@ -401,6 +400,12 @@ void usv1_ros_Manager::getOctomap() {
     if (usv_.Imap && !usv_.Imap->isStateValid(drone_pos, false)) {
         chlog::info("data","[USV1]: usv1 is in collision!");
     }
+}
+
+void usv1_ros_Manager::octomapCB(const octomap_msgs::Octomap::ConstPtr &msg) {
+    octomap_msgs::Octomap octomap;
+    octomap = *msg;
+    usv_.Imap->updateOctomap(octomap);
 }
 
 

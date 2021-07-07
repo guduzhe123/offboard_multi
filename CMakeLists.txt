@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4.1)
-set(CMAKE_CUDA_COMPILER "/usr/local/cuda-10.2/bin/nvcc")
+set(CMAKE_CUDA_COMPILER "/usr/local/cuda-10.0/bin/nvcc")
 project(offboard CXX CUDA)
 SET(CMAKE_CXX_STANDARD 14)
 
@@ -189,22 +189,7 @@ add_library(
         src/VehicleControl/MultiUUVControl.cpp
         src/Calculate.cpp
         src/PID.cpp
-        src/action/ActionCircle.cpp
-        src/PCL/PCLROSMessageManager.cpp
-        #[[src/serial/serialConnection.cpp]])
-
-#[[add_executable(multi_offboard  src/main.cpp )
-target_link_libraries(multi_offboard ${catkin_LIBRARIES})
-
-target_link_libraries(multi_offboard
-
-        multi_offboard_lib
-        chlog_lib
-        motion_plan_lib
-        ${OCTOMAP_LIBRARIES}
-        ${LIBFCL_LIBRARIES})
-
-add_dependencies(multi_offboard ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})]]
+        src/action/ActionCircle.cpp)
 
 
 add_executable(USVOffboard src/test/USVOffboard/main.cpp)
@@ -229,8 +214,7 @@ add_library(3usvs_lib
         src/PID.cpp
         src/action/ActionCircle.cpp
         src/action/
-        src/PCL/PCLROSMessageManager.cpp
-        src/FlightManager.cpp src/PCL/OctoMap.cpp)
+        src/FlightManager.cpp src/motion_plan/plan_env/OctoMap.cpp)
 target_link_libraries(3usv 3usvs_lib multi_offboard_lib)
 target_link_libraries(3usv
         ${catkin_LIBRARIES}
@@ -255,7 +239,7 @@ add_library(4uavs_lib
         src/action/ActionCircle.cpp
         src/test/4UAVs/uavs_control.cpp
         src/PathCreator.cpp
-        src/action/ src/PCL/OctoMap.cpp)
+        src/action/ src/motion_plan/plan_env/OctoMap.cpp)
 target_link_libraries(4uav 4uavs_lib multi_offboard_lib chlog_lib motion_plan_lib)
 target_link_libraries(4uavs_lib ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES}
         ${LIBFCL_LIBRARIES})
@@ -283,8 +267,7 @@ add_library(7vehicles_lib
         src/test/4UAVs/uavs_control.cpp
         src/test/7Vehicles/7vechicles_control.cpp
         src/PathCreator.cpp
-        src/PCL/PCLROSMessageManager.cpp
-        src/action/ src/PCL/OctoMap.cpp)
+        src/action/ src/motion_plan/plan_env/OctoMap.cpp)
 target_link_libraries(7vehicles
         7vehicles_lib
         multi_offboard_lib
@@ -298,3 +281,15 @@ TARGET_LINK_LIBRARIES(CompressedToRaw ${OpenCV_LIBS} ${catkin_LIBRARIES} )
 
 add_executable(send_target src/test/3USVs/send_target.cpp)
 TARGET_LINK_LIBRARIES(send_target  ${catkin_LIBRARIES} )
+
+add_executable(pclPoints
+        src/PCL/PCLROSMessageManager.cpp
+        src/Calculate.cpp)
+
+target_link_libraries(pclPoints
+        ${catkin_LIBRARIES}
+        ${OCTOMAP_LIBRARIES}
+        ${LIBFCL_LIBRARIES}
+        chlog_lib
+        )
+add_dependencies(pclPoints ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

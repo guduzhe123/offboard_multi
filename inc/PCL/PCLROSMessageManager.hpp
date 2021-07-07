@@ -22,6 +22,8 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/extract_indices.h>
 
+#include "Calculate.hpp"
+
 class PCLROSMessageManager {
 public:
     PCLROSMessageManager();
@@ -33,13 +35,15 @@ public:
     void setVehicleMessage(const M_Drone& usv);
 
 private:
-    ros::Subscriber lidar_point_sub_;
+    ros::Subscriber lidar_point_sub_, local_position_sub_;
     ros::Publisher octomap_pub_, transformed_cloud_pub_, ground_removal_pub_;
 
     M_Drone usv_;
 
     octomap_msgs::Octomap octomap_;
     octomap::OcTree *tree_ = new octomap::OcTree(0.5);
+
+    bool is_sim_;
 
     void PubOctomap(octomap::OcTree *tree, const ros::Publisher &pub);
     void radiusRemoval(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,
@@ -55,5 +59,6 @@ private:
     Eigen::Isometry3f get_transformation_matrix();
     void PubPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &o_cloud, const ros::Publisher &pub,
                        string frame = "map");
+    void local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg);
 };
 #endif //OFFBOARD_PCLROSMESSAGEMANAGER_HPP

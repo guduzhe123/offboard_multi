@@ -9,13 +9,33 @@ PCLROSMessageManager::PCLROSMessageManager(){
 }
 
 void PCLROSMessageManager::OnInit(ros::NodeHandle &nh) {
-    lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("lslidar_point_cloud", 1,
+/*    lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("/lslidar_point_cloud", 1,
+                                                               &PCLROSMessageManager::cloudHandler, this);*/
+    lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("/velodyne_points", 1,
                                                                &PCLROSMessageManager::cloudHandler, this);
+
+    local_position_sub_ = nh.subscribe<geometry_msgs::PoseStamped>
+            ("mavros/local_position/pose", 20,  &PCLROSMessageManager::local_pos_cb, this);
+
+
     transformed_cloud_pub_ = nh.advertise<sensor_msgs::PointCloud2>("lidar/Transformed_points", 1);
     octomap_pub_ = nh.advertise<octomap_msgs::Octomap>("pcl/Global_octomap", 1);
 
     ground_removal_pub_ = nh.advertise<sensor_msgs::PointCloud2>("ground_removal_lidar", 1);
+    nh.param("is_sim", is_sim_, false);
 
+}
+
+void PCLROSMessageManager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
+    usv_.current_local_pos = *msg;
+    double yaw, roll, pitch;
+//    EulerAngles angles;
+//    yaw = Calculate::getInstance()->quaternion_get_yaw(usv_.current_local_pos.pose.orientation, angles);
+    Calculate::getInstance()->quaternion_to_rpy(usv_.current_local_pos.pose.orientation, roll, pitch, yaw);
+
+    usv_.roll = roll * 180 / M_PI;
+    usv_.pitch = pitch * 180 / M_PI;
+    usv_.yaw = yaw * 180 / M_PI;
 }
 
 void PCLROSMessageManager::setVehicleMessage(const M_Drone& usv) {
@@ -24,6 +44,7 @@ void PCLROSMessageManager::setVehicleMessage(const M_Drone& usv) {
 
 void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr &m) {
     /*ros point cloud to pcl point cloud*/
+    ROS_INFO_STREAM("pcl: [thread=" << boost::this_thread::get_id() << "]");
     pcl::PCLPointCloud2 pcl_pc2;
     pcl_conversions::toPCL(*m, pcl_pc2);
     pcl::PointCloud<pcl::PointXYZ>::Ptr raw_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
@@ -164,8 +185,22 @@ Eigen::Isometry3f PCLROSMessageManager::get_transformation_matrix() {
     Eigen::Vector3f vehicle_pos = TVec3(usv_.current_local_pos.pose.position.x,
                                         usv_.current_local_pos.pose.position.y,
                                         usv_.current_local_pos.pose.position.z + 2); // 2 is the velodyne lidar at the usv z position
+
+    if (!is_sim_) {
+        vehicle_pos.z() = usv_.current_local_pos.pose.position.z;
+    }
     transformation_matrix.pretranslate(vehicle_pos);
     return transformation_matrix;
+}
+
+int main(int argc, char** argv) {
+    ros::init(argc, argv, "pcl_points");
+    PCLROSMessageManager pclM;
+    ros::NodeHandle nh("~");
+    pclM.OnInit(nh);
+
+    ros::spin();
+    return 0;
 }
 
 

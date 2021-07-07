@@ -124,8 +124,8 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
 
     // use odometry and point cloud
 
-    indep_cloud_sub_ =
-            node_.subscribe<sensor_msgs::PointCloud2>("/sdf_map/cloud", 10, &SDFMap::cloudCallback, this);
+/*    indep_cloud_sub_ =
+            node_.subscribe<sensor_msgs::PointCloud2>("/sdf_map/cloud", 10, &SDFMap::cloudCallback, this);*/
     indep_odom_sub_ =
             node_.subscribe<nav_msgs::Odometry>("/sdf_map/odom", 10, &SDFMap::odomCallback, this);
 
@@ -739,8 +739,8 @@ void SDFMap::clearAndInflateLocalMap() {
 }
 
 void SDFMap::visCallback(const ros::TimerEvent& /*event*/) {
-    publishMap();
-    publishMapInflate(false);
+//    publishMap();
+//    publishMapInflate(false);
     // publishUpdateRange();
     // publishESDF();
 
@@ -833,7 +833,7 @@ void SDFMap::odomCallback(const nav_msgs::OdometryConstPtr& odom) {
     md_.has_odom_ = true;
 }
 
-void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
+/*void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
 
     pcl::PointCloud<pcl::PointXYZ> latest_cloud;
     pcl::fromROSMsg(*img, latest_cloud);
@@ -872,14 +872,14 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
         pt = latest_cloud.points[i];
         p3d(0) = pt.x, p3d(1) = pt.y, p3d(2) = pt.z;
 
-        /* point inside update range */
+        *//* point inside update range *//*
         Eigen::Vector3d devi = p3d - md_.camera_pos_;
         Eigen::Vector3i inf_pt;
 
         if (fabs(devi(0)) < mp_.local_update_range_(0) && fabs(devi(1)) < mp_.local_update_range_(1) &&
             fabs(devi(2)) < mp_.local_update_range_(2)) {
 
-            /* inflate the point */
+            *//* inflate the point *//*
             for (int x = -inf_step; x <= inf_step; ++x)
                 for (int y = -inf_step; y <= inf_step; ++y)
                     for (int z = -inf_step_z; z <= inf_step_z; ++z) {
@@ -927,43 +927,6 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
 }
 
 void SDFMap::publishMap() {
-    // pcl::PointXYZ pt;
-    // pcl::PointCloud<pcl::PointXYZ> cloud;
-
-    // Eigen::Vector3i min_cut = md_.local_bound_min_ -
-    //     Eigen::Vector3i(mp_.local_map_margin_, mp_.local_map_margin_, mp_.local_map_margin_);
-    // Eigen::Vector3i max_cut = md_.local_bound_max_ +
-    //     Eigen::Vector3i(mp_.local_map_margin_, mp_.local_map_margin_, mp_.local_map_margin_);
-
-    // boundIndex(min_cut);
-    // boundIndex(max_cut);
-
-    // for (int x = min_cut(0); x <= max_cut(0); ++x)
-    //   for (int y = min_cut(1); y <= max_cut(1); ++y)
-    //     for (int z = min_cut(2); z <= max_cut(2); ++z) {
-
-    //       if (md_.occupancy_buffer_[toAddress(x, y, z)] <= mp_.min_occupancy_log_) continue;
-
-    //       Eigen::Vector3d pos;
-    //       indexToPos(Eigen::Vector3i(x, y, z), pos);
-    //       if (pos(2) > mp_.visualization_truncate_height_) continue;
-
-    //       pt.x = pos(0);
-    //       pt.y = pos(1);
-    //       pt.z = pos(2);
-    //       cloud.points.push_back(pt);
-    //     }
-
-    // cloud.width = cloud.points.size();
-    // cloud.height = 1;
-    // cloud.is_dense = true;
-    // cloud.header.frame_id = mp_.frame_id_;
-
-    // sensor_msgs::PointCloud2 cloud_msg;
-    // pcl::toROSMsg(cloud, cloud_msg);
-    // map_pub_.publish(cloud_msg);
-
-    // ROS_INFO("pub map");
 
     pcl::PointXYZ pt;
     pcl::PointCloud<pcl::PointXYZ> cloud;
@@ -1105,7 +1068,7 @@ void SDFMap::publishDepth() {
     sensor_msgs::PointCloud2 cloud_msg;
     pcl::toROSMsg(cloud, cloud_msg);
     depth_pub_.publish(cloud_msg);
-}
+}*/
 
 void SDFMap::publishUpdateRange() {
     Eigen::Vector3d esdf_min_pos, esdf_max_pos, cube_pos, cube_scale;
