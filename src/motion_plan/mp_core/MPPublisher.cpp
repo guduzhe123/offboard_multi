@@ -8,7 +8,8 @@ MPPublisher::MPPublisher() :
         dist_config_(0),
         drone_update_(false),
         KF_init_(false),
-        traj_pub_time_(0){
+        traj_pub_time_(0),
+        drone_radius_(3){
 
 }
 void MPPublisher::OnInit(ros::NodeHandle &nh) {
@@ -16,7 +17,8 @@ void MPPublisher::OnInit(ros::NodeHandle &nh) {
     cmd_vis_pub_ = nh.advertise<visualization_msgs::Marker>("planning/position_cmd_vis", 10); // mark
     traj_pub_ = nh.advertise<visualization_msgs::Marker>("planning/travel_traj", 10); // mark
     mp_drone_pos_update_pub_ = nh.advertise<nav_msgs::Odometry>("visual_slam/odom", 100);
-    flight_corridor_pub_ = nh.advertise<sensor_msgs::PointCloud2>("tracking/Filter_region", 10);
+    flight_corridor_pub_ = nh.advertise<sensor_msgs::PointCloud2>("tracking/Filter_region", 10);;
+    nh.param("/danger_distance", drone_radius_, 3.0);
 
     visualization_ = makeSp<PlanningVisualization>(nh);
 
@@ -33,7 +35,7 @@ void MPPublisher::updateDroneData(const TVec3 &drone_pos) {
     drone_pos_ = drone_pos;
     drone_update_ = true;
     float resolution;
-    resolution = 16;
+    resolution = 2 * (float)drone_radius_;
     visualization_->drawDroneSpere(drone_pos.cast<double>(), resolution, Eigen::Vector4d(1, 0.1, 0.1, 0.5), 0, 6);
 }
 

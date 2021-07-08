@@ -450,7 +450,7 @@ void MPManager::ProcessState() {
                     ", drone_st_.drone_pos = ", toStr(drone_st_.drone_pos), ", t_cur = ",
                         t_cur, ", global_duration_ = ", global_data->global_duration_);
             chlog::info(log, "[MP Manager]: t0 = ", to_string(t0), ", t1 = ", to_string(t1));
-            chlog::info(log, "(exec_start_pos_ - pos).norm() = ", (exec_start_pos_ - drone_st_.drone_pos).norm());
+            chlog::info(log, "(info->start_pos_ - pos).norm() = ", (info->start_pos_ - pos).norm());
 
             float err_target;
             if (mp_config_.targets.size() > 0) {
@@ -462,7 +462,7 @@ void MPManager::ProcessState() {
                 ChangeExecState(GEN_NEW_TRAJ, "FSM");
                 have_target_ = false;
                 return;
-            }  else if  ((info->start_pos_ - pos).norm() < 4.0
+            }  else if  ((info->start_pos_ - pos).norm() < 3.0
                 /*(exec_start_pos_ - drone_st_.drone_pos).norm() < 3.0*/ /*&& !collide_*/) {
 //                chlog::info(log, "[MP Manager]: close to start pos!");
                 return;

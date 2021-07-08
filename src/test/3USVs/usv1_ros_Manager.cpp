@@ -78,11 +78,12 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
     commander_timer_ = nh.createTimer(ros::Duration(0.05), &usv1_ros_Manager::commander_update, this);
     publish_timer_ = nh.createTimer(ros::Duration(0.05), &usv1_ros_Manager::publishDronePosControl, this);
 
+    double radius;
+    nh.param("/danger_distance", radius, 3.0);
+
     usv_.Imap.reset(new OctoMap);
     usv_.Imap->onInit();
-    if (is_sim) {
-        usv_.Imap->setSafeRaduis(8);
-    } else  usv_.Imap->setSafeRaduis(3);
+    usv_.Imap->setSafeRaduis((float)radius);
 
     ActionMotionPlan::getInstance()->initNh(nh);
 }

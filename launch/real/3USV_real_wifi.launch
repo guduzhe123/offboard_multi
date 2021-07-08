@@ -8,6 +8,8 @@
     <include file="$(find offboard)/launch/rosbag_log.launch"/>
     <include file="$(find offboard)/launch/rviz.launch"/>
     <arg name="formation_distance" default="10" />
+
+    <param name="danger_distance" value="$(arg danger_distance)" type="double"/>
     <node pkg = "offboard" name = "offboard" type="3usv" output="screen">
         <param name="formation_distance" value="$(arg formation_distance)" />
         <param name="is_usv" value="$(arg is_usv)" type="bool"/>

@@ -80,6 +80,7 @@ private:
     bool KF_init_;
     int mp_state_;
     int traj_pub_time_;
+    double drone_radius_;
 
     TVec3 drone_pos_;
     vector<TVec3> wayPoints_;
