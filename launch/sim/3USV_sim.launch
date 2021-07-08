@@ -1,10 +1,11 @@
 <launch>
 <!--    <include file="$(find px4)/launch/mavros_3usvs_sitl.launch"/>-->
 <!--    <include file="$(find px4)/launch/multi_umv_mavros_sitl.launch"/>-->
+    <param name="use_sim_time" value="true"/>
 
     <arg name="formation_distance" value="15" />
     <arg name="point_num" value="6" />
-    <arg name="danger_distance" value="3" />
+    <arg name="danger_distance" value="8" />
     <arg name="is_motion_plan" value="false" />
     <arg name="is_usv" value="true" />
     <arg name="is_uav" value="false" />
@@ -29,4 +30,6 @@
     <node pkg = "offboard" name = "send_target" type="send_target" output="screen"></node>
     <include file="$(find offboard)/launch/rosbag_log.launch"/>
     <include file="$(find offboard)/launch/rviz.launch"/>
+
+    <node pkg="tf" type="static_transform_publisher" name="laser_to_map" args="0 0 0 0 0 0 laser_link map 1000"/>
 </launch>

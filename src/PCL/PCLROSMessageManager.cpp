@@ -9,10 +9,14 @@ PCLROSMessageManager::PCLROSMessageManager(){
 }
 
 void PCLROSMessageManager::OnInit(ros::NodeHandle &nh) {
-/*    lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("/lslidar_point_cloud", 1,
-                                                               &PCLROSMessageManager::cloudHandler, this);*/
-    lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("/velodyne_points", 1,
+    nh.param("is_sim", is_sim_, false);
+    if (is_sim_) {
+        lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("lslidar_point_cloud", 1,
+                                                                  &PCLROSMessageManager::cloudHandler, this);
+    } else {
+        lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("/lslidar_point_cloud", 1,
                                                                &PCLROSMessageManager::cloudHandler, this);
+    }
 
     local_position_sub_ = nh.subscribe<geometry_msgs::PoseStamped>
             ("mavros/local_position/pose", 20,  &PCLROSMessageManager::local_pos_cb, this);
@@ -22,7 +26,6 @@ void PCLROSMessageManager::OnInit(ros::NodeHandle &nh) {
     octomap_pub_ = nh.advertise<octomap_msgs::Octomap>("pcl/Global_octomap", 1);
 
     ground_removal_pub_ = nh.advertise<sensor_msgs::PointCloud2>("ground_removal_lidar", 1);
-    nh.param("is_sim", is_sim_, false);
 
 }
 
@@ -44,7 +47,8 @@ void PCLROSMessageManager::setVehicleMessage(const M_Drone& usv) {
 
 void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr &m) {
     /*ros point cloud to pcl point cloud*/
-    ROS_INFO_STREAM("pcl: [thread=" << boost::this_thread::get_id() << "]");
+//    ROS_INFO_STREAM("pcl: [thread=" << boost::this_thread::get_id() << "]");
+
     pcl::PCLPointCloud2 pcl_pc2;
     pcl_conversions::toPCL(*m, pcl_pc2);
     pcl::PointCloud<pcl::PointXYZ>::Ptr raw_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
@@ -62,9 +66,18 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
 
     /*pcl points filter*/
     pcl::IndicesConstPtr cloud_filtered_indices;
-//    voselGrid(raw_cloud_ptr, raw_cloud_ptr);
-    radiusRemoval(raw_cloud_ptr, simple_cloud_ptr, 0.5, 4, cloud_filtered_indices);
-    groundRemove(raw_cloud_ptr, cloud_ground_remove, cloud_filtered_indices);
+    if (!is_sim_)  voselGrid(raw_cloud_ptr, raw_cloud_ptr);
+
+    voselGride_ptr->points.clear();
+    for (std::size_t i = 0; i < raw_cloud_ptr->size(); i++) {
+        pcl::PointXYZ pnt = raw_cloud_ptr->points[i];
+        TVec3 point = TVec3{pnt.x, pnt.y, pnt.z};
+        if (point.norm() < 3.0f) continue;
+        voselGride_ptr->points.push_back(pnt);
+    }
+
+    radiusRemoval(voselGride_ptr, simple_cloud_ptr, 0.5, 3, cloud_filtered_indices);
+    groundRemove(simple_cloud_ptr, cloud_ground_remove, cloud_filtered_indices);
 
     sensor_msgs::PointCloud2 lidar_ground_removal;
     lidar_ground_removal.header = m->header;
@@ -81,7 +94,6 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
 
     for (std::size_t i = 0; i < transformed_cloud->size(); i++) {
         pcl::PointXYZ pnt = transformed_cloud->points[i];
-        if (pnt.z < -2) continue;
         TVec3 point = TVec3{pnt.x, pnt.y, pnt.z};
         if (point.norm() < 2.0f) continue;
         tree_->updateNode(octomap::point3d(pnt.x, pnt.y, pnt.z), true);
@@ -128,10 +140,10 @@ void PCLROSMessageManager::groundRemove(const pcl::PointCloud<pcl::PointXYZ>::Pt
     seg.setOptimizeCoefficients (true);
     seg.setModelType (pcl::SACMODEL_PLANE);
     seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setMaxIterations (100);
-    seg.setDistanceThreshold (0.5);
+    seg.setMaxIterations (200);
+    seg.setDistanceThreshold (0.01);
     seg.setInputCloud (input_cloud);
-    seg.setIndices(cloud_filtered_indices);
+//    seg.setIndices(cloud_filtered_indices);
 //    seg.setInputNormals (cloud_normals);
     seg.segment (*inliers, *coefficients_plane);
 
@@ -174,8 +186,12 @@ void PCLROSMessageManager::getOctomap(octomap_msgs::Octomap &octomap) {
 Eigen::Isometry3f PCLROSMessageManager::get_transformation_matrix() {
     Eigen::Isometry3f transformation_matrix;
     transformation_matrix = Eigen::Isometry3f::Identity();
-//    Eigen::AngleAxisf gimbal_yaw(((usv_.yaw + 180.0f) * M_PI / 180.0f ), Eigen::Vector3f::UnitZ());
-    Eigen::AngleAxisf gimbal_yaw(((usv_.yaw ) * M_PI / 180.0f ), Eigen::Vector3f::UnitZ());
+    Eigen::AngleAxisf gimbal_yaw;
+    if (!is_sim_) {
+        gimbal_yaw = Eigen::AngleAxisf(((usv_.yaw + 180.0f) * M_PI / 180.0f ), Eigen::Vector3f::UnitZ());
+    } else {
+        gimbal_yaw = Eigen::AngleAxisf(((usv_.yaw ) * M_PI / 180.0f ), Eigen::Vector3f::UnitZ());
+    }
     Eigen::AngleAxisf gimbal_pitch(0 * M_PI / 180.0f, Eigen::Vector3f::UnitY());
     Eigen::AngleAxisf gimbal_roll(0 * M_PI / 180.0f, Eigen::Vector3f::UnitX());
     Eigen::Matrix3f vehicle_world;

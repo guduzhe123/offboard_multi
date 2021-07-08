@@ -45,6 +45,9 @@ private:
 
     bool is_sim_;
 
+    tf::TransformBroadcaster brLidar2Map_;
+    tf::Transform tfLidar2Map_;
+
     void PubOctomap(octomap::OcTree *tree, const ros::Publisher &pub);
     void radiusRemoval(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,
                        const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud,
@@ -60,5 +63,6 @@ private:
     void PubPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &o_cloud, const ros::Publisher &pub,
                        string frame = "map");
     void local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg);
+    void lidarTFTrans();
 };
 #endif //OFFBOARD_PCLROSMESSAGEMANAGER_HPP

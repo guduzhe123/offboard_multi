@@ -4,6 +4,7 @@
     <arg name="is_usv" value="true" />
     <arg name="is_uav" value="false" />
     <arg name="is_sim" value="false" />
+    <arg name="danger_distance" value="3" />
 
     <include file="$(find offboard)/launch/rosbag_log.launch"/>
     <include file="$(find offboard)/launch/rviz.launch"/>
@@ -17,7 +18,13 @@
         <param name="is_sim" value="$(arg is_sim)" type="bool"/>
     </node>
 
+
+    <node pkg = "offboard" name = "usv1" type="pclPoints" output="screen">
+        <param name="is_sim" value="$(arg is_sim)" type="bool"/>
+    </node>
+
     <include file="$(find offboard)/launch/kino_replan.launch"/>
     <node pkg = "offboard" name = "send_target" type="send_target" output="screen"></node>
+    <node pkg="tf" type="static_transform_publisher" name="laser_to_map" args="0 0 0 0 0 0 laser_link map 1000"/>
 </launch>
 <!--roslaunch usb_cam usb_cam-test.launch -->
