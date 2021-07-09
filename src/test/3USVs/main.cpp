@@ -54,6 +54,11 @@ int main(int argc, char **argv)
         ros::spinOnce();
         rate.sleep();
     }
+
+
+        // ros::MultiThreadedSpinner spinner(3);
+        // spinner.spin();
+
     return 0;
 
 }

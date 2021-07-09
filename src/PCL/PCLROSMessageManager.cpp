@@ -13,6 +13,8 @@ void PCLROSMessageManager::OnInit(ros::NodeHandle &nh) {
     if (is_sim_) {
         lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("lslidar_point_cloud", 1,
                                                                   &PCLROSMessageManager::cloudHandler, this);
+        // lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("/velodyne_points", 1,
+        //                                                           &PCLROSMessageManager::cloudHandler, this);
     } else {
         lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("/lslidar_point_cloud", 1,
                                                                &PCLROSMessageManager::cloudHandler, this);
@@ -47,7 +49,7 @@ void PCLROSMessageManager::setVehicleMessage(const M_Drone& usv) {
 
 void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr &m) {
     /*ros point cloud to pcl point cloud*/
-//    ROS_INFO_STREAM("pcl: [thread=" << boost::this_thread::get_id() << "]");
+   ROS_INFO_STREAM("pcl: [thread=" << boost::this_thread::get_id() << "]");
 
     pcl::PCLPointCloud2 pcl_pc2;
     pcl_conversions::toPCL(*m, pcl_pc2);
@@ -140,8 +142,8 @@ void PCLROSMessageManager::groundRemove(const pcl::PointCloud<pcl::PointXYZ>::Pt
     seg.setOptimizeCoefficients (true);
     seg.setModelType (pcl::SACMODEL_PLANE);
     seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setMaxIterations (200);
-    seg.setDistanceThreshold (0.01);
+    seg.setMaxIterations (100);
+    seg.setDistanceThreshold (0.5);
     seg.setInputCloud (input_cloud);
 //    seg.setIndices(cloud_filtered_indices);
 //    seg.setInputNormals (cloud_normals);
@@ -215,7 +217,8 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh("~");
     pclM.OnInit(nh);
 
-    ros::spin();
+    ros::MultiThreadedSpinner spinner(3);
+    spinner.spin();
     return 0;
 }
 
