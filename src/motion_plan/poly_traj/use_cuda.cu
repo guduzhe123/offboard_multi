@@ -33,6 +33,8 @@ void UseCuda::onInit() {
         assert((x) == CUBLAS_STATUS_SUCCESS && "cublas failed");
     CUSOLVER_ERRCHK(cusolverDnCreate(&cusolverH));
     CUBLAS_ERRCHK(cublasCreate(&cublasH));
+    cusolverDnDestroy(cusolverH);
+    cublasDestroy(cublasH);
 }
 
 void UseCuda::calMatrixInverse(const Eigen::MatrixXd &A, Eigen::MatrixXd &x_sol, float &use_time) {
@@ -191,6 +193,9 @@ void UseCuda::calMatrixInverse(const Eigen::MatrixXd &A, Eigen::MatrixXd &x_sol,
     CHECK(cudaEventSynchronize(stop1));
     CHECK(cudaEventElapsedTime(&elapsed_time, start1, stop1));
     use_time = elapsed_time;
+    CHECK(cudaEventDestroy(start1));
+    CHECK(cudaEventDestroy(stop1));
+
 
     CHECK(cudaFree(d_A));
     CHECK(cudaFree(d_b));
@@ -200,6 +205,9 @@ void UseCuda::calMatrixInverse(const Eigen::MatrixXd &A, Eigen::MatrixXd &x_sol,
     CHECK(cudaFree(d_b_));
     CHECK(cudaFree(d_work));
     CHECK(cudaFree(d_work2));
+
+    cusolverDnDestroy(cusolverH);
+    cublasDestroy(cublasH);
     printf("Time2 = %g ms.\n", elapsed_time);
 
 }
@@ -278,6 +286,8 @@ void UseCuda::calMatrixDgemm(const Eigen::MatrixXd &matrix_A, const Eigen::Matri
     CHECK(cudaEventSynchronize(stop1));
     CHECK(cudaEventElapsedTime(&elapsed_time, start1, stop1));
     time = elapsed_time;
+    CHECK(cudaEventDestroy(start1));
+    CHECK(cudaEventDestroy(stop1));
 }
 
 void print_matrix(int R, int C, double* A, const char* name)

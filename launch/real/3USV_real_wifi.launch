@@ -4,13 +4,15 @@
     <arg name="is_usv" value="true" />
     <arg name="is_uav" value="false" />
     <arg name="is_sim" value="false" />
-    <arg name="danger_distance" value="3" />
+    <arg name="danger_distance" value="3.5" />
+    <arg name="speed_max" value="1.0" />
 
     <include file="$(find offboard)/launch/rosbag_log.launch"/>
     <include file="$(find offboard)/launch/rviz.launch"/>
     <arg name="formation_distance" default="10" />
 
     <param name="danger_distance" value="$(arg danger_distance)" type="double"/>
+    <param name="speed_max" value="$(arg speed_max)" type="double"/>
     <node pkg = "offboard" name = "offboard" type="3usv" output="screen">
         <param name="formation_distance" value="$(arg formation_distance)" />
         <param name="is_usv" value="$(arg is_usv)" type="bool"/>

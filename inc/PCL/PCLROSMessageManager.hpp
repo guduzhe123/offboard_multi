@@ -44,6 +44,7 @@ private:
     octomap::OcTree *tree_ = new octomap::OcTree(0.5);
 
     bool is_sim_;
+    double danger_distance_;
 
     tf::TransformBroadcaster brLidar2Map_;
     tf::Transform tfLidar2Map_;

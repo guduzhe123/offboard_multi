@@ -10,6 +10,7 @@ PCLROSMessageManager::PCLROSMessageManager(){
 
 void PCLROSMessageManager::OnInit(ros::NodeHandle &nh) {
     nh.param("is_sim", is_sim_, false);
+    nh.param("/danger_distance", danger_distance_, 3.0);
     if (is_sim_) {
         lidar_point_sub_ = nh.subscribe<sensor_msgs::PointCloud2>("lslidar_point_cloud", 1,
                                                                   &PCLROSMessageManager::cloudHandler, this);
@@ -49,7 +50,7 @@ void PCLROSMessageManager::setVehicleMessage(const M_Drone& usv) {
 
 void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr &m) {
     /*ros point cloud to pcl point cloud*/
-   ROS_INFO_STREAM("pcl: [thread=" << boost::this_thread::get_id() << "]");
+//   ROS_INFO_STREAM("pcl: [thread=" << boost::this_thread::get_id() << "]");
 
     pcl::PCLPointCloud2 pcl_pc2;
     pcl_conversions::toPCL(*m, pcl_pc2);
@@ -74,7 +75,7 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
     for (std::size_t i = 0; i < raw_cloud_ptr->size(); i++) {
         pcl::PointXYZ pnt = raw_cloud_ptr->points[i];
         TVec3 point = TVec3{pnt.x, pnt.y, pnt.z};
-        if (point.norm() < 3.0f) continue;
+        if (point.norm() < 3) continue;
         voselGride_ptr->points.push_back(pnt);
     }
 
@@ -96,8 +97,6 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
 
     for (std::size_t i = 0; i < transformed_cloud->size(); i++) {
         pcl::PointXYZ pnt = transformed_cloud->points[i];
-        TVec3 point = TVec3{pnt.x, pnt.y, pnt.z};
-        if (point.norm() < 2.0f) continue;
         tree_->updateNode(octomap::point3d(pnt.x, pnt.y, pnt.z), true);
     }
     tree_->updateInnerOccupancy();
