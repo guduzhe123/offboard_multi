@@ -177,11 +177,10 @@ void usv1_ros_Manager::debug_value_cb(const mavros_msgs::DebugValue::ConstPtr& m
 }
 
 void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
-    TVec3 goal;
-    goal.x() = msg->pose.position.x;
-    goal.y() = msg->pose.position.y;
-    goal.z() = msg->pose.position.z;
-    chlog::info("data", "received rviz goal ", toStr(goal));
+    goal_.x() = msg->pose.position.x;
+    goal_.y() = msg->pose.position.y;
+    goal_.z() = msg->pose.position.z;
+    chlog::info("data", "received rviz goal ", toStr(goal_));
 
     MP_Config mp_config;
     mp_config.is_track_point = true;
@@ -191,10 +190,9 @@ void usv1_ros_Manager::rvizUsv1GoalCB(const geometry_msgs::PoseStamped::ConstPtr
     mp_config.max_vel = speed_max_;
     mp_config.max_acc =  speed_max_;
     mp_config.mp_map = usv_.Imap;
-    mp_config.end_pos = goal;
+    mp_config.end_pos = goal_;
     mp_config.targets.clear();
-    TVec3 center{dronepos_.m_x, goal.y(), 0};
-    mp_config.targets.push_back(goal);
+    mp_config.targets.push_back(goal_);
 
 //    mp_config.formation_type = config_;
     mp_config.formation_type = VF_USV_INVERSION_TRIANGLE;
@@ -272,13 +270,27 @@ void usv1_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
     if (is_speed_ctrl_) {
         g_speed_control_pub.publish(vel_ctrl_sp_);
     } else {
-        local_pos_pub.publish(target_local_pos_sp_);
 
         geometry_msgs::Point p;
         p.x = target_local_pos_sp_.pose.position.x;
         p.y = target_local_pos_sp_.pose.position.y;
         p.z = target_local_pos_sp_.pose.position.z;
         chlog::info("data","[USV1]: draw usv1 target pos = %.2f, %.2f, %.2f", p.x, p.y, p.z);
+
+        TVec3 target_pos(p.x, p.y, 0);
+        TVec3 cur_pos(usv_.current_local_pos.pose.position.x, usv_.current_local_pos.pose.position.y,0);
+        TVec3 target_vec = cur_pos - target_pos;
+        TVec3 usv1_cur_goal = (cur_pos - goal_).normalized();
+        TVec3 usv1_cur_target = target_vec.normalized();
+        float ang = acos(usv1_cur_goal.dot(usv1_cur_target));
+
+        if (ang * 180 / M_PI < 90) {
+            local_pos_pub.publish(target_local_pos_sp_);
+        } else {
+            local_pos_pub.publish(usv_.current_local_pos);
+            chlog::info("data", "usv1 disable the target, ang = %.2f, usv2 crash = %d", ang * 180 / M_PI,
+                        usv_crash_);
+        }
         poublisMarker(p, usv1_color_, marker_target_pub_);
     }
 }

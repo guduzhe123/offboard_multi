@@ -46,8 +46,10 @@ private:
     bool is_sim_;
     double danger_distance_;
 
-    tf::TransformBroadcaster brLidar2Map_;
-    tf::Transform tfLidar2Map_;
+    tf::TransformBroadcaster brbody2Map_;
+    tf::TransformBroadcaster brCamera2Map_;
+    tf::Transform tfbody2Map_;
+    tf::Transform tfCamera2Map_;
 
     void PubOctomap(octomap::OcTree *tree, const ros::Publisher &pub);
     void radiusRemoval(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,

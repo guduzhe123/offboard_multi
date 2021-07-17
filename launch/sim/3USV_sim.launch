@@ -15,7 +15,7 @@
     <include file="$(find offboard)/launch/kino_replan.launch"/>
 
     <param name="danger_distance" value="$(arg danger_distance)" type="double"/>
-    <param name="speed_max" value="$(arg speed_max)" type="float"/>
+    <param name="speed_max" value="$(arg speed_max)" type="double"/>
     <node pkg = "offboard" name = "offboard" type="3usv" output="screen">
         <param name="formation_distance" value="$(arg formation_distance)" />
         <param name="waypoint_num" value="$(arg point_num)" type="int"/>

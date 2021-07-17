@@ -75,6 +75,7 @@ private:
     float target_heading_;
     float yaw_cur_;
     double speed_max_;
+    TVec3 goal_;
 
     TVec4 usv1_color_ = TVec4{1, 0.1, 1, 1};
 };

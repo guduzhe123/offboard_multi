@@ -30,6 +30,8 @@ void PCLROSMessageManager::OnInit(ros::NodeHandle &nh) {
 
     ground_removal_pub_ = nh.advertise<sensor_msgs::PointCloud2>("ground_removal_lidar", 1);
 
+    tfCamera2Map_.setRotation(tf::createQuaternionFromRPY(0,0,0));
+    tfCamera2Map_.setOrigin(tf::Vector3(0,0,0));
 }
 
 void PCLROSMessageManager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
@@ -42,6 +44,12 @@ void PCLROSMessageManager::local_pos_cb(const geometry_msgs::PoseStamped::ConstP
     usv_.roll = roll * 180 / M_PI;
     usv_.pitch = pitch * 180 / M_PI;
     usv_.yaw = yaw * 180 / M_PI;
+
+    tfbody2Map_.setRotation(tf::createQuaternionFromRPY(roll, pitch, yaw));
+    tfbody2Map_.setOrigin(tf::Vector3(usv_.current_local_pos.pose.position.x, usv_.current_local_pos.pose.position.y,
+                                      usv_.current_local_pos.pose.position.z));
+    brbody2Map_.sendTransform(tf::StampedTransform(tfbody2Map_, ros::Time::now(), "/map", "/base_link"));
+    brCamera2Map_.sendTransform(tf::StampedTransform(tfCamera2Map_, ros::Time::now(), "/map", "camera_init"));
 }
 
 void PCLROSMessageManager::setVehicleMessage(const M_Drone& usv) {
@@ -75,10 +83,12 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
     for (std::size_t i = 0; i < raw_cloud_ptr->size(); i++) {
         pcl::PointXYZ pnt = raw_cloud_ptr->points[i];
         TVec3 point = TVec3{pnt.x, pnt.y, pnt.z};
-        if (point.norm() < 3) continue;
+        if (pnt.z < -0.2) continue;
+        if (point.norm() < 1.0) continue;
         voselGride_ptr->points.push_back(pnt);
     }
 
+    if (is_sim_) voselGride_ptr = raw_cloud_ptr;
     radiusRemoval(voselGride_ptr, simple_cloud_ptr, 0.5, 3, cloud_filtered_indices);
     groundRemove(simple_cloud_ptr, cloud_ground_remove, cloud_filtered_indices);
 
@@ -204,7 +214,7 @@ Eigen::Isometry3f PCLROSMessageManager::get_transformation_matrix() {
                                         usv_.current_local_pos.pose.position.z + 2); // 2 is the velodyne lidar at the usv z position
 
     if (!is_sim_) {
-        vehicle_pos.z() = usv_.current_local_pos.pose.position.z;
+        vehicle_pos.z() = 0;
     }
     transformation_matrix.pretranslate(vehicle_pos);
     return transformation_matrix;
