@@ -381,6 +381,11 @@ void MPManager::checkCollisionReplan(TVec3& cur_pos) {
 void MPManager::checkEndPos() {
     if (mp_config_.targets.empty()) return;
     vector<TVec3> targets = mp_config_.targets;
+    chlog::info(mp_config_.log_path, "targets size = ", targets.size());
+    for (auto target : targets) {
+        chlog::info(mp_config_.log_path, "target = ", toStr(target));
+    }
+    
     reverse(targets.begin(), targets.end());
     if ((drone_st_.drone_pos - mp_config_.end_pos).norm() < 2.0) { // reach the end pos
         targets.pop_back();

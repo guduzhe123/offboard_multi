@@ -84,7 +84,7 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
 
     usv_.Imap.reset(new OctoMap);
     usv_.Imap->onInit();
-    usv_.Imap->setSafeRaduis((float)radius);
+    usv_.Imap->setSafeRaduis((float)radius + 1);
 
     ActionMotionPlan::getInstance()->initNh(nh);
 }
@@ -291,6 +291,8 @@ void usv1_ros_Manager::publishDronePosControl(const ros::TimerEvent& e) {
             chlog::info("data", "usv1 disable the target, ang = %.2f, usv2 crash = %d", ang * 180 / M_PI,
                         usv_crash_);
         }
+
+//        local_pos_pub.publish(target_local_pos_sp_);
         poublisMarker(p, usv1_color_, marker_target_pub_);
     }
 }

@@ -4,7 +4,7 @@
     <arg name="is_usv" value="true" />
     <arg name="is_uav" value="false" />
     <arg name="is_sim" value="false" />
-    <arg name="danger_distance" value="3.5" />
+    <arg name="danger_distance" value="4.0" />
     <arg name="speed_max" value="1.0" />
 
     <include file="$(find offboard)/launch/rosbag_log.launch"/>

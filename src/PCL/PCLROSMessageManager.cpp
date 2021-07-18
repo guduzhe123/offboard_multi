@@ -83,8 +83,8 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
     for (std::size_t i = 0; i < raw_cloud_ptr->size(); i++) {
         pcl::PointXYZ pnt = raw_cloud_ptr->points[i];
         TVec3 point = TVec3{pnt.x, pnt.y, pnt.z};
-        if (pnt.z < -0.2) continue;
-        if (point.norm() < 1.0) continue;
+//        if (pnt.z < -0.5) continue;
+        if (point.norm() < danger_distance_) continue;
         voselGride_ptr->points.push_back(pnt);
     }
 
@@ -214,7 +214,7 @@ Eigen::Isometry3f PCLROSMessageManager::get_transformation_matrix() {
                                         usv_.current_local_pos.pose.position.z + 2); // 2 is the velodyne lidar at the usv z position
 
     if (!is_sim_) {
-        vehicle_pos.z() = 0;
+        vehicle_pos.z() = usv_.current_local_pos.pose.position.z;
     }
     transformation_matrix.pretranslate(vehicle_pos);
     return transformation_matrix;
