@@ -30,8 +30,12 @@ void PCLROSMessageManager::OnInit(ros::NodeHandle &nh) {
 
     ground_removal_pub_ = nh.advertise<sensor_msgs::PointCloud2>("ground_removal_lidar", 1);
 
-    tfCamera2Map_.setRotation(tf::createQuaternionFromRPY(0,0,0));
-    tfCamera2Map_.setOrigin(tf::Vector3(0,0,0));
+    fullCloud_.reset(new pcl::PointCloud<pcl::PointXYZ>());
+    groundCloud_.reset(new pcl::PointCloud<pcl::PointXYZ>());
+    fullCloud_->points.resize(N_SCAN*Horizon_SCAN);
+    groundCloud_->points.resize(N_SCAN*Horizon_SCAN);
+
+    groundMat = cv::Mat(N_SCAN, Horizon_SCAN, CV_8S, cv::Scalar::all(0));
 }
 
 void PCLROSMessageManager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
@@ -40,16 +44,6 @@ void PCLROSMessageManager::local_pos_cb(const geometry_msgs::PoseStamped::ConstP
 //    EulerAngles angles;
 //    yaw = Calculate::getInstance()->quaternion_get_yaw(usv_.current_local_pos.pose.orientation, angles);
     Calculate::getInstance()->quaternion_to_rpy(usv_.current_local_pos.pose.orientation, roll, pitch, yaw);
-
-    usv_.roll = roll * 180 / M_PI;
-    usv_.pitch = pitch * 180 / M_PI;
-    usv_.yaw = yaw * 180 / M_PI;
-
-    tfbody2Map_.setRotation(tf::createQuaternionFromRPY(roll, pitch, yaw));
-    tfbody2Map_.setOrigin(tf::Vector3(usv_.current_local_pos.pose.position.x, usv_.current_local_pos.pose.position.y,
-                                      usv_.current_local_pos.pose.position.z));
-    brbody2Map_.sendTransform(tf::StampedTransform(tfbody2Map_, ros::Time::now(), "/map", "/base_link"));
-    brCamera2Map_.sendTransform(tf::StampedTransform(tfCamera2Map_, ros::Time::now(), "/map", "camera_init"));
 }
 
 void PCLROSMessageManager::setVehicleMessage(const M_Drone& usv) {
@@ -87,6 +81,9 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
         if (point.norm() < danger_distance_) continue;
         voselGride_ptr->points.push_back(pnt);
     }
+
+/*    projectPointCloud(raw_cloud_ptr);
+    checkGround(voselGride_ptr);*/
 
     if (is_sim_) voselGride_ptr = raw_cloud_ptr;
     radiusRemoval(voselGride_ptr, simple_cloud_ptr, 0.5, 3, cloud_filtered_indices);
@@ -139,6 +136,95 @@ void PCLROSMessageManager::radiusRemoval(const pcl::PointCloud<pcl::PointXYZ>::P
     // apply filter
     outrem.filter(*output_cloud);
     cloud_filtered_indices = outrem.getIndices();
+}
+
+void PCLROSMessageManager::projectPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud) {
+    // range image projection
+    float verticalAngle, horizonAngle, range;
+    size_t rowIdn, columnIdn, index, cloudSize;
+    pcl::PointXYZ thisPoint;
+
+    cloudSize = input_cloud->points.size();
+
+    for (size_t i = 0; i < cloudSize; ++i){
+
+        thisPoint.x = input_cloud->points[i].x;
+        thisPoint.y = input_cloud->points[i].y;
+        thisPoint.z = input_cloud->points[i].z;
+        // find the row and column index in the iamge for this point
+        verticalAngle = atan2(thisPoint.z, sqrt(thisPoint.x * thisPoint.x + thisPoint.y * thisPoint.y)) * 180 / M_PI;
+        rowIdn = (verticalAngle + ang_bottom) / ang_res_y;
+
+        // 计算是否在雷达垂直线数范围外
+        if (rowIdn < 0 || rowIdn >= N_SCAN)
+            continue;
+
+        horizonAngle = atan2(thisPoint.x, thisPoint.y) * 180 / M_PI;
+
+        columnIdn = -round((horizonAngle-90.0)/ang_res_x) + Horizon_SCAN/2;
+        if (columnIdn >= Horizon_SCAN)
+            columnIdn -= Horizon_SCAN;
+
+        // 计算是否在水平分辨率外
+        if (columnIdn < 0 || columnIdn >= Horizon_SCAN)
+            continue;
+
+        range = sqrt(thisPoint.x * thisPoint.x + thisPoint.y * thisPoint.y + thisPoint.z * thisPoint.z);
+        if (range < sensorMinimumRange)
+            continue;
+
+//        rangeMat.at<float>(rowIdn, columnIdn) = range;
+
+//        thisPoint.intensity = (float)rowIdn + (float)columnIdn / 10000.0;
+
+        index = columnIdn  + rowIdn * Horizon_SCAN;
+        fullCloud_->points[index] = thisPoint;
+    }
+}
+
+bool PCLROSMessageManager::checkGround(const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud) {
+    size_t lowerInd, upperInd;
+    float diffX, diffY, diffZ, angle;
+    // groundMat
+    // -1, no valid info to check if ground of not
+    //  0, initial value, after validation, means not ground
+    //  1, ground
+    for (size_t j = 0; j < Horizon_SCAN; ++j){
+        for (size_t i = 0; i < groundScanInd; ++i){
+
+            lowerInd = j + ( i )*Horizon_SCAN;
+            upperInd = j + (i+1)*Horizon_SCAN;
+
+            diffX = fullCloud_->points[upperInd].x - fullCloud_->points[lowerInd].x;
+            diffY = fullCloud_->points[upperInd].y - fullCloud_->points[lowerInd].y;
+            diffZ = fullCloud_->points[upperInd].z - fullCloud_->points[lowerInd].z;
+
+            angle = atan2(diffZ, sqrt(diffX*diffX + diffY*diffY) ) * 180 / M_PI;
+
+            if (abs(angle - sensorMountAngle) <= 10){
+                groundMat.at<int8_t>(i,j) = 1;
+                groundMat.at<int8_t>(i+1,j) = 1;
+            }
+        }
+    }
+    // extract ground cloud (groundMat == 1)
+    // mark entry that doesn't need to label (ground and invalid point) for segmentation
+    // note that ground remove is from 0~N_SCAN-1, need rangeMat for mark label matrix for the 16th scan
+    for (size_t i = 0; i < N_SCAN; ++i){
+        for (size_t j = 0; j < Horizon_SCAN; ++j){
+            if (groundMat.at<int8_t>(i,j) == 1 /*|| rangeMat.at<float>(i,j) == FLT_MAX*/){
+                continue;
+            }
+            output_cloud->points.push_back(fullCloud_->points[j + i*Horizon_SCAN]);
+        }
+    }
+
+    for (size_t i = 0; i <= groundScanInd; ++i){
+        for (size_t j = 0; j < Horizon_SCAN; ++j){
+            if (groundMat.at<int8_t>(i,j) == 1)
+                groundCloud_->push_back(fullCloud_->points[j + i*Horizon_SCAN]);
+        }
+    }
 }
 
 void PCLROSMessageManager::groundRemove(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,

@@ -21,8 +21,34 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/extract_indices.h>
+#include <pcl/point_types.h>
+#include <opencv/cv.h>
 
 #include "Calculate.hpp"
+
+// VLP-16
+// extern const int N_SCAN = 16;
+// extern const int Horizon_SCAN = 1800;
+// extern const float ang_res_x = 0.2;
+// extern const float ang_res_y = 2.0;
+// extern const float ang_bottom = 15.0+0.1;
+// extern const int groundScanInd = 7;
+
+// HDL-32E
+extern const int N_SCAN = 32;
+extern const int Horizon_SCAN = 1800;
+extern const float ang_res_x = 360.0/float(Horizon_SCAN);
+extern const float ang_res_y = 41.33/float(N_SCAN-1);
+extern const float ang_bottom = 30.67;
+extern const int groundScanInd = 20;
+
+extern const float sensorMinimumRange = 1.0;
+extern const float sensorMountAngle = 0.0;
+extern const float segmentTheta = 60.0/180.0*M_PI; // decrese this value may improve accuracy
+extern const int segmentValidPointNum = 5;
+extern const int segmentValidLineNum = 3;
+extern const float segmentAlphaX = ang_res_x / 180.0 * M_PI;
+extern const float segmentAlphaY = ang_res_y / 180.0 * M_PI;
 
 class PCLROSMessageManager {
 public:
@@ -46,10 +72,11 @@ private:
     bool is_sim_;
     double danger_distance_;
 
-    tf::TransformBroadcaster brbody2Map_;
-    tf::TransformBroadcaster brCamera2Map_;
-    tf::Transform tfbody2Map_;
-    tf::Transform tfCamera2Map_;
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr fullCloud_; // projected velodyne raw cloud, but saved in the form of 1-D matrix
+    cv::Mat groundMat; // ground matrix for ground cloud marking
+    pcl::PointCloud<pcl::PointXYZ>::Ptr groundCloud_;
+
 
     void PubOctomap(octomap::OcTree *tree, const ros::Publisher &pub);
     void radiusRemoval(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,
@@ -66,6 +93,8 @@ private:
     void PubPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &o_cloud, const ros::Publisher &pub,
                        string frame = "map");
     void local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg);
-    void lidarTFTrans();
+
+    void projectPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud);
+    bool checkGround(const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud);
 };
 #endif //OFFBOARD_PCLROSMESSAGEMANAGER_HPP
