@@ -29,13 +29,27 @@ void PCLROSMessageManager::OnInit(ros::NodeHandle &nh) {
     octomap_pub_ = nh.advertise<octomap_msgs::Octomap>("pcl/Global_octomap", 1);
 
     ground_removal_pub_ = nh.advertise<sensor_msgs::PointCloud2>("ground_removal_lidar", 1);
+    nanPoint.x = std::numeric_limits<float>::quiet_NaN();
+    nanPoint.y = std::numeric_limits<float>::quiet_NaN();
+    nanPoint.z = std::numeric_limits<float>::quiet_NaN();
+    allocateMemory();
+    resetParameters();
+}
 
-    fullCloud_.reset(new pcl::PointCloud<pcl::PointXYZ>());
-    groundCloud_.reset(new pcl::PointCloud<pcl::PointXYZ>());
+void PCLROSMessageManager::allocateMemory() {
+    fullCloud_.reset(new pcl::PointCloud<PointType>());
+    groundCloud_.reset(new pcl::PointCloud<PointType>());
     fullCloud_->points.resize(N_SCAN*Horizon_SCAN);
     groundCloud_->points.resize(N_SCAN*Horizon_SCAN);
+    cout << "init111 fullCloud_ size = " << fullCloud_->points.size() << endl;
+}
 
+void PCLROSMessageManager::resetParameters() {
+    fullCloud_->clear();
+    groundCloud_->clear();
     groundMat = cv::Mat(N_SCAN, Horizon_SCAN, CV_8S, cv::Scalar::all(0));
+    fullCloud_->points.resize(N_SCAN*Horizon_SCAN);
+    std::fill(fullCloud_->points.begin(), fullCloud_->points.end(), nanPoint);
 }
 
 void PCLROSMessageManager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg) {
@@ -54,15 +68,13 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
     /*ros point cloud to pcl point cloud*/
 //   ROS_INFO_STREAM("pcl: [thread=" << boost::this_thread::get_id() << "]");
 
-    pcl::PCLPointCloud2 pcl_pc2;
-    pcl_conversions::toPCL(*m, pcl_pc2);
+    resetParameters();
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr raw_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr voselGride_ptr(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr simple_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ground_remove (new pcl::PointCloud<pcl::PointXYZ>);
-//    pcl::fromPCLPointCloud2(pcl_pc2, *raw_cloud_ptr);
-
     pcl::fromROSMsg(*m, *raw_cloud_ptr);
 
     // Remove Nan points
@@ -74,26 +86,23 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
     if (!is_sim_)  voselGrid(raw_cloud_ptr, raw_cloud_ptr);
 
     voselGride_ptr->points.clear();
-    for (std::size_t i = 0; i < raw_cloud_ptr->size(); i++) {
-        pcl::PointXYZ pnt = raw_cloud_ptr->points[i];
-        TVec3 point = TVec3{pnt.x, pnt.y, pnt.z};
-//        if (pnt.z < -0.5) continue;
-        if (point.norm() < danger_distance_) continue;
-        voselGride_ptr->points.push_back(pnt);
+    if (0) {
+        for (std::size_t i = 0; i < raw_cloud_ptr->size(); i++) {
+            pcl::PointXYZ pnt = raw_cloud_ptr->points[i];
+            TVec3 point = TVec3{pnt.x, pnt.y, pnt.z};
+    //        if (pnt.z < -0.2) continue;
+            if (point.norm() < 1) continue;
+            voselGride_ptr->points.push_back(pnt);
+        }
+    } else {
+        projectPointCloud(raw_cloud_ptr);
+        checkGround(voselGride_ptr);
     }
 
-/*    projectPointCloud(raw_cloud_ptr);
-    checkGround(voselGride_ptr);*/
-
+    cout << "voselGride_ptr size = " << voselGride_ptr->size() << endl;
     if (is_sim_) voselGride_ptr = raw_cloud_ptr;
     radiusRemoval(voselGride_ptr, simple_cloud_ptr, 0.5, 3, cloud_filtered_indices);
     groundRemove(simple_cloud_ptr, cloud_ground_remove, cloud_filtered_indices);
-
-    sensor_msgs::PointCloud2 lidar_ground_removal;
-    lidar_ground_removal.header = m->header;
-    pcl::toROSMsg(*cloud_ground_remove, lidar_ground_removal);
-    ground_removal_pub_.publish(lidar_ground_removal);
-
     /*transform point cloud*/
     pcl::transformPointCloud(*cloud_ground_remove, *transformed_cloud, get_transformation_matrix().matrix());
 
@@ -108,6 +117,7 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
     }
     tree_->updateInnerOccupancy();
     PubOctomap(tree_, octomap_pub_);
+
 }
 
 
@@ -116,9 +126,9 @@ void PCLROSMessageManager::voselGrid(const pcl::PointCloud<pcl::PointXYZ>::Ptr &
     if (input_cloud->empty()) return;
     pcl::VoxelGrid<pcl::PointXYZ> sor;
     sor.setInputCloud (input_cloud);
-    sor.setLeafSize (0.2f, 0.2f, 0.2f);
+    sor.setLeafSize (0.1f, 0.1f, 0.1f);
     sor.filter (*output_cloud);
-    chlog::info("data", "voxel input cloud size = ", input_cloud->size(),
+    chlog::info("pcl", "voxel input cloud size = ", input_cloud->size(),
             ", output size = ", output_cloud->size());
 }
 
@@ -134,6 +144,11 @@ void PCLROSMessageManager::radiusRemoval(const pcl::PointCloud<pcl::PointXYZ>::P
     outrem.setMinNeighborsInRadius(min_neighbors);
     //outrem.setKeepOrganized(true);
     // apply filter
+    if (output_cloud->is_dense) {
+        output_cloud->is_dense = false;
+        std::vector<int> indices;
+        pcl::removeNaNFromPointCloud(*output_cloud,*output_cloud, indices);
+    }
     outrem.filter(*output_cloud);
     cloud_filtered_indices = outrem.getIndices();
 }
@@ -142,9 +157,10 @@ void PCLROSMessageManager::projectPointCloud(const pcl::PointCloud<pcl::PointXYZ
     // range image projection
     float verticalAngle, horizonAngle, range;
     size_t rowIdn, columnIdn, index, cloudSize;
-    pcl::PointXYZ thisPoint;
+    PointType thisPoint;
 
     cloudSize = input_cloud->points.size();
+    cout << "input size = " << cloudSize << endl;
 
     for (size_t i = 0; i < cloudSize; ++i){
 
@@ -173,10 +189,6 @@ void PCLROSMessageManager::projectPointCloud(const pcl::PointCloud<pcl::PointXYZ
         if (range < sensorMinimumRange)
             continue;
 
-//        rangeMat.at<float>(rowIdn, columnIdn) = range;
-
-//        thisPoint.intensity = (float)rowIdn + (float)columnIdn / 10000.0;
-
         index = columnIdn  + rowIdn * Horizon_SCAN;
         fullCloud_->points[index] = thisPoint;
     }
@@ -198,10 +210,15 @@ bool PCLROSMessageManager::checkGround(const pcl::PointCloud<pcl::PointXYZ>::Ptr
             diffX = fullCloud_->points[upperInd].x - fullCloud_->points[lowerInd].x;
             diffY = fullCloud_->points[upperInd].y - fullCloud_->points[lowerInd].y;
             diffZ = fullCloud_->points[upperInd].z - fullCloud_->points[lowerInd].z;
+//            cout << "diffx = " << diffX << endl;
+            if (isnan(diffX) || isnan(diffY) || isnan(diffZ)) {
+                groundMat.at<int8_t>(i,j) = -1;
+                continue;
+            }
 
             angle = atan2(diffZ, sqrt(diffX*diffX + diffY*diffY) ) * 180 / M_PI;
 
-            if (abs(angle - sensorMountAngle) <= 10){
+            if (abs(angle - sensorMountAngle) <= 15){
                 groundMat.at<int8_t>(i,j) = 1;
                 groundMat.at<int8_t>(i+1,j) = 1;
             }
@@ -212,19 +229,22 @@ bool PCLROSMessageManager::checkGround(const pcl::PointCloud<pcl::PointXYZ>::Ptr
     // note that ground remove is from 0~N_SCAN-1, need rangeMat for mark label matrix for the 16th scan
     for (size_t i = 0; i < N_SCAN; ++i){
         for (size_t j = 0; j < Horizon_SCAN; ++j){
-            if (groundMat.at<int8_t>(i,j) == 1 /*|| rangeMat.at<float>(i,j) == FLT_MAX*/){
+            if (groundMat.at<int8_t>(i,j) == -1 || isnan(fullCloud_->points[j + i * Horizon_SCAN].x) ||
+                isnan(fullCloud_->points[j + i * Horizon_SCAN].y) || isnan(fullCloud_->points[j + i * Horizon_SCAN].z)) {
                 continue;
             }
-            output_cloud->points.push_back(fullCloud_->points[j + i*Horizon_SCAN]);
-        }
-    }
-
-    for (size_t i = 0; i <= groundScanInd; ++i){
-        for (size_t j = 0; j < Horizon_SCAN; ++j){
-            if (groundMat.at<int8_t>(i,j) == 1)
+            if (groundMat.at<int8_t>(i,j) == 1 /*|| rangeMat.at<float>(i,j) == FLT_MAX*/){
                 groundCloud_->push_back(fullCloud_->points[j + i*Horizon_SCAN]);
+                continue;
+            }
+            chlog::info("pcl", "points = " , fullCloud_->points[j + i * Horizon_SCAN].x ,
+                        ", " , fullCloud_->points[j + i * Horizon_SCAN].y, ", ",
+                        fullCloud_->points[j + i * Horizon_SCAN].z);
+            output_cloud->points.push_back(fullCloud_->points[j + i * Horizon_SCAN]);
         }
     }
+    PubPointCloud(groundCloud_, ground_removal_pub_);
+
 }
 
 void PCLROSMessageManager::groundRemove(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud,
@@ -249,7 +269,7 @@ void PCLROSMessageManager::groundRemove(const pcl::PointCloud<pcl::PointXYZ>::Pt
     extract.setIndices (inliers);
     extract.setNegative (true);
     extract.filter (*output_cloud);
-    chlog::info("data","input_cloud size = ", input_cloud->points.size(),
+    chlog::info("pcl","input_cloud size = ", input_cloud->points.size(),
             ", output cloud size = ", output_cloud->points.size(),
             ", cloud_filtered_indices size = ", cloud_filtered_indices->size());
 }
@@ -276,7 +296,7 @@ void PCLROSMessageManager::PubOctomap(octomap::OcTree *tree, const ros::Publishe
 }
 
 void PCLROSMessageManager::getOctomap(octomap_msgs::Octomap &octomap) {
-    chlog::info("data", "update octomap!");
+    chlog::info("pcl", "update octomap!");
     octomap = octomap_;
 }
 
@@ -308,11 +328,14 @@ Eigen::Isometry3f PCLROSMessageManager::get_transformation_matrix() {
 
 int main(int argc, char** argv) {
     ros::init(argc, argv, "pcl_points");
+    chlog::initChannel("pcl");
+    chlog::setEnCout("pcl", false);
+
     PCLROSMessageManager pclM;
     ros::NodeHandle nh("~");
     pclM.OnInit(nh);
 
-    ros::MultiThreadedSpinner spinner(3);
+    ros::MultiThreadedSpinner spinner(5);
     spinner.spin();
     return 0;
 }

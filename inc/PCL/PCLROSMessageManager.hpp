@@ -34,6 +34,7 @@
 // extern const float ang_bottom = 15.0+0.1;
 // extern const int groundScanInd = 7;
 
+typedef pcl::PointXYZ  PointType;
 // HDL-32E
 extern const int N_SCAN = 32;
 extern const int Horizon_SCAN = 1800;
@@ -73,9 +74,10 @@ private:
     double danger_distance_;
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr fullCloud_; // projected velodyne raw cloud, but saved in the form of 1-D matrix
+    pcl::PointCloud<PointType>::Ptr fullCloud_; // projected velodyne raw cloud, but saved in the form of 1-D matrix
     cv::Mat groundMat; // ground matrix for ground cloud marking
-    pcl::PointCloud<pcl::PointXYZ>::Ptr groundCloud_;
+    pcl::PointCloud<PointType>::Ptr groundCloud_;
+    PointType nanPoint;
 
 
     void PubOctomap(octomap::OcTree *tree, const ros::Publisher &pub);
@@ -94,6 +96,8 @@ private:
                        string frame = "map");
     void local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &msg);
 
+    void allocateMemory();
+    void resetParameters();
     void projectPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud);
     bool checkGround(const pcl::PointCloud<pcl::PointXYZ>::Ptr &output_cloud);
 };
