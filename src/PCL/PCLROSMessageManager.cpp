@@ -58,6 +58,9 @@ void PCLROSMessageManager::local_pos_cb(const geometry_msgs::PoseStamped::ConstP
 //    EulerAngles angles;
 //    yaw = Calculate::getInstance()->quaternion_get_yaw(usv_.current_local_pos.pose.orientation, angles);
     Calculate::getInstance()->quaternion_to_rpy(usv_.current_local_pos.pose.orientation, roll, pitch, yaw);
+    usv_.yaw = yaw;
+    usv_.roll = roll;
+    usv_.pitch = pitch;
 }
 
 void PCLROSMessageManager::setVehicleMessage(const M_Drone& usv) {
@@ -86,7 +89,7 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
     if (!is_sim_)  voselGrid(raw_cloud_ptr, raw_cloud_ptr);
 
     voselGride_ptr->points.clear();
-    if (0) {
+    if (is_sim_) {
         for (std::size_t i = 0; i < raw_cloud_ptr->size(); i++) {
             pcl::PointXYZ pnt = raw_cloud_ptr->points[i];
             TVec3 point = TVec3{pnt.x, pnt.y, pnt.z};
@@ -94,15 +97,15 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
             if (point.norm() < 1) continue;
             voselGride_ptr->points.push_back(pnt);
         }
+        cout << " voselGride_ptr size = " << voselGride_ptr->points.size() << endl;
+        radiusRemoval(voselGride_ptr, simple_cloud_ptr, 0.5, 3, cloud_filtered_indices);
+        groundRemove(simple_cloud_ptr, cloud_ground_remove, cloud_filtered_indices);
     } else {
         projectPointCloud(raw_cloud_ptr);
         checkGround(voselGride_ptr);
+        radiusRemoval(voselGride_ptr, cloud_ground_remove, 0.5, 3, cloud_filtered_indices);
     }
 
-    cout << "voselGride_ptr size = " << voselGride_ptr->size() << endl;
-    if (is_sim_) voselGride_ptr = raw_cloud_ptr;
-    radiusRemoval(voselGride_ptr, simple_cloud_ptr, 0.5, 3, cloud_filtered_indices);
-    groundRemove(simple_cloud_ptr, cloud_ground_remove, cloud_filtered_indices);
     /*transform point cloud*/
     pcl::transformPointCloud(*cloud_ground_remove, *transformed_cloud, get_transformation_matrix().matrix());
 
@@ -160,7 +163,6 @@ void PCLROSMessageManager::projectPointCloud(const pcl::PointCloud<pcl::PointXYZ
     PointType thisPoint;
 
     cloudSize = input_cloud->points.size();
-    cout << "input size = " << cloudSize << endl;
 
     for (size_t i = 0; i < cloudSize; ++i){
 
@@ -305,12 +307,12 @@ Eigen::Isometry3f PCLROSMessageManager::get_transformation_matrix() {
     transformation_matrix = Eigen::Isometry3f::Identity();
     Eigen::AngleAxisf gimbal_yaw;
     if (!is_sim_) {
-        gimbal_yaw = Eigen::AngleAxisf(((usv_.yaw + 180.0f) * M_PI / 180.0f ), Eigen::Vector3f::UnitZ());
+        gimbal_yaw = Eigen::AngleAxisf((usv_.yaw ), Eigen::Vector3f::UnitZ());
     } else {
-        gimbal_yaw = Eigen::AngleAxisf(((usv_.yaw ) * M_PI / 180.0f ), Eigen::Vector3f::UnitZ());
+        gimbal_yaw = Eigen::AngleAxisf((usv_.yaw ), Eigen::Vector3f::UnitZ());
     }
-    Eigen::AngleAxisf gimbal_pitch(0 * M_PI / 180.0f, Eigen::Vector3f::UnitY());
-    Eigen::AngleAxisf gimbal_roll(0 * M_PI / 180.0f, Eigen::Vector3f::UnitX());
+    Eigen::AngleAxisf gimbal_pitch(0 , Eigen::Vector3f::UnitY());
+    Eigen::AngleAxisf gimbal_roll(0 , Eigen::Vector3f::UnitX());
     Eigen::Matrix3f vehicle_world;
     vehicle_world = gimbal_yaw * gimbal_pitch * gimbal_roll;
 
