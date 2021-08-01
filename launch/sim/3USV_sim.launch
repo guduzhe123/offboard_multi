@@ -5,7 +5,7 @@
 
     <arg name="formation_distance" value="15" />
     <arg name="point_num" value="6" />
-    <arg name="danger_distance" value="3" />
+    <arg name="danger_distance" value="8" />
     <arg name="is_motion_plan" value="false" />
     <arg name="is_usv" value="true" />
     <arg name="is_uav" value="false" />

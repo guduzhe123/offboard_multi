@@ -89,7 +89,7 @@ void PCLROSMessageManager::cloudHandler(const sensor_msgs::PointCloud2::ConstPtr
     if (!is_sim_)  voselGrid(raw_cloud_ptr, raw_cloud_ptr);
 
     voselGride_ptr->points.clear();
-    if (is_sim_) {
+    if (0) {
         for (std::size_t i = 0; i < raw_cloud_ptr->size(); i++) {
             pcl::PointXYZ pnt = raw_cloud_ptr->points[i];
             TVec3 point = TVec3{pnt.x, pnt.y, pnt.z};
@@ -220,7 +220,7 @@ bool PCLROSMessageManager::checkGround(const pcl::PointCloud<pcl::PointXYZ>::Ptr
 
             angle = atan2(diffZ, sqrt(diffX*diffX + diffY*diffY) ) * 180 / M_PI;
 
-            if (abs(angle - sensorMountAngle) <= 15){
+            if (abs(angle - sensorMountAngle) <= 10){
                 groundMat.at<int8_t>(i,j) = 1;
                 groundMat.at<int8_t>(i+1,j) = 1;
             }

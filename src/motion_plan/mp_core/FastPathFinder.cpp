@@ -171,6 +171,14 @@ namespace fast_planner {
             {
                 chlog::info(mp_config_.log_path,  "no global waypoints!");
                 return false;
+            } else {
+                for (auto point : points) {
+                    float way_len = (start_pos - point.cast<float>()).norm();
+                    if (way_len > 10000) {
+                        chlog::info(mp_config_.log_path,  "Bad global waypoints, Check GPS!");
+                        return false;
+                    }
+                }
             }
 
             points.insert(points.begin(), start_pos.cast<double>());
