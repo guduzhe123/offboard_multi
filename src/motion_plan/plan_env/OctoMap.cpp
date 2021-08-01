@@ -34,8 +34,8 @@ void OctoMap::setSafeRaduis(const float &raduis) {
 bool OctoMap::isStateValid(const Eigen::Vector3f &PosENU, bool planning)
 {
     // cast the abstract state type to the type we expect
-    float radius = planning ? safety_radius_ + 1 : safety_radius_;
-    Quadcopter_ = std::shared_ptr<fcl::CollisionGeometry>(new fcl::Sphere(radius));
+//    float radius = planning ? safety_radius_ + 1 : safety_radius_;
+    Quadcopter_ = std::shared_ptr<fcl::CollisionGeometry>(new fcl::Sphere(safety_radius_));
     fcl::CollisionObject treeObj((tree_obj_));
     fcl::CollisionObject aircraftObject(Quadcopter_);
 

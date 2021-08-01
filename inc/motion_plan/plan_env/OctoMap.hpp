@@ -43,5 +43,6 @@ private:
     float safety_radius_;
     std::shared_ptr<fcl::CollisionGeometry> Quadcopter_;
     std::shared_ptr<fcl::CollisionGeometry> tree_obj_;
+    std::shared_ptr<fcl::CollisionObject> aircraftObject;
 };
 #endif //OFFBOARD_OCTOMAP_HPP

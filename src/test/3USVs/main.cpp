@@ -43,21 +43,20 @@ int main(int argc, char **argv)
     PathCreator::geInstance()->onInit(lead_node, true);
     PathCreator::geInstance()->initMotionPlan();
 
-    ros::Rate rate(50.0);
+/*    ros::Rate rate(50.0);
     while(ros::ok()){
-        FlightManager::getInstance()->GetData();
-        FlightManager::getInstance()->DoProgress();
-        lead_node->getData();   //achieve data
-        lead_node->doProgress();    //progress
+//        FlightManager::getInstance()->GetData();
+//        FlightManager::getInstance()->DoProgress();
 
-        DataMan::getInstance()->PrintData();
+//        DataMan::getInstance()->PrintData();
         ros::spinOnce();
         rate.sleep();
-    }
+    }*/
+//    ros::spin();
 
 
-        // ros::MultiThreadedSpinner spinner(3);
-        // spinner.spin();
+     ros::MultiThreadedSpinner spinner(6);
+     spinner.spin();
 
     return 0;
 

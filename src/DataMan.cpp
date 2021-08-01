@@ -20,6 +20,13 @@ void DataMan::OnInit(IMsgRosManager *msg_ros, bool is_uav, bool is_usv) {
     is_usv_ = is_usv;
 }
 
+void DataMan::SetUSV1CallBack() {
+    if(callback_) {
+        callback_->OnFlightDataUpdate(FDATA_DRONE);
+        chlog::info("data", "received usv1 data! call back");
+    }
+}
+
 void DataMan::SetDroneData(const M_Drone &mDrone) {
     {
         boost::unique_lock<boost::mutex> lock(m_mutex);
@@ -46,6 +53,7 @@ void DataMan::SetDroneData(const M_Drone &mDrone) {
             case USV1: {
                 multi_vehicle_.usv1 = mDrone;
                 multi_vehicle_.leader_usv.waypointList = multi_vehicle_.usv1.waypointList;
+                chlog::info("data", "received usv1 data!");
             }
                 break;
             case USV2: {

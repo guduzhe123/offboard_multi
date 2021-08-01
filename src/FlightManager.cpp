@@ -29,17 +29,6 @@ void FlightManager::GetData() {
 
 void FlightManager::DoProgress() {
     // factory method
-/*    if (m_multi_vehicle_.leader_uav.current_state.armed || m_multi_vehicle_.usv1.current_state.armed) {
-        auto ifactory_tor = m_control_function_vector_.begin();
-        auto factory_end = m_control_function_vector_.end();
-        for ( ; ifactory_tor != factory_end; ifactory_tor++) {
-            if ((*ifactory_tor) != nullptr) {
-                (*ifactory_tor)->GetData();
-                (*ifactory_tor)->DoProgress();
-            }
-        }
-    }*/
-
     auto ifactory_tor = m_control_function_vector_.begin();
     auto factory_end = m_control_function_vector_.end();
     for ( ; ifactory_tor != factory_end; ifactory_tor++) {
@@ -82,12 +71,6 @@ void FlightManager::OnFlightDataUpdate(FDATA_TYPE data_type) {
     if (data_type == FDATA_DRONE_TARGTE) {
         if (drone_avodiance_update_) {
             GetData();
-//            chlog::info("data","uav targte .z = %.2f", m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z);
-/*            chlog::info("data",
-                    "height_avoidance_uav1_ = %.2f, height_avoidance_uav2_ = %.2f, height_avoidance_uav3_ = %.2f, height_avoidance_uav4_ = %.2f",
-                    m_multi_vehicle_.uav1.avoidance_pos.z(), m_multi_vehicle_.uav2.avoidance_pos.z(),
-                    m_multi_vehicle_.uav3.avoidance_pos.z(), m_multi_vehicle_.uav4.avoidance_pos.z());*/
-
             if (!isnan(m_multi_vehicle_.uav1.avoidance_pos.z()) && !isnan(m_multi_vehicle_.uav2.avoidance_pos.z()) &&
                 !isnan(m_multi_vehicle_.uav3.avoidance_pos.z()) && !isnan(m_multi_vehicle_.uav4.avoidance_pos.z())) {
                 m_multi_vehicle_.uav1.target_local_pos_sp.pose.position.z += m_multi_vehicle_.uav1.avoidance_pos.z();
@@ -110,6 +93,14 @@ void FlightManager::OnFlightDataUpdate(FDATA_TYPE data_type) {
 
     if(data_type == FDATA_RVIZ_GOAL) {
 
+    }
+
+    if (data_type == FDATA_DRONE) {
+        chlog::info("data", "receive usv1 data, begin progress!");
+        GetData();
+        DoProgress();
+
+        DataMan::getInstance()->PrintData();
     }
 }
 

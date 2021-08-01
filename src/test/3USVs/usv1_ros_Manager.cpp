@@ -74,9 +74,9 @@ void usv1_ros_Manager::usvOnInit(ros::NodeHandle &nh, const bool is_sim) {
             ("mavros/cmd/arming");
     set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
             ("mavros/set_mode");
-    exec_timer_ = nh.createTimer(ros::Duration(0.05), &usv1_ros_Manager::drone_pos_update, this);
-    commander_timer_ = nh.createTimer(ros::Duration(0.05), &usv1_ros_Manager::commander_update, this);
-    publish_timer_ = nh.createTimer(ros::Duration(0.05), &usv1_ros_Manager::publishDronePosControl, this);
+    exec_timer_ = nh.createTimer(ros::Duration(0.01), &usv1_ros_Manager::drone_pos_update, this);
+    commander_timer_ = nh.createTimer(ros::Duration(0.01), &usv1_ros_Manager::commander_update, this);
+    publish_timer_ = nh.createTimer(ros::Duration(0.01), &usv1_ros_Manager::publishDronePosControl, this);
 
     double radius;
     nh.param("/danger_distance", radius, 3.0);
@@ -123,6 +123,8 @@ void usv1_ros_Manager::local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr &
     dronepos_.m_heading = usv_.yaw;
     usv_.roll = dronepos_.m_roll;
     usv_.pitch = dronepos_.m_pitch;
+
+    DataMan::getInstance()->SetUSV1CallBack();
 }
 
 void usv1_ros_Manager::velocity_cb(const geometry_msgs::TwistStamped::ConstPtr& msg) {

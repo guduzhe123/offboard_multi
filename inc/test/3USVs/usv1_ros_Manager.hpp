@@ -78,6 +78,8 @@ private:
     TVec3 goal_;
 
     TVec4 usv1_color_ = TVec4{1, 0.1, 1, 1};
+
+    IFlightDataCallback *callback_;
 };
 
 

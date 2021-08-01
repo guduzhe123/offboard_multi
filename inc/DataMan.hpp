@@ -81,6 +81,8 @@ public:
 
     void setOctomap(const octomap_msgs::Octomap &octmsg);
 
+    void SetUSV1CallBack();
+
     multi_vehicle &GetData();
 
 private:

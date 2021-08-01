@@ -105,11 +105,11 @@ void PathCreator::usv_add_way_points(vector<geometry_msgs::PoseStamped> &usv_way
 void PathCreator::CreatFunction() {
     MultiUAVFormationFactory UAVFormationFactory;
     MultiUSVFormationFactory USVFormationFactory;
-    AvoidanceFactory avoidanceFactory;
+//    AvoidanceFactory avoidanceFactory;
     USVAvoidanceFactory usv_avo_factory;
 
 
-    FlightManager::getInstance()->AddFunctionProgress(&avoidanceFactory);
+//    FlightManager::getInstance()->AddFunctionProgress(&avoidanceFactory);
     FlightManager::getInstance()->AddFunctionProgress(&usv_avo_factory);
     FlightManager::getInstance()->AddFunctionProgress(&UAVFormationFactory);
     FlightManager::getInstance()->AddFunctionProgress(&USVFormationFactory);
